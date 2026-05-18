@@ -22,6 +22,12 @@ type SignupReferralCodeStatus =
 type SignupReferralCodeValidationResult =
   | SignupReferralCodeStatus
   | "unavailable";
+type SignupResponseData = {
+  session: unknown;
+  user: {
+    identities?: unknown[] | null;
+  } | null;
+};
 
 export async function validateSignupReferralCode(
   supabase: SupabaseClient,
@@ -129,6 +135,15 @@ export function formatAuthError(
   }
 
   return t("serviceUnavailable");
+}
+
+export function isRegisteredEmailSignupResult(data: SignupResponseData) {
+  return (
+    data.session === null &&
+    data.user !== null &&
+    Array.isArray(data.user.identities) &&
+    data.user.identities.length === 0
+  );
 }
 
 function normalizeSignupReferralCodeStatus(

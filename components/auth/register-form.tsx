@@ -28,6 +28,7 @@ import { getPasswordPolicyState } from "./auth-password-policy";
 import {
   formatAuthError,
   formatReferralCodeStatus,
+  isRegisteredEmailSignupResult,
   validateSignupReferralCode,
 } from "./register-form-validation";
 
@@ -110,6 +111,11 @@ export function RegisterForm({
 
       if (signUpError) {
         throw signUpError;
+      }
+
+      if (isRegisteredEmailSignupResult(data)) {
+        setError(t("userExists"));
+        return;
       }
 
       if (data.session?.user) {
