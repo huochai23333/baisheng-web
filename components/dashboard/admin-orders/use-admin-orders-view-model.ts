@@ -57,13 +57,13 @@ export function useAdminOrdersViewModel({
     currentViewerStatus,
     matchedOrdersCount,
     orderDiscountOptions,
+    orderCurrencyRates,
     orderTypeOptions,
     orders,
     pagination,
     purchaseOrderTypeOptions,
     serviceOrderTypeOptions,
     summary,
-    todayExchangeRates,
     totalOrdersCount,
     userOptions,
   } = initialData;
@@ -143,7 +143,7 @@ export function useAdminOrdersViewModel({
     sharedCopy,
     supabase,
     t,
-    todayExchangeRates,
+    orderCurrencyRates,
   });
 
   const editDialogState = useAdminOrderEditDialog({
@@ -217,7 +217,7 @@ export function useAdminOrdersViewModel({
     serviceOrderTypeOptions,
     summary,
     supabase,
-    todayExchangeRates,
+    orderCurrencyRates,
     totalOrdersCount,
     updateCreateFormField: createDialogState.updateCreateFormField,
     updateEditFormField: editDialogState.updateEditFormField,

@@ -147,13 +147,13 @@ export type AdminOrdersPageData = {
   orders: AdminOrderRow[];
   pagination: DashboardPaginationState;
   purchaseOrderTypeOptions: PurchaseOrderTypeOption[];
+  orderCurrencyRates: ExchangeRateRow[];
   serviceOrderTypeOptions: ServiceOrderTypeOption[];
   summary: {
     completed: number;
     pending: number;
     total: number;
   };
-  todayExchangeRates: ExchangeRateRow[];
   totalOrdersCount: number;
   userOptions: OrderUserOption[];
 };

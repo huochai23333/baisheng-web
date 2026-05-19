@@ -27,9 +27,7 @@ import {
   getDashboardPaginationState,
   getDashboardQueryRangeForPage,
 } from "./dashboard-pagination";
-import {
-  getTodayCnyExchangeRates,
-} from "./exchange-rates";
+import { getLatestCnyExchangeRates } from "./exchange-rates";
 import {
   normalizeOptionalString,
   normalizePositiveInteger,
@@ -114,14 +112,14 @@ export async function getAdminOrdersPageData(
     purchaseOrderTypeOptions,
     serviceOrderTypeOptions,
     orderDiscountOptions,
-    todayExchangeRates,
+    orderCurrencyRates,
   ] = await Promise.all([
     getOrderUserOptions(supabase),
     getOrderTypeOptions(supabase),
     getPurchaseOrderTypeOptions(supabase),
     getServiceOrderTypeOptions(supabase),
     getOrderDiscountTypeOptions(supabase),
-    getTodayCnyExchangeRates(supabase),
+    getLatestCnyExchangeRates(supabase),
   ]);
   const orderTypeOptions = filterOrderTypeOptionsForBusinessScope(
     allOrderTypeOptions,
@@ -152,7 +150,7 @@ export async function getAdminOrdersPageData(
         pending: 0,
         total: 0,
       },
-      todayExchangeRates,
+      orderCurrencyRates,
       totalOrdersCount: 0,
       userOptions,
     };
@@ -226,7 +224,7 @@ export async function getAdminOrdersPageData(
         pending: pendingOrdersCount,
         total: totalOrdersCount,
       },
-      todayExchangeRates,
+      orderCurrencyRates,
       totalOrdersCount,
       userOptions,
     };
@@ -263,7 +261,7 @@ export async function getAdminOrdersPageData(
       pending: pendingOrdersCount,
       total: totalOrdersCount,
     },
-    todayExchangeRates,
+    orderCurrencyRates,
     totalOrdersCount,
     userOptions,
   };
@@ -296,7 +294,7 @@ function createEmptyAdminOrdersPageData(options: {
       pending: 0,
       total: 0,
     },
-    todayExchangeRates: [],
+    orderCurrencyRates: [],
     totalOrdersCount: 0,
     userOptions: [],
   };

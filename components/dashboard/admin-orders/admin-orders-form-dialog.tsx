@@ -24,9 +24,12 @@ import {
   formatServiceOrderSubtype,
   getOrderTypeMetaFromCategory,
   getOrderUserOptionLabel,
+  type OrderCurrencyOption,
   type OrderFormState,
 } from "./admin-orders-utils";
 import { isPurchaseDetailsCategory } from "./admin-orders-form";
+import { OrderCurrencyRateFields } from "./admin-orders-currency-fields";
+import { getOrderStatusOptions } from "./admin-orders-status-options";
 import {
   fieldInputClassName,
   OrderField,
@@ -35,17 +38,6 @@ import {
 import { OrderDetailPairsInput } from "./admin-orders-detail-pairs-input";
 import { type PageFeedback } from "./admin-orders-view-model-shared";
 
-function getOrderStatusOptions(t: ReturnType<typeof useTranslations>) {
-  return [
-    { value: "pending", label: t("status.pending") },
-    { value: "in_progress", label: t("status.inProgress") },
-    { value: "settled", label: t("status.settled") },
-    { value: "completed", label: t("status.completed") },
-    { value: "cancelled", label: t("status.cancelled") },
-    { value: "refunding", label: t("status.refunding") },
-  ] as const;
-}
-
 export function OrderFormDialog({
   mode,
   title,
@@ -53,6 +45,7 @@ export function OrderFormDialog({
   submitLabel,
   showCostField,
   feedback,
+  currencyOptions,
   open,
   pending,
   formState,
@@ -77,6 +70,7 @@ export function OrderFormDialog({
   submitLabel: string;
   showCostField: boolean;
   feedback?: PageFeedback;
+  currencyOptions: OrderCurrencyOption[];
   open: boolean;
   pending: boolean;
   formState: OrderFormState;
@@ -153,21 +147,15 @@ export function OrderFormDialog({
         {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
 
         <div className="grid gap-5 md:grid-cols-2">
-          <OrderField label={t("fields.originalCurrency")} required>
-            <input
-              className={fieldInputClassName}
-              disabled={isFormBusy || lockCurrencyField}
-              onChange={(event) => onFieldChange("originalCurrency", event.target.value)}
-              placeholder={t("placeholders.originalCurrency")}
-              type="text"
-              value={formState.originalCurrency}
-            />
-            {lockCurrencyField ? (
-              <p className="mt-2 text-xs text-[#7b8790]">
-                {t("hints.lockedCurrencyAndRates")}
-              </p>
-            ) : null}
-          </OrderField>
+          <OrderCurrencyRateFields
+            currencyOptions={currencyOptions}
+            formState={formState}
+            isFormBusy={isFormBusy}
+            lockCurrencyField={lockCurrencyField}
+            lockExchangeRateFields={lockExchangeRateFields}
+            mode={mode}
+            onFieldChange={onFieldChange}
+          />
 
           <OrderField label={t("fields.amount")} required>
             <input
@@ -180,43 +168,6 @@ export function OrderFormDialog({
               type="number"
               value={formState.amount}
             />
-          </OrderField>
-
-          <OrderField label={t("fields.dailyExchangeRate")} required>
-            <input
-              className={fieldInputClassName}
-              disabled={isFormBusy || lockExchangeRateFields}
-              min="0"
-              onChange={(event) => onFieldChange("dailyExchangeRate", event.target.value)}
-              placeholder={t("placeholders.dailyExchangeRate")}
-              readOnly={lockExchangeRateFields}
-              step="0.0001"
-              type="number"
-              value={formState.dailyExchangeRate}
-            />
-            {lockExchangeRateFields ? (
-              <p className="mt-2 text-xs text-[#7b8790]">
-                {t(
-                  mode === "create"
-                    ? "hints.autoDailyExchangeRate"
-                    : "hints.lockedCurrencyAndRates",
-                )}
-              </p>
-            ) : null}
-          </OrderField>
-
-          <OrderField label={t("fields.transactionRate")} required>
-            <input
-              className={fieldInputClassName}
-              disabled={isFormBusy || lockExchangeRateFields}
-              min="0"
-              placeholder={t("placeholders.transactionRate")}
-              readOnly
-              step="0.000001"
-              type="number"
-              value={formState.transactionRate}
-            />
-            <p className="mt-2 text-xs text-[#7b8790]">{t("hints.transactionRate")}</p>
           </OrderField>
 
           <OrderField label={t("fields.rmbAmount")} required>

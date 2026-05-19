@@ -16,19 +16,9 @@ import {
   getOrderTypeMetaFromCategory,
   getStatusLabel,
 } from "./admin-orders-utils";
+import { getOrderStatusOptions } from "./admin-orders-status-options";
 import { OrderDetailsDialog } from "./admin-orders-details-dialog";
 import { OrderFormDialog } from "./admin-orders-form-dialog";
-
-function getOrderStatusOptions(t: ReturnType<typeof useTranslations>) {
-  return [
-    { value: "pending", label: t("status.pending") },
-    { value: "in_progress", label: t("status.inProgress") },
-    { value: "settled", label: t("status.settled") },
-    { value: "completed", label: t("status.completed") },
-    { value: "cancelled", label: t("status.cancelled") },
-    { value: "refunding", label: t("status.refunding") },
-  ] as const;
-}
 
 function OrdersLoadingState() {
   const t = useTranslations("OrdersUI");

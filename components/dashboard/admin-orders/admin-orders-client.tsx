@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useOptimistic, useTransition } from "react";
+import { useCallback, useMemo, useOptimistic, useTransition } from "react";
 
 import { ReceiptText, ShieldAlert } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -25,6 +25,7 @@ import {
   OrderDetailsDialog,
   OrderFormDialog,
 } from "./admin-orders-ui";
+import { buildOrderCurrencyOptions } from "./admin-orders-utils";
 import { useAdminOrdersViewModel } from "./use-admin-orders-view-model";
 
 export function AdminOrdersClient({
@@ -50,6 +51,14 @@ export function AdminOrdersClient({
   const [activeTab, setOptimisticActiveTab] = useOptimistic(
     routeActiveTab,
     (_currentTab, nextTab: AdminOrdersTab) => nextTab,
+  );
+  const orderCurrencyOptions = useMemo(
+    () =>
+      buildOrderCurrencyOptions(
+        viewModel.orderCurrencyRates,
+        initialExchangeRatesData?.syncState?.pairs ?? [],
+      ),
+    [initialExchangeRatesData?.syncState?.pairs, viewModel.orderCurrencyRates],
   );
 
   const handleTabChange = useCallback(
@@ -161,6 +170,7 @@ export function AdminOrdersClient({
       )}
 
       <OrderFormDialog
+        currencyOptions={orderCurrencyOptions}
         description={viewModel.viewConfig.createDescription}
         feedback={viewModel.createDialogFeedback}
         formState={viewModel.createFormState}
@@ -185,6 +195,7 @@ export function AdminOrdersClient({
       />
 
       <OrderFormDialog
+        currencyOptions={orderCurrencyOptions}
         description={t("dialogs.editDescription")}
         feedback={viewModel.editDialogFeedback}
         formState={viewModel.editFormState}

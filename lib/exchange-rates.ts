@@ -204,6 +204,42 @@ export async function getTodayCnyExchangeRates(
   return data ?? [];
 }
 
+export async function getLatestCnyExchangeRates(
+  supabase: SupabaseClient,
+  limit = MAX_DASHBOARD_QUERY_ROWS,
+): Promise<ExchangeRateRow[]> {
+  const { from, to } = getDashboardQueryRange(limit);
+  const { data, error } = await withRequestTimeout(
+    supabase
+      .from("exchange_rate")
+      .select(EXCHANGE_RATE_SELECT)
+      .eq("target_currency", "CNY")
+      .order("fetched_at", { ascending: false, nullsFirst: false })
+      .order("provider_updated_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .range(from, to)
+      .returns<ExchangeRateRow[]>(),
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  const latestRows = new Map<string, ExchangeRateRow>();
+
+  for (const row of sortExchangeRateRows(data ?? [])) {
+    const currency = normalizeCurrencyCode(row.original_currency);
+
+    if (!currency || latestRows.has(currency)) {
+      continue;
+    }
+
+    latestRows.set(currency, row);
+  }
+
+  return Array.from(latestRows.values());
+}
+
 export async function getExchangeRateSyncState(
   supabase: SupabaseClient,
 ): Promise<ExchangeRateSyncState> {
@@ -505,6 +541,34 @@ export function findTodayCnyExchangeRate(
       normalizeCurrencyCode(row.original_currency) === normalizedBaseCurrency &&
       normalizeCurrencyCode(row.target_currency) === "CNY" &&
       row.rate_date === today,
+  ) ?? null;
+}
+
+export function findLatestCnyExchangeRate(
+  rows: ExchangeRateRow[],
+  baseCurrency: string,
+) {
+  const normalizedBaseCurrency = normalizeCurrencyCode(baseCurrency);
+  const today = getBeijingDateString();
+
+  if (normalizedBaseCurrency === "CNY") {
+    return {
+      id: "cny-cny-latest",
+      original_currency: "CNY",
+      target_currency: "CNY",
+      daily_exchange_rate: 1,
+      created_at: null,
+      rate_date: today,
+      source: "system",
+      fetched_at: null,
+      provider_updated_at: null,
+    } satisfies ExchangeRateRow;
+  }
+
+  return sortExchangeRateRows(rows).find(
+    (row) =>
+      normalizeCurrencyCode(row.original_currency) === normalizedBaseCurrency &&
+      normalizeCurrencyCode(row.target_currency) === "CNY",
   ) ?? null;
 }
 

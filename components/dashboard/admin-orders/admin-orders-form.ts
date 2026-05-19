@@ -1,22 +1,23 @@
 import {
-  type AdminOrderDetailValue,
   type AdminOrderRow,
   type AdminOrderSupplementaryDetail,
   type CreateAdminOrderInput,
 } from "@/lib/admin-orders";
-import {
-  findTodayCnyExchangeRate,
-  type ExchangeRateRow,
-} from "@/lib/exchange-rates";
 
 import { normalizeOptionalString } from "../dashboard-shared-ui";
 
 import { type OrdersUiCopy } from "./admin-orders-copy";
+import { deriveTransactionRateValue } from "./admin-orders-currency";
 import {
   formatCurrencyCode,
   formatEditableNumericValue,
-  parseNumericValue,
 } from "./admin-orders-display";
+import {
+  parseFlexibleOrderDetails,
+  parseOptionalNumber,
+  parseRequiredNumber,
+  stringifyOrderDetailsForTextarea,
+} from "./admin-orders-form-parsing";
 
 export type OrderFormState = {
   originalCurrency: string;
@@ -42,7 +43,7 @@ export function createOrderFormState(defaults?: {
   orderType?: string;
 }): OrderFormState {
   return {
-    originalCurrency: defaults?.originalCurrency ?? "USD",
+    originalCurrency: defaults?.originalCurrency ?? "",
     amount: "",
     dailyExchangeRate: "",
     transactionRate: "",
@@ -106,36 +107,6 @@ export function applyOrderFormDefaults(
     orderEntryUser: formState.orderEntryUser || defaults.orderEntryUser,
     orderType: formState.orderType || defaults.orderType,
   };
-}
-
-export function applyTodayExchangeRateToOrderForm(
-  formState: OrderFormState,
-  todayExchangeRates: ExchangeRateRow[],
-) {
-  const rate = findTodayCnyExchangeRate(
-    todayExchangeRates,
-    formState.originalCurrency,
-  );
-  const dailyExchangeRate = formatEditableNumericValue(rate?.daily_exchange_rate);
-
-  return {
-    ...formState,
-    dailyExchangeRate,
-    transactionRate: deriveTransactionRateValue(dailyExchangeRate),
-  };
-}
-
-export function deriveTransactionRateValue(
-  value: number | string | null | undefined,
-) {
-  const parsed = parseNumericValue(value);
-
-  if (parsed === null) {
-    return "";
-  }
-
-  const derived = (parsed * 0.99).toFixed(6);
-  return derived.replace(/\.?0+$/, "");
 }
 
 export function parseCreateOrderForm(
@@ -246,7 +217,7 @@ function parseBaseOrderForm(
   if (!originalCurrency) {
     return {
       ok: false,
-      message: copy.validation.inputPrompt(copy.fields.originalCurrency),
+      message: copy.validation.selectPrompt(copy.fields.originalCurrency),
     };
   }
 
@@ -331,114 +302,4 @@ function parseBaseOrderForm(
 
 export function isPurchaseDetailsCategory(category: string | null | undefined) {
   return category === "purchase" || category === "dropshipping";
-}
-
-function stringifyOrderDetailsForTextarea(value: AdminOrderDetailValue) {
-  if (value === null) {
-    return "";
-  }
-
-  if (typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) {
-    return "";
-  }
-
-  if (Array.isArray(value) && value.length === 0) {
-    return "";
-  }
-
-  if (typeof value === "string") {
-    return value;
-  }
-
-  return JSON.stringify(value, null, 2);
-}
-
-function parseFlexibleOrderDetails(
-  value: string,
-  label: string,
-  copy: OrdersUiCopy,
-): AdminOrderDetailValue | string {
-  const normalized = value.trim();
-
-  if (!normalized) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(normalized) as AdminOrderDetailValue;
-  } catch {
-    const lines = normalized
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean);
-
-    const detailEntries = lines.map((line) => {
-      const chineseSeparatorIndex = line.indexOf("：");
-      const separatorIndex =
-        chineseSeparatorIndex >= 0 ? chineseSeparatorIndex : line.indexOf(":");
-
-      if (separatorIndex <= 0) {
-        return null;
-      }
-
-      const key = line.slice(0, separatorIndex).trim();
-      const rawValue = line.slice(separatorIndex + 1).trim();
-
-      if (!key || !rawValue) {
-        return null;
-      }
-
-      return [key, rawValue] as const;
-    });
-
-    if (detailEntries.some((entry) => entry === null)) {
-      return copy.validation.invalidDetails(label);
-    }
-
-    return Object.fromEntries(detailEntries as Array<readonly [string, string]>);
-  }
-}
-
-function parseRequiredNumber(
-  value: string,
-  label: string,
-  copy: OrdersUiCopy,
-) {
-  const normalized = value.trim();
-
-  if (!normalized) {
-    return copy.validation.inputPrompt(label);
-  }
-
-  const parsed = Number(normalized);
-
-  if (!Number.isFinite(parsed)) {
-    return copy.validation.invalidFormat(label);
-  }
-
-  return parsed;
-}
-
-function parseOptionalNumber(
-  value: string,
-  label: string,
-  copy: OrdersUiCopy,
-) {
-  const normalized = value.trim();
-
-  if (!normalized) {
-    return null;
-  }
-
-  const parsed = Number(normalized);
-
-  if (!Number.isFinite(parsed)) {
-    return copy.validation.invalidFormat(label);
-  }
-
-  if (parsed < 0) {
-    return copy.validation.minZero(label);
-  }
-
-  return parsed;
 }

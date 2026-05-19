@@ -1,21 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   type BusinessCategoryOption,
   createAdminOrder,
 } from "@/lib/admin-orders";
 import {
-  findTodayCnyExchangeRate,
+  findLatestCnyExchangeRate,
   type ExchangeRateRow,
 } from "@/lib/exchange-rates";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
 import {
   createOrderFormState,
-  applyTodayExchangeRateToOrderForm,
+  applyOrderExchangeRateToOrderForm,
   parseCreateOrderForm,
+  getDefaultOrderCurrency,
   type OrderFormState,
   type OrdersUiCopy,
 } from "./admin-orders-utils";
@@ -42,7 +43,7 @@ export function useAdminOrderCreateDialog({
   sharedCopy,
   supabase,
   t,
-  todayExchangeRates,
+  orderCurrencyRates,
 }: {
   canCreateOrders: boolean;
   canOpenCreateDialog: boolean;
@@ -55,7 +56,7 @@ export function useAdminOrderCreateDialog({
   sharedCopy: DashboardSharedCopy;
   supabase: ReturnType<typeof getBrowserSupabaseClient>;
   t: OrdersTranslator;
-  todayExchangeRates: ExchangeRateRow[];
+  orderCurrencyRates: ExchangeRateRow[];
 }) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createPending, setCreatePending] = useState(false);
@@ -64,6 +65,10 @@ export function useAdminOrderCreateDialog({
   const [createFormState, setCreateFormState] = useState<OrderFormState>(() =>
     createOrderFormState(),
   );
+  const defaultOriginalCurrency = useMemo(
+    () => getDefaultOrderCurrency(orderCurrencyRates),
+    [orderCurrencyRates],
+  );
 
   useEffect(() => {
     if (createDialogOpen) {
@@ -71,16 +76,23 @@ export function useAdminOrderCreateDialog({
     }
 
     setCreateFormState((current) =>
-      applyTodayExchangeRateToOrderForm(
+      applyOrderExchangeRateToOrderForm(
         {
           ...current,
+          originalCurrency: current.originalCurrency || defaultOriginalCurrency,
           orderEntryUser: current.orderEntryUser || (currentViewerId ?? ""),
           orderType: current.orderType || (orderTypeOptions[0]?.id ?? ""),
         },
-        todayExchangeRates,
+        orderCurrencyRates,
       ),
     );
-  }, [createDialogOpen, currentViewerId, orderTypeOptions, todayExchangeRates]);
+  }, [
+    createDialogOpen,
+    currentViewerId,
+    defaultOriginalCurrency,
+    orderTypeOptions,
+    orderCurrencyRates,
+  ]);
 
   const openCreateDialog = useCallback(() => {
     if (!canOpenCreateDialog) {
@@ -90,21 +102,23 @@ export function useAdminOrderCreateDialog({
     setPageFeedback(null);
     setCreateDialogFeedback(null);
     setCreateFormState(
-      applyTodayExchangeRateToOrderForm(
+      applyOrderExchangeRateToOrderForm(
         createOrderFormState({
+          originalCurrency: defaultOriginalCurrency,
           orderEntryUser: currentViewerId ?? "",
           orderType: orderTypeOptions[0]?.id ?? "",
         }),
-        todayExchangeRates,
+        orderCurrencyRates,
       ),
     );
     setCreateDialogOpen(true);
   }, [
     canOpenCreateDialog,
     currentViewerId,
+    defaultOriginalCurrency,
     orderTypeOptions,
     setPageFeedback,
-    todayExchangeRates,
+    orderCurrencyRates,
   ]);
 
   const handleCreateDialogOpenChange = useCallback(
@@ -132,10 +146,10 @@ export function useAdminOrderCreateDialog({
           return nextState;
         }
 
-        return applyTodayExchangeRateToOrderForm(nextState, todayExchangeRates);
+        return applyOrderExchangeRateToOrderForm(nextState, orderCurrencyRates);
       });
     },
-    [todayExchangeRates],
+    [orderCurrencyRates],
   );
 
   const handleCreateOrder = useCallback(async () => {
@@ -143,8 +157,8 @@ export function useAdminOrderCreateDialog({
       return;
     }
 
-    const currentRate = findTodayCnyExchangeRate(
-      todayExchangeRates,
+    const currentRate = findLatestCnyExchangeRate(
+      orderCurrencyRates,
       createFormState.originalCurrency,
     );
 
@@ -176,12 +190,13 @@ export function useAdminOrderCreateDialog({
       setCreateDialogOpen(false);
       setCreateDialogFeedback(null);
       setCreateFormState(
-        applyTodayExchangeRateToOrderForm(
+        applyOrderExchangeRateToOrderForm(
           createOrderFormState({
+            originalCurrency: defaultOriginalCurrency,
             orderEntryUser: currentViewerId ?? "",
             orderType: orderTypeOptions[0]?.id ?? "",
           }),
-          todayExchangeRates,
+          orderCurrencyRates,
         ),
       );
       setPageFeedback({
@@ -204,6 +219,7 @@ export function useAdminOrderCreateDialog({
     createFormState,
     createPending,
     currentViewerId,
+    defaultOriginalCurrency,
     orderCategoryByTypeId,
     orderTypeOptions,
     ordersUiCopy,
@@ -212,7 +228,7 @@ export function useAdminOrderCreateDialog({
     sharedCopy,
     supabase,
     t,
-    todayExchangeRates,
+    orderCurrencyRates,
   ]);
 
   return {

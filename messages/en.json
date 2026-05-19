@@ -929,7 +929,7 @@
       "no": "No"
     },
     "categories": {
-      "purchase": "Agent Purchase",
+      "purchase": "Retail",
       "dropshipping": "Wholesale",
       "service": "Service Order"
     },
@@ -952,7 +952,7 @@
     "fields": {
       "originalCurrency": "Original Currency",
       "amount": "Total Amount",
-      "dailyExchangeRate": "Daily Exchange Rate",
+      "dailyExchangeRate": "Exchange Rate Value",
       "transactionRate": "Transaction Rate (Auto)",
       "rmbAmount": "RMB Total",
       "costAmount": "Order Cost",
@@ -967,10 +967,10 @@
       "serviceDetails": "Service Details"
     },
     "placeholders": {
-      "originalCurrency": "For example USD, CNY, or EUR",
+      "originalCurrency": "Select an existing currency",
       "amount": "Enter the total amount",
-      "dailyExchangeRate": "Enter the daily exchange rate",
-      "transactionRate": "Calculated automatically from the daily exchange rate",
+      "dailyExchangeRate": "Filled from the selected currency",
+      "transactionRate": "Calculated automatically from the exchange rate value",
       "rmbAmount": "Enter the RMB total",
       "costAmount": "Enter the internal cost, or leave blank"
     },
@@ -981,13 +981,14 @@
       "remove": "Remove Category"
     },
     "hints": {
-      "transactionRate": "Auto = Daily exchange rate * 0.99",
+      "transactionRate": "Auto = exchange rate value * 0.99",
       "lockedOrderEntryUser": "Orders created from this page are automatically assigned to the current salesperson.",
-      "autoDailyExchangeRate": "Today's exchange rate is filled automatically and cannot be edited.",
+      "autoDailyExchangeRate": "The exchange rate value is filled automatically and cannot be edited.",
       "lockedCurrencyAndRates": "The currency and exchange rates stay fixed after the order is created.",
       "autoTimestamps": "After creation, the system writes the created time automatically. After editing, the system updates the latest modified time automatically."
     },
     "select": {
+      "originalCurrency": "Select an existing currency",
       "orderEntryUser": "Select an order entry user",
       "orderingUser": "Select an ordering user",
       "orderType": "Select an order type",
@@ -1004,7 +1005,7 @@
     },
     "errors": {
       "duplicateOrderNumber": "Order number generation conflicted. Please try again later.",
-      "exchangeRateMissing": "Today's exchange rate is not ready. Ask an administrator to fetch it first.",
+      "exchangeRateMissing": "The selected currency does not have an exchange rate yet. Add it in FX settings first.",
       "invalidForeignKeys": "Select a valid order owner, customer, order type, and matching purchase, wholesale, or service options.",
       "cannotCreate": "You do not have permission to create this order.",
       "cannotUpdate": "You do not have permission to update this order.",
@@ -1014,7 +1015,7 @@
       "orderNotFound": "The order could not be found."
     },
     "purchaseSection": {
-      "title": "Agency Purchase Details",
+      "title": "Retail Details",
       "createDescription": "This order type needs purchase or wholesale details. Add rows, then enter the category name on the left and the matching content on the right.",
       "editDescription": "Update purchase or wholesale details by entering the category name on the left and the matching content on the right.",
       "loading": "loading"
@@ -1040,7 +1041,7 @@
         "amount": "Total Amount",
         "rmbAmount": "RMB Total",
         "costAmount": "Order Cost",
-        "dailyExchangeRate": "Daily Exchange Rate",
+        "dailyExchangeRate": "Exchange Rate Value",
         "transactionRate": "Transaction Rate",
         "orderEntryUser": "Order Entry User",
         "orderingUser": "Ordering User",

@@ -22,7 +22,10 @@ export function toOrderErrorMessage(
     return copy.errors.invalidForeignKeys;
   }
 
-  if (rawMessage.includes("today exchange rate is not ready")) {
+  if (
+    rawMessage.includes("today exchange rate is not ready") ||
+    rawMessage.includes("exchange rate is not ready")
+  ) {
     return copy.errors.exchangeRateMissing;
   }
 
