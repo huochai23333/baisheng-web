@@ -274,7 +274,7 @@ export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
         return;
       }
 
-      const rowKey = `task:${row.task_id}`;
+      const rowKey = `task:${row.acceptance_id}`;
       const actionLabel =
         action === "approve" ? t("actions.approve") : t("actions.reject");
 
@@ -306,15 +306,17 @@ export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
 
       try {
         if (action === "approve") {
-          await approveTaskReview(supabase, row.task_id);
+          await approveTaskReview(supabase, row.acceptance_id);
         } else {
           await rejectTaskReview(supabase, {
-            taskId: row.task_id,
+            acceptanceId: row.acceptance_id,
             reason: rejectReason,
           });
         }
 
-        setTaskRows((current) => current.filter((item) => item.task_id !== row.task_id));
+        setTaskRows((current) =>
+          current.filter((item) => item.acceptance_id !== row.acceptance_id),
+        );
         setPageFeedback({
           tone: "success",
           message:

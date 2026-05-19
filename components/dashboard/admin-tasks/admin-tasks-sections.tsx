@@ -214,7 +214,7 @@ export function AdminTasksListSection({
 }) {
   const t = useTranslations("Tasks.admin");
   const visibleCompletedTaskIds = tasksPagination.items
-    .filter((task) => task.status === "completed")
+    .filter((task) => task.completed_count > 0)
     .map((task) => task.id);
   const submissionMediaState = useAdminTaskSubmissionMedia(visibleCompletedTaskIds);
   const [detailsTask, setDetailsTask] = useState<AdminTaskRow | null>(null);

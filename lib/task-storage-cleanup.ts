@@ -53,7 +53,7 @@ async function getDeletedTaskIds(supabase: SupabaseClient, taskId: string) {
     supabase
       .from("task_main")
       .select("id")
-      .or(`id.eq.${taskId},parent_task_id.eq.${taskId}`)
+      .eq("id", taskId)
       .returns<Array<{ id: string | null }>>(),
   );
 

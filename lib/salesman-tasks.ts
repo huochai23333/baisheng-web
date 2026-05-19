@@ -5,33 +5,25 @@ import { withRequestTimeout } from "./request-timeout";
 import type {
   AdminTaskAttachment,
   AdminTaskMainRow,
-  TaskScope,
-  TaskStatus,
   TaskTargetRole,
-  TaskTargetRoleRecord,
   TaskTypeOption,
 } from "./admin-tasks";
-import {
-  normalizeTaskTargetRole,
-  normalizeTaskScope,
-  normalizeTaskStatus,
-} from "./admin-task-normalizers";
 import { getCurrentSessionContext, type AppRole, type UserStatus } from "./user-self-service";
 import {
-  getDashboardQueryRange,
-  MAX_DASHBOARD_QUERY_ROWS,
-} from "./dashboard-pagination";
-import {
-  normalizeInteger,
-  normalizeNumericValue,
   normalizeOptionalString,
 } from "./value-normalizers";
-import { getTaskAcceptanceSummaryByTaskId } from "./task-acceptance-summary";
-
-const TASK_SELECT =
-  "id,parent_task_id,task_name,task_intro,task_type_code,commission_amount_rmb,acceptance_limit,acceptance_unlimited,review_requires_attachment,created_by_user_id,accepted_by_user_id,scope,team_id,status,created_at,accepted_at,submitted_at,reviewed_at,reviewed_by_user_id,review_reject_reason,completed_at";
-const TASK_ATTACHMENT_SELECT =
-  "id,task_id,task_attachment_storage_path,file_size_bytes,original_name,bucket_name,mime_type,uploaded_by_user_id,created_at";
+import {
+  getTaskAcceptanceSummaryByTaskId,
+  type TaskAcceptanceSummary,
+} from "./task-acceptance-summary";
+import { getTaskAcceptancesByViewer, type TaskAcceptanceRow } from "./task-acceptances";
+import {
+  getSalesmanTaskMainRows,
+  getSalesmanTaskMainRowsByIds,
+  getTaskTargetRolesByTaskIds,
+  getTaskTypesByCodes,
+  getVisibleTaskAttachments,
+} from "./salesman-task-data";
 
 export type SalesmanTaskViewerContext = {
   user: User;
@@ -69,53 +61,6 @@ export type SalesmanTasksSearchParams = {
   filters: SalesmanTasksFilters;
   page: number;
 };
-
-type TaskMainRecord = {
-  id: string;
-  parent_task_id: string | null;
-  task_name: string | null;
-  task_intro: string | null;
-  task_type_code: string | null;
-  commission_amount_rmb: number | string | null;
-  acceptance_limit: number | string | null;
-  acceptance_unlimited: boolean | null;
-  review_requires_attachment: boolean | null;
-  created_by_user_id: string | null;
-  accepted_by_user_id: string | null;
-  scope: TaskScope | null;
-  team_id: string | null;
-  status: TaskStatus | null;
-  created_at: string | null;
-  accepted_at: string | null;
-  submitted_at: string | null;
-  reviewed_at: string | null;
-  reviewed_by_user_id: string | null;
-  review_reject_reason: string | null;
-  completed_at: string | null;
-};
-
-type TaskAttachmentRecord = {
-  id: string;
-  task_id: string | null;
-  task_attachment_storage_path: string | null;
-  file_size_bytes: number | string | null;
-  original_name: string | null;
-  bucket_name: string | null;
-  mime_type: string | null;
-  uploaded_by_user_id: string | null;
-  created_at: string | null;
-};
-
-type TaskTypeCatalogRecord = {
-  code: string | null;
-  display_name: string | null;
-  description: string | null;
-  default_commission_amount_rmb: number | string | null;
-  is_active: boolean | null;
-  sort_order: number | string | null;
-};
-
-type TaskTargetRoleRow = TaskTargetRoleRecord;
 
 export async function getCurrentSalesmanTaskViewerContext(
   supabase: SupabaseClient,
@@ -193,37 +138,38 @@ export async function getSalesmanTasksPageData(
 export async function getVisibleSalesmanTasks(
   supabase: SupabaseClient,
   viewerId: string | null,
-  limit = MAX_DASHBOARD_QUERY_ROWS,
+  limit?: number,
 ): Promise<SalesmanTaskRow[]> {
-  const { from, to } = getDashboardQueryRange(limit);
-  const { data, error } = await withRequestTimeout(
-    supabase
-      .from("task_main")
-      .select(TASK_SELECT)
-      .order("created_at", { ascending: false })
-      .range(from, to)
-      .returns<TaskMainRecord[]>(),
+  const baseTasks = await getSalesmanTaskMainRows(supabase, limit);
+
+  const viewerAcceptances = await getTaskAcceptancesByViewer(supabase, viewerId);
+  const baseTaskIds = new Set(baseTasks.map((task) => task.id));
+  const acceptedTaskIdsMissingFromPage = Array.from(
+    new Set(
+      viewerAcceptances
+        .map((acceptance) => acceptance.task_id)
+        .filter((taskId) => !baseTaskIds.has(taskId)),
+    ),
   );
-
-  if (error) {
-    throw error;
-  }
-
-  const tasks = (data ?? [])
-    .map((item) => normalizeTaskMainRecord(item))
-    .filter((item): item is AdminTaskMainRow => item !== null);
+  const acceptedTasksMissingFromPage = await getSalesmanTaskMainRowsByIds(
+    supabase,
+    acceptedTaskIdsMissingFromPage,
+  );
+  const tasks = [...baseTasks, ...acceptedTasksMissingFromPage];
 
   if (tasks.length === 0) {
     return [];
   }
 
   const taskIds = tasks.map((task) => task.id);
-  const attachmentSourceTaskIds = Array.from(
-    new Set(tasks.flatMap((task) => [task.id, task.parent_task_id].filter(Boolean))),
-  ) as string[];
   const taskTypeCodes = Array.from(new Set(tasks.map((task) => task.task_type_code)));
-  const [attachments, taskTypes, targetRoles, acceptanceSummaryByTaskId] = await Promise.all([
-    getVisibleTaskAttachments(supabase, attachmentSourceTaskIds),
+  const [
+    attachments,
+    taskTypes,
+    targetRoles,
+    acceptanceSummaryByTaskId,
+  ] = await Promise.all([
+    getVisibleTaskAttachments(supabase, taskIds),
     getTaskTypesByCodes(supabase, taskTypeCodes),
     getTaskTargetRolesByTaskIds(supabase, taskIds),
     getTaskAcceptanceSummaryByTaskId(supabase, taskIds),
@@ -231,6 +177,10 @@ export async function getVisibleSalesmanTasks(
   const attachmentByTaskId = new Map<string, AdminTaskAttachment[]>();
   const taskTypeByCode = new Map(taskTypes.map((taskType) => [taskType.code, taskType]));
   const targetRolesByTaskId = new Map<string, TaskTargetRole[]>();
+  const taskById = new Map(tasks.map((task) => [task.id, task]));
+  const viewerAcceptanceByTaskId = new Map(
+    viewerAcceptances.map((acceptance) => [acceptance.task_id, acceptance]),
+  );
 
   attachments.forEach((attachment) => {
     const bucket = attachmentByTaskId.get(attachment.task_id);
@@ -254,38 +204,73 @@ export async function getVisibleSalesmanTasks(
     targetRolesByTaskId.set(targetRole.taskId, [targetRole.role]);
   });
 
-  const visibleUserTaskParentIds = new Set(
-    tasks
-      .filter((task) => task.accepted_by_user_id === viewerId && task.parent_task_id)
-      .map((task) => task.parent_task_id as string),
-  );
+  const acceptedRows = viewerAcceptances
+    .map((acceptance) => {
+      const task = taskById.get(acceptance.task_id);
 
-  return tasks
-    .map((task) => {
-      const acceptanceSummary = acceptanceSummaryByTaskId.get(task.id);
-      const attachmentSourceTaskId = task.parent_task_id ?? task.id;
-
-      return {
-        ...task,
-        task_type_label:
-          taskTypeByCode.get(task.task_type_code)?.displayName ?? task.task_type_label,
-        target_roles: targetRolesByTaskId.get(task.id) ?? [],
-        accepted_count: acceptanceSummary?.acceptedCount ?? task.accepted_count,
-        completed_count: acceptanceSummary?.completedCount ?? task.completed_count,
-        attachments: attachmentByTaskId.get(attachmentSourceTaskId) ?? [],
-      };
+      return task ? buildSalesmanTaskRow({
+        task,
+        acceptance,
+        taskTypeByCode,
+        targetRolesByTaskId,
+        attachmentByTaskId,
+        acceptanceSummaryByTaskId,
+      }) : null;
     })
-    .filter((task) => {
-      if (task.parent_task_id || task.status !== "to_be_accepted") {
-        return true;
-      }
+    .filter((task): task is SalesmanTaskRow => task !== null);
 
-      if (visibleUserTaskParentIds.has(task.id)) {
-        return false;
-      }
+  const availableRows = tasks
+    .filter((task) => !viewerAcceptanceByTaskId.has(task.id))
+    .map((task) => buildSalesmanTaskRow({
+      task,
+      taskTypeByCode,
+      targetRolesByTaskId,
+      attachmentByTaskId,
+      acceptanceSummaryByTaskId,
+    }))
+    .filter(
+      (task) =>
+        task.status === "to_be_accepted"
+        && (task.acceptance_unlimited || task.accepted_count < task.acceptance_limit),
+    );
 
-      return task.acceptance_unlimited || task.accepted_count < task.acceptance_limit;
-    });
+  return [...acceptedRows, ...availableRows].sort((first, second) =>
+    (second.accepted_at ?? second.created_at ?? "").localeCompare(
+      first.accepted_at ?? first.created_at ?? "",
+    ),
+  );
+}
+
+function buildSalesmanTaskRow(options: {
+  task: AdminTaskMainRow;
+  acceptance?: TaskAcceptanceRow;
+  taskTypeByCode: Map<string, TaskTypeOption>;
+  targetRolesByTaskId: Map<string, TaskTargetRole[]>;
+  attachmentByTaskId: Map<string, AdminTaskAttachment[]>;
+  acceptanceSummaryByTaskId: Map<string, TaskAcceptanceSummary>;
+}): SalesmanTaskRow {
+  const { task, acceptance } = options;
+  const acceptanceSummary = options.acceptanceSummaryByTaskId.get(task.id);
+
+  return {
+    ...task,
+    id: acceptance?.id ?? task.id,
+    parent_task_id: acceptance ? task.id : null,
+    task_type_label:
+      options.taskTypeByCode.get(task.task_type_code)?.displayName ?? task.task_type_label,
+    target_roles: options.targetRolesByTaskId.get(task.id) ?? [],
+    accepted_count: acceptanceSummary?.acceptedCount ?? task.accepted_count,
+    completed_count: acceptanceSummary?.completedCount ?? task.completed_count,
+    attachments: options.attachmentByTaskId.get(task.id) ?? [],
+    accepted_by_user_id: acceptance?.accepted_by_user_id ?? null,
+    status: acceptance?.status ?? task.status,
+    accepted_at: acceptance?.accepted_at ?? null,
+    submitted_at: acceptance?.submitted_at ?? null,
+    reviewed_at: acceptance?.reviewed_at ?? null,
+    reviewed_by_user_id: acceptance?.reviewed_by_user_id ?? null,
+    review_reject_reason: acceptance?.review_reject_reason ?? null,
+    completed_at: acceptance?.completed_at ?? null,
+  };
 }
 
 export async function acceptSalesmanTask(supabase: SupabaseClient, taskId: string) {
@@ -302,10 +287,10 @@ export async function acceptSalesmanTask(supabase: SupabaseClient, taskId: strin
   return data;
 }
 
-export async function completeSalesmanTask(supabase: SupabaseClient, taskId: string) {
+export async function completeSalesmanTask(supabase: SupabaseClient, acceptanceId: string) {
   const { data, error } = await withRequestTimeout(
     supabase.rpc("complete_task", {
-      p_task_id: taskId,
+      p_acceptance_id: acceptanceId,
     }),
   );
 
@@ -370,211 +355,4 @@ function normalizeSalesmanTaskFocusFilter(value: unknown): SalesmanTaskFocusFilt
     || value === "completed"
     ? value
     : "all";
-}
-
-async function getVisibleTaskAttachments(
-  supabase: SupabaseClient,
-  taskIds: string[],
-): Promise<AdminTaskAttachment[]> {
-  const { data, error } = await withRequestTimeout(
-    supabase
-      .from("task_sub")
-      .select(TASK_ATTACHMENT_SELECT)
-      .in("task_id", taskIds)
-      .order("created_at", { ascending: true })
-      .returns<TaskAttachmentRecord[]>(),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? [])
-    .map((item) => normalizeTaskAttachment(item))
-    .filter((item): item is AdminTaskAttachment => item !== null);
-}
-
-async function getTaskTargetRolesByTaskIds(
-  supabase: SupabaseClient,
-  taskIds: string[],
-): Promise<Array<{ taskId: string; role: TaskTargetRole }>> {
-  if (taskIds.length === 0) {
-    return [];
-  }
-
-  const { data, error } = await withRequestTimeout(
-    supabase
-      .from("task_target_roles")
-      .select("task_id,target_role")
-      .in("task_id", taskIds)
-      .returns<TaskTargetRoleRow[]>(),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? [])
-    .map((item) => {
-      const taskId = normalizeOptionalString(item.task_id);
-      const role = normalizeTaskTargetRole(item.target_role);
-
-      return taskId && role ? { taskId, role } : null;
-    })
-    .filter((item): item is { taskId: string; role: TaskTargetRole } => item !== null);
-}
-
-async function getTaskTypesByCodes(
-  supabase: SupabaseClient,
-  codes: string[],
-): Promise<TaskTypeOption[]> {
-  if (codes.length === 0) {
-    return [];
-  }
-
-  const { data, error } = await withRequestTimeout(
-    supabase
-      .from("task_type_catalog")
-      .select("code,display_name,description,default_commission_amount_rmb,is_active,sort_order")
-      .in("code", codes)
-      .returns<TaskTypeCatalogRecord[]>(),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? [])
-    .map((item) => normalizeTaskTypeOption(item))
-    .filter((item): item is TaskTypeOption => item !== null);
-}
-
-function normalizeTaskMainRecord(value: unknown): AdminTaskMainRow | null {
-  if (typeof value !== "object" || value === null) {
-    return null;
-  }
-
-  const id = "id" in value ? normalizeOptionalString(value.id) : null;
-  const taskName = "task_name" in value ? normalizeOptionalString(value.task_name) : null;
-  const taskTypeCode =
-    "task_type_code" in value ? normalizeOptionalString(value.task_type_code) : null;
-  const createdByUserId =
-    "created_by_user_id" in value ? normalizeOptionalString(value.created_by_user_id) : null;
-  const scope = "scope" in value ? normalizeTaskScope(value.scope) : null;
-  const status = "status" in value ? normalizeTaskStatus(value.status) : null;
-
-  if (!id || !taskName || !taskTypeCode || !createdByUserId || !scope || !status) {
-    return null;
-  }
-
-  return {
-    id,
-    parent_task_id:
-      "parent_task_id" in value ? normalizeOptionalString(value.parent_task_id) : null,
-    task_name: taskName,
-    task_intro: "task_intro" in value ? normalizeOptionalString(value.task_intro) : null,
-    task_type_code: taskTypeCode,
-    task_type_label: null,
-    commission_amount_rmb:
-      "commission_amount_rmb" in value
-        ? normalizeNumericValue(value.commission_amount_rmb) ?? 0
-        : 0,
-    acceptance_limit:
-      "acceptance_limit" in value ? normalizeInteger(value.acceptance_limit, 1) : 1,
-    acceptance_unlimited:
-      "acceptance_unlimited" in value ? value.acceptance_unlimited === true : false,
-    review_requires_attachment:
-      "review_requires_attachment" in value ? value.review_requires_attachment !== false : true,
-    accepted_count:
-      "accepted_count" in value
-        ? normalizeInteger(value.accepted_count)
-        : "accepted_by_user_id" in value && normalizeOptionalString(value.accepted_by_user_id)
-          ? 1
-          : 0,
-    completed_count:
-      "completed_count" in value
-        ? normalizeInteger(value.completed_count)
-        : status === "completed"
-          ? 1
-          : 0,
-    created_by_user_id: createdByUserId,
-    accepted_by_user_id:
-      "accepted_by_user_id" in value ? normalizeOptionalString(value.accepted_by_user_id) : null,
-    scope,
-    team_id: "team_id" in value ? normalizeOptionalString(value.team_id) : null,
-    status,
-    created_at: "created_at" in value ? normalizeOptionalString(value.created_at) : null,
-    accepted_at: "accepted_at" in value ? normalizeOptionalString(value.accepted_at) : null,
-    submitted_at: "submitted_at" in value ? normalizeOptionalString(value.submitted_at) : null,
-    reviewed_at: "reviewed_at" in value ? normalizeOptionalString(value.reviewed_at) : null,
-    reviewed_by_user_id:
-      "reviewed_by_user_id" in value
-        ? normalizeOptionalString(value.reviewed_by_user_id)
-        : null,
-    review_reject_reason:
-      "review_reject_reason" in value
-        ? normalizeOptionalString(value.review_reject_reason)
-        : null,
-    completed_at: "completed_at" in value ? normalizeOptionalString(value.completed_at) : null,
-  };
-}
-
-function normalizeTaskAttachment(value: unknown): AdminTaskAttachment | null {
-  if (typeof value !== "object" || value === null) {
-    return null;
-  }
-
-  const id = "id" in value ? normalizeOptionalString(value.id) : null;
-  const taskId = "task_id" in value ? normalizeOptionalString(value.task_id) : null;
-  const storagePath =
-    "task_attachment_storage_path" in value
-      ? normalizeOptionalString(value.task_attachment_storage_path)
-      : null;
-  const originalName =
-    "original_name" in value ? normalizeOptionalString(value.original_name) : null;
-  const bucketName = "bucket_name" in value ? normalizeOptionalString(value.bucket_name) : null;
-  const mimeType = "mime_type" in value ? normalizeOptionalString(value.mime_type) : null;
-
-  if (!id || !taskId || !storagePath || !originalName || !bucketName || !mimeType) {
-    return null;
-  }
-
-  return {
-    id,
-    task_id: taskId,
-    task_attachment_storage_path: storagePath,
-    file_size_bytes:
-      "file_size_bytes" in value ? normalizeInteger(value.file_size_bytes) : 0,
-    original_name: originalName,
-    bucket_name: bucketName,
-    mime_type: mimeType,
-    uploaded_by_user_id:
-      "uploaded_by_user_id" in value ? normalizeOptionalString(value.uploaded_by_user_id) ?? "" : "",
-    created_at: "created_at" in value ? normalizeOptionalString(value.created_at) : null,
-  };
-}
-
-function normalizeTaskTypeOption(value: unknown): TaskTypeOption | null {
-  if (typeof value !== "object" || value === null) {
-    return null;
-  }
-
-  const code = "code" in value ? normalizeOptionalString(value.code) : null;
-  const displayName = "display_name" in value ? normalizeOptionalString(value.display_name) : null;
-
-  if (!code || !displayName) {
-    return null;
-  }
-
-  return {
-    code,
-    displayName,
-    description: "description" in value ? normalizeOptionalString(value.description) : null,
-    defaultCommissionAmountRmb:
-      "default_commission_amount_rmb" in value
-        ? normalizeNumericValue(value.default_commission_amount_rmb) ?? 0
-        : 0,
-    isActive: "is_active" in value ? value.is_active === true : false,
-    sortOrder: "sort_order" in value ? normalizeInteger(value.sort_order) : 100,
-  };
 }

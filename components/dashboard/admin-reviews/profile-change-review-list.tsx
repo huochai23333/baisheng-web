@@ -125,7 +125,7 @@ function ReviewValueCell({
       <p className="mb-1 font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase lg:hidden">
         {label}
       </p>
-      <p className="truncate text-sm font-medium text-[#2b3942] lg:text-[15px]" title={value}>
+      <p className="break-words text-sm font-medium leading-6 text-[#2b3942] lg:text-[15px]" title={value}>
         {value}
       </p>
     </div>

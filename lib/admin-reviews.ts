@@ -420,15 +420,15 @@ export async function rejectProfileChangeReview(
 
 export async function approveTaskReview(
   supabase: SupabaseClient,
-  taskId: string,
+  acceptanceId: string,
 ) {
-  return approveTaskReviewAction(supabase, taskId);
+  return approveTaskReviewAction(supabase, acceptanceId);
 }
 
 export async function rejectTaskReview(
   supabase: SupabaseClient,
   options: {
-    taskId: string;
+    acceptanceId: string;
     reason?: string | null;
   },
 ) {

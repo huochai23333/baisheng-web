@@ -130,15 +130,19 @@ export function AdminTaskDetailDialog({
               label={t("creatorLabel")}
               value={resolveTaskActorLabel(task.creator, task.created_by_user_id, sharedT)}
             />
-            <InfoTile
-              label={t("assigneeLabel")}
-              value={resolveTaskActorLabel(task.accepted_by, task.accepted_by_user_id, sharedT)}
-            />
             <InfoTile label={t("createdAtLabel")} value={formatDateTime(task.created_at)} />
-            <InfoTile label={t("acceptedAtLabel")} value={formatDateTime(task.accepted_at)} />
-            <InfoTile label={t("submittedAtLabel")} value={formatDateTime(task.submitted_at)} />
-            <InfoTile label={t("reviewedAtLabel")} value={formatDateTime(task.reviewed_at)} />
-            <InfoTile label={t("completedAtLabel")} value={formatDateTime(task.completed_at)} />
+            {!shouldShowAssigneeList ? (
+              <>
+                <InfoTile
+                  label={t("assigneeLabel")}
+                  value={resolveTaskActorLabel(task.accepted_by, task.accepted_by_user_id, sharedT)}
+                />
+                <InfoTile label={t("acceptedAtLabel")} value={formatDateTime(task.accepted_at)} />
+                <InfoTile label={t("submittedAtLabel")} value={formatDateTime(task.submitted_at)} />
+                <InfoTile label={t("reviewedAtLabel")} value={formatDateTime(task.reviewed_at)} />
+                <InfoTile label={t("completedAtLabel")} value={formatDateTime(task.completed_at)} />
+              </>
+            ) : null}
           </div>
         </section>
 
@@ -218,7 +222,7 @@ export function AdminTaskDetailDialog({
           </section>
         ) : null}
 
-        {task.status === "completed" ? (
+        {task.completed_count > 0 ? (
           <AdminTaskSubmissionMediaPanel
             busyMediaId={submissionMediaBusyId}
             loading={submissionMediaLoading}

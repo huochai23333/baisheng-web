@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+﻿import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getTaskAcceptanceAssigneesByRootTaskId } from "./admin-task-assignees";
 import { getTaskAttachmentsByTaskIds } from "./admin-task-attachments";
@@ -8,10 +8,17 @@ import {
   normalizeTaskProfile,
   normalizeTaskTargetRole,
 } from "./admin-task-normalizers";
+import { ADMIN_TASK_SELECT } from "./admin-task-query-fields";
 import {
   getTaskTypeOptions,
   getTaskTypesByCodes,
 } from "./admin-task-type-management";
+export {
+  createAdminTask,
+  deleteAdminTask,
+  updateAdminTask,
+  updateAdminTaskAssignment,
+} from "./admin-task-mutations";
 export {
   ADMIN_TASK_ATTACHMENT_MAX_FILES,
   ADMIN_TASK_ATTACHMENT_MAX_TOTAL_SIZE_BYTES,
@@ -59,19 +66,15 @@ import type {
   AdminTasksSearchParams,
   AdminTaskStatusFilter,
   AdminTaskViewerContext,
-  CreateAdminTaskInput,
   TaskMainRecord,
   TaskProfileSummary,
   TaskTargetRole,
   TaskTargetRoleOption,
   TaskTargetRoleRecord,
-  UpdateAdminTaskAssignmentInput,
-  UpdateAdminTaskInput,
   UserProfileRecord,
 } from "./admin-tasks-types";
 import { TASK_TARGET_ROLES } from "./admin-tasks-types";
 import { withRequestTimeout } from "./request-timeout";
-import { prepareDeletedTaskStorageCleanup } from "./task-storage-cleanup";
 import {
   getCurrentSessionContext,
   type AppRole,
@@ -82,9 +85,6 @@ import {
   MAX_DASHBOARD_QUERY_ROWS,
 } from "./dashboard-pagination";
 import { getTaskAcceptanceSummaryByTaskId } from "./task-acceptance-summary";
-
-const ADMIN_TASK_SELECT =
-  "id,parent_task_id,task_name,task_intro,task_type_code,commission_amount_rmb,acceptance_limit,acceptance_unlimited,review_requires_attachment,created_by_user_id,accepted_by_user_id,scope,team_id,status,created_at,accepted_at,submitted_at,reviewed_at,reviewed_by_user_id,review_reject_reason,completed_at";
 
 export async function getCurrentTaskViewerContext(
   supabase: SupabaseClient,
@@ -198,16 +198,10 @@ export async function getAdminTasks(
   const rootTaskIds = Array.from(
     new Set(taskRows.map((task) => task.parent_task_id ?? task.id)),
   );
-  const attachmentSourceTaskIds = Array.from(
-    new Set(taskRows.flatMap((task) => [task.id, task.parent_task_id].filter(Boolean))),
-  ) as string[];
+  const attachmentSourceTaskIds = taskIds;
   const userIds = Array.from(
     new Set(
-      taskRows.flatMap((task) =>
-        [task.created_by_user_id, task.accepted_by_user_id].filter(
-          (value): value is string => Boolean(value),
-        ),
-      ),
+      taskRows.map((task) => task.created_by_user_id),
     ),
   );
   const taskTypeCodes = Array.from(new Set(taskRows.map((task) => task.task_type_code)));
@@ -256,186 +250,20 @@ export async function getAdminTasks(
 
   return taskRows.map((task) => {
     const acceptanceSummary = acceptanceSummaryByTaskId.get(task.id);
-    const attachmentSourceTaskId = task.parent_task_id ?? task.id;
-    const rootTaskId = task.parent_task_id ?? task.id;
-
     return {
       ...task,
       task_type_label:
         taskTypeByCode.get(task.task_type_code)?.displayName ?? task.task_type_label,
       creator: profileByUserId.get(task.created_by_user_id) ?? null,
-      accepted_by: task.accepted_by_user_id
-        ? profileByUserId.get(task.accepted_by_user_id) ?? null
-        : null,
+      accepted_by: null,
       team: null,
       target_roles: targetRolesByTaskId.get(task.id) ?? [],
       accepted_count: acceptanceSummary?.acceptedCount ?? task.accepted_count,
       completed_count: acceptanceSummary?.completedCount ?? task.completed_count,
-      attachments: attachmentsByTaskId.get(attachmentSourceTaskId) ?? [],
-      acceptance_assignees: acceptanceAssigneesByRootTaskId.get(rootTaskId) ?? [],
+      attachments: attachmentsByTaskId.get(task.id) ?? [],
+      acceptance_assignees: acceptanceAssigneesByRootTaskId.get(task.id) ?? [],
     };
   });
-}
-
-export async function createAdminTask(
-  supabase: SupabaseClient,
-  input: CreateAdminTaskInput,
-): Promise<AdminTaskMainRow> {
-  const { data, error } = await withRequestTimeout(
-    supabase.rpc("create_role_targeted_task", {
-      p_task_name: input.taskName.trim(),
-      p_task_intro: normalizeNullableString(input.taskIntro),
-      p_task_type_code: input.taskTypeCode,
-      p_commission_amount_rmb: input.commissionAmountRmb,
-      p_target_roles: input.targetRoles,
-      p_acceptance_limit: input.acceptanceLimit,
-      p_acceptance_unlimited: input.acceptanceUnlimited,
-      p_review_requires_attachment: input.reviewRequiresAttachment,
-    }).returns<TaskMainRecord>(),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  const task = normalizeTaskMainRecord(data);
-
-  if (!task) {
-    throw new Error("任务创建成功，但返回数据不完整。");
-  }
-
-  return task;
-}
-
-export async function updateAdminTask(
-  supabase: SupabaseClient,
-  input: UpdateAdminTaskInput,
-): Promise<{
-  commissionSyncFailed: boolean;
-  task: AdminTaskMainRow;
-}> {
-  const { data, error } = await withRequestTimeout(
-    supabase.rpc("update_role_targeted_task", {
-      p_task_id: input.taskId,
-      p_task_name: input.taskName.trim(),
-      p_task_intro: normalizeNullableString(input.taskIntro),
-      p_task_type_code: input.taskTypeCode,
-      p_commission_amount_rmb: input.commissionAmountRmb,
-      p_target_roles: input.targetRoles,
-      p_acceptance_limit: input.acceptanceLimit,
-      p_acceptance_unlimited: input.acceptanceUnlimited,
-      p_review_requires_attachment: input.reviewRequiresAttachment,
-    }).returns<TaskMainRecord>(),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  const task = normalizeTaskMainRecord(data);
-
-  if (!task) {
-    throw new Error("任务更新成功，但返回数据不完整。");
-  }
-
-  if (task.status !== "completed") {
-    return {
-      commissionSyncFailed: false,
-      task,
-    };
-  }
-
-  try {
-    await syncTaskCommission(supabase, task.id);
-    return {
-      commissionSyncFailed: false,
-      task,
-    };
-  } catch {
-    return {
-      commissionSyncFailed: true,
-      task,
-    };
-  }
-}
-
-export async function updateAdminTaskAssignment(
-  supabase: SupabaseClient,
-  input: UpdateAdminTaskAssignmentInput,
-): Promise<AdminTaskMainRow> {
-  const { error } = await withRequestTimeout(
-    supabase.rpc("set_task_target_roles", {
-      p_task_id: input.taskId,
-      p_target_roles: input.targetRoles,
-    }),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  const { data: taskData, error: taskError } = await withRequestTimeout(
-    supabase
-      .from("task_main")
-      .select(ADMIN_TASK_SELECT)
-      .eq("id", input.taskId)
-      .single()
-      .returns<TaskMainRecord>(),
-  );
-
-  if (taskError) {
-    throw taskError;
-  }
-
-  const task = normalizeTaskMainRecord(taskData);
-
-  if (!task) {
-    throw new Error("任务改派成功，但返回数据不完整。");
-  }
-
-  return task;
-}
-
-async function syncTaskCommission(
-  supabase: SupabaseClient,
-  taskId: string,
-) {
-  const { error } = await withRequestTimeout(
-    supabase.rpc("sync_task_commission", {
-      p_task_id: taskId,
-    }),
-  );
-
-  if (error) {
-    throw error;
-  }
-}
-
-export async function deleteAdminTask(
-  supabase: SupabaseClient,
-  task: Pick<AdminTaskRow, "id" | "attachments">,
-) {
-  const runDeletedTaskStorageCleanup = await prepareDeletedTaskStorageCleanup(
-    supabase,
-    {
-      taskId: task.id,
-      taskAttachments: task.attachments,
-    },
-  );
-
-  const { error } = await withRequestTimeout(
-    supabase.from("task_main").delete().eq("id", task.id),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  const storageCleanupFailed = await runDeletedTaskStorageCleanup();
-
-  return {
-    storageCleanupFailed,
-  };
 }
 
 function createEmptyAdminTasksPageData(options: {

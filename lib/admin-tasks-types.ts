@@ -164,7 +164,7 @@ export type UpdateAdminTaskAssignmentInput = {
 
 export type TaskMainRecord = {
   id: string;
-  parent_task_id: string | null;
+  parent_task_id?: string | null;
   task_name: string | null;
   task_intro: string | null;
   task_type_code: string | null;
@@ -173,17 +173,17 @@ export type TaskMainRecord = {
   acceptance_unlimited: boolean | null;
   review_requires_attachment: boolean | null;
   created_by_user_id: string | null;
-  accepted_by_user_id: string | null;
+  accepted_by_user_id?: string | null;
   scope: TaskScope | null;
   team_id: string | null;
   status: TaskStatus | null;
   created_at: string | null;
-  accepted_at: string | null;
-  submitted_at: string | null;
-  reviewed_at: string | null;
-  reviewed_by_user_id: string | null;
-  review_reject_reason: string | null;
-  completed_at: string | null;
+  accepted_at?: string | null;
+  submitted_at?: string | null;
+  reviewed_at?: string | null;
+  reviewed_by_user_id?: string | null;
+  review_reject_reason?: string | null;
+  completed_at?: string | null;
 };
 
 export type TaskAttachmentRecord = {

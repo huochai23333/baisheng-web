@@ -13,6 +13,8 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
+  type AdminTaskRow,
+  type AdminTaskStatusFilter,
   type AdminTasksFilters,
   type AdminTasksPageData,
   type AdminTasksSearchParams,
@@ -128,8 +130,14 @@ export function useAdminTasksRouteState({
 
   const stats = useMemo<AdminTasksStats>(
     () => ({
-      accepted: tasks.filter((task) => task.status === "accepted").length,
-      reviewing: tasks.filter((task) => task.status === "reviewing").length,
+      accepted: tasks.reduce((total, task) => total + task.accepted_count, 0),
+      reviewing: tasks.reduce(
+        (total, task) =>
+          total + task.acceptance_assignees.filter(
+            (assignee) => assignee.task_status === "reviewing",
+          ).length,
+        0,
+      ),
     }),
     [tasks],
   );
@@ -138,11 +146,7 @@ export function useAdminTasksRouteState({
     const normalizedSearchText = normalizeSearchText(deferredSearchText);
 
     return tasks.filter((task) => {
-      if (filters.status === "all" && task.status === "completed") {
-        return false;
-      }
-
-      if (filters.status !== "all" && task.status !== filters.status) {
+      if (!doesTaskMatchStatusFilter(task, filters.status)) {
         return false;
       }
 
@@ -282,4 +286,29 @@ export function useAdminTasksRouteState({
     updateFilter,
     viewerId,
   };
+}
+
+function doesTaskMatchStatusFilter(
+  task: AdminTaskRow,
+  statusFilter: AdminTaskStatusFilter,
+) {
+  if (statusFilter === "all") {
+    return true;
+  }
+
+  if (statusFilter === "to_be_accepted") {
+    return task.accepted_count === 0;
+  }
+
+  if (statusFilter === "accepted") {
+    return task.accepted_count > 0;
+  }
+
+  if (statusFilter === "completed") {
+    return task.completed_count > 0;
+  }
+
+  return task.acceptance_assignees.some(
+    (assignee) => assignee.task_status === statusFilter,
+  );
 }

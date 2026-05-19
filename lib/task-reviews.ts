@@ -3,32 +3,33 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { normalizeTaskScope } from "./admin-task-normalizers";
 import { withRequestTimeout } from "./request-timeout";
 import {
-  buildTaskAttachmentStoragePath,
-  removeTaskStorageObjects,
-  TASK_ATTACHMENT_MAX_FILES,
-  TASK_ATTACHMENT_MAX_TOTAL_SIZE_BYTES,
-  validateTaskAttachmentFiles,
-} from "./task-attachment-policy";
+  getTaskReviewSubmissionAssets,
+} from "./task-review-assets";
+import type { TaskReviewSubmissionAsset } from "./task-review-assets";
+export {
+  getTaskReviewSubmissionAssetSignedUrl,
+  getTaskReviewSubmissionAssetsForTask,
+  removeStoredTaskReviewSubmissionAssets,
+  TASK_REVIEW_SUBMISSION_MAX_FILES,
+  TASK_REVIEW_SUBMISSION_MAX_TOTAL_SIZE_BYTES,
+  uploadTaskReviewSubmissionAssets,
+  validateTaskReviewSubmissionFiles,
+} from "./task-review-assets";
+export type { TaskReviewSubmissionAsset } from "./task-review-assets";
 import {
   normalizeInteger,
   normalizeNumericValue,
   normalizeOptionalString,
 } from "./value-normalizers";
 
-const TASK_REVIEW_BUCKET = "task-review-submissions";
-const TASK_REVIEW_ASSET_SELECT =
-  "id,submission_id,task_attachment_storage_path,file_size_bytes,original_name,bucket_name,mime_type,uploaded_by_user_id,created_at";
 const PENDING_TASK_REVIEW_SELECT =
-  "task_id,task_name,task_intro,task_type_code,task_type_name,commission_amount_rmb,scope,team_id,team_name,accepted_by_user_id,accepted_by_name,accepted_by_email,submission_id,submission_round,submission_note,submitted_at,asset_count";
-
-export const TASK_REVIEW_SUBMISSION_MAX_FILES = TASK_ATTACHMENT_MAX_FILES;
-export const TASK_REVIEW_SUBMISSION_MAX_TOTAL_SIZE_BYTES =
-  TASK_ATTACHMENT_MAX_TOTAL_SIZE_BYTES;
+  "acceptance_id,task_id,task_name,task_intro,task_type_code,task_type_name,commission_amount_rmb,scope,team_id,team_name,accepted_by_user_id,accepted_by_name,accepted_by_email,submission_id,submission_round,submission_note,submitted_at,asset_count";
 
 export type TaskReviewSubmissionStatus = "draft" | "pending" | "approved" | "rejected";
 
 export type TaskReviewSubmissionRow = {
   id: string;
+  acceptance_id: string;
   task_id: string;
   submitted_by_user_id: string;
   round_index: number;
@@ -41,19 +42,8 @@ export type TaskReviewSubmissionRow = {
   created_at: string | null;
 };
 
-export type TaskReviewSubmissionAsset = {
-  id: string;
-  submission_id: string;
-  task_attachment_storage_path: string;
-  file_size_bytes: number;
-  original_name: string;
-  bucket_name: string;
-  mime_type: string;
-  uploaded_by_user_id: string;
-  created_at: string | null;
-};
-
 export type PendingTaskReviewRow = {
+  acceptance_id: string;
   task_id: string;
   task_name: string;
   task_intro: string | null;
@@ -77,23 +67,8 @@ export type PendingTaskReviewWithAssets = PendingTaskReviewRow & {
   assets: TaskReviewSubmissionAsset[];
 };
 
-type TaskReviewSubmissionAssetRecord = {
-  id: string | null;
-  submission_id: string | null;
-  task_attachment_storage_path: string | null;
-  file_size_bytes: number | string | null;
-  original_name: string | null;
-  bucket_name: string | null;
-  mime_type: string | null;
-  uploaded_by_user_id: string | null;
-  created_at: string | null;
-};
-
-type TaskReviewSubmissionIdRecord = {
-  id: string | null;
-};
-
 type PendingTaskReviewRecord = {
+  acceptance_id: string | null;
   task_id: string | null;
   task_name: string | null;
   task_intro: string | null;
@@ -116,13 +91,13 @@ type PendingTaskReviewRecord = {
 export async function createTaskReviewSubmissionDraft(
   supabase: SupabaseClient,
   options: {
-    taskId: string;
+    acceptanceId: string;
     submissionNote?: string | null;
   },
 ) {
   const { data, error } = await withRequestTimeout(
     supabase.rpc("create_task_review_submission", {
-      p_task_id: options.taskId,
+      p_acceptance_id: options.acceptanceId,
       p_submission_note: normalizeOptionalString(options.submissionNote),
     }),
   );
@@ -158,13 +133,13 @@ export async function cancelTaskReviewSubmissionDraft(
 export async function submitTaskReview(
   supabase: SupabaseClient,
   options: {
-    taskId: string;
+    acceptanceId: string;
     submissionId: string;
   },
 ) {
   const { data, error } = await withRequestTimeout(
     supabase.rpc("submit_task_review", {
-      p_task_id: options.taskId,
+      p_acceptance_id: options.acceptanceId,
       p_submission_id: options.submissionId,
     }),
   );
@@ -178,11 +153,11 @@ export async function submitTaskReview(
 
 export async function approveTaskReview(
   supabase: SupabaseClient,
-  taskId: string,
+  acceptanceId: string,
 ) {
   const { data, error } = await withRequestTimeout(
     supabase.rpc("approve_task_review", {
-      p_task_id: taskId,
+      p_acceptance_id: acceptanceId,
     }),
   );
 
@@ -196,13 +171,13 @@ export async function approveTaskReview(
 export async function rejectTaskReview(
   supabase: SupabaseClient,
   options: {
-    taskId: string;
+    acceptanceId: string;
     reason?: string | null;
   },
 ) {
   const { data, error } = await withRequestTimeout(
     supabase.rpc("reject_task_review", {
-      p_task_id: options.taskId,
+      p_acceptance_id: options.acceptanceId,
       p_reason: normalizeOptionalString(options.reason),
     }),
   );
@@ -212,134 +187,6 @@ export async function rejectTaskReview(
   }
 
   return data;
-}
-
-export async function uploadTaskReviewSubmissionAssets(
-  supabase: SupabaseClient,
-  options: {
-    submissionId: string;
-    uploadedByUserId: string;
-    files: File[];
-    requireFiles?: boolean;
-  },
-) {
-  validateTaskReviewSubmissionFiles(options.files, {
-    requireFiles: options.requireFiles ?? true,
-  });
-
-  if (options.files.length === 0) {
-    return [];
-  }
-
-  const uploadedObjects: Array<Pick<TaskReviewSubmissionAsset, "bucket_name" | "task_attachment_storage_path">> = [];
-
-  try {
-    for (const [index, file] of options.files.entries()) {
-      const storagePath = buildTaskAttachmentStoragePath({
-        fallbackPrefix: "submission",
-        fileName: file.name,
-        index,
-        ownerId: options.uploadedByUserId,
-        parentId: options.submissionId,
-      });
-
-      const { error } = await withRequestTimeout(
-        supabase.storage.from(TASK_REVIEW_BUCKET).upload(storagePath, file, {
-          contentType: file.type || undefined,
-          upsert: false,
-        }),
-        {
-          timeoutMs: 60_000,
-          message: "任务审核附件上传超时，请稍后重试。",
-        },
-      );
-
-      if (error) {
-        throw error;
-      }
-
-      uploadedObjects.push({
-        bucket_name: TASK_REVIEW_BUCKET,
-        task_attachment_storage_path: storagePath,
-      });
-    }
-
-    const metadataRows = options.files.map((file, index) => ({
-      submission_id: options.submissionId,
-      task_attachment_storage_path: uploadedObjects[index]?.task_attachment_storage_path ?? "",
-      file_size_bytes: file.size,
-      original_name: file.name,
-      bucket_name: TASK_REVIEW_BUCKET,
-      mime_type: file.type || "application/octet-stream",
-      uploaded_by_user_id: options.uploadedByUserId,
-    }));
-
-    const { data, error } = await withRequestTimeout(
-      supabase
-        .from("task_review_submission_assets")
-        .insert(metadataRows)
-        .select(TASK_REVIEW_ASSET_SELECT)
-        .returns<TaskReviewSubmissionAssetRecord[]>(),
-    );
-
-    if (error) {
-      throw error;
-    }
-
-    return (data ?? [])
-      .map((item) => normalizeTaskReviewSubmissionAssetRecord(item))
-      .filter((item): item is TaskReviewSubmissionAsset => item !== null);
-  } catch (error) {
-    await removeStoredTaskReviewSubmissionAssets(supabase, uploadedObjects);
-    throw error;
-  }
-}
-
-export async function removeStoredTaskReviewSubmissionAssets(
-  supabase: SupabaseClient,
-  assets: Pick<TaskReviewSubmissionAsset, "bucket_name" | "task_attachment_storage_path">[],
-) {
-  await removeTaskStorageObjects(supabase, assets, {
-    defaultBucket: TASK_REVIEW_BUCKET,
-    timeoutMessage: "任务审核附件删除超时，请稍后重试。",
-  });
-}
-
-export async function getTaskReviewSubmissionAssetsForTask(
-  supabase: SupabaseClient,
-  taskId: string,
-) {
-  const normalizedTaskId = normalizeOptionalString(taskId);
-
-  if (!normalizedTaskId) {
-    return [];
-  }
-
-  const { data, error } = await withRequestTimeout(
-    supabase
-      .from("task_review_submissions")
-      .select("id")
-      .eq("task_id", normalizedTaskId)
-      .returns<TaskReviewSubmissionIdRecord[]>(),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  const submissionIds = Array.from(
-    new Set(
-      (data ?? [])
-        .map((row) => normalizeOptionalString(row.id))
-        .filter((submissionId): submissionId is string => submissionId !== null),
-    ),
-  );
-
-  if (submissionIds.length === 0) {
-    return [];
-  }
-
-  return getTaskReviewSubmissionAssets(supabase, submissionIds);
 }
 
 export async function getPendingTaskReviews(
@@ -386,66 +233,6 @@ export async function getPendingTaskReviews(
   }));
 }
 
-export async function getTaskReviewSubmissionAssetSignedUrl(
-  supabase: SupabaseClient,
-  asset: Pick<TaskReviewSubmissionAsset, "bucket_name" | "task_attachment_storage_path">,
-  expiresIn = 60 * 10,
-) {
-  const { data, error } = await withRequestTimeout(
-    supabase.storage
-      .from(asset.bucket_name)
-      .createSignedUrl(asset.task_attachment_storage_path, expiresIn),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  return data.signedUrl;
-}
-
-export function validateTaskReviewSubmissionFiles(
-  files: File[],
-  options: {
-    requireFiles?: boolean;
-  } = {},
-) {
-  validateTaskAttachmentFiles({
-    files,
-    requireFiles: options.requireFiles ?? true,
-    errorCodes: {
-      countExceeded: "task_review_submission_attachments_count_exceeded",
-      empty: "task_review_submission_attachment_empty",
-      required: "task_review_submission_files_required",
-      tooLarge: "task_review_submission_attachment_too_large",
-      totalTooLarge: "task_review_submission_attachments_total_too_large",
-      typeNotAllowed: "task_review_submission_attachment_type_not_allowed",
-    },
-  });
-}
-
-async function getTaskReviewSubmissionAssets(
-  supabase: SupabaseClient,
-  submissionIds: string[],
-) {
-  const { data, error } = await withRequestTimeout(
-    supabase
-      .from("task_review_submission_assets")
-      .select(TASK_REVIEW_ASSET_SELECT)
-      .in("submission_id", submissionIds)
-      .order("created_at", { ascending: true })
-      .returns<TaskReviewSubmissionAssetRecord[]>(),
-  );
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? [])
-    .map((item) => normalizeTaskReviewSubmissionAssetRecord(item))
-    .filter((item): item is TaskReviewSubmissionAsset => item !== null);
-}
-
 function normalizeTaskReviewSubmissionRecord(
   value: unknown,
 ): TaskReviewSubmissionRow | null {
@@ -454,6 +241,8 @@ function normalizeTaskReviewSubmissionRecord(
   }
 
   const id = "id" in value ? normalizeOptionalString(value.id) : null;
+  const acceptanceId =
+    "acceptance_id" in value ? normalizeOptionalString(value.acceptance_id) : null;
   const taskId = "task_id" in value ? normalizeOptionalString(value.task_id) : null;
   const submittedByUserId =
     "submitted_by_user_id" in value
@@ -464,12 +253,13 @@ function normalizeTaskReviewSubmissionRecord(
   const status =
     "status" in value ? normalizeTaskReviewSubmissionStatus(value.status) : null;
 
-  if (!id || !taskId || !submittedByUserId || !roundIndex || !status) {
+  if (!id || !acceptanceId || !taskId || !submittedByUserId || !roundIndex || !status) {
     return null;
   }
 
   return {
     id,
+    acceptance_id: acceptanceId,
     task_id: taskId,
     submitted_by_user_id: submittedByUserId,
     round_index: roundIndex,
@@ -486,47 +276,6 @@ function normalizeTaskReviewSubmissionRecord(
   };
 }
 
-function normalizeTaskReviewSubmissionAssetRecord(
-  value: unknown,
-): TaskReviewSubmissionAsset | null {
-  if (typeof value !== "object" || value === null) {
-    return null;
-  }
-
-  const id = "id" in value ? normalizeOptionalString(value.id) : null;
-  const submissionId =
-    "submission_id" in value ? normalizeOptionalString(value.submission_id) : null;
-  const storagePath =
-    "task_attachment_storage_path" in value
-      ? normalizeOptionalString(value.task_attachment_storage_path)
-      : null;
-  const originalName =
-    "original_name" in value ? normalizeOptionalString(value.original_name) : null;
-  const bucketName = "bucket_name" in value ? normalizeOptionalString(value.bucket_name) : null;
-  const mimeType = "mime_type" in value ? normalizeOptionalString(value.mime_type) : null;
-  const uploadedByUserId =
-    "uploaded_by_user_id" in value
-      ? normalizeOptionalString(value.uploaded_by_user_id)
-      : null;
-
-  if (!id || !submissionId || !storagePath || !originalName || !bucketName || !mimeType) {
-    return null;
-  }
-
-  return {
-    id,
-    submission_id: submissionId,
-    task_attachment_storage_path: storagePath,
-    file_size_bytes:
-      "file_size_bytes" in value ? normalizeInteger(value.file_size_bytes) : 0,
-    original_name: originalName,
-    bucket_name: bucketName,
-    mime_type: mimeType,
-    uploaded_by_user_id: uploadedByUserId ?? "",
-    created_at: "created_at" in value ? normalizeOptionalString(value.created_at) : null,
-  };
-}
-
 function normalizePendingTaskReviewRecord(
   value: unknown,
 ): PendingTaskReviewRow | null {
@@ -535,6 +284,8 @@ function normalizePendingTaskReviewRecord(
   }
 
   const taskId = "task_id" in value ? normalizeOptionalString(value.task_id) : null;
+  const acceptanceId =
+    "acceptance_id" in value ? normalizeOptionalString(value.acceptance_id) : null;
   const taskName = "task_name" in value ? normalizeOptionalString(value.task_name) : null;
   const taskTypeCode =
     "task_type_code" in value ? normalizeOptionalString(value.task_type_code) : null;
@@ -549,7 +300,8 @@ function normalizePendingTaskReviewRecord(
   const scope = "scope" in value ? normalizeTaskScope(value.scope) : null;
 
   if (
-    !taskId
+    !acceptanceId
+    || !taskId
     || !taskName
     || !taskTypeCode
     || !acceptedByUserId
@@ -561,6 +313,7 @@ function normalizePendingTaskReviewRecord(
   }
 
   return {
+    acceptance_id: acceptanceId,
     task_id: taskId,
     task_name: taskName,
     task_intro: "task_intro" in value ? normalizeOptionalString(value.task_intro) : null,

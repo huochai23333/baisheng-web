@@ -59,7 +59,7 @@ export function TaskReviewList({
   return (
     <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
       {rows.map((row) => {
-        const rowKey = `task:${row.task_id}`;
+        const rowKey = `task:${row.acceptance_id}`;
         const busyAction = busyRows[rowKey];
         const assigneeName = getDisplayName(
           row.accepted_by_name,

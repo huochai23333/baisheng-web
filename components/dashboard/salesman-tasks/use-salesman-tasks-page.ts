@@ -394,7 +394,7 @@ export function useSalesmanTasksPage({
 
     try {
       const draft = await createTaskReviewSubmissionDraft(supabase, {
-        taskId: submitDialogTask.id,
+        acceptanceId: submitDialogTask.id,
         submissionNote: submitDialogNote,
       });
       draftId = draft.id;
@@ -409,7 +409,7 @@ export function useSalesmanTasksPage({
       uploadedAssets = assets;
 
       await submitTaskReview(supabase, {
-        taskId: submitDialogTask.id,
+        acceptanceId: submitDialogTask.id,
         submissionId: draft.id,
       });
 

@@ -3,7 +3,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   normalizeNullableString,
   normalizeTaskProfile,
-  normalizeTaskStatus,
 } from "./admin-task-normalizers";
 import type {
   TaskAcceptanceAssigneeSummary,
@@ -11,19 +10,7 @@ import type {
   UserProfileRecord,
 } from "./admin-tasks-types";
 import { withRequestTimeout } from "./request-timeout";
-
-const TASK_ACCEPTANCE_ASSIGNEE_SELECT =
-  "id,parent_task_id,accepted_by_user_id,status,accepted_at,submitted_at,completed_at";
-
-type TaskAcceptanceAssigneeRecord = {
-  id: string | null;
-  parent_task_id: string | null;
-  accepted_by_user_id: string | null;
-  status: string | null;
-  accepted_at: string | null;
-  submitted_at: string | null;
-  completed_at: string | null;
-};
+import { getTaskAcceptancesByTaskIds, type TaskAcceptanceRow } from "./task-acceptances";
 
 type NormalizedTaskAcceptanceAssignee = {
   accepted_task_id: string;
@@ -47,36 +34,7 @@ export async function getTaskAcceptanceAssigneesByRootTaskId(
     return new Map<string, TaskAcceptanceAssigneeSummary[]>();
   }
 
-  const [childResult, directResult] = await Promise.all([
-    withRequestTimeout(
-      supabase
-        .from("task_main")
-        .select(TASK_ACCEPTANCE_ASSIGNEE_SELECT)
-        .in("parent_task_id", rootTaskIds)
-        .not("accepted_by_user_id", "is", null)
-        .order("accepted_at", { ascending: true })
-        .returns<TaskAcceptanceAssigneeRecord[]>(),
-    ),
-    withRequestTimeout(
-      supabase
-        .from("task_main")
-        .select(TASK_ACCEPTANCE_ASSIGNEE_SELECT)
-        .in("id", rootTaskIds)
-        .not("accepted_by_user_id", "is", null)
-        .order("accepted_at", { ascending: true })
-        .returns<TaskAcceptanceAssigneeRecord[]>(),
-    ),
-  ]);
-
-  if (childResult.error) {
-    throw childResult.error;
-  }
-
-  if (directResult.error) {
-    throw directResult.error;
-  }
-
-  const normalizedAssignees = [...(childResult.data ?? []), ...(directResult.data ?? [])]
+  const normalizedAssignees = (await getTaskAcceptancesByTaskIds(supabase, rootTaskIds))
     .map((item) => normalizeTaskAcceptanceAssignee(item))
     .filter((item): item is NormalizedTaskAcceptanceAssignee => item !== null);
 
@@ -119,12 +77,12 @@ export async function getTaskAcceptanceAssigneesByRootTaskId(
 }
 
 function normalizeTaskAcceptanceAssignee(
-  value: TaskAcceptanceAssigneeRecord,
+  value: TaskAcceptanceRow,
 ): NormalizedTaskAcceptanceAssignee | null {
   const acceptedTaskId = normalizeNullableString(value.id);
-  const rootTaskId = normalizeNullableString(value.parent_task_id) ?? acceptedTaskId;
+  const rootTaskId = normalizeNullableString(value.task_id);
   const userId = normalizeNullableString(value.accepted_by_user_id);
-  const taskStatus = normalizeTaskStatus(value.status);
+  const taskStatus = value.status;
 
   if (!acceptedTaskId || !rootTaskId || !userId || !taskStatus) {
     return null;
