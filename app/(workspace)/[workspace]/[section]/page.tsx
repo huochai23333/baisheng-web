@@ -437,7 +437,7 @@ function getSectionNamespaces(
   }
 
   if (section === "commission" && config.pageVariants.commission) {
-    namespaces.push("Commission", "Tasks.shared");
+    namespaces.push("Commission", "DashboardPagination", "Tasks.shared");
   }
 
   if (section === "exchange-rates" && config.pageVariants.exchangeRates) {

@@ -4,9 +4,8 @@ import { useCallback, useDeferredValue, useMemo, useState } from "react";
 
 import { useTranslations } from "next-intl";
 import {
-  BadgeDollarSign,
   Coins,
-  ReceiptText,
+  Settings,
   ShieldAlert,
   WalletCards,
 } from "lucide-react";
@@ -18,8 +17,6 @@ import {
 } from "@/lib/admin-commission";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useDashboardPagination } from "@/lib/use-dashboard-pagination";
-import { useLocale } from "@/components/i18n/locale-provider";
-import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import {
   EmptyState,
   PageBanner,
@@ -37,10 +34,11 @@ import {
   SettlementFilter,
   summarizeByBeneficiary,
 } from "./admin-commission-sections";
+import { AdminCommissionHeader } from "./admin-commission-header";
+import { AdminCommissionSettingsSection } from "./admin-commission-settings-section";
 import { AdminTaskCommissionSection } from "./admin-task-commission-section";
 import { CommissionBoardSwitch } from "./commission-board-switch";
 import {
-  formatCommissionMoney,
   getCommissionCategoryLabel,
   getCommissionSettlementStatusLabel,
   toCommissionErrorMessage,
@@ -48,7 +46,7 @@ import {
 import { useManagedCommissionSettlement } from "./use-managed-commission-settlement";
 
 type PageFeedback = { message: string; tone: NoticeTone } | null;
-type CommissionBoard = "normal" | "task";
+type CommissionBoard = "normal" | "settings" | "task";
 
 const EMPTY_FILTERS: CommissionFilters = {
   beneficiaryUserId: "",
@@ -65,7 +63,6 @@ export function AdminCommissionClient({
 }) {
   const supabase = getBrowserSupabaseClient();
   const t = useTranslations("Commission");
-  const { locale } = useLocale();
   const settlementOptions = useMemo(
     () => [
       { value: "all" as SettlementFilter, label: t("options.settlement.all") },
@@ -117,9 +114,15 @@ export function AdminCommissionClient({
   );
 
   const [pageFeedback, setPageFeedback] = useState<PageFeedback>(null);
+  const [canManageSettings, setCanManageSettings] = useState(
+    initialData.canManageSettings,
+  );
   const [hasPermission, setHasPermission] = useState(initialData.hasPermission);
   const [commissions, setCommissions] = useState<AdminCommissionRow[]>(
     initialData.commissions,
+  );
+  const [commissionRuleSettings, setCommissionRuleSettings] = useState(
+    initialData.commissionRuleSettings,
   );
   const [taskCommissions, setTaskCommissions] = useState(initialData.taskCommissions);
   const [activeBoard, setActiveBoard] = useState<CommissionBoard>("normal");
@@ -127,8 +130,10 @@ export function AdminCommissionClient({
   const deferredSearchText = useDeferredValue(filters.searchText);
 
   const applyPageData = useCallback((pageData: AdminCommissionPageData) => {
+    setCanManageSettings(pageData.canManageSettings);
     setHasPermission(pageData.hasPermission);
     setCommissions(pageData.commissions);
+    setCommissionRuleSettings(pageData.commissionRuleSettings);
     setTaskCommissions(pageData.taskCommissions);
   }, []);
 
@@ -265,19 +270,23 @@ export function AdminCommissionClient({
       {
         key: "normal" as const,
         title: t("boards.normal.title"),
-        description: t("boards.normal.description"),
         meta: t("boards.normal.meta", { count: commissions.length }),
         icon: <WalletCards className="size-4" />,
       },
       {
         key: "task" as const,
         title: t("boards.task.title"),
-        description: t("boards.task.description"),
         meta: t("boards.task.meta", { count: taskCommissions.length }),
         icon: <Coins className="size-4" />,
       },
+      {
+        key: "settings" as const,
+        title: t("boards.settings.title"),
+        meta: t("boards.settings.meta", { count: commissionRuleSettings.length }),
+        icon: <Settings className="size-4" />,
+      },
     ],
-    [commissions.length, taskCommissions.length, t],
+    [commissionRuleSettings.length, commissions.length, taskCommissions.length, t],
   );
   const hasActiveFilters = Boolean(
     filters.searchText ||
@@ -322,47 +331,7 @@ export function AdminCommissionClient({
       {pageFeedback ? (
         <PageBanner tone={pageFeedback.tone}>{pageFeedback.message}</PageBanner>
       ) : null}
-      <DashboardSectionHeader
-        badge={t("header.badge")}
-        description={t("header.description")}
-        metrics={[
-          {
-            accent: "blue",
-            icon: <ReceiptText className="size-5" />,
-            key: "recordCount",
-            label: t("summary.recordCount"),
-            labelClassName: "sm:min-h-10 sm:leading-5",
-            value: summary.recordCount.toString(),
-          },
-          {
-            accent: "green",
-            icon: <WalletCards className="size-5" />,
-            key: "totalAmount",
-            label: t("summary.totalAmount"),
-            labelClassName: "sm:min-h-10 sm:leading-5",
-            value: formatCommissionMoney(summary.totalAmount, locale),
-          },
-          {
-            accent: "gold",
-            icon: <Coins className="size-5" />,
-            key: "pendingAmount",
-            label: t("summary.pendingAmount"),
-            labelClassName: "sm:min-h-10 sm:leading-5",
-            value: formatCommissionMoney(summary.pendingAmount, locale),
-          },
-          {
-            accent: "blue",
-            icon: <BadgeDollarSign className="size-5" />,
-            key: "paidAmount",
-            label: t("summary.paidAmount"),
-            labelClassName: "sm:min-h-10 sm:leading-5",
-            value: formatCommissionMoney(summary.paidAmount, locale),
-          },
-        ]}
-        metricsClassName="sm:grid-cols-2 xl:grid-cols-4"
-        metricsPlacement="below"
-        title={t("header.title")}
-      />
+      <AdminCommissionHeader summary={summary} />
       {!hasPermission ? (
         <section className="rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8">
           <EmptyState
@@ -404,11 +373,17 @@ export function AdminCommissionClient({
                 settlingCommissionId={settlingCommissionId}
               />
             </>
-          ) : (
+          ) : activeBoard === "task" ? (
             <AdminTaskCommissionSection
               onMarkAsPaid={handleMarkTaskCommissionAsPaid}
               rows={taskCommissions}
               settlingTaskCommissionId={settlingTaskCommissionId}
+            />
+          ) : (
+            <AdminCommissionSettingsSection
+              canManageSettings={canManageSettings}
+              onRowsChange={setCommissionRuleSettings}
+              rows={commissionRuleSettings}
             />
           )}
         </>

@@ -21,7 +21,10 @@ import {
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
-import type { AdminPeopleChangeLogRow, AdminPersonRow } from "@/lib/admin-people";
+import type {
+  AdminPeopleChangeLogRow,
+  AdminPersonRow,
+} from "@/lib/admin-people";
 import type { Locale } from "@/lib/locale";
 import { cn } from "@/lib/utils";
 
@@ -143,9 +146,7 @@ export function AdminPeopleDirectorySection({
       eyebrow={t("directory.eyebrow")}
       title={t("directory.title")}
     >
-      <DashboardFilterPanel
-        gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"
-      >
+      <DashboardFilterPanel gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <DashboardFilterField label={t("filters.search")}>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
@@ -270,10 +271,26 @@ export function AdminPeopleRecentChangesSection({
                       {getRoleLabel(change.next_role, roleLabels, fallback)}
                     </p>
                     <p className="mt-1">
-                      {getStatusLabel(change.previous_status, statusLabels, fallback)}
+                      {getStatusLabel(
+                        change.previous_status,
+                        statusLabels,
+                        fallback,
+                      )}
                       {" -> "}
-                      {getStatusLabel(change.next_status, statusLabels, fallback)}
+                      {getStatusLabel(
+                        change.next_status,
+                        statusLabels,
+                        fallback,
+                      )}
                     </p>
+                    {change.previous_city !== change.next_city ? (
+                      <p className="mt-1">
+                        {t("logs.cityChange", {
+                          from: change.previous_city ?? fallback,
+                          to: change.next_city ?? fallback,
+                        })}
+                      </p>
+                    ) : null}
                   </td>
                   <td className="px-4 py-4 text-[#53616d]">
                     {change.actor_name ?? change.actor_email ?? fallback}

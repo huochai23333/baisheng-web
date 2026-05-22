@@ -242,8 +242,6 @@ export function ExchangeRatesClient({
   );
 
   const hasActiveFilters = Boolean(filters.originalCurrency || filters.targetCurrency);
-  const latestUpdatedAt = rates[0]?.created_at ?? null;
-
   const openCreateDialog = useCallback(() => {
     if (!canManage) {
       return;
@@ -461,10 +459,7 @@ export function ExchangeRatesClient({
 
       <ExchangeRatesHeaderSection
         canManage={canManageDirectRates}
-        latestRowsCount={latestRows.length}
-        latestUpdatedAt={latestUpdatedAt}
         onCreate={openCreateDialog}
-        ratesCount={rates.length}
       />
 
       {hasPermission === false ? (

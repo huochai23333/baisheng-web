@@ -13,7 +13,6 @@ export {
   formatVipScope,
   getOrderTypeMetaFromCategory,
   getOrderUserOptionLabel,
-  getServiceSubtypeCostPreset,
   getStatusLabel,
   resolveOrderTypeMeta,
   resolveOrderUserLabel,

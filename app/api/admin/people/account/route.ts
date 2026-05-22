@@ -46,19 +46,26 @@ export async function POST(request: Request) {
   }
 }
 
-function normalizeRequestPayload(value: unknown): AdminPersonAccountUpdatePayload {
+function normalizeRequestPayload(
+  value: unknown,
+): AdminPersonAccountUpdatePayload {
   if (!isRecord(value)) {
     throw new Error("admin_people_invalid_input");
   }
 
-  if (!isAdminPeopleRole(value.nextRole) || !isAdminPeopleStatus(value.nextStatus)) {
+  if (
+    !isAdminPeopleRole(value.nextRole) ||
+    !isAdminPeopleStatus(value.nextStatus)
+  ) {
     throw new Error("admin_people_invalid_input");
   }
 
   return {
-    targetUserId: typeof value.targetUserId === "string" ? value.targetUserId : "",
+    targetUserId:
+      typeof value.targetUserId === "string" ? value.targetUserId : "",
     nextRole: value.nextRole,
     nextStatus: value.nextStatus,
+    nextCity: typeof value.nextCity === "string" ? value.nextCity : null,
     salesmanBusinessBoards: normalizeSalesmanBusinessBoards(
       value.salesmanBusinessBoards,
     ),

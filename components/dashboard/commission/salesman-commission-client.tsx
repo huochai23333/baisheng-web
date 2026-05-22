@@ -73,14 +73,12 @@ export function SalesmanCommissionClient({
     {
       key: "normal" as const,
       title: t("boards.normal.title"),
-      description: t("boards.normal.description"),
       meta: t("boards.normal.meta", { count: commissions.length }),
       icon: <WalletCards className="size-4" />,
     },
     {
       key: "task" as const,
       title: t("boards.task.title"),
-      description: t("boards.task.description"),
       meta: t("boards.task.meta", { count: taskCommissions.length }),
       icon: <Coins className="size-4" />,
     },

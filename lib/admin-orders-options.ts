@@ -116,7 +116,7 @@ export async function getServiceOrderPriceOptions(
   const { data, error } = await withRequestTimeout(
     supabase
       .from("service_order_price_option")
-      .select("id,service_order_type_id,price_code,display_name,amount_usd,sort_order,is_active")
+      .select("id,service_order_type_id,price_code,display_name,amount_usd,cost_amount_rmb,sort_order,is_active")
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
       .returns<ServiceOrderPriceOption[]>(),

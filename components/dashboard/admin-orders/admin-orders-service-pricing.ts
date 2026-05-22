@@ -16,6 +16,7 @@ export function applyServicePricingToOrderForm(
     orderCategory: string | null;
     orderDiscountOptions: OrderDiscountTypeOption[];
     serviceOrderPriceOptions: ServiceOrderPriceOption[];
+    syncCostAmount?: boolean;
   },
 ): OrderFormState {
   if (options.orderCategory !== "service") {
@@ -39,12 +40,17 @@ export function applyServicePricingToOrderForm(
     selectedDiscount?.discount_ratio ?? null,
   );
   const amountValue = amount === null ? "" : formatServiceAmountForInput(amount);
+  const costAmountValue =
+    selectedPriceOption?.cost_amount_rmb === undefined
+      ? ""
+      : formatServiceAmountForInput(selectedPriceOption.cost_amount_rmb);
   const nextState = {
     ...formState,
     originalCurrency: "USD",
     servicePriceOption: selectedPriceOption?.id ?? "",
     serviceDiscount: selectedDiscount?.id ?? "",
     amount: amountValue,
+    ...(options.syncCostAmount ? { costAmount: costAmountValue } : {}),
   };
 
   return {

@@ -3,7 +3,6 @@ import { type AdminOrdersFilters } from "@/lib/admin-orders";
 import {
   deriveRmbAmountValue,
   deriveTransactionRateValue,
-  getServiceSubtypeCostPreset,
   type OrderFormState,
 } from "./admin-orders-utils";
 
@@ -159,14 +158,6 @@ export function getNextOrderFormState<Key extends keyof OrderFormState>(
     nextState.serviceDetails = "";
     nextState.vipScope = "retail";
     nextState.vipDetails = "";
-  }
-
-  if (key === "serviceSubtype") {
-    const presetCost = getServiceSubtypeCostPreset(String(value));
-
-    if (presetCost !== null) {
-      nextState.costAmount = presetCost;
-    }
   }
 
   return nextState;

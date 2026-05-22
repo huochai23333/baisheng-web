@@ -58,6 +58,7 @@ export type ServiceOrderPriceOption = {
   price_code: string;
   display_name: string;
   amount_usd: number | string;
+  cost_amount_rmb: number | string;
   sort_order: number;
   is_active: boolean;
 };

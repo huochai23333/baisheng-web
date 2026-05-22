@@ -7,7 +7,6 @@ import { DashboardSegmentedTabs } from "@/components/dashboard/dashboard-segment
 type BoardOption<Key extends string> = {
   key: Key;
   title: string;
-  description: string;
   meta: string;
   icon?: ReactNode;
 };
@@ -26,7 +25,6 @@ export function CommissionBoardSwitch<Key extends string>({
       onChange={onChange}
       options={options.map((option) => ({
         badge: option.meta,
-        description: option.description,
         icon: option.icon,
         key: option.key,
         label: option.title,

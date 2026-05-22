@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   ArrowLeftRight,
-  Clock3,
   History,
   LoaderCircle,
   PencilLine,
@@ -55,10 +54,7 @@ type PaginationState = {
 
 type ExchangeRatesHeaderSectionProps = {
   canManage: boolean;
-  latestRowsCount: number;
-  latestUpdatedAt: string | null;
   onCreate: () => void;
-  ratesCount: number;
 };
 
 type ExchangeRatesLatestSectionProps = {
@@ -91,13 +87,9 @@ type ExchangeRatesHistorySectionProps = {
 
 export const ExchangeRatesHeaderSection = memo(function ExchangeRatesHeaderSection({
   canManage,
-  latestRowsCount,
-  latestUpdatedAt,
   onCreate,
-  ratesCount,
 }: ExchangeRatesHeaderSectionProps) {
   const t = useTranslations("ExchangeRates");
-  const { locale } = useLocale();
 
   return (
     <DashboardSectionHeader
@@ -116,31 +108,6 @@ export const ExchangeRatesHeaderSection = memo(function ExchangeRatesHeaderSecti
       badge={t("header.badge")}
       contentClassName="max-w-2xl"
       description={t("header.description")}
-      metrics={[
-        {
-          accent: "blue",
-          icon: <ArrowLeftRight className="size-5" />,
-          key: "pairs",
-          label: t("summary.pairs"),
-          value: String(latestRowsCount),
-        },
-        {
-          accent: "gold",
-          icon: <History className="size-5" />,
-          key: "history",
-          label: t("summary.history"),
-          value: String(ratesCount),
-        },
-        {
-          accent: "green",
-          icon: <Clock3 className="size-5" />,
-          key: "latest",
-          label: t("summary.latestUpdated"),
-          value: latestUpdatedAt
-            ? formatDateTime(latestUpdatedAt, locale)
-            : t("summary.noRecord"),
-        },
-      ]}
       title={t("header.title")}
     />
   );

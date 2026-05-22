@@ -189,6 +189,10 @@ export function useAdminOrderCreateDialog({
             orderCategory: selectedCategory,
             orderDiscountOptions,
             serviceOrderPriceOptions,
+            syncCostAmount:
+              key === "serviceSubtype" ||
+              key === "servicePriceOption" ||
+              !nextState.costAmount.trim(),
           });
         }
 

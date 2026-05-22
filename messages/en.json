@@ -27,6 +27,12 @@
     "en": "EN",
     "switching": "Switching"
   },
+  "DashboardPagination": {
+    "range": "Showing {start} - {end} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} / {pageCount}"
+  },
   "AuthShell": {
     "brandTitle": "Baisheng Management System",
     "brandSubtitle": "Curated Admin Console",
@@ -955,22 +961,26 @@
       "serviceOrders": {
         "badge": "Service Orders",
         "title": "Service Prices and Discounts",
-        "description": "Service orders are saved from fixed USD prices and do not have service fees. Service discounts are available only to customers with an active Retail/Service VIP.",
+        "description": "Service orders are saved from fixed USD prices and do not have service fees. Service order discounts are available only to customers with an active Retail/Service VIP.",
         "priceSummaryLabel": "Price Options",
         "discountSummaryLabel": "Discounts",
         "prices": {
           "title": "Service Prices",
-          "description": "These prices set the service order amount. Orders calculate the final amount from the selected price and discount."
+          "description": "These prices set the service order amount and default cost amount. Orders fill them from the selected price, cost, and discount."
         },
         "discounts": {
-          "title": "Service Discounts",
-          "description": "Discounts are only for active Retail/Service VIP customers. Other customers are saved at the 100% price."
+          "title": "Service Order Discounts",
+          "description": "Standard customers are saved at the 100% price. Retail/Service VIP customers can use service order discounts."
         },
         "table": {
           "service": "Service",
           "option": "Price Option",
           "price": "USD Price",
+          "cost": "Cost Amount",
+          "customerType": "Customer Type",
           "discount": "Discount",
+          "regularUser": "Standard Customers",
+          "retailServiceVipUser": "Retail/Service VIP Customers",
           "actions": "Actions"
         },
         "edit": "Edit",
@@ -979,6 +989,7 @@
         "updateSuccess": "Service order settings updated.",
         "validation": {
           "price": "Enter a USD price greater than 0.",
+          "cost": "Enter a cost amount of 0 or more.",
           "discount": "Enter a discount greater than 0 and up to 100%."
         },
         "errors": {
@@ -1540,13 +1551,15 @@
     "boards": {
       "normal": {
         "title": "Normal Commission",
-        "description": "Review standard commission records from orders, referrals, and manual adjustments, then settle pending items after verification.",
         "meta": "{count} records"
       },
       "task": {
         "title": "Task Commission",
-        "description": "Review reward commission records created after task approvals, then settle them manually after verification.",
         "meta": "{count} records"
+      },
+      "settings": {
+        "title": "Commission Settings",
+        "meta": "{count} rules"
       }
     },
     "summary": {
@@ -1645,6 +1658,74 @@
           "time": "Time",
           "actions": "Actions"
         }
+      }
+    },
+    "settings": {
+      "badge": "Commission Settings",
+      "title": "Commission Settings",
+      "description": "Manage order commission, referral commission, and VIP first-year reward rules here. Task rewards are still set from task types and task creation.",
+      "summary": {
+        "orderRules": "Order Rules",
+        "serviceRules": "Service Rules",
+        "referralRules": "Referral Rules"
+      },
+      "rulesSection": {
+        "title": "Commission Rules",
+        "description": "New completed orders use the updated rules. Already paid records are not changed automatically."
+      },
+      "table": {
+        "rule": "Rule",
+        "value": "Current Value",
+        "calculation": "Calculation",
+        "actions": "Actions",
+        "missing": "Not available"
+      },
+      "fields": {
+        "tier1Rate": "First Rate",
+        "tier1Limit": "First Amount",
+        "tier2Rate": "Extra Rate",
+        "rate": "Rate",
+        "bonusUsd": "Reward Amount"
+      },
+      "rules": {
+        "purchaseSalesmanTier": "Purchase Order Sales Commission",
+        "purchaseReferral": "Purchase Order Referral Commission",
+        "serviceEscortSalesman": "Escort Service Sales Commission",
+        "digitalSurvivalSalesman": "Digital Survival Sales Commission",
+        "serviceReferral": "Service Order Referral Commission",
+        "vipFirstYearReferralBonus": "VIP First-Year Referral Reward"
+      },
+      "ruleDescriptions": {
+        "purchaseSalesmanTier": "Created for the salesperson who entered a completed purchase order.",
+        "purchaseReferral": "Created for the referrer when a referred customer completes a purchase order.",
+        "serviceEscortSalesman": "Applies to tour escort orders and medical escort orders. Created for the salesperson after the order is completed.",
+        "digitalSurvivalSalesman": "Created for the salesperson after a digital survival service is completed.",
+        "serviceReferral": "Created for the referrer when a referred customer completes a service order.",
+        "vipFirstYearReferralBonus": "Created for the referrer when a referred customer opens the matching VIP for the first time."
+      },
+      "calculations": {
+        "purchaseSalesmanTier": "Commission = min(purchase order RMB amount, {tier1Limit}) × {tier1Rate} + max(purchase order RMB amount - {tier1Limit}, 0) × {tier2Rate}",
+        "purchaseReferral": "Commission = purchase order RMB amount × {rate}",
+        "serviceEscortSalesman": "Commission = cost amount + (service order RMB amount - cost amount) × {rate}",
+        "digitalSurvivalSalesman": "Commission = max(service order RMB amount - cost amount, 0) × {rate}",
+        "serviceReferral": "Commission = service order RMB amount × {rate}",
+        "vipFirstYearReferralBonus": "Commission = {bonusUsd} × order transaction rate"
+      },
+      "actions": {
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "validation": {
+        "rate": "Enter a rate between 0 and 100.",
+        "amount": "Enter an amount greater than 0."
+      },
+      "feedback": {
+        "updateSuccess": "Commission settings have been updated."
+      },
+      "errors": {
+        "permission": "This account cannot update commission settings.",
+        "unknown": "Commission settings could not be saved. Please try again later."
       }
     },
     "salesmanTaskSection": {
@@ -2234,7 +2315,7 @@
     "header": {
       "badge": "Admin Only",
       "title": "People Management",
-      "description": "Review system accounts and adjust account role or status. Role changes do not automatically change referral or team relationships."
+      "description": "Review system accounts and adjust account role, status, and city. Role changes do not automatically change referral or team relationships."
     },
     "summary": {
       "total": "Total People",
@@ -2257,7 +2338,7 @@
     "directory": {
       "eyebrow": "People Directory",
       "title": "Accounts",
-      "description": "This area only adjusts account role and status. Referral relationships, team membership, and commission records are not changed automatically.",
+      "description": "This area adjusts account role, status, and city. Referral relationships, team membership, and commission records are not changed automatically.",
       "emptyTitle": "No people match these filters",
       "emptyDescription": "Adjust the search text or filters and try again.",
       "columns": {
@@ -2280,10 +2361,11 @@
     "logs": {
       "eyebrow": "Audit Records",
       "title": "Recent Adjustments",
-      "description": "Recent administrator changes to account role and status are recorded here for later review.",
+      "description": "Recent administrator changes to account role, status, and city are recorded here for later review.",
       "emptyTitle": "No adjustment records yet",
       "emptyDescription": "Records will appear here after an administrator adjusts an account.",
       "noNote": "No note",
+      "cityChange": "City: {from} -> {to}",
       "columns": {
         "target": "Person",
         "change": "Change",
@@ -2294,21 +2376,18 @@
     },
     "dialog": {
       "title": "Adjust {name}",
-      "description": "After saving, the account role and status are synced. The target account fully receives the change after the next sign-in or session refresh.",
-      "currentRole": "Current Role",
-      "currentStatus": "Current Status",
+      "description": "After saving, the updated account information applies after the person signs in again or refreshes the page.",
       "nextRole": "New Role",
       "nextStatus": "New Status",
+      "nextCity": "City",
+      "cityPlaceholder": "Enter a city, or leave it blank",
       "customerType": "Customer Mark",
       "customerTypeHint": "Current mark: {value}. This mark is only used internally to distinguish retail and wholesale customers.",
       "customerTypePlaceholder": "Choose a customer mark",
       "businessAccess": "Visible Business",
       "businessAccessHint": "This only controls the business boards a sales account can view and handle. It does not change referrals or team membership.",
       "note": "Note",
-      "notePlaceholder": "Add a reason so the change is easy to review later",
-      "effectHint": "Role and status changes fully apply after the target account signs in again or refreshes the session.",
-      "relationHint": "This action does not automatically change referral trees, team membership, or commission records. Use the related sections for those changes.",
-      "selfHint": "To avoid locking out the current account, you cannot adjust your own role or status here."
+      "notePlaceholder": "Add a reason so the change is easy to review later"
     },
     "actions": {
       "adjust": "Adjust Account",
@@ -2350,18 +2429,18 @@
       "noTeam": "No team"
     },
     "feedback": {
-      "saved": "Account adjustment saved. The target account will see the new access after the next sign-in or session refresh.",
+      "saved": "Account information saved. The person will see the updated access and details after the next sign-in or page refresh.",
       "customerTypeSaved": "Customer mark saved.",
       "vipApproved": "VIP request approved and the VIP recharge order has been created.",
       "vipRejected": "VIP request rejected."
     },
     "errors": {
       "forbidden": "The current account cannot adjust people accounts.",
-      "invalidInput": "Choose a valid role, account status, and business access.",
+      "invalidInput": "Choose a valid role, account status, city, and business access.",
       "lastAdmin": "The system must keep at least one active administrator account.",
-      "noChange": "The account role, status, and business access did not change.",
+      "noChange": "The account role, status, city, and business access did not change.",
       "notFound": "The person account could not be found.",
-      "selfChange": "You cannot adjust your own role or status here.",
+      "selfChange": "You cannot adjust your own account information here.",
       "serviceUnavailable": "The account adjustment could not be saved. Please try again later.",
       "unknown": "The account adjustment could not be saved. Please try again later.",
       "processed": "This VIP request has already been handled."

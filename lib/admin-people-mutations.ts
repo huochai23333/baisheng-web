@@ -1,13 +1,12 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 import {
+  ADMIN_PEOPLE_CITY_MAX_LENGTH,
   getAdminPersonRowById,
   isAdminPeopleRole,
   isAdminPeopleStatus,
   type AdminPersonAccountUpdatePayload,
   type AdminPersonRow,
-  type AdminPeopleRole,
-  type AdminPeopleStatus,
 } from "./admin-people";
 import { getSupabaseServiceRoleClient } from "./supabase-admin-server";
 import { withRequestTimeout } from "./request-timeout";
@@ -28,14 +27,6 @@ export type AdminPeopleUpdateErrorCode =
   | "selfChange"
   | "serviceUnavailable"
   | "unknown";
-
-type PreparedAccountChange = {
-  target_user_id: string;
-  previous_role: string | null;
-  previous_status: string | null;
-  next_role: AdminPeopleRole;
-  next_status: AdminPeopleStatus;
-};
 
 const ADMIN_PEOPLE_MUTATION_TIMEOUT_MS = 30_000;
 
@@ -63,7 +54,10 @@ export async function updateAdminPersonAccount(
   }
 
   const payload = normalizeAdminPersonAccountUpdatePayload(input);
-  const currentPerson = await getAdminPersonRowById(supabase, payload.targetUserId);
+  const currentPerson = await getAdminPersonRowById(
+    supabase,
+    payload.targetUserId,
+  );
 
   if (!currentPerson) {
     throw new AdminPeopleMutationError("notFound");
@@ -72,31 +66,41 @@ export async function updateAdminPersonAccount(
   const accountWillChange =
     currentPerson.role !== payload.nextRole ||
     currentPerson.status !== payload.nextStatus;
+  const cityWillChange =
+    normalizeAccountCity(currentPerson.city) !== payload.nextCity;
   const businessBoards = normalizePayloadBusinessBoards(payload);
   const businessAccessWillChange =
-    currentPerson.role === "salesman" ||
-    payload.nextRole === "salesman"
+    currentPerson.role === "salesman" || payload.nextRole === "salesman"
       ? !areSalesmanBusinessBoardsEqual(
           currentPerson.salesman_business_boards,
           businessBoards,
         )
       : false;
 
-  if (!accountWillChange && !businessAccessWillChange) {
+  if (!accountWillChange && !cityWillChange && !businessAccessWillChange) {
     throw new AdminPeopleMutationError("noChange");
   }
 
-  if (accountWillChange) {
+  if (accountWillChange || cityWillChange) {
     await prepareAdminPersonAccountChange(supabase, payload);
     await applyAdminPersonAccountChange(supabase, payload);
-    await syncTargetAuthMetadata(payload);
+    if (accountWillChange) {
+      await syncTargetAuthMetadata(payload);
+    }
   }
 
   if (currentPerson.role === "salesman" || payload.nextRole === "salesman") {
-    await setSalesmanBusinessAccess(supabase, payload.targetUserId, businessBoards);
+    await setSalesmanBusinessAccess(
+      supabase,
+      payload.targetUserId,
+      businessBoards,
+    );
   }
 
-  const updatedPerson = await getAdminPersonRowById(supabase, payload.targetUserId);
+  const updatedPerson = await getAdminPersonRowById(
+    supabase,
+    payload.targetUserId,
+  );
 
   if (!updatedPerson) {
     throw new AdminPeopleMutationError("notFound");
@@ -172,6 +176,7 @@ function normalizeAdminPersonAccountUpdatePayload(
     typeof input.note === "string" && input.note.trim().length > 0
       ? input.note.trim().slice(0, 500)
       : null;
+  const nextCity = normalizeAccountCity(input.nextCity);
 
   if (
     !targetUserId ||
@@ -185,6 +190,7 @@ function normalizeAdminPersonAccountUpdatePayload(
     targetUserId,
     nextRole: input.nextRole,
     nextStatus: input.nextStatus,
+    nextCity,
     salesmanBusinessBoards:
       input.salesmanBusinessBoards === null ||
       input.salesmanBusinessBoards === undefined
@@ -194,9 +200,7 @@ function normalizeAdminPersonAccountUpdatePayload(
   };
 }
 
-function normalizeInputBusinessBoards(
-  value: unknown,
-): SalesmanBusinessBoard[] {
+function normalizeInputBusinessBoards(value: unknown): SalesmanBusinessBoard[] {
   if (!Array.isArray(value) || !value.every(isSalesmanBusinessBoard)) {
     throw new AdminPeopleMutationError("invalidInput");
   }
@@ -221,12 +225,13 @@ function normalizePayloadBusinessBoards(
 async function prepareAdminPersonAccountChange(
   supabase: SupabaseClient,
   input: AdminPersonAccountUpdatePayload,
-): Promise<PreparedAccountChange> {
-  const { data, error } = await withRequestTimeout(
+): Promise<void> {
+  const { error } = await withRequestTimeout(
     supabase.rpc("admin_prepare_person_account_change", {
       _target_user_id: input.targetUserId,
       _next_role: input.nextRole,
       _next_status: input.nextStatus,
+      _next_city: input.nextCity,
     }),
     {
       timeoutMs: ADMIN_PEOPLE_MUTATION_TIMEOUT_MS,
@@ -236,14 +241,6 @@ async function prepareAdminPersonAccountChange(
   if (error) {
     throw error;
   }
-
-  const preparedChange = Array.isArray(data) ? data[0] : data;
-
-  if (!isPreparedAccountChange(preparedChange)) {
-    throw new AdminPeopleMutationError("unknown");
-  }
-
-  return preparedChange;
 }
 
 async function applyAdminPersonAccountChange(
@@ -255,6 +252,7 @@ async function applyAdminPersonAccountChange(
       _target_user_id: input.targetUserId,
       _next_role: input.nextRole,
       _next_status: input.nextStatus,
+      _next_city: input.nextCity,
       _note: input.note ?? null,
     }),
     {
@@ -333,7 +331,10 @@ async function updateTargetAuthMetadata(
 async function syncTargetAuthMetadata(input: AdminPersonAccountUpdatePayload) {
   try {
     const serviceSupabase = getSupabaseServiceRoleClient();
-    const authUser = await getTargetAuthUser(serviceSupabase, input.targetUserId);
+    const authUser = await getTargetAuthUser(
+      serviceSupabase,
+      input.targetUserId,
+    );
     const previousAppMetadata = readAppMetadata(authUser);
 
     await updateTargetAuthMetadata(serviceSupabase, input.targetUserId, {
@@ -351,18 +352,13 @@ function readAppMetadata(user: User): Record<string, unknown> {
   return isRecord(user.app_metadata) ? user.app_metadata : {};
 }
 
-function isPreparedAccountChange(value: unknown): value is PreparedAccountChange {
-  if (!isRecord(value)) {
-    return false;
+function normalizeAccountCity(value: unknown) {
+  if (typeof value !== "string") {
+    return null;
   }
 
-  return (
-    typeof value.target_user_id === "string" &&
-    (typeof value.previous_role === "string" || value.previous_role === null) &&
-    (typeof value.previous_status === "string" || value.previous_status === null) &&
-    isAdminPeopleRole(value.next_role) &&
-    isAdminPeopleStatus(value.next_status)
-  );
+  const normalized = value.trim().slice(0, ADMIN_PEOPLE_CITY_MAX_LENGTH);
+  return normalized.length > 0 ? normalized : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

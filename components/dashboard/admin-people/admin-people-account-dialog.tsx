@@ -4,18 +4,14 @@ import { LoaderCircle, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
-import { type AdminPersonRow } from "@/lib/admin-people";
+import {
+  ADMIN_PEOPLE_CITY_MAX_LENGTH,
+  type AdminPersonRow,
+} from "@/lib/admin-people";
 import type { SalesmanBusinessBoard } from "@/lib/salesman-business-access";
 
-import {
-  getCustomerTypeLabel,
-  getPersonContact,
-  getPersonDisplayName,
-  getRoleLabel,
-  getStatusLabel,
-} from "./admin-people-display";
+import { getCustomerTypeLabel } from "./admin-people-display";
 import type { useAdminPeopleViewModel } from "./use-admin-people-view-model";
 
 type AdminPeopleViewModel = ReturnType<typeof useAdminPeopleViewModel>;
@@ -27,12 +23,14 @@ export function AdminPeopleAccountDialog({
   customerTypeLabels,
   customerTypeOptions,
   draftBusinessBoards,
+  draftCity,
   draftCustomerType,
   draftNote,
   draftRole,
   draftStatus,
   onClose,
   onDraftBusinessBoardChange,
+  onDraftCityChange,
   onDraftCustomerTypeChange,
   onDraftNoteChange,
   onDraftRoleChange,
@@ -54,6 +52,7 @@ export function AdminPeopleAccountDialog({
   customerTypeLabels: AdminPeopleViewModel["customerTypeLabels"];
   customerTypeOptions: AdminPeopleViewModel["customerTypeOptions"];
   draftBusinessBoards: AdminPeopleViewModel["draftBusinessBoards"];
+  draftCity: string;
   draftCustomerType: AdminPeopleViewModel["draftCustomerType"];
   draftNote: string;
   draftRole: string;
@@ -63,6 +62,7 @@ export function AdminPeopleAccountDialog({
     board: SalesmanBusinessBoard,
     checked: boolean,
   ) => void;
+  onDraftCityChange: (value: string) => void;
   onDraftCustomerTypeChange: (value: string) => void;
   onDraftNoteChange: (value: string) => void;
   onDraftRoleChange: (value: string) => void;
@@ -120,41 +120,6 @@ export function AdminPeopleAccountDialog({
     >
       {person ? (
         <div className="space-y-5">
-          <div className="rounded-[22px] border border-[#e4e9ed] bg-white p-5">
-            <p className="text-lg font-semibold text-[#23313a]">
-              {getPersonDisplayName(person, t("fallback.unnamedUser"))}
-            </p>
-            <p className="mt-1 text-sm text-[#6a7680]">
-              {getPersonContact(person, t("fallback.notProvided"))}
-            </p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <ReadonlyValue
-                label={t("dialog.currentRole")}
-                value={getRoleLabel(
-                  person.role,
-                  roleLabels,
-                  t("fallback.notProvided"),
-                )}
-              />
-              <ReadonlyValue
-                label={t("dialog.currentStatus")}
-                value={getStatusLabel(
-                  person.status,
-                  statusLabels,
-                  t("fallback.notProvided"),
-                )}
-              />
-            </div>
-          </div>
-
-          {selectedPersonIsCurrentViewer ? (
-            <PageBanner tone="info">{t("dialog.selfHint")}</PageBanner>
-          ) : (
-            <PageBanner tone="info">{t("dialog.effectHint")}</PageBanner>
-          )}
-
-          <PageBanner tone="info">{t("dialog.relationHint")}</PageBanner>
-
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
               <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
@@ -191,6 +156,20 @@ export function AdminPeopleAccountDialog({
                 ))}
               </select>
             </label>
+
+            <label className="block sm:col-span-2">
+              <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+                {t("dialog.nextCity")}
+              </span>
+              <input
+                className="h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none transition placeholder:text-[#8a949c] focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+                disabled={selectedPersonIsCurrentViewer || saving}
+                maxLength={ADMIN_PEOPLE_CITY_MAX_LENGTH}
+                onChange={(event) => onDraftCityChange(event.target.value)}
+                placeholder={t("dialog.cityPlaceholder")}
+                value={draftCity}
+              />
+            </label>
           </div>
 
           {draftRole === "client" ? (
@@ -219,7 +198,9 @@ export function AdminPeopleAccountDialog({
                   }
                   value={draftCustomerType}
                 >
-                  <option value="">{t("dialog.customerTypePlaceholder")}</option>
+                  <option value="">
+                    {t("dialog.customerTypePlaceholder")}
+                  </option>
                   {customerTypeOptions.map((customerType) => (
                     <option key={customerType} value={customerType}>
                       {customerTypeLabels[customerType]}
@@ -276,16 +257,5 @@ export function AdminPeopleAccountDialog({
         </div>
       ) : null}
     </DashboardDialog>
-  );
-}
-
-function ReadonlyValue({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[18px] bg-[#f6f4f0] px-4 py-3">
-      <p className="text-[11px] font-semibold tracking-[0.14em] text-[#88939b] uppercase">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-semibold text-[#23313a]">{value}</p>
-    </div>
   );
 }

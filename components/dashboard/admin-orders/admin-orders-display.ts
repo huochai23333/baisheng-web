@@ -10,12 +10,6 @@ import {
   VIP_SCOPE_KEYS,
 } from "./admin-orders-copy";
 
-const SERVICE_SUBTYPE_COST_PRESETS: Record<string, string> = {
-  tour_escort: "400",
-  medical_escort: "600",
-  digital_survival: "300",
-};
-
 function getPurchaseSubtypeLabel(
   value: keyof typeof PURCHASE_SUBTYPE_KEYS,
   copy: OrdersUiCopy,
@@ -166,16 +160,6 @@ export function formatVipScope(
   return matchedKey
     ? copy.subtypes.vipRecharge[normalizedValue as keyof typeof VIP_SCOPE_KEYS]
     : normalizedValue;
-}
-
-export function getServiceSubtypeCostPreset(value: string | null | undefined) {
-  const normalizedValue = normalizeOptionalString(value);
-
-  if (!normalizedValue) {
-    return null;
-  }
-
-  return SERVICE_SUBTYPE_COST_PRESETS[normalizedValue] ?? null;
 }
 
 export function formatDiscountRatioValue(

@@ -7,18 +7,24 @@ import type {
 } from "./admin-orders-types";
 
 const SERVICE_ORDER_PRICE_SELECT =
-  "id,service_order_type_id,price_code,display_name,amount_usd,sort_order,is_active";
+  "id,service_order_type_id,price_code,display_name,amount_usd,cost_amount_rmb,sort_order,is_active";
 const ORDER_DISCOUNT_SELECT = "id,discount_ratio";
 
 export async function updateServiceOrderPriceOption(
   supabase: SupabaseClient,
   id: string,
-  amountUsd: number,
+  values: {
+    amountUsd: number;
+    costAmountRmb: number;
+  },
 ): Promise<ServiceOrderPriceOption> {
   const { data, error } = await withRequestTimeout(
     supabase
       .from("service_order_price_option")
-      .update({ amount_usd: amountUsd })
+      .update({
+        amount_usd: values.amountUsd,
+        cost_amount_rmb: values.costAmountRmb,
+      })
       .eq("id", id)
       .select(SERVICE_ORDER_PRICE_SELECT)
       .single<ServiceOrderPriceOption>(),

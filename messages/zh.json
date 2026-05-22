@@ -27,6 +27,12 @@
     "en": "EN",
     "switching": "切换中"
   },
+  "DashboardPagination": {
+    "range": "当前显示第 {start} - {end} 条，共 {total} 条",
+    "previous": "上一页",
+    "next": "下一页",
+    "page": "第 {page} / {pageCount} 页"
+  },
   "AuthShell": {
     "brandTitle": "柏盛管理系统",
     "brandSubtitle": "精选管理工作台",
@@ -955,22 +961,26 @@
       "serviceOrders": {
         "badge": "服务订单",
         "title": "服务价格与折扣",
-        "description": "服务订单按固定美元价格保存，没有服务费；客户拥有零售/服务VIP时才可以使用服务折扣。",
+        "description": "服务订单按固定美元价格保存，没有服务费；客户拥有零售/服务VIP时才可以使用服务订单折扣。",
         "priceSummaryLabel": "服务价格项",
         "discountSummaryLabel": "可选折扣",
         "prices": {
           "title": "服务价格",
-          "description": "这些价格用于服务订单金额，保存订单时会按价格和折扣自动计算。"
+          "description": "这些价格用于服务订单金额和默认成本金额，保存订单时会按价格、成本和折扣自动带入。"
         },
         "discounts": {
-          "title": "服务折扣",
-          "description": "折扣只给有效零售/服务VIP客户使用；普通客户按 100% 原价保存。"
+          "title": "服务订单折扣",
+          "description": "普通用户按 100% 原价保存；零售/服务VIP用户可以使用服务订单折扣。"
         },
         "table": {
           "service": "服务项目",
           "option": "价格选项",
           "price": "美元价格",
+          "cost": "成本金额",
+          "customerType": "适用用户",
           "discount": "折扣",
+          "regularUser": "普通用户",
+          "retailServiceVipUser": "零售/服务VIP用户",
           "actions": "操作"
         },
         "edit": "修改",
@@ -979,6 +989,7 @@
         "updateSuccess": "服务订单设置已更新。",
         "validation": {
           "price": "请输入大于 0 的美元价格。",
+          "cost": "请输入不小于 0 的成本金额。",
           "discount": "请输入大于 0 且不超过 100% 的折扣。"
         },
         "errors": {
@@ -1540,13 +1551,15 @@
     "boards": {
       "normal": {
         "title": "普通佣金",
-        "description": "查看订单、推荐和手工调整等常规佣金记录，并处理待结算佣金。",
         "meta": "{count} 条记录"
       },
       "task": {
         "title": "任务佣金",
-        "description": "查看任务审核通过后生成的奖励佣金记录，并在复核后手动结算。",
         "meta": "{count} 条记录"
+      },
+      "settings": {
+        "title": "佣金设置",
+        "meta": "{count} 条规则"
       }
     },
     "summary": {
@@ -1645,6 +1658,74 @@
           "time": "时间",
           "actions": "操作"
         }
+      }
+    },
+    "settings": {
+      "badge": "佣金设置",
+      "title": "佣金设置",
+      "description": "这里集中管理订单佣金、推荐佣金和 VIP 首年奖励的计算规则；任务奖励仍在任务类型和任务创建时设置。",
+      "summary": {
+        "orderRules": "订单规则",
+        "serviceRules": "服务规则",
+        "referralRules": "推荐规则"
+      },
+      "rulesSection": {
+        "title": "佣金规则",
+        "description": "调整后，新完成的订单会按新规则生成佣金记录；已结算记录不会自动改动。"
+      },
+      "table": {
+        "rule": "规则",
+        "value": "当前值",
+        "calculation": "计算方式",
+        "actions": "操作",
+        "missing": "暂无"
+      },
+      "fields": {
+        "tier1Rate": "前段比例",
+        "tier1Limit": "前段金额",
+        "tier2Rate": "超出比例",
+        "rate": "比例",
+        "bonusUsd": "奖励金额"
+      },
+      "rules": {
+        "purchaseSalesmanTier": "采购订单业务员佣金",
+        "purchaseReferral": "采购订单推荐佣金",
+        "serviceEscortSalesman": "陪同类服务业务员佣金",
+        "digitalSurvivalSalesman": "数字化生存业务员佣金",
+        "serviceReferral": "服务订单推荐佣金",
+        "vipFirstYearReferralBonus": "VIP 首年推荐奖励"
+      },
+      "ruleDescriptions": {
+        "purchaseSalesmanTier": "采购订单完成后，给录入订单的业务员生成。",
+        "purchaseReferral": "被推荐客户完成采购订单后，给推荐人生成。",
+        "serviceEscortSalesman": "适用于旅游陪同订单、医疗陪同订单；订单完成后，给录入订单的业务员生成。",
+        "digitalSurvivalSalesman": "数字化生存服务完成后，给录入订单的业务员生成。",
+        "serviceReferral": "被推荐客户完成服务订单后，给推荐人生成。",
+        "vipFirstYearReferralBonus": "被推荐客户首次开通对应 VIP 后，给推荐人生成。"
+      },
+      "calculations": {
+        "purchaseSalesmanTier": "佣金 = min(采购订单人民币金额, {tier1Limit}) × {tier1Rate} + max(采购订单人民币金额 - {tier1Limit}, 0) × {tier2Rate}",
+        "purchaseReferral": "佣金 = 采购订单人民币金额 × {rate}",
+        "serviceEscortSalesman": "佣金 = 成本金额 + (服务订单人民币金额 - 成本金额) × {rate}",
+        "digitalSurvivalSalesman": "佣金 = max(服务订单人民币金额 - 成本金额, 0) × {rate}",
+        "serviceReferral": "佣金 = 服务订单人民币金额 × {rate}",
+        "vipFirstYearReferralBonus": "佣金 = {bonusUsd} × 订单成交汇率"
+      },
+      "actions": {
+        "edit": "修改",
+        "save": "保存",
+        "cancel": "取消"
+      },
+      "validation": {
+        "rate": "请输入 0 到 100 之间的比例。",
+        "amount": "请输入大于 0 的金额。"
+      },
+      "feedback": {
+        "updateSuccess": "佣金设置已更新。"
+      },
+      "errors": {
+        "permission": "当前账号不能修改佣金设置。",
+        "unknown": "佣金设置保存失败，请稍后再试。"
       }
     },
     "salesmanTaskSection": {
@@ -2234,7 +2315,7 @@
     "header": {
       "badge": "管理员专属",
       "title": "人员管理",
-      "description": "集中查看系统人员账号，调整账号身份和启用状态。身份变化不会自动改动推荐树或团队归属。"
+      "description": "集中查看系统人员账号，调整账号身份、状态和城市。身份变化不会自动改动推荐树或团队归属。"
     },
     "summary": {
       "total": "人员总数",
@@ -2257,7 +2338,7 @@
     "directory": {
       "eyebrow": "人员目录",
       "title": "账号列表",
-      "description": "这里只调整账号身份和状态。推荐关系、团队归属、佣金等业务记录不会被自动改变。",
+      "description": "这里可调整账号身份、状态和城市。推荐关系、团队归属、佣金等业务记录不会被自动改变。",
       "emptyTitle": "没有符合条件的人员",
       "emptyDescription": "请调整搜索内容或筛选条件后再查看。",
       "columns": {
@@ -2280,10 +2361,11 @@
     "logs": {
       "eyebrow": "调整记录",
       "title": "最近调整",
-      "description": "记录管理员最近对账号身份和状态做出的调整，方便后续核对。",
+      "description": "记录管理员最近对账号身份、状态和城市做出的调整，方便后续核对。",
       "emptyTitle": "暂无调整记录",
       "emptyDescription": "管理员调整账号后，记录会显示在这里。",
       "noNote": "未填写备注",
+      "cityChange": "城市：{from} -> {to}",
       "columns": {
         "target": "人员",
         "change": "调整内容",
@@ -2294,21 +2376,18 @@
     },
     "dialog": {
       "title": "调整 {name}",
-      "description": "保存后会同步账号身份和状态，目标账号下次登录或刷新登录状态后完全生效。",
-      "currentRole": "当前身份",
-      "currentStatus": "当前状态",
+      "description": "保存后，新的账号信息会在对方下次登录或刷新页面后生效。",
       "nextRole": "调整为身份",
       "nextStatus": "调整为状态",
+      "nextCity": "城市",
+      "cityPlaceholder": "填写城市，留空表示暂不填写",
       "customerType": "客户标记",
       "customerTypeHint": "当前标记：{value}。这个标记只用于内部区分零售客户和批发客户。",
       "customerTypePlaceholder": "请选择客户标记",
       "businessAccess": "可见业务",
       "businessAccessHint": "只影响业务员可查看和可处理的业务板块，不改变推荐关系或团队归属。",
       "note": "备注",
-      "notePlaceholder": "填写本次调整原因，方便后续核对",
-      "effectHint": "角色和状态变化会在目标账号下次登录或刷新登录状态后完全生效。",
-      "relationHint": "本次操作不会自动改变推荐树、团队归属或佣金记录；如需调整，请到对应板块处理。",
-      "selfHint": "为了避免误停用当前账号，不能在这里调整自己的身份或状态。"
+      "notePlaceholder": "填写本次调整原因，方便后续核对"
     },
     "actions": {
       "adjust": "调整账号",
@@ -2350,19 +2429,19 @@
       "noTeam": "未加入团队"
     },
     "feedback": {
-      "saved": "账号调整已保存。目标账号下次登录或刷新登录状态后会看到新的权限。",
+      "saved": "账号信息已保存。对方下次登录或刷新页面后会看到新的权限和资料。",
       "customerTypeSaved": "客户标记已保存。",
       "vipApproved": "VIP申请已通过，并已生成VIP充值订单。",
       "vipRejected": "VIP申请已拒绝。"
     },
     "errors": {
       "forbidden": "当前账号不能调整人员账号。",
-      "invalidInput": "请选择有效的身份、账号状态和业务权限。",
+      "invalidInput": "请选择有效的身份、账号状态、城市和业务权限。",
       "lastAdmin": "系统必须保留至少一个正常启用的管理员账号。",
-      "noChange": "账号身份、状态和业务权限没有变化。",
+      "noChange": "账号身份、状态、城市和业务权限没有变化。",
       "notFound": "没有找到要调整的人员账号。",
       "processed": "这条VIP申请已经处理过。",
-      "selfChange": "不能在这里调整自己的身份或状态。",
+      "selfChange": "不能在这里调整自己的账号信息。",
       "serviceUnavailable": "账号调整暂时没有保存成功，请稍后再试。",
       "unknown": "账号调整暂时没有保存成功，请稍后再试。"
     },

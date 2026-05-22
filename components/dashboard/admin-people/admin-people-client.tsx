@@ -69,12 +69,16 @@ export function AdminPeopleClient({
             customerTypeLabels={viewModel.customerTypeLabels}
             customerTypeOptions={viewModel.customerTypeOptions}
             draftBusinessBoards={viewModel.draftBusinessBoards}
+            draftCity={viewModel.draftCity}
             draftCustomerType={viewModel.draftCustomerType}
             draftNote={viewModel.draftNote}
             draftRole={viewModel.draftRole}
             draftStatus={viewModel.draftStatus}
             onClose={viewModel.closeAccountDialog}
-            onDraftBusinessBoardChange={viewModel.handleDraftBusinessBoardChange}
+            onDraftBusinessBoardChange={
+              viewModel.handleDraftBusinessBoardChange
+            }
+            onDraftCityChange={viewModel.handleDraftCityChange}
             onDraftCustomerTypeChange={viewModel.handleDraftCustomerTypeChange}
             onDraftNoteChange={viewModel.setDraftNote}
             onDraftRoleChange={viewModel.handleDraftRoleChange}
@@ -85,7 +89,9 @@ export function AdminPeopleClient({
             roleLabels={viewModel.roleLabels}
             roleOptions={viewModel.roleOptions}
             saving={viewModel.saving}
-            selectedPersonIsCurrentViewer={viewModel.selectedPersonIsCurrentViewer}
+            selectedPersonIsCurrentViewer={
+              viewModel.selectedPersonIsCurrentViewer
+            }
             selectedPersonName={viewModel.selectedPersonName}
             statusLabels={viewModel.statusLabels}
             statusOptions={viewModel.statusOptions}

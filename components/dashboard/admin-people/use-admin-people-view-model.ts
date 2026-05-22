@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import {
+  ADMIN_PEOPLE_CITY_MAX_LENGTH,
   ADMIN_PEOPLE_ROLE_OPTIONS,
   ADMIN_PEOPLE_STATUS_OPTIONS,
   isAdminPeopleRole,
@@ -52,18 +53,22 @@ export function useAdminPeopleViewModel({
     useState<FilterValue<AdminPeopleRole>>("all");
   const [statusFilter, setStatusFilter] =
     useState<FilterValue<AdminPeopleStatus>>("all");
-  const [selectedPerson, setSelectedPerson] = useState<AdminPersonRow | null>(null);
+  const [selectedPerson, setSelectedPerson] = useState<AdminPersonRow | null>(
+    null,
+  );
   const [draftRole, setDraftRole] = useState<AdminPeopleRole>("client");
   const [draftStatus, setDraftStatus] = useState<AdminPeopleStatus>("inactive");
+  const [draftCity, setDraftCity] = useState("");
   const [draftBusinessBoards, setDraftBusinessBoards] = useState<
     SalesmanBusinessBoard[]
   >(["tourism"]);
   const [draftNote, setDraftNote] = useState("");
   const [saving, setSaving] = useState(false);
-  const { handleVipRequestAction, vipActionPendingId } = useAdminPeopleVipActions({
-    setFeedback,
-    setPeople,
-  });
+  const { handleVipRequestAction, vipActionPendingId } =
+    useAdminPeopleVipActions({
+      setFeedback,
+      setPeople,
+    });
 
   const roleLabels = useMemo<AdminPeopleRoleLabels>(
     () => ({
@@ -100,7 +105,9 @@ export function useAdminPeopleViewModel({
   });
 
   const summary = useMemo(() => {
-    const activeCount = people.filter((person) => person.status === "active").length;
+    const activeCount = people.filter(
+      (person) => person.status === "active",
+    ).length;
     const suspendedCount = people.filter(
       (person) => person.status === "suspended",
     ).length;
@@ -140,16 +147,27 @@ export function useAdminPeopleViewModel({
     selectedPerson?.user_id === initialData.currentViewerId;
   const accountWillChange =
     selectedPerson !== null &&
-    (selectedPerson.role !== draftRole || selectedPerson.status !== draftStatus);
+    (selectedPerson.role !== draftRole ||
+      selectedPerson.status !== draftStatus);
+  const cityWillChange =
+    selectedPerson !== null &&
+    (selectedPerson.city ?? "").trim() !== draftCity.trim();
   const businessAccessWillChange =
     selectedPerson !== null &&
-    isDraftBusinessAccessChanged(selectedPerson, draftRole, draftBusinessBoards);
+    isDraftBusinessAccessChanged(
+      selectedPerson,
+      draftRole,
+      draftBusinessBoards,
+    );
   const customerTypeWillChange = customerTypeEditor.customerTypeWillChange(
     selectedPerson,
     draftRole,
   );
   const hasDraftChange =
-    accountWillChange || businessAccessWillChange || customerTypeWillChange;
+    accountWillChange ||
+    cityWillChange ||
+    businessAccessWillChange ||
+    customerTypeWillChange;
   const canSaveDraft =
     dialogOpen && hasDraftChange && !selectedPersonIsCurrentViewer && !saving;
 
@@ -158,6 +176,7 @@ export function useAdminPeopleViewModel({
     setSelectedPerson(person);
     setDraftRole(person.role ?? "client");
     setDraftStatus(person.status);
+    setDraftCity(person.city ?? "");
     setDraftBusinessBoards(
       person.role === "salesman" && person.salesman_business_boards.length > 0
         ? person.salesman_business_boards
@@ -184,6 +203,10 @@ export function useAdminPeopleViewModel({
     }
   };
 
+  const handleDraftCityChange = (value: string) => {
+    setDraftCity(value.slice(0, ADMIN_PEOPLE_CITY_MAX_LENGTH));
+  };
+
   const handleDraftBusinessBoardChange = (
     board: SalesmanBusinessBoard,
     checked: boolean,
@@ -208,7 +231,9 @@ export function useAdminPeopleViewModel({
   };
 
   const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value === "all" || isAdminPeopleStatus(value) ? value : "all");
+    setStatusFilter(
+      value === "all" || isAdminPeopleStatus(value) ? value : "all",
+    );
   };
 
   const handleSaveAccountChange = async () => {
@@ -224,12 +249,13 @@ export function useAdminPeopleViewModel({
       let savedAccountChange = false;
       let savedCustomerType = false;
 
-      if (accountWillChange || businessAccessWillChange) {
+      if (accountWillChange || cityWillChange || businessAccessWillChange) {
         const response = await fetch("/api/admin/people/account", {
           body: JSON.stringify({
             targetUserId: selectedPerson.user_id,
             nextRole: draftRole,
             nextStatus: draftStatus,
+            nextCity: draftCity,
             salesmanBusinessBoards:
               draftRole === "salesman" ? draftBusinessBoards : [],
             note: draftNote,
@@ -313,6 +339,7 @@ export function useAdminPeopleViewModel({
     customerTypeOptions: customerTypeEditor.customerTypeOptions,
     draftCustomerType: customerTypeEditor.draftCustomerType,
     draftBusinessBoards,
+    draftCity,
     draftNote,
     draftRole,
     draftStatus,
@@ -338,6 +365,7 @@ export function useAdminPeopleViewModel({
     handleDraftCustomerTypeChange:
       customerTypeEditor.handleDraftCustomerTypeChange,
     handleDraftBusinessBoardChange,
+    handleDraftCityChange,
     handleDraftRoleChange,
     handleDraftStatusChange,
     handleRoleFilterChange,
@@ -360,7 +388,9 @@ function isDraftBusinessAccessChanged(
   }
 
   const currentBoards =
-    selectedPerson.role === "salesman" ? selectedPerson.salesman_business_boards : [];
+    selectedPerson.role === "salesman"
+      ? selectedPerson.salesman_business_boards
+      : [];
   const nextBoards = draftRole === "salesman" ? draftBusinessBoards : [];
 
   return !areSalesmanBusinessBoardsEqual(currentBoards, nextBoards);

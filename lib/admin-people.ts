@@ -1,16 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { AppRole } from "./auth-routing";
-import {
-  normalizeAppRole,
-  normalizeUserStatus,
-} from "./auth-metadata";
+import { normalizeAppRole, normalizeUserStatus } from "./auth-metadata";
 import { withRequestTimeout } from "./request-timeout";
 import { type UserStatus, getCurrentSessionContext } from "./user-self-service";
-import {
-  normalizeInteger,
-  normalizeOptionalString,
-} from "./value-normalizers";
+import { normalizeInteger, normalizeOptionalString } from "./value-normalizers";
 import {
   normalizeSalesmanBusinessBoards,
   type SalesmanBusinessBoard,
@@ -37,6 +31,8 @@ export const ADMIN_PEOPLE_STATUS_OPTIONS = [
   "inactive",
   "suspended",
 ] as const satisfies readonly UserStatus[];
+
+export const ADMIN_PEOPLE_CITY_MAX_LENGTH = 80;
 
 export type AdminPeopleRole = (typeof ADMIN_PEOPLE_ROLE_OPTIONS)[number];
 export type AdminPeopleStatus = (typeof ADMIN_PEOPLE_STATUS_OPTIONS)[number];
@@ -86,6 +82,8 @@ export type AdminPeopleChangeLogRow = {
   next_role: AppRole | null;
   previous_status: UserStatus | null;
   next_status: UserStatus;
+  previous_city: string | null;
+  next_city: string | null;
   note: string | null;
   created_at: string;
 };
@@ -101,6 +99,7 @@ export type AdminPersonAccountUpdatePayload = {
   targetUserId: string;
   nextRole: AdminPeopleRole;
   nextStatus: AdminPeopleStatus;
+  nextCity?: string | null;
   salesmanBusinessBoards?: SalesmanBusinessBoard[] | null;
   note?: string | null;
 };
@@ -118,7 +117,9 @@ export function isAdminPeopleRole(value: unknown): value is AdminPeopleRole {
   return normalizeAppRole(value) !== null;
 }
 
-export function isAdminPeopleStatus(value: unknown): value is AdminPeopleStatus {
+export function isAdminPeopleStatus(
+  value: unknown,
+): value is AdminPeopleStatus {
   return normalizeUserStatus(value) !== null;
 }
 
@@ -131,7 +132,10 @@ export async function getAdminPeoplePageData(
 ): Promise<AdminPeoplePageData> {
   const sessionContext = await getCurrentSessionContext(supabase);
 
-  if (!sessionContext.user || !canViewAdminPeople(sessionContext.role, sessionContext.status)) {
+  if (
+    !sessionContext.user ||
+    !canViewAdminPeople(sessionContext.role, sessionContext.status)
+  ) {
     return createEmptyAdminPeoplePageData(sessionContext.user?.id ?? null);
   }
 
@@ -246,7 +250,9 @@ function normalizeAdminPersonRow(value: unknown): AdminPersonRow | null {
     customer_type_marked_by_name: normalizeOptionalString(
       value.customer_type_marked_by_name,
     ),
-    customer_type_marked_at: normalizeOptionalString(value.customer_type_marked_at),
+    customer_type_marked_at: normalizeOptionalString(
+      value.customer_type_marked_at,
+    ),
     pending_vip_requests: normalizeVipRechargeRequests(
       value.pending_vip_requests,
     ),
@@ -302,6 +308,8 @@ function normalizeAdminPeopleChangeLogRow(
     next_role: normalizeAppRole(value.next_role),
     previous_status: normalizeUserStatus(value.previous_status),
     next_status: nextStatus,
+    previous_city: normalizeOptionalString(value.previous_city),
+    next_city: normalizeOptionalString(value.next_city),
     note: normalizeOptionalString(value.note),
     created_at: createdAt,
   };

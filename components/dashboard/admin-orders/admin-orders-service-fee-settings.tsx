@@ -24,7 +24,6 @@ import {
   toServiceFeeErrorMessage,
 } from "./admin-orders-service-fee-settings-utils";
 import { AdminOrdersServiceFeeTierSection } from "./admin-orders-service-fee-tier-section";
-import { formatDiscountRatioValue } from "./admin-orders-utils";
 
 type PageFeedback = { tone: NoticeTone; message: string } | null;
 
@@ -53,13 +52,6 @@ export function AdminOrdersServiceFeeSettings({
   const wholesaleRows = useMemo(
     () => getServiceFeeRowsByScope(rows, "wholesale"),
     [rows],
-  );
-  const serviceFeeSummary = useMemo(
-    () => ({
-      retail: summarizeRateRange(retailRows, locale),
-      wholesale: summarizeRateRange(wholesaleRows, locale),
-    }),
-    [locale, retailRows, wholesaleRows],
   );
 
   async function handleSave(row: ServiceFeeTypeOption) {
@@ -123,23 +115,6 @@ export function AdminOrdersServiceFeeSettings({
         badgeIcon={<Percent className="size-3.5" />}
         contentClassName="max-w-3xl"
         description={t("settings.serviceFees.description")}
-        metrics={[
-          {
-            accent: "green",
-            icon: <Percent className="size-5" />,
-            key: "retail",
-            label: t("settings.serviceFees.retail.summaryLabel"),
-            value: serviceFeeSummary.retail,
-          },
-          {
-            accent: "blue",
-            icon: <Percent className="size-5" />,
-            key: "wholesale",
-            label: t("settings.serviceFees.wholesale.summaryLabel"),
-            value: serviceFeeSummary.wholesale,
-          },
-        ]}
-        metricsClassName="md:grid-cols-2"
         title={t("settings.serviceFees.title")}
       />
 
@@ -174,18 +149,6 @@ export function AdminOrdersServiceFeeSettings({
         onSave={(row) => void handleSave(row)}
         onStartEditing={startEditing}
       />
-
     </section>
   );
-}
-
-function summarizeRateRange(
-  rows: ServiceFeeTypeOption[],
-  locale: Parameters<typeof formatDiscountRatioValue>[1],
-) {
-  const uniqueRates = Array.from(
-    new Set(rows.map((row) => formatDiscountRatioValue(row.fee_ratio, locale))),
-  );
-
-  return uniqueRates.length > 0 ? uniqueRates.join(" / ") : "-";
 }

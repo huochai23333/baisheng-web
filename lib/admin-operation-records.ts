@@ -7,10 +7,7 @@ import {
 import type { AppRole } from "./auth-routing";
 import { MAX_DASHBOARD_QUERY_ROWS } from "./dashboard-pagination";
 import { withRequestTimeout } from "./request-timeout";
-import {
-  getCurrentSessionContext,
-  type UserStatus,
-} from "./user-self-service";
+import { getCurrentSessionContext, type UserStatus } from "./user-self-service";
 import { normalizeOptionalString } from "./value-normalizers";
 import {
   isWorkspaceFeedbackStatus,
@@ -55,7 +52,9 @@ export type AdminOperationRecord = {
   note: string | null;
   occurredAt: string;
   roleChange: OperationValueChange<AppRole | null> | null;
-  statusChange: OperationValueChange<UserStatus | WorkspaceFeedbackStatus | null> | null;
+  statusChange: OperationValueChange<
+    UserStatus | WorkspaceFeedbackStatus | null
+  > | null;
   subject: AdminOperationActor;
 };
 
@@ -145,7 +144,9 @@ export async function getAdminOperationRecordsPageData(
     ...profileRows.map((row) => toProfileOperationRecord(row, profiles)),
     ...feedbackRows.map((row) => toFeedbackOperationRecord(row, profiles)),
   ].sort((left, right) => {
-    return new Date(right.occurredAt).getTime() - new Date(left.occurredAt).getTime();
+    return (
+      new Date(right.occurredAt).getTime() - new Date(left.occurredAt).getTime()
+    );
   });
 
   return {
@@ -177,7 +178,10 @@ async function getProfileChangeReviewHistory(
   return (data ?? []).filter(isProfileChangeReviewHistoryRow);
 }
 
-async function getFeedbackStatusHistory(supabase: SupabaseClient, limit: number) {
+async function getFeedbackStatusHistory(
+  supabase: SupabaseClient,
+  limit: number,
+) {
   const { data, error } = await withRequestTimeout(
     supabase
       .from("workspace_feedback")
@@ -201,7 +205,9 @@ async function getOperationUserProfiles(
   supabase: SupabaseClient,
   rawUserIds: readonly (string | null)[],
 ) {
-  const userIds = [...new Set(rawUserIds.filter((value): value is string => !!value))];
+  const userIds = [
+    ...new Set(rawUserIds.filter((value): value is string => !!value)),
+  ];
   const profiles = new Map<string, UserProfileSummary>();
 
   if (userIds.length === 0) {
@@ -242,7 +248,13 @@ function toAccountOperationRecord(
       userId: row.actor_user_id,
     },
     category: "account",
-    cityChange: null,
+    cityChange:
+      row.previous_city !== row.next_city
+        ? {
+            from: row.previous_city,
+            to: row.next_city,
+          }
+        : null,
     feedback: null,
     id: `account:${row.id}`,
     nameChange: null,
@@ -357,7 +369,9 @@ function isProfileChangeReviewHistoryRow(
   );
 }
 
-function isFeedbackHistoryRow(value: FeedbackHistoryRow): value is FeedbackHistoryRow {
+function isFeedbackHistoryRow(
+  value: FeedbackHistoryRow,
+): value is FeedbackHistoryRow {
   return (
     typeof value.id === "string" &&
     typeof value.submitted_by_user_id === "string" &&
