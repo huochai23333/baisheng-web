@@ -14,6 +14,11 @@ export function signOutCurrentBrowserSession(
   }
 }
 
+export async function clearCurrentBrowserSession(supabase: SupabaseClient | null) {
+  await supabase?.auth.signOut({ scope: "local" }).catch(() => undefined);
+  clearSupabaseBrowserSession();
+}
+
 function clearSupabaseBrowserSession() {
   if (typeof window === "undefined") {
     return;

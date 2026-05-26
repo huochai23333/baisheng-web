@@ -16,6 +16,36 @@ export type DashboardMyCopy = {
   profileInfoDescription: string;
   accountVerificationTitle: string;
   accountVerificationDescription: string;
+  accountSwitcherTitle: string;
+  accountSwitcherDescription: string;
+  accountSwitcherAdd: string;
+  accountSwitcherCurrent: string;
+  accountSwitcherReady: string;
+  accountSwitcherNeedsLogin: string;
+  accountSwitcherSwitch: string;
+  accountSwitcherReauthenticate: string;
+  accountSwitcherRemove: string;
+  accountSwitcherClear: string;
+  accountSwitcherEmpty: string;
+  accountSwitcherCurrentOnlySaved: string;
+  accountSwitcherUnknownEmail: string;
+  accountSwitcherUnavailable: string;
+  accountSwitcherExpiredNotice: string;
+  accountSwitcherSessionExpiredNotice: string;
+  accountSwitcherRemoved: string;
+  accountSwitcherCleared: string;
+  accountSwitcherRemoveConfirm: string;
+  accountSwitcherRemoveConfirmDescription: string;
+  accountSwitcherClearConfirm: string;
+  accountSwitcherClearConfirmDescription: string;
+  accountSwitcherCancel: string;
+  accountSwitcherRoleAdministrator: string;
+  accountSwitcherRoleSalesman: string;
+  accountSwitcherRoleClient: string;
+  accountSwitcherRoleManager: string;
+  accountSwitcherRoleOperator: string;
+  accountSwitcherRoleFinance: string;
+  accountSwitcherRoleRecruiter: string;
   editProfile: string;
   changePassword: string;
   copyInviteCode: string;
@@ -79,6 +109,40 @@ export function useDashboardMyCopy(): DashboardMyCopy {
     profileInfoDescription: t("profileInfoDescription"),
     accountVerificationTitle: t("accountVerificationTitle"),
     accountVerificationDescription: t("accountVerificationDescription"),
+    accountSwitcherTitle: t("accountSwitcherTitle"),
+    accountSwitcherDescription: t("accountSwitcherDescription"),
+    accountSwitcherAdd: t("accountSwitcherAdd"),
+    accountSwitcherCurrent: t("accountSwitcherCurrent"),
+    accountSwitcherReady: t("accountSwitcherReady"),
+    accountSwitcherNeedsLogin: t("accountSwitcherNeedsLogin"),
+    accountSwitcherSwitch: t("accountSwitcherSwitch"),
+    accountSwitcherReauthenticate: t("accountSwitcherReauthenticate"),
+    accountSwitcherRemove: t("accountSwitcherRemove"),
+    accountSwitcherClear: t("accountSwitcherClear"),
+    accountSwitcherEmpty: t("accountSwitcherEmpty"),
+    accountSwitcherCurrentOnlySaved: t("accountSwitcherCurrentOnlySaved"),
+    accountSwitcherUnknownEmail: t("accountSwitcherUnknownEmail"),
+    accountSwitcherUnavailable: t("accountSwitcherUnavailable"),
+    accountSwitcherExpiredNotice: t("accountSwitcherExpiredNotice"),
+    accountSwitcherSessionExpiredNotice: t("accountSwitcherSessionExpiredNotice"),
+    accountSwitcherRemoved: t("accountSwitcherRemoved"),
+    accountSwitcherCleared: t("accountSwitcherCleared"),
+    accountSwitcherRemoveConfirm: t("accountSwitcherRemoveConfirm"),
+    accountSwitcherRemoveConfirmDescription: t(
+      "accountSwitcherRemoveConfirmDescription",
+    ),
+    accountSwitcherClearConfirm: t("accountSwitcherClearConfirm"),
+    accountSwitcherClearConfirmDescription: t(
+      "accountSwitcherClearConfirmDescription",
+    ),
+    accountSwitcherCancel: t("accountSwitcherCancel"),
+    accountSwitcherRoleAdministrator: t("accountSwitcherRoleAdministrator"),
+    accountSwitcherRoleSalesman: t("accountSwitcherRoleSalesman"),
+    accountSwitcherRoleClient: t("accountSwitcherRoleClient"),
+    accountSwitcherRoleManager: t("accountSwitcherRoleManager"),
+    accountSwitcherRoleOperator: t("accountSwitcherRoleOperator"),
+    accountSwitcherRoleFinance: t("accountSwitcherRoleFinance"),
+    accountSwitcherRoleRecruiter: t("accountSwitcherRoleRecruiter"),
     editProfile: t("editProfile"),
     changePassword: t("changePassword"),
     copyInviteCode: t("copyInviteCode"),

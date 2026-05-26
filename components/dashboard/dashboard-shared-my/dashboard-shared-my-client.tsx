@@ -25,6 +25,7 @@ export function DashboardSharedMyClient({
   const copy = useDashboardMyCopy();
   const {
     account,
+    accountSwitcher,
     assetDialog,
     bundle,
     identity,
@@ -83,7 +84,7 @@ export function DashboardSharedMyClient({
 
         <DashboardSharedMySections
           copy={copy}
-          state={{ account, assetDialog, page, profileDialog, ui }}
+          state={{ account, accountSwitcher, assetDialog, page, profileDialog, ui }}
         />
       </section>
 

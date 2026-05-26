@@ -1,315 +1,36 @@
 # 柏盛管理系统 Web 前端
 
-柏盛管理系统 Web 端，基于 `Next.js 16 App Router`、`React 19`、`TypeScript`、`Tailwind CSS 4`、`Supabase` 和 `next-intl` 构建。
+柏盛管理系统 Web 端基于 `Next.js 16 App Router`、`React 19`、`TypeScript`、`Tailwind CSS 4`、`Supabase` 和 `next-intl` 构建。
 
 项目目录：`D:\code\code-project\baisheng-web`
 
+## 快速定位
+
+- Web 仓库：`D:\code\code-project\baisheng-web`
+- Supabase 目录：`D:\code\code-project\supabase`
+- 测试账号：`D:\code\code-project\测试账号.txt`
+- Web 推送说明：`D:\code\code-project\web项目说明及推送流程.md`
+- Supabase 操作说明：`D:\code\code-project\SUPABASE操作指南.md`
+
+说明：
+
+- `D:\code\code-project` 只是工作区容器，不是 Web Git 仓库。
+- Web 代码提交和推送只在 `baisheng-web` 目录执行。
+- 数据库迁移、Edge Function 和 Supabase secrets 以同级 `supabase` 目录为准。
+
 ## 技术栈
 
-- `Next.js 16` + App Router
-- `React 19`
+- `Next.js 16.2.3` + App Router
+- `React 19.2.4`
 - `TypeScript 5`
 - `Tailwind CSS 4`
 - `Supabase Auth` / `@supabase/ssr` / `@supabase/supabase-js`
 - `next-intl` 中英文双语
 - `Playwright` 真实浏览器验证
+- `lucide-react` 图标
+- `Base UI` / `shadcn` 辅助组件
 
-## 当前架构
-
-项目已经从早期按角色散落的静态目录，收口到统一的动态工作台结构：
-
-- `app/(auth)`：公开页与认证页，包含 `/`、`/login`、`/register`、`/forgot-password`、`/privacy`、`/terms`、`/help`
-- `app/(workspace)/[workspace]/home`：各角色登录后的默认首页，展示北京时间问候和当前角色可见公告
-- `app/(workspace)/[workspace]/my`：各角色共享“我的”个人资料页面入口
-- `app/(workspace)/[workspace]/[section]`：按角色动态装配公告管理、订单、推荐树、团队、人员管理、操作记录、佣金、任务、审核、反馈管理等页面；管理员订单设置整合在订单页内
-- `app/forbidden.tsx`：统一承接越权访问时的访问错误页
-- `app/error.tsx`、`app/global-error.tsx`：统一承接页面异常，使用不依赖接口或翻译上下文的日常语言兜底文案
-- `proxy.ts`：会话同步、登录保护、工作台访问前置校验
-- `lib/workspace-config.ts`：角色导航、页面变体和工作台配置中心
-- `lib/auth-routing.ts`：角色与工作台 base path 的映射
-
-## 角色与入口
-
-当前工作台基于以下角色 base path：
-
-| 角色 | 默认入口 | 当前重点模块 |
-| --- | --- | --- |
-| `administrator` | `/admin/home` | `home`、`announcements`、`orders`（含订单设置）、`referrals`、`team`、`people`、`records`、`commission`、`tasks`、`reviews`、`feedback` |
-| `salesman` | `/salesman/home` | `home`、`orders`、`people`、`referrals`、`team`、`commission`、`exchange-rates`、`tasks` |
-| `client` | `/client/home` | `home`、`orders`、`referrals` |
-| `manager` | `/manager/home` | `home`、`referrals`、`team`、`tasks` |
-| `operator` | `/operator/home` | `home`、`referrals`、`team`、`tasks` |
-| `finance` | `/finance/home` | `home`、`referrals`、`team`、`tasks`、`commission` |
-| `recruiter` | `/recruiter/home` | `home`、`referrals`、`tasks` |
-
-说明：
-
-- `/[role]` 会自动重定向到对应的 `/[role]/home`
-- 越权访问不会再改写到其他工作台，而是直接展示访问错误页
-- 角色导航只展示当前已启用模块；已知但未授权的同工作台模块会展示访问错误页，而不是继续显示占位入口
-- 2026-05-14 补充：业务员的订单和人员入口会再按“零售 / 批发”授权过滤；人员管理在至少有零售或批发授权时展示，订单入口按对应业务授权展示。
-- 2026-05-15 补充：管理员人员管理的“调整账号”弹窗可给客户标记“零售 / 批发”并修改标记；人员列表只展示标记结果。业务员可见业务改为短标签堆叠显示，避免“零售 / 批发”在表格内横向挤压。
-- 2026-05-22 补充：管理员人员管理的“调整账号”弹窗移除只读资料卡和说明提示，直接展示可调整项；同一弹窗支持修改人员城市，并在调整记录与操作记录中保留城市前后值。
-- 2026-05-15 补充：推荐关系新增 `business_referrals + business_board` 方案，零售和批发推荐树互相隔离；旧注册推荐关系回填为零售板块，已有客户标记回填为批发板块关系。
-- 2026-05-15 补充：旧推荐关系表已完成收口迁移；注册邀请、团队客户统计、零售推荐佣金和人员资料关联都改读 `business_referrals`，旧 `user_referrals` 表在最新迁移中删除。
-- 2026-05-15 补充：注册链接只展示邀请码入口，不在注册页暴露业务类型选择；业务员在“我的”页复制的零售 / 批发注册链接会把板块写进完整邀请码，后端按邀请码解析并写入对应推荐树。
-- 2026-05-15 补充：推荐树页面只展示当前账号可查看的业务板块；客户“我的”页不主动展示批发开通入口或状态，避免向未进入该板块的客户暴露业务信息。
-
-## 目录结构
-
-```text
-baisheng-web/
-├─ app/
-│  ├─ (auth)/
-│  └─ (workspace)/
-├─ components/
-│  ├─ auth/
-│  ├─ brand/
-│  ├─ legal/
-│  └─ dashboard/
-│     ├─ admin-people/
-│     ├─ admin-operation-records/
-│     ├─ admin-feedback/
-│     ├─ admin-orders/
-│     ├─ admin-reviews/
-│     ├─ admin-tasks/
-│     ├─ commission/
-│     ├─ dashboard-shared-my/
-│     ├─ exchange-rates/
-│     ├─ referrals/
-│     ├─ salesman-people/
-│     ├─ salesman-tasks/
-│     ├─ tasks/
-│     ├─ team-management/
-│     ├─ workspace-feedback/
-│     └─ ...共享壳层与通用 UI
-├─ i18n/
-├─ lib/
-├─ messages/
-├─ output/
-│  └─ playwright/
-├─ public/
-├─ scripts/
-├─ proxy.ts
-└─ README.md
-```
-
-说明：
-
-- `components/dashboard` 已按功能拆分；根目录只保留工作台壳层和共享 UI
-- `components/dashboard/workspace-feedback` 承接所有登录用户的顶部反馈弹窗、反馈文案和提交成功提示；`components/dashboard/admin-feedback` 承接管理员反馈列表、筛选和状态调整
-- `components/dashboard/ai-assistant` 承接登录后右下角柏盛助手浮窗、打开/关闭动效、聊天状态、流式消息展示、“新对话”二次确认和助手答不上来时的反馈入口衔接；`AdminShell` 只负责挂载入口，不承载助手对话逻辑
-- `lib/ai-assistant` 承接柏盛管理系统助手提示词、请求类型和 DeepSeek 服务端流式调用；当前只做工作台问答引导，不读取或改动订单、人员、任务等业务数据；`assistant-workspace-context.ts` 从工作台配置整理当前角色入口和近期业务规则，避免助手继续维护旧入口清单
-- `components/dashboard/dashboard-section-header.tsx` 统一承接各业务板块页头；新增订单、任务、团队、佣金、汇率、审核、公告、推荐树等板块时，优先复用它传入标题、说明、指标和操作按钮，避免在业务 Client/Page 中重复堆页头布局
-- `components/dashboard/dashboard-section-panel.tsx` 统一承接筛选面板、列表面板、列表标题和表格外框；新增带筛选或清单的板块时，优先复用它保持间距、边框、阴影和响应式结构一致
-- `components/dashboard/dashboard-segmented-tabs.tsx` 统一承接板块内切换按钮；订单页“订单列表 / 订单设置”、佣金页“普通佣金 / 任务佣金”和审核页多队列切换都应复用这一套视觉样式
-- `components/dashboard/dashboard-pill.tsx` 与 `components/dashboard/tasks/task-ui.tsx` 分别统一承接工作台标签、任务状态/目标角色展示、任务搜索筛选和信息块；任务相关板块不要在各自 UI 文件里再复制一套 pill、tile 或筛选控件
-- 工作台共享页头、指标卡、筛选面板、列表面板、移动导航和分页控件都需要保留小屏紧凑样式；新增板块不要只按桌面端密度堆叠信息
-- 2026-05-13 补充：工作台移动端顶部品牌名在 `AdminShell` 中独立成满宽标题行，移动导航由 `AdminShellNav` 承接。
-- 2026-05-15 补充：工作台移动端导航默认只展示当前板块，点击后再展开板块列表，避免管理员等多入口角色在顶部堆满按钮。
-- 2026-05-25 补充：失焦恢复后的完整页面跳转判断统一放在 `lib/use-stale-focus-recovery.ts`；工作台主导航、语言切换、认证页跳转和顶部头像菜单都接入该判断，避免页面长时间隐藏或窗口失焦后客户端导航/刷新一直停在加载中。
-- 2026-05-14 补充：工作台移动端顶部的角色/中心标签在共享壳层保持单行显示，避免在窄屏被右侧按钮组挤成竖排。
-- `components/brand/brand-mark.tsx` 统一承接公司 Logo 展示；当前 Logo 源文件为 `public/images/pt5-logo.png`，浏览器图标由 `app/favicon.ico`、`app/icon.png` 和 `app/apple-icon.png` 承接；认证页和工作区样式入口都需要继续 `@source "../components/brand"`
-- `components/legal` 承接公开法律页和隐私/条款页脚链接，避免把 legal 展示继续堆进认证或“我的”核心文件
-- `lib/auth-metadata.ts`、`lib/value-normalizers.ts` 与 `lib/task-attachment-policy.ts` 分别承接角色/状态标准化、基础字符串/数字归一化、任务附件和提审附件的上传策略；新增查询、筛选或上传流程时优先复用这些 helper
-- `lib/task-acceptances.ts` 承接任务领取记录的查询和归一化；`task_main` 只保留管理员发布的父任务，个人领取、提审、审核和完成状态统一进入 `task_acceptances`
-- `lib/admin-task-assignees.ts` 承接管理员任务详情的承接人聚合查询；多人任务父任务只保留名额和进度，全部领取人从 `task_acceptances` 汇总后展示，避免把聚合逻辑塞回 `lib/admin-tasks.ts`
-- `lib/admin-task-mutations.ts` 承接管理员任务的新建、编辑、改派和删除；`lib/admin-task-query-fields.ts` 统一维护管理员任务查询字段，`lib/admin-tasks.ts` 保持在页面读取和组装边界内
-- `lib/admin-people-customer-type-mutations.ts` 承接管理员客户标记保存逻辑，`components/dashboard/admin-people/use-admin-customer-type-mark.ts` 承接“调整账号”弹窗里的客户标记草稿和保存；人员管理核心 view-model 不再继续堆客户标记 mutation 细节。
-- `lib/referrals.ts` 承接推荐树的板块参数解析和查询；`components/dashboard/referrals/referrals-client.tsx` 只负责零售 / 批发切换、刷新和树展示组装，实际关系隔离由数据库 `business_referrals.business_board` 保障。
-- 单文件超过 `400-600` 行，或出现 3 个以上独立职责时，需要优先拆成 `queries`、`mutations`、`view-model hook`、`dialog`、`section/table` 或 `display-utils`
-- `output/playwright` 用于保留有价值的截图和报告，不存放长期无用的临时控制台垃圾
-
-## 公开法律页面（2026-04-24）
-
-- 新增 `/privacy` 隐私政策页、`/terms` 服务条款页与 `/help` 帮助中心页，位于 `app/(auth)/privacy`、`app/(auth)/terms` 和 `app/(auth)/help`
-- 页面导航与返回文案仍使用 `messages/zh.json`、`messages/en.json` 下的 `Legal` 命名空间；正式法律正文集中维护在 `lib/legal-formal-content.ts`
-- 登录/注册页底部、注册勾选说明，以及各角色“我的”页页脚已接入真实隐私政策、服务条款和帮助中心链接
-- 正文已改为更正式的公开法律文本，覆盖隐私政策中的信息处理主体、敏感个人信息、共享披露、保存安全和用户权利，以及服务条款中的账号权限、用户行为、提交审核、知识产权、责任限制和争议解决
-- 最近验证：`npm run lint`、`npx tsc --noEmit`、`npm run build` 通过；Playwright 已覆盖未登录访问、注册/登录页链接、中英切换，以及管理员登录后“我的”页页脚链接
-
-## 认证页体验优化（2026-04-29）
-
-- 登录、注册和找回密码页面继续共用 `AuthShell`，页面文件只负责组装文案、外壳和对应表单。
-- 注册表单不再做客户端二次登录态等待；已登录用户仍由服务端认证页入口提前跳转，未登录用户可以更快看到注册表单。
-- 密码输入统一由 `components/auth/auth-password-field.tsx` 承接显示/隐藏按钮和字段样式，密码规则由 `components/auth/auth-password-policy.ts` 复用，避免登录、注册和重置密码表单重复维护。
-- 注册和重置密码会提示基础密码规则，并在提交前阻止不符合规则的密码；认证页宣传文案改为账号安全、角色工作台和业务协作相关表达。
-- 2026-04-30 补充：找回密码邮件发送成功后会明确显示收件邮箱，并提示检查垃圾邮件或联系管理员确认账号邮箱；认证页桌面侧图不再强制优先加载，降低移动端首屏资源压力。
-- 2026-04-30 补充：认证页底部的登录/注册跳转会提前预取目标页面，并在点击后立刻显示轻量加载反馈；注册页服务端会话检查与文案加载改为并行等待，减少从登录页切换到注册页时的停顿感。
-- 2026-05-06 补充：登录页 PageSpeed 优化去掉全站中文 WebFont 下载，改用系统中文字体；登录桌面侧图使用更高请求优先级但不做移动端预加载，品牌 Logo 交给 Next 图片优化按实际尺寸输出。
-- 2026-05-13 补充：注册提交前会先校验邀请码是否可用，邀请码不存在、过期或达到使用上限时直接显示可理解提示，不再把这类情况展示成“服务暂时不可用”。
-
-## 首页与公告（2026-04-27）
-
-- 所有角色登录后的默认入口调整为 `/{role}/home`，首页展示北京时间分段问候和当前账号可见的最新公告
-- 公告数据由 `public.announcements` 承接，发布对象分为 `client`、`internal`、`all`；其中 `internal` 包含管理员、运营、经理、招聘员、业务员和财务等非客户角色
-- 管理员侧新增 `/admin/announcements`，支持创建草稿、编辑、发布、下线和删除公告；其他角色只在首页读取已发布且命中发布对象的公告
-- 前端分层保持独立：`lib/announcements.ts` 负责公告查询和 mutation，`lib/dashboard-home.ts` 负责首页轻量数据，`components/dashboard/dashboard-home/*` 与 `components/dashboard/announcements/*` 分别承接首页和公告管理 UI
-- 2026-04-28 补充：工作区顶部公告按钮的最近公告和未读状态由 `components/dashboard/admin-shell.tsx` 在服务端准备初始数据，再交给 `workspace-header-actions` 渲染；客户端 hook 只负责刷新、已读和弹窗交互，避免首屏再等待浏览器端补取公告状态
-- 2026-05-06 补充：登录页公开公告读取使用 60 秒服务端缓存，并通过公开匿名客户端读取，避免未登录首屏反复等待同一条公告查询。
-- 2026-05-14 补充：工作区首页和顶部公告弹窗会按当前账号角色主动过滤公告发布对象；管理员管理页仍可维护全部公告，但管理员日常工作区只展示全员和内部公告，避免把客户公告送入已读确认流程。
-- 2026-05-14 补充：工作区公告弹窗复用的 `DashboardDialog` 会等浏览器端挂载完成后再创建 portal，避免有未读公告时服务端首屏和客户端第一帧不一致。
-- 本次没有把公告逻辑塞进已经超过 600 行的 `user-self-service.ts` 或 `dashboard-shared-my` 页面文件
-
-## 界面文案约束（2026-04-27）
-
-- `messages/zh.json` 和 `messages/en.json` 中的用户可见文案禁止暴露数据库表名、字段名、主键、同步请求、云端登录态等实现细节，应改为面向业务结果的表达
-- `components/dashboard/dashboard-shared-ui.tsx` 作为共享错误提示入口，需要把明显的数据库、存储、网络和服务端技术错误收敛成通用可读提示；具体模块如订单、任务、团队、汇率可再基于原始错误补充更细的业务映射
-- `app/error.tsx` 和 `app/global-error.tsx` 不能依赖可能在异常链路里缺失的上下文；即使页面加载失败，也只能展示“重试、刷新页面”等普通用户能理解的提示
-- 2026-04-27 补充：国际化文案不仅要避开数据库和接口词，还要继续清理 `JSON`、`task_sub`、`task-attachments`、`salesman` 角色码、`active` 状态码、`快照同步` 等工程术语，统一改成用户能直接理解的日常表达
-- 2026-04-28 补充：语言切换、登录跳转等会引起页面刷新或路由跳转的操作，点击后必须立即展示等待状态，并在切换或跳转完成前禁止重复点击
-
-## 上传限制（2026-04-24）
-
-- Web 端上传尺寸已统一收紧：个人照片、任务附件、提审附件中的图片需小于 `5 MB`，视频需小于 `30 MB`，其余文件维持 `20 MB` 单文件上限，总体积限制仍按各模块原有规则执行
-- `lib/task-attachment-policy.ts` 是任务发布附件和任务提审附件的共同来源，统一维护允许类型、体积校验、存储路径和失败清理；前端提示、任务发布和审核提交流程需要保持一致，不要再分别复制一份上传规则
-
-### 个人照片智能初审（2026-05-07）
-
-- 个人照片上传后会写入 `user_media_image_ai_reviews` 初审记录，并由 `user-media-image-review` Edge Function 处理；当前供应商默认 `disabled`，不会调用外部 AI，也不会凭空自动通过
-- 初审接口按可替换供应商设计，后续接入阿里云、腾讯云或火山引擎时只替换 provider adapter；低风险照片可由系统自动通过，高风险、失败或未配置时仍进入管理员人工审核
-- `pending_user_media_assets` 会返回初审状态，管理员媒体审核列表展示“智能初审”结果，但用户可见文案不暴露供应商、模型、表名或接口细节
-- `user-media-mutate` 只在照片上传成功后触发初审请求；触发失败不会影响上传成功，照片仍保留在人工审核队列
-- `pg_cron` 每 10 分钟兜底请求一次 `user-media-image-review`，处理仍在排队或失败状态的照片初审记录
-
-### `dashboard-shared-my` 模块分层（2026-04-27）
-
-- `dashboard-shared-my-client.tsx`：只保留“我的”页主结构编排、资料卡片区、媒体入口卡片、隐藏上传输入和弹窗挂载点，当前已控制在 400 行以内
-- `dashboard-shared-my-copy.ts`：集中承接 `DashboardMy` 翻译文案映射，避免在 client 组件里堆积大段 copy 对象
-- `dashboard-shared-my-dialogs.tsx`：单独承接身份证/护照/照片/视频弹窗和城市编辑弹窗，避免把多种弹窗状态和渲染细节继续塞回页面主体
-- `dashboard-shared-my-state-copy.ts`、`dashboard-shared-my-view-model.tsx`：分别承接“我的”页状态文案和资料/媒体展示派生值，让状态 hook 不再同时处理 copy 映射和视图模型组装
-- `use-dashboard-shared-my-state.tsx`：保留资料同步、账号动作、媒体动作和弹窗状态调度，当前已收敛到 600 行以内；后续若继续增加证件表单或媒体动作，应优先拆成更细的 action hooks
-
-### `admin-orders` 模块分层（2026-04-22）
-
-- `admin-orders-client.tsx`：仅负责页面编排、翻译文案接线和主要组件组合
-- `use-admin-orders-view-model.ts`：只负责拼装派生数据与组合子 hook，不再直接堆积所有 CRUD 逻辑
-- `use-admin-orders-route-state.ts`、`use-admin-order-selection.ts`、`use-admin-order-create-dialog.ts`、`use-admin-order-edit-dialog.ts`、`use-admin-order-delete-actions.ts`：分别承接路由筛选、选中订单、创建、编辑和删除流程
-- `admin-orders-client-config.ts`：放置 orders 视图配置、过滤器比较和表单字段联动规则
-- `admin-orders-copy.ts`、`admin-orders-display.ts`、`admin-orders-form.ts`、`admin-orders-details.ts`、`admin-orders-errors.ts`、`admin-orders-permissions.ts`：分别承接文案映射、显示格式化、表单解析、详情展开、错误映射和权限判断
-- `admin-orders-form-dialog.tsx`、`admin-orders-details-dialog.tsx`、`admin-orders-dialog-ui.tsx`：拆出订单表单弹窗、详情弹窗以及弹窗共享 UI
-- 2026-05-14 补充：订单大类展示为“零售类 / 服务订单 / 批发类 / VIP充值”；零售类使用零售口径，服务订单使用服务订单口径，批发类作为批发业务入口，VIP充值独立承接会员开通和续费。
-- 2026-05-14 补充：管理员人员管理可为业务员勾选可见业务板块；业务员订单页会按授权只显示零售、批发或两者对应的订单类型，新建订单和订单用户选项也使用同一范围。
-- `lib/admin-orders-business-scope.ts` 承接订单业务板块范围计算，避免把业务员板块授权逻辑继续堆进 `lib/admin-orders.ts`。
-- 2026-05-14 补充：`lib/admin-orders.ts` 已收敛为轻量导出门面；订单类型、用户选项、成本读取、补充明细、保存/删除、页面数据组装和查看权限分别拆到 `admin-orders-options.ts`、`admin-orders-costs.ts`、`admin-orders-supplementary.ts`、`admin-orders-mutations.ts`、`admin-orders-page-data.ts`、`admin-orders-viewer.ts` 与 `admin-orders-types.ts`，后续批发报价或佣金规则不要再塞回门面文件。
-- 2026-05-15 补充：零售类订单的补充信息区标题统一显示为“零售信息”，避免继续用“采购/批发信息”混淆批发板块。
-- 2026-05-19 补充：新建订单的原始货币改为从当前可用的汇率币种中选择，选择后汇率等值和公司成交汇率自动填入并保持只读；相关币种联动拆到 `admin-orders-currency.ts` 和 `admin-orders-currency-fields.tsx`，避免继续扩张订单表单弹窗。
-- 2026-05-20 补充：订单页设置标签统一命名为“订单设置”；服务费设置分成“零售服务费设置”和“批发服务费设置”，每个档位可单独修改费率；设置页档位名称使用“新用户”“普通零售”“零售/服务VIP”“普通批发”“高级批发”“批发VIP”等业务名称。服务费档位展示拆到 `admin-orders-service-fee-tier-section.tsx` 与 `admin-orders-service-fee-display.ts`，设置容器只负责加载状态、保存动作和分组组装。
-- 2026-05-20 补充：零售和批发订单保存时会按订单类型与订单设置自动匹配服务费，表单不再允许手动选择服务费；服务订单没有服务费。创建、编辑和详情弹窗统一使用同一块服务费卡片展示零售/批发档位、费率和金额，创建/编辑弹窗的基础信息排布也按详情弹窗的阅读顺序整理。订单表单的人民币总计改为按“金额总计 * 汇率等值”自动计算并锁定，数据库保存时也会重新计算避免手动传值。订单补充表单拆到 `admin-orders-supplementary-form-sections.tsx`，服务费设置拆到 `admin-orders-service-fee-settings.tsx` 与 `admin-orders-service-fee-settings-utils.ts`。
-- 2026-05-21 补充：订单页新增独立大类“VIP充值”，不再放在服务订单小类；VIP充值明细使用 `vip_recharge_order` 区分“零售/服务VIP”和“批发VIP”。新建 VIP 充值订单时前端默认 200 USD、已完成，数据库端也会校验 200 USD，避免手工改错金额或币种。
-- 2026-04-28 补充：订单采购/服务补充明细改为通过“创建类别”添加双输入行，左侧填写类别名称，右侧填写对应内容，不再要求用户手写“项目: 内容”格式
-- 2026-05-06 补充：管理员订单设置整合到 `/admin/orders?tab=exchange-rates`，左侧导航不再单独展示管理员汇率入口；旧 `/admin/exchange-rates` 会跳转到订单页的订单设置标签
-- 2026-05-06 补充：新建订单优先选中当前可用的 `USD -> CNY`；如果没有 USD 汇率，则使用当前可选币种中的第一项。汇率等值自动填入且不能手动修改；缺少汇率时会阻止创建订单，已创建订单编辑时币种、汇率等值和公司成交汇率保持原值
-- 2026-05-06 补充：订单页内“订单列表 / 订单设置”切换使用本地即时反馈，点击后先切换页面内容并显示加载状态，再同步地址栏参数，避免用户感觉按钮没有响应
-- 2026-05-13 补充：业务员订单页文案改为直接描述可执行动作和当前状态，不再使用解释前因后果的说明句。
-- `admin-orders-utils.ts`：只保留 barrel re-export，不再承载实际业务实现
-
-### 业务员客户管理（2026-05-14）
-
-- 业务员工作台新增 `/salesman/people`，只展示当前业务员名下的客户，并允许把客户标记为“零售”或“批发”。
-- 2026-05-15 补充：业务员客户列表只展示当前标记，调整“零售 / 批发”统一放在“调整标记”弹窗里，不在表格行内直接下拉保存。
-- 客户标记仅供内部管理使用，不展示给客户；管理员人员管理页只读展示业务员对客户的标记和标记人。
-- 业务员客户管理属于客户维护能力；业务员至少具备零售或批发板块授权时可进入。零售/服务VIP申请依赖零售推荐关系，批发VIP申请依赖批发推荐关系。
-- 数据读取和保存分别由 `lib/salesman-people.ts`、`lib/salesman-people-mutations.ts` 承接，前端 UI 放在 `components/dashboard/salesman-people/`；管理员人员管理没有承载业务员保存逻辑。
-
-### VIP 会员整理（2026-05-21）
-
-- VIP 会员拆成“零售/服务VIP”和“批发VIP”两套一年期会员，每套单独 200 USD，互不占用起止时间；同一类型续费会从现有有效期后顺延一年。
-- 零售/服务VIP影响零售类订单服务费，也决定服务订单是否可以使用折扣；批发VIP只影响批发类订单服务费。服务订单没有服务费，订单金额按服务价格和折扣自动计算，批发新客户或高级批发等更低费率也不会被 VIP 改高。
-- 服务订单价格在订单设置中单独维护：旅游陪同 120 USD、医疗陪同 150 USD、数字化生存 10 USD/天或 100 USD 买断、机场接送 50 USD、用车服务 60 USD；管理员可以调整这些美元价格、对应成本金额和服务订单折扣，折扣表按“普通用户”和“零售/服务VIP用户”分组展示，普通用户按 100% 原价保存。订单设置页的服务费、服务订单价格和汇率板块不再展示顶部小统计卡，直接进入设置内容。
-- 业务员人员管理可对自己客户提交开通或续费申请，管理员人员管理展示两套 VIP 状态和待处理申请，并可直接审批；审批通过会生成已完成的“VIP充值”订单并同步会员时间和首次推荐奖励。
-- VIP 共享类型和展示整理到 `lib/vip-memberships.ts`；管理员审批动作拆到 `lib/admin-people-vip-mutations.ts` 和 `components/dashboard/admin-people/admin-people-vip-cell.tsx`；业务员申请动作拆到 `lib/salesman-people-vip-mutations.ts` 和 `components/dashboard/salesman-people/salesman-people-vip-cell.tsx`。
-
-### 自动汇率与订单规则（2026-05-06）
-
-- 汇率同步配置由 Supabase 的 `exchange_rate_sync_settings` 和 `exchange_rate_sync_pairs` 承接，默认每天获取 `USD -> CNY`；管理员可以在订单页的“订单设置”标签中开关自动获取、增删每天获取的币种，并一次手动获取多个币种
-- 自动获取由 Supabase `pg_cron` 每天 UTC `01:30` 调用 `exchange-rate-sync` Edge Function，对应北京时间 `09:30`
-- `exchange-rate-sync` 使用 ExchangeRate-API Standard endpoint，从 `{base}` 读取 `conversion_rates.CNY`；API key 只通过 Supabase secret `EXCHANGE_RATE_API_KEY` 配置，不进入前端代码和仓库
-- 管理员手动获取会先校验当前登录令牌中的管理员身份，再由 Edge Function 使用服务端 secret 请求汇率接口，前端不会接触真实 API key
-- 订单保存 RPC 会在数据库端重新按 `原币 -> CNY` 取汇率，优先使用当天记录，若当天未获取则回退到订单设置中的最新有效记录；人民币总计按订单金额和保存时的汇率自动计算，前端不再允许手动修改
-- 本次拆分新增 `exchange-rate-sync-section.tsx` 和 `use-exchange-rate-sync-settings.ts` 承接汇率设置 UI 与动作，订单页只负责标签组合，避免把自动汇率状态继续堆进订单或汇率核心 Client 文件
-
-### `admin-tasks` 模块分层（2026-05-11）
-
-- `admin-tasks-client.tsx`：只负责工作台编排，不再直接承载筛选、分页、创建、编辑、分配和删除逻辑
-- `use-admin-tasks-view-model.ts`：聚合任务页的路由状态、创建/编辑弹窗、目标角色调整弹窗、任务类型管理弹窗和删除动作
-- `use-admin-tasks-route-state.ts`、`use-admin-task-create-dialog.ts`、`use-admin-task-edit-dialog.ts`、`use-admin-task-assignment-dialog.ts`、`use-admin-task-type-management-dialog.ts`、`use-admin-task-delete-action.ts`：分别承接路由筛选与分页、创建任务、编辑任务、目标角色调整、任务类型新增/编辑/停用和删除流程
-- `admin-tasks-sections.tsx`：拆出头部指标、筛选区、列表区和无权限态
-- `admin-task-form-dialog.tsx`：集中承接任务创建/编辑表单弹窗，避免把字段表单继续堆进 client 或 assignment dialog
-- `admin-task-form-sections.tsx`：拆出任务表单摘要卡、核心字段区和附件区，控制单文件长度并保持弹窗壳层纯粹
-- `admin-tasks-dialogs.tsx`：只保留目标角色调整弹窗；`admin-task-type-management-dialog.tsx` 单独承接任务类型管理弹窗
-- `admin-tasks-view-model-shared.ts`：集中放置任务页共享类型、筛选比较和输入样式常量
-- `lib/admin-tasks.ts`：保留管理员任务页查询、创建、编辑、目标角色调整、删除和页面数据编排，当前约 503 行；任务类型操作已拆到 `lib/admin-task-type-management.ts`
-- `admin-tasks-ui.tsx` 只保留管理员任务卡片和表单字段壳层；状态、目标角色、搜索/筛选和信息块统一复用 `components/dashboard/tasks/task-ui.tsx`
-- `lib/admin-tasks-types.ts`、`lib/admin-task-normalizers.ts`、`lib/admin-task-attachments.ts`、`lib/admin-task-type-management.ts`：分别承接任务类型定义、数据库行归一化、附件上传/读取、任务类型新增/编辑/停用，通用上传校验和存储清理由 `lib/task-attachment-policy.ts` 统一承接
-- `lib/task-acceptance-summary.ts`：集中读取同一任务的领取/完成人数汇总，供管理员任务板和内部成员任务中心复用，避免把领取次数统计分散到各自页面逻辑里
-- `lib/task-review-assets.ts`：单独承接任务提审附件的上传、回滚清理、任务删除前附件读取、signed URL 和文件校验；`lib/task-reviews.ts` 只保留提审草稿、提交和审核队列数据
-- `admin-task-submission-media.tsx`、`use-admin-task-submission-media.ts`：单独承接历史已完成任务中的成员图片/视频成果读取、预览弹窗和下载动作
-- `lib/admin-task-submission-media.ts`：集中查询已完成任务的审核通过成果媒体，并为私有存储对象生成短期 signed URL
-- 管理员任务板头部指标只保留“进行中 / 审核中”两项，并移除状态筛选栏；任务卡片不再展示归属锁定说明文案
-- 任务按目标角色多选分发，目标角色限定为经理、运营、招聘、业务和财务；管理员创建或编辑任务时可设置可领取次数，也可选择不限次数；同一个任务可由不同内部成员分别领取、提审、审核通过并生成各自的任务佣金
-- 管理员可在任务页弹窗中新增、编辑、停用任务类型；任务类型清空后不再保留内置默认类型，需要由管理员在 Web 端重新添加
-- 任务创建/编辑时佣金金额可留空；留空会按无奖励任务处理，不生成任务佣金记录，任务列表和审核列表统一显示“无奖励”
-- 任务操作权限已拆成“编辑 / 删除 / 调整目标角色”三类：任务已有成员领取后禁止再改目标角色；管理员任务列表只展示父任务，已完成成果通过领取记录统计和历史视图查看
-- 管理员在“历史已完成任务”视图中可直接查看成员已通过审核的图片/视频成果，并按单个文件预览或下载原文件
-- 删除任务时会先读取父任务关联的提审附件清单；删除后同步清理 `task-attachments` 和 `task-review-submissions` 两个存储桶中的对象，避免数据库级联删除后留下提审附件孤儿文件
-- 任务状态边界已整理：`task_main` 只表示发布任务和领取名额，个人执行状态覆盖 `accepted -> reviewing -> rejected/completed` 并存放在 `task_acceptances`；执行人提交审核成果进入 `task_review_submissions` / `task_review_submission_assets`，任务佣金通过 `task_commission_record.acceptance_id` 绑定到具体领取记录
-- 2026-05-19 补充：任务结构重构迁移会把旧的 `task_main.parent_task_id` 子任务行迁入 `task_acceptances`，随后删除子任务行并移除 `task_main` 中的个人执行字段；新代码不再兼容旧的子任务模型
-- 任务审核通过后会同步写入 `task_commission_record`，任务佣金与订单佣金并行展示，但不复用订单佣金表结构
-- 2026-05-13 补充：管理员和内部成员任务列表在常见桌面宽度下保持单列卡片，任务卡片的操作按钮不再挤压标题、标签和说明文字；统计卡片标签保持单行显示；佣金表格补充最小宽度，窄屏时横向滚动而不是压缩列内容。
-
-### 全局操作记录（2026-05-08）
-
-- 管理员工作台新增 `/admin/records` 操作记录入口，第一版聚合账号调整、资料修改审核和反馈处理状态这些已有留痕，不改变现有审核中心的待办处理流程
-- 数据读取集中在 `lib/admin-operation-records.ts`，通过现有 `admin_user_account_change_logs`、`user_profile_change_requests` 和 `workspace_feedback` 汇总最近关键动作；本次不新增数据库表，也不要求 Supabase 迁移
-- 前端新增 `components/dashboard/admin-operation-records/`，按 client、view-model、sections、display 拆分，支持按记录类型、处理动作和搜索词筛选
-- 操作记录用于事后核对“谁在什么时候处理了什么”，现有 `/admin/reviews` 继续负责待审核队列；后续订单、佣金、团队、公告等关键动作可继续接入这个记录中心
-
-### 内部任务接收端模块分层（2026-05-11）
-
-- `salesman-tasks-client.tsx`：只负责任务中心编排、指标展示和组件组装；当前组件名沿用历史目录，但页面已作为经理、运营、招聘、业务和财务共用的内部任务接收端
-- `use-salesman-tasks-page.ts`：负责路由筛选、分页、接取任务、上传成果、提交审核和附件打开动作；多人领取的可见任务过滤由数据层先处理，页面 hook 不直接统计其他成员的领取明细
-- `salesman-tasks-ui.tsx`：只保留内部成员任务卡片展示；搜索/筛选、状态/目标角色展示和信息块统一复用 `components/dashboard/tasks/task-ui.tsx`
-- `salesman-task-submit-dialog.tsx`：单独承接“提交审核 / 重新提交审核”弹窗与文件选择流程
-- `lib/salesman-tasks.ts` 当前约 359 行，只保留接收端页面数据编排和动作 RPC；`lib/salesman-task-data.ts` 当前约 327 行，承接父任务、任务附件、目标角色和任务类型查询归一化
-
-### `admin-reviews` 模块分层（2026-04-22）
-
-- `admin-reviews-client.tsx`：只负责审核工作台编排、tab 切换和组件组装
-- `use-admin-reviews-page.ts`：负责隐私审核、媒体审核、任务审核和提审附件打开动作
-- `admin-reviews-ui.tsx`：只保留隐私审核列表和加载态，不再承载媒体预览或媒体表格
-- `media-review-list.tsx`：单独承接媒体审核列表、媒体预览弹窗和智能初审状态展示
-- `admin-reviews-shared-ui.tsx`：集中承接审核列表共享单元格、操作按钮和用户显示名格式化
-- `task-review-list.tsx`：单独承接任务审核列表，避免把任务提审展示继续堆进现有审核 UI 文件
-
-### `commission` 模块分层（2026-04-23）
-
-- `admin-commission-client.tsx`：只负责佣金页编排、筛选状态、数据刷新和普通佣金 / 任务佣金 / 佣金设置板块切换，不再直接承载筛选区、受益人汇总区和佣金表格渲染
-- `admin-commission-header.tsx`：单独承接佣金页头和汇总指标，避免页面编排组件继续增长
-- `admin-commission-settings-section.tsx`、`admin-commission-settings-ui.tsx`、`commission-settings-display.ts`：承接管理员佣金设置页，顶部不再显示统计概览卡片；规则表展示订单、服务、推荐和 VIP 奖励规则，并在计算方式列按当前规则展示完整公式；数字化生存业务员佣金按非负毛利计算，避免成本高于订单金额时生成负佣金
-- `admin-commission-filters-section.tsx`、`admin-commission-record-sections.tsx`：继续把筛选区、受益人汇总区和普通佣金明细表拆开，控制单文件长度并避免把待结算操作继续堆进 page/client 组件
-- `admin-commission-view-model.ts`：集中放置筛选类型、受益人汇总类型和普通佣金受益人聚合逻辑
-- `admin-commission-sections.tsx`：只保留佣金 section/barrel re-export，避免再把真实实现回堆进同一个文件
-- `use-managed-commission-settlement.ts`：集中承接普通佣金与任务佣金的“标记已结算”流程、确认提示和页面反馈
-- `salesman-commission-client.tsx`：负责个人佣金页编排与权限态切换
-- `commission-board-switch.tsx`：统一承接佣金页板块切换，只展示板块名称和数量，避免把切换逻辑分散到多个页面
-- `admin-task-commission-section.tsx`、`salesman-task-commission-section.tsx`：拆出任务佣金展示区，其中管理员 / 财务侧额外承接待结算任务佣金的手动结算按钮
-- `lib/commission-settlement.ts`：集中处理订单佣金与任务佣金的手动结算 RPC 调用
-- `lib/commission-settings.ts`：集中处理佣金规则设置读取和保存；对应数据库迁移 `20260522100000_commission_rule_settings.sql` 让订单佣金计算读取可调整规则，并恢复推荐采购、推荐服务佣金生成
-- `lib/task-commissions.ts`：集中处理任务佣金查询、任务类型名称、团队名称和受益人映射
-
-### `team-management` 模块分层（2026-04-22）
-
-- `team-management-client.tsx`：只负责页面编排和条件渲染
-- `use-team-management-view-model.ts`：只负责组装派生状态、搜索输入和草稿输入，不再直接堆积所有副作用
-- `use-team-management-actions.ts`、`team-management-view-model-shared.ts`：分别承接团队 CRUD/刷新动作，以及团队页共享状态结构与数据快照转换
-- `team-management-state-sections.tsx`、`team-management-summary-sections.tsx`、`team-management-roster-sections.tsx`：分别承接页头与空态、概览与详情、成员/候选/客户区块
-- `team-management-sections.tsx`：只保留 barrel re-export
-- `team-management-ui.tsx`：保留团队专属卡片和小型展示组件；页头、指标卡、搜索框和标签改为复用工作台共享组件
-- `team-management-state-sections.tsx` 与 `team-management-summary-sections.tsx` 的状态区、概览区和详情区已接入 `DashboardListSection` / `DashboardSectionPanel`，避免团队页继续维护一套不同的面板壳层
-- `team-management-display.ts`、`team-management-utils.ts`、`team-management-section-styles.ts`：继续负责文案映射、搜索过滤和共享输入样式，不再混入页面状态
-
-## 本地开发
+## 本地运行
 
 1. 安装依赖
 
@@ -317,28 +38,34 @@ baisheng-web/
 npm install
 ```
 
-2. 复制环境变量
+2. 准备环境变量
 
-```bash
+```powershell
 Copy-Item .env.example .env.local
 ```
 
-3. 启动开发环境
+3. 启动开发服务
 
 ```bash
 npm run dev
 ```
 
-默认访问地址：
+默认入口：
 
 - `http://localhost:3000`
 - `http://localhost:3000/login`
 - `http://localhost:3000/register`
 - `http://localhost:3000/forgot-password`
 
+开发约束：
+
+- 同一个 Next 项目目录不要同时启动两个 dev server。
+- Playwright 或本地验证建议固定使用 `http://127.0.0.1:3000`，避免热更新资源来源不一致。
+- `.env.local`、真实密钥、测试账号和本地产物不能提交。
+
 ## 环境变量
 
-至少需要以下配置：
+至少需要：
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
@@ -352,13 +79,11 @@ DEEPSEEK_MODEL=deepseek-v4-flash
 
 说明：
 
-- `NEXT_PUBLIC_*` 用于浏览器端和 SSR 访问 Supabase
-- `SUPABASE_SERVICE_ROLE_KEY` 只允许服务端脚本或受控管理任务使用，不能暴露到前端
-- `EXCHANGE_RATE_API_KEY` 只配置为 Supabase Edge Function secret，用于自动和手动获取当日汇率
-- `USER_MEDIA_IMAGE_REVIEW_PROVIDER` 只配置为 Supabase Edge Function secret，默认 `disabled`；真实内容安全供应商密钥也只放在 Supabase Function secrets 中
-- `DEEPSEEK_API_KEY` 只在 Next.js 服务端接口中使用，用于登录后右下角的柏盛助手
-- `DEEPSEEK_BASE_URL` 和 `DEEPSEEK_MODEL` 用于切换 DeepSeek 接入地址和模型，默认使用 `https://api.deepseek.com` 与 `deepseek-v4-flash`
-- `.env.local` 不应提交到仓库
+- `NEXT_PUBLIC_*` 用于浏览器端和 SSR 访问 Supabase。
+- `SUPABASE_SERVICE_ROLE_KEY` 只允许服务端脚本或受控管理任务使用，不能暴露到前端。
+- `EXCHANGE_RATE_API_KEY` 只配置为 Supabase Edge Function secret。
+- `USER_MEDIA_IMAGE_REVIEW_PROVIDER` 和真实内容安全供应商密钥只配置为 Supabase Function secrets，默认 provider 为 `disabled`。
+- `DEEPSEEK_API_KEY` 只在 Next.js 服务端接口中使用，用于登录后右下角的柏盛助手。
 
 ## 常用命令
 
@@ -379,22 +104,180 @@ npm run supabase:admin -- summary
 
 说明：
 
-- `npm run clean:artifacts`：清理 `.playwright-cli` 和 `output/playwright` 下的临时日志、临时会话目录，并整理截图/报告
-- `npm run clean:cache`：清理 `.next` 和 `tsconfig.tsbuildinfo`
-- `npm run clean:all`：同时执行产物清理和缓存清理
-- `npm run supabase:admin -- summary`：查看订单、汇率等表的概览
+- `npm run test:regression` 会依次执行 lint、typecheck、build 和 Playwright 回归测试。
+- `npm run clean:artifacts` 清理 `.playwright-cli` 和 `output/playwright` 下的临时验证产物。
+- `npm run clean:cache` 清理 `.next` 和 `tsconfig.tsbuildinfo`。
+- `npm run supabase:admin -- summary` 查看订单、汇率等表的概览。
 
-## 自动化回归测试（2026-05-08）
+## 角色与入口
 
-- `playwright.config.ts` 是自动化回归入口，默认使用 `http://127.0.0.1:3000`，会在本地自动启动 `npm run dev -- --hostname 127.0.0.1`；如果已有服务，可设置 `PLAYWRIGHT_SKIP_WEB_SERVER=1` 并用 `PLAYWRIGHT_BASE_URL` 指定地址
-- 第一版回归测试位于 `tests/e2e`，覆盖登录、角色首页、越权拦截和关键工作区入口；当前只做只读验证，不创建订单、不提交审核、不删除数据
-- 测试账号优先读取 `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD`、`E2E_SALESMAN_EMAIL` / `E2E_SALESMAN_PASSWORD`、`E2E_CLIENT_EMAIL` / `E2E_CLIENT_PASSWORD`、`E2E_FINANCE_EMAIL` / `E2E_FINANCE_PASSWORD`；未设置时会读取本机 `D:\code\code-project\测试账号.txt`
-- 回归产物输出到 `output/playwright-results` 和 `output/playwright-report`，仍属于本地临时验证产物，不提交到仓库
-- 完整上传前建议执行 `npm run test:regression`，它会依次运行 lint、typecheck、build 和 Playwright 回归测试；日常开发可只运行 `npm run test:e2e`
+当前系统使用统一动态工作台，不再为每个角色维护一套散落页面。
+
+| 角色 | 默认入口 | 当前模块 |
+| --- | --- | --- |
+| `administrator` | `/admin/home` | 首页、公告、订单、推荐树、团队、人员、操作记录、佣金、任务、审核、反馈 |
+| `salesman` | `/salesman/home` | 首页、订单、人员、推荐树、团队、佣金、汇率、任务 |
+| `client` | `/client/home` | 首页、订单、推荐树 |
+| `manager` | `/manager/home` | 首页、推荐树、团队、任务 |
+| `operator` | `/operator/home` | 首页、推荐树、团队、任务 |
+| `finance` | `/finance/home` | 首页、推荐树、团队、任务、佣金 |
+| `recruiter` | `/recruiter/home` | 首页、推荐树、任务 |
+
+访问规则：
+
+- `/[role]` 自动重定向到 `/[role]/home`。
+- 越权访问直接展示访问错误页，不改写到其他角色工作台。
+- 左侧导航只展示当前账号可用模块。
+- 已知但未授权的同工作台模块展示访问错误页，不再显示占位入口。
+
+## 路由结构
+
+```text
+app/
+├─ (auth)/
+│  ├─ login/
+│  ├─ register/
+│  ├─ forgot-password/
+│  ├─ privacy/
+│  ├─ terms/
+│  └─ help/
+├─ (workspace)/
+│  └─ [workspace]/
+│     ├─ home/
+│     ├─ my/
+│     └─ [section]/
+├─ error.tsx
+├─ forbidden.tsx
+└─ global-error.tsx
+```
+
+关键文件：
+
+- `proxy.ts`：会话同步、登录保护、工作台访问前置校验。
+- `lib/workspace-config.ts`：角色导航、页面变体和工作台配置中心。
+- `lib/auth-routing.ts`：角色与工作台 base path 映射。
+- `components/dashboard/admin-shell.tsx`：工作台服务端壳层。
+- `components/dashboard/admin-shell-client.tsx`：工作台客户端壳层组装。
+- `components/dashboard/use-admin-shell-navigation.ts`：工作台导航点击、预取和失焦恢复后的整页跳转兜底。
+- `lib/use-stale-focus-recovery.ts`：页面长时间隐藏或窗口失焦后的跳转/刷新兜底判断。
+
+## 目录约定
+
+```text
+baisheng-web/
+├─ app/
+├─ components/
+│  ├─ auth/
+│  ├─ brand/
+│  ├─ dashboard/
+│  └─ legal/
+├─ i18n/
+├─ lib/
+├─ messages/
+├─ public/
+├─ scripts/
+├─ tests/
+├─ proxy.ts
+└─ README.md
+```
+
+约定：
+
+- `components/dashboard` 按业务模块拆分，根目录只保留壳层和共享 UI。
+- `components/auth` 只放认证页表单、输入框和认证页跳转组件。
+- `components/legal` 承接公开法律页和页脚链接。
+- `lib` 承接服务端查询、mutation、显示格式化、错误映射和共享业务规则。
+- `messages` 承接用户可见中英文文案。
+- `output`、`.playwright-cli`、`.next` 和 `node_modules` 都是本地产物，不提交。
+
+## 模块边界
+
+工作台共享能力：
+
+- `dashboard-section-header.tsx`：业务板块页头。
+- `dashboard-section-panel.tsx`：筛选面板、列表面板和表格外框。
+- `dashboard-segmented-tabs.tsx`：订单、佣金、审核等板块内切换按钮。
+- `dashboard-pill.tsx` 与 `components/dashboard/tasks/task-ui.tsx`：标签、任务状态、目标角色、搜索筛选和信息块。
+- `workspace-header-actions.tsx`：顶部公告、反馈、语言切换和头像菜单入口。
+- `workspace-feedback/`：所有登录用户的问题反馈弹窗和提交成功提示。
+- `admin-feedback/`：管理员反馈管理列表、筛选和状态调整。
+- `ai-assistant/`：右下角柏盛助手浮窗、聊天状态、流式消息和反馈衔接。
+- `lib/account-switcher.ts`：本机常用账号会话切换，不保存密码，不写数据库。
+
+主要业务模块：
+
+- `admin-people/`：管理员人员管理，配合 `lib/admin-people*.ts`。
+- `admin-orders/`：管理员订单和订单设置，配合订单查询、表单、详情、权限和错误映射模块。
+- `admin-tasks/`：管理员任务创建、编辑、详情、改派和删除。
+- `salesman-tasks/`：内部成员任务接收、提交审核和成果附件。
+- `admin-reviews/`：隐私审核、媒体审核、任务审核和智能初审展示。
+- `commission/`：普通佣金、任务佣金、佣金设置和结算操作。
+- `referrals/`：零售 / 批发推荐树切换和关系展示。
+- `team-management/`：团队创建、成员维护、客户结构和团队详情。
+- `dashboard-shared-my/`：个人中心、账号中心、资料、认证分区和“常用账号”入口。
+
+拆分规则：
+
+- `Client` / `Page` 组件只负责组装和调度。
+- 查询、mutation、权限、表单状态、弹窗、表格渲染和文案映射不要继续堆在同一个核心文件里。
+- 单文件超过 `400-600` 行，或出现 3 个以上独立职责时，优先拆成 `queries`、`mutations`、`view-model hook`、`dialog`、`section/table` 或 `display-utils`。
+- 新增功能默认新建同层模块；只有极小改动才允许补进现有文件。
+
+## 当前关键业务规则
+
+- 注册页只展示邀请码入口，不暴露业务类型选择。
+- 零售和批发推荐树通过 `business_referrals.business_board` 隔离。
+- 业务员订单和人员入口会按“零售 / 批发”授权过滤。
+- 管理员人员管理用于账号身份、账号状态、城市和客户业务标记调整；推荐树、团队和佣金分别维护自己的业务边界。
+- 个人资料中姓名和城市按资料修改规则处理：管理员修改自己立即生效，其他角色提交后进入管理员审核。
+- “我的”页可在本机保存 1 个额外常用账号；添加或重新启用都必须重新登录，重新登录必须匹配目标账号，成功切换会刷新 15 天有效期。
+- 公告按发布对象和当前账号角色过滤；管理员管理页可维护全部公告。
+- 任务领取、提审、审核和完成状态统一进入 `task_acceptances`；多人任务父任务只保留名额和进度。
+- 任务附件策略统一由 `lib/task-attachment-policy.ts` 维护。
+- 个人照片上传后可进入智能初审；供应商未配置或返回需复核时仍进入人工审核。
+
+## 用户体验规则
+
+- 页面文案必须使用普通用户能理解的日常语言。
+- 用户可见文案禁止暴露数据库表名、字段名、状态码、bucket、RPC、JSON、同步请求等技术细节。
+- 登录、语言切换、路由跳转、刷新、上传、审核和保存动作都要有明确等待反馈，并避免重复点击。
+- 常用账号切换只保存本机会话快照，不保存密码；备用账号超过 15 天未使用或会话失效时改为重新登录入口，界面需要提示不要在共用电脑上使用，并提供清除本机保存入口。
+- 页面长时间隐藏或窗口失焦后，涉及客户端跳转或刷新时要使用 `lib/use-stale-focus-recovery.ts` 做整页加载兜底。
+- 移动端需要检查文字竖排、换行挤压、遮挡、横向溢出、按钮压缩和表格挤压。
+- 共享组件的响应式问题要从组件层修复，不只修截图里的单个位置。
+
+## 数据与 Supabase
+
+- Web 仓库不保存数据库迁移源文件；迁移源在 `D:\code\code-project\supabase`。
+- Web 改动如果依赖新表、新字段、新 RPC 或 Edge Function，必须先在本地 Docker Supabase 验证，再按 Supabase 操作指南上传。
+- Supabase 上传完成后，再提交和推送 Web 仓库。
+- Function secrets、供应商密钥和真实服务凭据只放在 Supabase secrets 或本机 `.env.local`，不能写入仓库。
+
+## 测试与验证
+
+代码改动后固定检查：
+
+- 更新 `README.md` 中相关说明。
+- 使用 Playwright 在真实浏览器环境验证受影响页面。
+- 使用 `D:\code\code-project\测试账号.txt` 中的测试账号验证登录、跳转和权限链路。
+- 检查桌面和移动宽度下是否有文字竖排、遮挡、溢出或按钮/表格压缩。
+- 运行与改动风险匹配的命令，通常至少包括 `npm run lint`、`npm run typecheck`，重要改动再跑 `npm run build`。
+
+文档-only 改动：
+
+- 不需要启动浏览器验证。
+- 仍应运行 `git diff --check`，确认 Markdown 没有空白字符问题。
+
+自动化回归：
+
+- `playwright.config.ts` 默认使用 `http://127.0.0.1:3000`。
+- `tests/e2e` 覆盖登录、角色首页、越权拦截和关键工作区入口。
+- 测试账号优先读取 `E2E_*` 环境变量；未设置时读取本机测试账号文件。
+- 回归产物输出到 `output/playwright-results` 和 `output/playwright-report`，不提交。
 
 ## 构建与本地产物
 
-仓库已经忽略以下本地产物：
+仓库已忽略：
 
 - `.next/`
 - `.playwright-cli/`
@@ -402,105 +285,35 @@ npm run supabase:admin -- summary
 - `node_modules/`
 - `*.tsbuildinfo`
 
-推荐约定：
+清理建议：
 
-- `.next` 视为可再生缓存，只有在磁盘压力大或怀疑缓存脏时才清
-- `.playwright-cli` 视为临时产物，应定期清理
-- `output/playwright/reports` 用于保留结构化报告
-- `output/playwright/screenshots` 用于保留需要留档的截图
+- `.next` 是可再生缓存，只在磁盘压力大或怀疑缓存脏时清理。
+- `.playwright-cli` 和 `output/playwright` 是临时验证产物，应定期清理。
+- 有价值的截图和报告可以短期保留在 `output/playwright/screenshots` 和 `output/playwright/reports`。
 
-## 工作区账号菜单与个人中心拆分
+## 部署与上传
 
-- 右上角头像不再直接跳转页面，改为账号下拉菜单。
-- 账号菜单入口对应个人中心、账号中心、个人资料、账号与认证，并保留退出登录操作。
-- /{角色}/my 继续作为个人中心页面，页面内部按个人中心、账号中心、个人资料、账号与认证四个分区组织。
-- 页面分区渲染拆到 `components/dashboard/dashboard-shared-my/dashboard-shared-my-sections.tsx`，头像菜单继续放在工作区头部控件内。
-- 2026-04-29 补充：个人中心内部分区入口保持贴在工作区页头下方，避免从帮助中心等公开页面回退时因浏览器恢复滚动位置而看不到分区按钮。
-- 2026-04-29 补充：个人资料编辑说明只保留可更新字段说明，不再展示管理员与其他账号的保存差异提示。
+部署建议：
 
-## 工作区入口、公告与资料修改审批
+- Framework：`Next.js`
+- Build Command：`npm run build`
+- Start Command：`npm run start`
+- Output Directory：`.next`
 
-- 左侧工作区导航不再展示“我的”，但 /{角色}/my 页面继续保留；用户通过右上角头像进入自己的资料页。
-- 公告已读按账号记录。用户登录后若有未读公告，会自动弹窗提示；右上角公告按钮展示当前账号最近 5 条可查看公告。
-- 登录页展示最新一条已发布的全员公告，通过公开 RPC 读取单条内容，不开放匿名整表读取。
-- 2026-04-29 补充：登录页公告改为独立异步区块，登录表单和基础页面不再等待公告读取完成；登录成功后的跳转优先读取本次会话里的角色信息，避免重复等待角色判断。
-- 退出登录改为当前浏览器快速退出：点击后立即清除本地会话并返回登录页，不再等待云端会话请求完成；该动作只保证当前浏览器退出。
-- 姓名和城市统一走资料修改规则：管理员修改自己的资料立即生效，其他角色提交后进入管理员审核。
-- 审核中心新增“资料修改”队列，和隐私、媒体、任务审核并列处理。
-- 本次新增公告读取、公开公告、资料修改申请和资料弹窗 hook 等独立模块，避免继续扩大自助资料页和工作区布局核心文件。
+Git 推送约定：
 
-## 问题反馈与改进建议（2026-05-06）
+- 默认直接推送 `origin/main`。
+- 推送前确认在 `main` 分支。
+- 只暂存本次相关文件。
+- 推送后用 `git ls-remote origin refs/heads/main` 确认远端 HEAD。
+- 详细流程以 `D:\code\code-project\web项目说明及推送流程.md` 为准。
 
-- 所有正常登录用户可以从工作区顶部“反馈”按钮提交问题反馈或改进建议；第一版只收集文字说明，不上传截图或附件，也不展示用户历史。
-- 柏盛助手在回复失败、无法确认或用户明确表达要反馈问题时，会在助手内直接显示“提交反馈”入口，并预填刚才的问题和助手回复，用户无需再去顶部寻找反馈按钮。
-- 2026-05-19 补充：柏盛助手的入口说明改为跟随当前工作台配置生成，并补充业务板块隔离、多人任务、提交要求、操作记录、反馈管理、图片初审和邀请码处理边界；助手只说明页面入口和常见流程，不承诺读取或处理具体业务记录；用户要提交问题时继续引导使用“提交反馈”，不把管理员“反馈管理”说成提交入口。
-- 反馈数据由 Supabase `workspace_feedback` 承接，普通用户通过受控提交函数写入，管理员通过 `/admin/feedback` 查看并调整处理状态。
-- 管理员反馈页支持搜索、类型筛选、状态筛选和状态切换；其他角色不会显示左侧反馈管理入口，直接访问也会进入当前访问错误页。
-- 前端分层保持拆分：`lib/workspace-feedback.ts` 承接查询与状态更新，`components/dashboard/workspace-feedback/` 承接全局提交弹窗、反馈文案与成功提示，`components/dashboard/ai-assistant/ai-assistant-feedback-*` 承接助手到反馈的衔接，`lib/ai-assistant/assistant-workspace-context.ts` 承接助手可用入口和近期规则说明，`components/dashboard/admin-feedback/` 承接管理员列表、筛选和显示工具。
-- 最近验证：`npm run lint`、`npx tsc --noEmit`、`npm run build` 通过；`20260506113000_add_workspace_feedback.sql` 已推送到 Supabase 远端；Playwright 覆盖业务员提交反馈、管理员查看并改为“处理中”、业务员直接访问 `/admin/feedback` 显示访问错误页。
-- 2026-05-19 验证：`npm run lint`、`npx tsc --noEmit`、`npm run build` 通过；Playwright 使用管理员账号覆盖柏盛助手打开、管理员入口问答、明确反馈时的“提交反馈”衔接和反馈弹窗预填，并检查 1280px 与 390px 宽度没有水平滚动。
+Supabase Auth 建议：
 
-## 人员管理（2026-04-28）
-
-- 管理员工作台新增 `/admin/people` 人员管理板块，左侧导航显示“人员管理”，仅正常启用的管理员账号可访问。
-- 人员管理只负责账号身份、账号状态和城市调整；推荐树继续负责关系来源，团队管理继续负责团队归属，佣金等业务记录不会被自动改动。
-- 调整账号时，数据库中的角色、状态和城市是生效来源，服务端写入管理员调整记录，并在服务端凭据可用时同步 Supabase Auth `app_metadata.role/status` 作为兼容缓存；浏览器端不会接触服务端凭据。
-- 为避免误锁账号，系统禁止管理员在该板块调整自己的账号信息，并禁止停用或降级最后一个正常启用的管理员账号。
-- 角色和状态变化会在目标账号下次登录或刷新页面后完全生效；登录跳转优先读取访问令牌中的最新角色，避免旧账号缓存影响跳转。
-- 2026-05-13 补充：管理员调整账号角色后，会同步刷新该账号邀请码后续注册可分配的目标角色，避免人员角色已变更但邀请码仍按旧角色发放。
-- 前端新增 `components/dashboard/admin-people/`，按 client、view-model、sections、dialog、display 拆分；后端读取和 mutation 分别放在 `lib/admin-people.ts` 与 `lib/admin-people-mutations.ts`。
-
-## 任务页面展示优化（2026-05-13）
-
-- 管理员任务清单改为摘要卡片，列表只展示状态、目标角色、任务类型、附件数量、任务说明摘要、佣金、领取进度和创建时间。
-- 任务完整说明、领取次数、创建人、领取人、全部时间节点、附件明细和已完成成果统一放到“查看详情”弹窗里，减少列表页面拥挤。
-- 2026-05-19 补充：任务新增“提交要求”设置，管理员创建或编辑任务时可决定提审是否必须上传文件；关闭后，提交人填写备注即可发起审核，也可以自愿补充文件。对应数据库字段由 `20260519103000_task_review_attachment_requirement.sql` 维护。
-- 移动端柏盛助手入口不再固定压在页面右下角，改为跟随内容排在页面底部，避免覆盖任务筛选和列表内容。
-- 前端继续保持拆分：摘要卡片留在 `components/dashboard/admin-tasks/admin-tasks-ui.tsx`，详情内容新增到 `components/dashboard/admin-tasks/admin-task-detail-dialog.tsx`，列表区只负责打开详情弹窗和传入已完成成果数据。
-
-## 测试与验证要求
-
-Web 项目改动后，必须在真实浏览器环境中进行验证。
-
-- 使用 Playwright 在真实浏览器环境中验证改动页面
-- 使用测试账号执行登录、跳转、权限验证
-- 至少确认改动页面的主要按钮可点击、登录后的角色跳转正确、越权访问会被纠正
-- 测试账号文件：`D:\code\code-project\测试账号.txt`
-
-说明：
-
-- 如果这次只改文档，没有页面逻辑变化，也建议至少做一次最小 smoke，确认登录和权限链路未被意外影响
-- 真实数据的新增、删除、提交类动作默认只验证到入口或弹窗，避免污染线上或共享数据
-
-## 部署说明
-
-建议部署参数：
-
-- Framework: `Next.js`
-- Build Command: `npm run build`
-- Start Command: `npm run start`
-- Output Directory: `.next`
-
-Supabase Auth 建议配置：
-
-- Site URL：线上站点根地址
-- Redirect URLs：线上根地址、`/forgot-password`，以及本地开发地址 `http://localhost:3000`、`http://localhost:3000/forgot-password`
+- Site URL：线上站点根地址。
+- Redirect URLs：线上根地址、`/forgot-password`，以及本地开发地址 `http://localhost:3000`、`http://localhost:3000/forgot-password`。
 
 ## 相关文档
 
 - [web项目说明及推送流程.md](D:/code/code-project/web项目说明及推送流程.md)
 - [SUPABASE操作指南.md](D:/code/code-project/SUPABASE操作指南.md)
-
-## 腾讯云图片初审接入（2026-05-09）
-
-- `user-media-image-review` 支持 `USER_MEDIA_IMAGE_REVIEW_PROVIDER=tencent`，用于把个人照片接入腾讯云图片内容安全同步检测。
-- 当前实现使用腾讯云 `ImageModeration` 的 `FileContent` 入参：Edge Function 先读取 Supabase 私有图片并转为 Base64，再提交给腾讯云，避免依赖图片公网直链。
-- Function secrets 需要配置 `TENCENT_SECRET_ID`、`TENCENT_SECRET_KEY`、`TENCENT_IMAGE_BIZ_TYPE`，可选配置 `TENCENT_IMAGE_REGION`，默认区域为 `ap-guangzhou`，默认 BizType 为 `personal_photo_review`。
-- 腾讯云返回 `Pass` 时系统自动通过照片；返回 `Review`、`Block`、调用失败或密钥未配置时，照片继续进入人工审核。
-## 2026-05-13 认证错误提示补充
-
-- 注册、登录和重置密码页面新增可识别的 Supabase Auth 错误提示：常见或泄露密码、无效邮箱、请求过于频繁、邮箱已注册、邮箱未验证、自助注册关闭、邮件发送失败、重置链接失效以及新旧密码相同等情况会显示对应的日常语言提示。
-- 注册和重置密码的密码提示补充“避免姓名、生日或常见密码”，用于配合线上已开启的泄露密码保护；无法明确归类的认证错误仍保留统一兜底提示，并在后续排查时按日志再补充映射。
-- 认证页左侧大标题统一加宽标题区，减少桌面宽度下中文词组被拆开的情况。
-- 公告管理操作错误补充“公告不存在”和“没有权限”的日常语言提示，并屏蔽数据库、网络和状态码类原始错误。
-- 2026-05-18 补充：注册页会识别 Supabase 对已注册邮箱返回的“无身份记录”结果，停留在注册页提示“该邮箱已注册，请直接登录”，不再跳到登录页显示注册已提交。

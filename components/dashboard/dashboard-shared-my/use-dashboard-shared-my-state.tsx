@@ -27,6 +27,7 @@ import {
 import { Button } from "../../ui/button";
 import { useDashboardSharedMyStateCopy } from "./dashboard-shared-my-state-copy";
 import { createDashboardSharedMyViewModel } from "./dashboard-shared-my-view-model";
+import { useDashboardAccountSwitcher } from "./use-dashboard-account-switcher";
 import { useDashboardProfileDialog } from "./use-dashboard-profile-dialog";
 
 export function useDashboardSharedMyState(initialData: CurrentUserBundle | null = null) {
@@ -218,6 +219,15 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
     copy,
     locale,
     sharedCopy,
+  });
+
+  const accountSwitcher = useDashboardAccountSwitcher({
+    authUser,
+    displayName,
+    role,
+    setBusyKey,
+    setPageNotice,
+    supabase,
   });
 
   const openDialog = (key: MediaAssetKey) => {
@@ -531,6 +541,7 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
       sendPasswordReset,
       verificationStatus,
     },
+    accountSwitcher,
     profileDialog,
     assetDialog: {
       actions: dialogActions,

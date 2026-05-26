@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,10 +9,16 @@ import { useTranslations } from "next-intl";
 import type { Session } from "@supabase/supabase-js";
 
 import {
+  completeAccountSwitcherLogin,
+  getAccountSwitcherLoginIntent,
+  type AccountSwitcherLoginIntent,
+} from "@/lib/account-switcher";
+import {
   getDefaultSignedInPathForRole,
   getRoleFromAuthClaims,
   getRoleFromAuthSession,
 } from "@/lib/auth-session-client";
+import { clearCurrentBrowserSession } from "@/lib/browser-auth-session";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useSupabaseAuthSync } from "@/lib/use-supabase-auth-sync";
 
@@ -42,12 +48,64 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [accountSwitcherIntent, setAccountSwitcherIntent] =
+    useState<AccountSwitcherLoginIntent | null>(null);
+
+  useEffect(() => {
+    const timerId = window.setTimeout(() => {
+      const intent = getAccountSwitcherLoginIntent();
+      const targetEmail = intent?.targetAccount?.email;
+
+      setAccountSwitcherIntent(intent);
+
+      if (intent?.kind === "reauthenticate" && targetEmail) {
+        setEmail((currentEmail) => currentEmail || targetEmail);
+      }
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, []);
 
   const redirectToWorkspace = async (session?: Session | null) => {
     const role =
       getRoleFromAuthSession(session) ??
       (supabase ? await getRoleFromAuthClaims(supabase, session?.user) : null);
     const nextPath = role ? getDefaultSignedInPathForRole(role) : "/";
+    const accountSwitcherResult = completeAccountSwitcherLogin({ role, session });
+
+    if (accountSwitcherResult.status === "same-current-account") {
+      await clearCurrentBrowserSession(supabase);
+      setPassword("");
+      setSubmitting(false);
+      setAccountSwitcherIntent(getAccountSwitcherLoginIntent());
+      setError(t("accountSwitcherDifferentAccountRequired"));
+      return;
+    }
+
+    if (accountSwitcherResult.status === "target-mismatch") {
+      await clearCurrentBrowserSession(supabase);
+      setEmail(accountSwitcherResult.targetEmail);
+      setPassword("");
+      setSubmitting(false);
+      setAccountSwitcherIntent(getAccountSwitcherLoginIntent());
+      setError(
+        t("accountSwitcherTargetMismatch", {
+          email: accountSwitcherResult.targetEmail,
+        }),
+      );
+      return;
+    }
+
+    if (accountSwitcherResult.status === "role-unavailable") {
+      await clearCurrentBrowserSession(supabase);
+      setPassword("");
+      setSubmitting(false);
+      setAccountSwitcherIntent(getAccountSwitcherLoginIntent());
+      setError(t("serviceUnavailable"));
+      return;
+    }
 
     startTransition(() => {
       router.replace(nextPath);
@@ -106,6 +164,16 @@ export function LoginForm({
 
       {passwordReset ? (
         <AuthFeedback tone="success">{t("passwordResetNotice")}</AuthFeedback>
+      ) : null}
+
+      {accountSwitcherIntent?.kind === "add" ? (
+        <AuthFeedback tone="success">{t("accountSwitcherAddNotice")}</AuthFeedback>
+      ) : accountSwitcherIntent?.kind === "reauthenticate" ? (
+        <AuthFeedback tone="success">
+          {t("accountSwitcherReauthenticateNotice", {
+            email: accountSwitcherIntent.targetAccount?.email ?? "",
+          })}
+        </AuthFeedback>
       ) : null}
 
       {error ? <AuthFeedback tone="error">{error}</AuthFeedback> : null}

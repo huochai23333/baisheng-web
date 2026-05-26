@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import type { DashboardMyCopy } from "./dashboard-shared-my-copy";
+import { DashboardAccountSwitcherSection } from "./dashboard-account-switcher-section";
 import { DashboardBusinessReferralPanel } from "./dashboard-business-referral-panel";
 import type { DashboardSharedMyState } from "./use-dashboard-shared-my-state";
 
@@ -30,7 +31,7 @@ type DashboardSharedMySectionsProps = {
   copy: DashboardMyCopy;
   state: Pick<
     DashboardSharedMyState,
-    "account" | "assetDialog" | "page" | "profileDialog" | "ui"
+    "account" | "accountSwitcher" | "assetDialog" | "page" | "profileDialog" | "ui"
   >;
 };
 
@@ -63,7 +64,7 @@ export function DashboardSharedMySections({
   copy,
   state,
 }: DashboardSharedMySectionsProps) {
-  const { account, assetDialog, page, profileDialog, ui } = state;
+  const { account, accountSwitcher, assetDialog, page, profileDialog, ui } = state;
   const [
     phoneStat,
     emailStat,
@@ -115,6 +116,12 @@ export function DashboardSharedMySections({
           account={account}
           assetDialog={assetDialog}
           copy={copy}
+        />
+
+        <DashboardAccountSwitcherSection
+          copy={copy}
+          state={accountSwitcher}
+          ui={ui}
         />
 
         <footer className="flex flex-col gap-4 border-t border-[#e4e2de] px-1 pt-8 text-xs text-[#8a949b] sm:flex-row sm:items-center sm:justify-between">
