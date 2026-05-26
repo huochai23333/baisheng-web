@@ -9,6 +9,8 @@ import {
   HomeAnnouncementsSection,
   HomeGreetingSection,
 } from "./dashboard-home-sections";
+import { createHomeTodoCopy } from "./dashboard-home-todo-display";
+import { HomeTodosSection } from "./dashboard-home-todo-section";
 
 type DashboardHomeClientProps = {
   initialData: DashboardHomePageData;
@@ -34,6 +36,7 @@ export function DashboardHomeClient({ initialData }: DashboardHomeClientProps) {
     sectionDescription: t("announcements.description"),
     sectionTitle: t("announcements.title"),
   };
+  const todoCopy = createHomeTodoCopy(t);
 
   return (
     <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
@@ -45,6 +48,11 @@ export function DashboardHomeClient({ initialData }: DashboardHomeClientProps) {
       <HomeAnnouncementsSection
         announcements={initialData.announcements}
         copy={announcementsCopy}
+        locale={locale}
+      />
+      <HomeTodosSection
+        copy={todoCopy}
+        initialTodos={initialData.todos}
         locale={locale}
       />
     </section>

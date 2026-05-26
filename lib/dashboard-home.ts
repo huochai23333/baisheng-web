@@ -10,6 +10,7 @@ import {
   type AppRole,
   type UserStatus,
 } from "./user-self-service";
+import { getUserTodos, type UserTodoItemRow } from "./user-todos";
 
 export type DashboardHomeGreetingPeriod =
   | "morning"
@@ -23,6 +24,7 @@ export type DashboardHomePageData = {
   greetingPeriod: DashboardHomeGreetingPeriod;
   role: AppRole | null;
   status: UserStatus | null;
+  todos: UserTodoItemRow[];
 };
 
 type HomeProfileRow = {
@@ -40,9 +42,10 @@ export async function getDashboardHomePageData(
     return null;
   }
 
-  const [profile, announcements] = await Promise.all([
+  const [profile, announcements, todos] = await Promise.all([
     getHomeProfile(supabase, user.id),
     getVisibleAnnouncements(supabase, undefined, { role, status }),
+    getUserTodos(supabase, { status, userId: user.id }),
   ]);
 
   return {
@@ -57,6 +60,7 @@ export async function getDashboardHomePageData(
     greetingPeriod: getShanghaiGreetingPeriod(),
     role,
     status,
+    todos,
   };
 }
 

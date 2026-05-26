@@ -190,12 +190,18 @@ export function DashboardDialog({
             transition={dialogTransition}
           >
             <div className="flex items-start justify-between gap-6 border-b border-[#ebe7e1] px-6 py-5 sm:px-8">
-              <div>
-                <h3 className="text-2xl font-bold tracking-tight text-[#23313a]" id={titleId}>
+              <div className="min-w-0">
+                <h3
+                  className="break-words text-2xl font-bold tracking-tight text-[#23313a] [overflow-wrap:anywhere]"
+                  id={titleId}
+                >
                   {title}
                 </h3>
                 {description ? (
-                  <p className="mt-2 text-sm leading-7 text-[#69747d]" id={descriptionId}>
+                  <p
+                    className="mt-2 break-words text-sm leading-7 text-[#69747d] [overflow-wrap:anywhere]"
+                    id={descriptionId}
+                  >
                     {description}
                   </p>
                 ) : null}

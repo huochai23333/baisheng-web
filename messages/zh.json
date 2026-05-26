@@ -533,6 +533,75 @@
       "description": "仅展示当前账号可见且已经发布的最新公告。",
       "emptyTitle": "暂无公告",
       "emptyDescription": "管理员发布公告后，会在这里展示最新内容。"
+    },
+    "todos": {
+      "title": "我的待办",
+      "description": "记录自己要处理的事项，完成后可以勾选收起，重要事项会优先显示。",
+      "completedLabel": "已完成",
+      "quickAdd": {
+        "placeholder": "写下新的待办事项",
+        "dueDateLabel": "截止日期"
+      },
+      "actions": {
+        "add": "添加",
+        "cancel": "取消",
+        "delete": "删除",
+        "edit": "编辑",
+        "important": "重要",
+        "markComplete": "标记完成",
+        "markImportant": "标记重要",
+        "save": "保存",
+        "unmarkComplete": "恢复未完成",
+        "unmarkImportant": "取消重要"
+      },
+      "filters": {
+        "active": "未完成 {count}",
+        "all": "全部 {count}",
+        "completed": "已完成 {count}"
+      },
+      "empty": {
+        "activeTitle": "当前没有未完成待办",
+        "activeDescription": "添加一条待办后，它会出现在这里。",
+        "allTitle": "还没有待办",
+        "allDescription": "先写下一件要处理的事，后续可以随时编辑和完成。",
+        "completedTitle": "还没有完成记录",
+        "completedDescription": "勾选完成后的事项会显示在这里。"
+      },
+      "due": {
+        "today": "今天",
+        "tomorrow": "明天",
+        "overdue": "已过期：{date}"
+      },
+      "dialog": {
+        "title": "编辑待办",
+        "description": "调整待办内容、备注、截止日期或完成状态。",
+        "titleLabel": "待办事项",
+        "titlePlaceholder": "请输入要处理的事项",
+        "notesLabel": "备注",
+        "notesPlaceholder": "补充处理要求、资料位置或下一步说明",
+        "dueDateLabel": "截止日期",
+        "importantLabel": "标记为重要",
+        "completedLabel": "标记为已完成"
+      },
+      "feedback": {
+        "createSuccess": "待办已添加。",
+        "updateSuccess": "待办已更新。",
+        "deleteSuccess": "待办已删除。",
+        "deleteConfirm": "确定删除“{title}”吗？"
+      },
+      "validation": {
+        "titleRequired": "请先写下待办事项。",
+        "titleTooLong": "待办事项太长了，请精简后再保存。",
+        "notesTooLong": "备注内容太长了，请精简后再保存。"
+      },
+      "errors": {
+        "authRequired": "请重新登录后再保存待办。",
+        "permission": "当前账号暂时不能保存待办。",
+        "titleInvalid": "请填写 1 到 120 个字的待办事项。",
+        "notesInvalid": "备注内容太长了，请精简后再保存。",
+        "notFound": "这条待办已经不存在，请刷新页面后再试。",
+        "unknown": "待办保存失败，请稍后再试。"
+      }
     }
   },
   "Announcements": {

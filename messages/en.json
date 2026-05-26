@@ -533,6 +533,75 @@
       "description": "Only published announcements visible to this account are shown here.",
       "emptyTitle": "No announcements",
       "emptyDescription": "New published announcements will appear here."
+    },
+    "todos": {
+      "title": "My Todos",
+      "description": "Keep track of your own work, check items off when they are done, and keep important items at the top.",
+      "completedLabel": "Completed",
+      "quickAdd": {
+        "placeholder": "Write a new todo",
+        "dueDateLabel": "Due date"
+      },
+      "actions": {
+        "add": "Add",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "important": "Important",
+        "markComplete": "Mark complete",
+        "markImportant": "Mark important",
+        "save": "Save",
+        "unmarkComplete": "Mark active",
+        "unmarkImportant": "Remove important"
+      },
+      "filters": {
+        "active": "Active {count}",
+        "all": "All {count}",
+        "completed": "Completed {count}"
+      },
+      "empty": {
+        "activeTitle": "No active todos",
+        "activeDescription": "Add a todo and it will appear here.",
+        "allTitle": "No todos yet",
+        "allDescription": "Write down something to handle, then edit or complete it whenever needed.",
+        "completedTitle": "No completed todos",
+        "completedDescription": "Completed items will appear here after you check them off."
+      },
+      "due": {
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "overdue": "Overdue: {date}"
+      },
+      "dialog": {
+        "title": "Edit Todo",
+        "description": "Update the todo, notes, due date, importance, or completion status.",
+        "titleLabel": "Todo",
+        "titlePlaceholder": "Enter the item to handle",
+        "notesLabel": "Notes",
+        "notesPlaceholder": "Add requirements, file locations, or next steps",
+        "dueDateLabel": "Due date",
+        "importantLabel": "Mark as important",
+        "completedLabel": "Mark as completed"
+      },
+      "feedback": {
+        "createSuccess": "Todo added.",
+        "updateSuccess": "Todo updated.",
+        "deleteSuccess": "Todo deleted.",
+        "deleteConfirm": "Delete \"{title}\"?"
+      },
+      "validation": {
+        "titleRequired": "Write the todo first.",
+        "titleTooLong": "This todo is too long. Shorten it before saving.",
+        "notesTooLong": "These notes are too long. Shorten them before saving."
+      },
+      "errors": {
+        "authRequired": "Sign in again before saving todos.",
+        "permission": "This account cannot save todos right now.",
+        "titleInvalid": "Enter a todo between 1 and 120 characters.",
+        "notesInvalid": "These notes are too long. Shorten them before saving.",
+        "notFound": "This todo is no longer available. Refresh the page and try again.",
+        "unknown": "Todo could not be saved. Please try again later."
+      }
     }
   },
   "Announcements": {

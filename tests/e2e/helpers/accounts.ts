@@ -24,6 +24,13 @@ const ROLE_WORKSPACE_PATH: Record<RegressionRole, string> = {
   salesman: "/salesman",
 };
 
+const LOCAL_ROLE_EMAIL_PREFIX: Record<RegressionRole, string> = {
+  administrator: "local.admin@",
+  client: "local.client@",
+  finance: "local.finance@",
+  salesman: "local.salesman@",
+};
+
 const FALLBACK_ROLE_ORDER: readonly RegressionRole[] = [
   "administrator",
   "salesman",
@@ -84,6 +91,14 @@ function loadAccountsFromEnv(): Partial<Record<RegressionRole, RegressionAccount
 }
 
 function loadAccountsFromLocalFile(): Partial<Record<RegressionRole, RegressionAccount>> {
+  if (shouldPreferLocalSupabaseAccounts()) {
+    const localAccounts = loadLocalDockerAccounts();
+
+    if (Object.keys(localAccounts).length > 0) {
+      return localAccounts;
+    }
+  }
+
   const accountFilePath =
     process.env.E2E_ACCOUNTS_FILE?.trim() ||
     path.resolve(process.cwd(), "..", "测试账号.txt");
@@ -93,6 +108,13 @@ function loadAccountsFromLocalFile(): Partial<Record<RegressionRole, RegressionA
   }
 
   const text = fs.readFileSync(accountFilePath, "utf8");
+
+  return loadOrderedAccounts(text);
+}
+
+function loadOrderedAccounts(
+  text: string,
+): Partial<Record<RegressionRole, RegressionAccount>> {
   const emails = Array.from(text.matchAll(EMAIL_PATTERN), (match) => match[0]);
   const passwords = text
     .split(/\r?\n/)
@@ -115,4 +137,73 @@ function loadAccountsFromLocalFile(): Partial<Record<RegressionRole, RegressionA
   });
 
   return accounts;
+}
+
+function loadLocalDockerAccounts(): Partial<Record<RegressionRole, RegressionAccount>> {
+  const localSeedPath = path.resolve(
+    process.cwd(),
+    "..",
+    "supabase",
+    "local-test-data.sql",
+  );
+
+  if (!fs.existsSync(localSeedPath)) {
+    return {};
+  }
+
+  const text = fs.readFileSync(localSeedPath, "utf8");
+  const emails = Array.from(text.matchAll(EMAIL_PATTERN), (match) => match[0]);
+  const sharedPassword = text.match(/crypt\('([^']+)'/)?.[1];
+  const accounts: Partial<Record<RegressionRole, RegressionAccount>> = {};
+
+  if (!sharedPassword) {
+    return accounts;
+  }
+
+  for (const role of FALLBACK_ROLE_ORDER) {
+    const prefix = LOCAL_ROLE_EMAIL_PREFIX[role];
+    const email = emails.find((value) =>
+      value.toLowerCase().startsWith(prefix),
+    );
+
+    if (email) {
+      accounts[role] = {
+        email,
+        password: sharedPassword,
+        role,
+        workspacePath: ROLE_WORKSPACE_PATH[role],
+      };
+    }
+  }
+
+  return accounts;
+}
+
+function shouldPreferLocalSupabaseAccounts() {
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
+    readLocalEnvValue("NEXT_PUBLIC_SUPABASE_URL");
+
+  return /^http:\/\/(?:127\.0\.0\.1|localhost)(?::|\/)/i.test(
+    supabaseUrl ?? "",
+  );
+}
+
+function readLocalEnvValue(key: string) {
+  const envFilePath = path.resolve(process.cwd(), ".env.local");
+
+  if (!fs.existsSync(envFilePath)) {
+    return undefined;
+  }
+
+  const line = fs
+    .readFileSync(envFilePath, "utf8")
+    .split(/\r?\n/)
+    .find((value) => value.startsWith(`${key}=`));
+
+  if (!line) {
+    return undefined;
+  }
+
+  return line.slice(key.length + 1).trim();
 }
