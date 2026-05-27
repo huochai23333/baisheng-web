@@ -865,6 +865,7 @@
     "accountSwitcherTitle": "常用账号",
     "accountSwitcherDescription": "在这台设备保存另一个常用账号，方便下次快速切换。不会保存账号密码，请不要在共用电脑上使用。",
     "accountSwitcherAdd": "添加常用账号",
+    "accountSwitcherAddHint": "可以添加账户",
     "accountSwitcherCurrent": "正在使用",
     "accountSwitcherReady": "可切换",
     "accountSwitcherNeedsLogin": "需要重新登录",

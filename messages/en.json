@@ -865,6 +865,7 @@
     "accountSwitcherTitle": "Common Accounts",
     "accountSwitcherDescription": "Save one other common account on this device for quick switching. Passwords are not saved. Do not use this on a shared computer.",
     "accountSwitcherAdd": "Add Common Account",
+    "accountSwitcherAddHint": "Add an account",
     "accountSwitcherCurrent": "Current Account",
     "accountSwitcherReady": "Ready to Switch",
     "accountSwitcherNeedsLogin": "Sign-In Needed",

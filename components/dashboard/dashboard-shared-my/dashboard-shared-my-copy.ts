@@ -19,6 +19,7 @@ export type DashboardMyCopy = {
   accountSwitcherTitle: string;
   accountSwitcherDescription: string;
   accountSwitcherAdd: string;
+  accountSwitcherAddHint: string;
   accountSwitcherCurrent: string;
   accountSwitcherReady: string;
   accountSwitcherNeedsLogin: string;
@@ -112,6 +113,7 @@ export function useDashboardMyCopy(): DashboardMyCopy {
     accountSwitcherTitle: t("accountSwitcherTitle"),
     accountSwitcherDescription: t("accountSwitcherDescription"),
     accountSwitcherAdd: t("accountSwitcherAdd"),
+    accountSwitcherAddHint: t("accountSwitcherAddHint"),
     accountSwitcherCurrent: t("accountSwitcherCurrent"),
     accountSwitcherReady: t("accountSwitcherReady"),
     accountSwitcherNeedsLogin: t("accountSwitcherNeedsLogin"),

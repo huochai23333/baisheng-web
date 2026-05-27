@@ -1,9 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useState } from "react";
 
-import { LoaderCircle, LogIn, RefreshCw, Trash2, UserRound } from "lucide-react";
+import { LoaderCircle, Plus, RefreshCw, Trash2, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { AppRole } from "@/lib/auth-routing";
@@ -35,121 +34,57 @@ export function DashboardAccountSwitcherSection({
   return (
     <>
       <section
-        className="scroll-mt-28 rounded-[28px] border border-white/85 bg-white/68 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8"
+        className="scroll-mt-28"
         id="common-account"
       >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#e6edf2] text-[#486782]">
-              <UserRound className="size-5" />
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold tracking-tight text-[#486782]">
-                {copy.accountSwitcherTitle}
-              </h3>
-              <p className="mt-1 max-w-3xl text-sm leading-6 text-[#6e7780]">
-                {copy.accountSwitcherDescription}
-              </p>
-            </div>
-          </div>
-
-          {!alternateAccount ? (
-            <Button
-              className="h-11 shrink-0 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-              disabled={busyKey !== null}
-              onClick={() => void state.actions.addAlternateAccount()}
-            >
-              {busyKey === "account-switcher-add" ? (
-                <LoaderCircle className="size-4 animate-spin" />
-              ) : (
-                <LogIn className="size-4" />
-              )}
-              {copy.accountSwitcherAdd}
-            </Button>
-          ) : null}
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {state.currentAccount ? (
-            <AccountCard
-              account={{
-                displayName: state.currentAccount.displayName,
-                email: state.currentAccount.email,
-                role: state.currentAccount.role ?? null,
-              }}
-              copy={copy}
-              label={copy.accountSwitcherCurrent}
-            />
-          ) : null}
-
-          {alternateAccount ? (
-            <AccountCard
-              account={alternateAccount}
-              action={
-                <div className="flex flex-wrap gap-2">
-                  {state.alternateNeedsReauthentication ? (
-                    <Button
-                      className="h-10 rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79]"
-                      disabled={busyKey !== null}
-                      onClick={() => void state.actions.reauthenticateAlternateAccount()}
-                    >
-                      {busyKey === "account-switcher-reauthenticate" ? (
-                        <LoaderCircle className="size-4 animate-spin" />
-                      ) : (
-                        <RefreshCw className="size-4" />
-                      )}
-                      {copy.accountSwitcherReauthenticate}
-                    </Button>
-                  ) : (
-                    <Button
-                      className="h-10 rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79]"
-                      disabled={busyKey !== null}
-                      onClick={() => void state.actions.switchToAlternateAccount()}
-                    >
-                      {busyKey === "account-switcher-switch" ? (
-                        <LoaderCircle className="size-4 animate-spin" />
-                      ) : (
-                        <RefreshCw className="size-4" />
-                      )}
-                      {copy.accountSwitcherSwitch}
-                    </Button>
-                  )}
-                  <Button
-                    className="h-10 rounded-full border-[#d4d8dc] bg-white px-4 text-[#486782] hover:bg-[#f2f4f6]"
-                    disabled={busyKey !== null}
-                    onClick={() => setConfirmAction("remove")}
-                    variant="outline"
-                  >
-                    <Trash2 className="size-4" />
-                    {copy.accountSwitcherRemove}
-                  </Button>
-                </div>
+        {alternateAccount ? (
+          <SavedAccountSwitchRow
+            account={alternateAccount}
+            busyKey={busyKey}
+            copy={copy}
+            needsReauthentication={state.alternateNeedsReauthentication}
+            onRemove={() => setConfirmAction("remove")}
+            onSwitch={() => {
+              if (state.alternateNeedsReauthentication) {
+                void state.actions.reauthenticateAlternateAccount();
+                return;
               }
-              label={
-                state.alternateNeedsReauthentication
-                  ? copy.accountSwitcherNeedsLogin
-                  : copy.accountSwitcherReady
-              }
-              copy={copy}
-              muted={state.alternateNeedsReauthentication}
-            />
-          ) : (
-            <div className="rounded-[24px] border border-dashed border-[#d7dce0] bg-[#f7f8f8] p-5 text-sm leading-6 text-[#6e7780]">
-              {state.hasSavedCurrentAccount
-                ? copy.accountSwitcherCurrentOnlySaved
-                : copy.accountSwitcherEmpty}
-            </div>
-          )}
-        </div>
 
-        {state.hasSavedAccountOnDevice ? (
-          <div className="mt-5 flex justify-end">
+              void state.actions.switchToAlternateAccount();
+            }}
+          />
+        ) : (
+          <button
+            className="group flex min-h-[76px] w-full items-center justify-center rounded-2xl border border-dashed border-[#cdd6dc] bg-white/72 px-4 py-3 text-[#486782] shadow-[0_12px_28px_rgba(96,113,128,0.06)] transition-colors hover:border-[#9db1bf] hover:bg-white"
+            disabled={busyKey !== null}
+            onClick={() => void state.actions.addAlternateAccount()}
+            type="button"
+          >
+            <span className="flex flex-col items-center gap-1.5">
+              <span className="text-xs font-semibold text-[#6e7780]">
+                {copy.accountSwitcherAddHint}
+              </span>
+              <span className="flex size-9 items-center justify-center rounded-full bg-[#e6edf2] text-[#486782] transition-colors group-hover:bg-[#dce8ef]">
+                {busyKey === "account-switcher-add" ? (
+                  <LoaderCircle className="size-4 animate-spin" />
+                ) : (
+                  <Plus className="size-5" />
+                )}
+              </span>
+            </span>
+          </button>
+        )}
+
+        {state.hasSavedCurrentAccount ? (
+          <div className="mt-2 flex justify-center">
             <Button
-              className="h-10 rounded-full border-[#d4d8dc] bg-white px-4 text-[#6e7780] hover:bg-[#f2f4f6]"
+              aria-label={copy.accountSwitcherClear}
+              className="h-8 rounded-full px-3 text-[#7b8790] hover:bg-[#edf1f3]"
               disabled={busyKey !== null}
               onClick={() => setConfirmAction("clear")}
-              variant="outline"
+              variant="ghost"
             >
+              <Trash2 className="size-3.5" />
               {copy.accountSwitcherClear}
             </Button>
           </div>
@@ -180,55 +115,72 @@ export function DashboardAccountSwitcherSection({
   );
 }
 
-function AccountCard({
+function SavedAccountSwitchRow({
   account,
-  action,
+  busyKey,
   copy,
-  label,
-  muted = false,
+  needsReauthentication,
+  onRemove,
+  onSwitch,
 }: {
-  account: {
-    displayName: string;
-    email: string;
-    role: AppRole | null;
-  };
-  action?: ReactNode;
+  account: { displayName: string; email: string; role: AppRole | null };
+  busyKey: string | null;
   copy: DashboardMyCopy;
-  label: string;
-  muted?: boolean;
+  needsReauthentication: boolean;
+  onRemove: () => void;
+  onSwitch: () => void;
 }) {
   const roleLabel = account.role ? getAccountSwitcherRoleLabel(copy, account.role) : null;
+  const actionBusyKey = needsReauthentication
+    ? "account-switcher-reauthenticate"
+    : "account-switcher-switch";
 
   return (
     <article
       className={cn(
-        "rounded-[24px] border p-5",
-        muted
-          ? "border-[#ead7c6] bg-[#fff8f1]"
-          : "border-[#e4e8eb] bg-[#f9faf9]",
+        "flex min-h-[88px] items-center justify-between gap-3 rounded-2xl border bg-white/78 px-4 py-3 shadow-[0_12px_28px_rgba(96,113,128,0.06)] sm:px-5",
+        needsReauthentication ? "border-[#ead7c6]" : "border-[#dce3e7]",
       )}
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#e6edf2] text-[#486782]">
+          <UserRound className="size-5" />
+        </div>
         <div className="min-w-0">
-          <span
-            className={cn(
-              "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
-              muted ? "bg-[#f1dfcf] text-[#8a6243]" : "bg-[#dff0e4] text-[#487155]",
-            )}
-          >
-            {label}
-          </span>
-          <p className="mt-3 break-words text-lg font-bold text-[#24313a]">
+          {roleLabel ? (
+            <p className="text-xs font-semibold text-[#6f7f8a]">{roleLabel}</p>
+          ) : null}
+          <p className="mt-0.5 truncate text-base font-semibold text-[#24313a]">
             {account.displayName}
           </p>
-          <p className="mt-1 break-all text-sm text-[#6e7780]">{account.email}</p>
-          {roleLabel ? (
-            <p className="mt-2 text-xs font-semibold text-[#7d8890]">
-              {roleLabel}
-            </p>
-          ) : null}
+          <p className="truncate text-sm text-[#6e7780]">{account.email}</p>
         </div>
-        {action}
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2">
+        <Button
+          className="h-10 rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79]"
+          disabled={busyKey !== null}
+          onClick={onSwitch}
+        >
+          {busyKey === actionBusyKey ? (
+            <LoaderCircle className="size-4 animate-spin" />
+          ) : (
+            <RefreshCw className="size-4" />
+          )}
+          {needsReauthentication
+            ? copy.accountSwitcherReauthenticate
+            : copy.accountSwitcherSwitch}
+        </Button>
+        <Button
+          aria-label={copy.accountSwitcherRemove}
+          className="size-10 rounded-full border-[#d4d8dc] bg-white p-0 text-[#7b8790] hover:bg-[#f2f4f6]"
+          disabled={busyKey !== null}
+          onClick={onRemove}
+          variant="outline"
+        >
+          <Trash2 className="size-4" />
+        </Button>
       </div>
     </article>
   );
