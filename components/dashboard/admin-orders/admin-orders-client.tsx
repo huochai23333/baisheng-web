@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useOptimistic, useState, useTransition } from "react";
+import { useMemo } from "react";
 
 import { ReceiptText, ShieldAlert } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { type AdminOrdersPageData } from "@/lib/admin-orders";
-import { type ExchangeRatesPageData } from "@/lib/exchange-rates";
 
 import { EmptyState, PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 
@@ -15,12 +13,7 @@ import {
   OrdersHeaderSection,
   OrdersTableSection,
 } from "./admin-orders-sections";
-import { AdminOrderSettingsClient } from "./admin-order-settings-client";
 import { type OrdersClientMode } from "./admin-orders-client-config";
-import {
-  AdminOrdersTabs,
-  type AdminOrdersTab,
-} from "./admin-orders-tabs";
 import {
   OrderDetailsDialog,
   OrderFormDialog,
@@ -29,110 +22,24 @@ import { buildOrderCurrencyOptions } from "./admin-orders-utils";
 import { useAdminOrdersViewModel } from "./use-admin-orders-view-model";
 
 export function AdminOrdersClient({
-  initialExchangeRatesData = null,
   initialData,
   mode = "admin",
 }: {
-  initialExchangeRatesData?: ExchangeRatesPageData | null;
   initialData: AdminOrdersPageData;
   mode?: OrdersClientMode;
 }) {
   const t = useTranslations("Orders");
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [serviceFeeTypeOptions, setServiceFeeTypeOptions] = useState(
-    initialData.serviceFeeTypeOptions,
-  );
-  const [serviceOrderPriceOptions, setServiceOrderPriceOptions] = useState(
-    initialData.serviceOrderPriceOptions,
-  );
-  const [orderDiscountOptions, setOrderDiscountOptions] = useState(
-    initialData.orderDiscountOptions,
-  );
   const viewModel = useAdminOrdersViewModel({
-    initialData: {
-      ...initialData,
-      orderDiscountOptions,
-      serviceFeeTypeOptions,
-      serviceOrderPriceOptions,
-    },
+    initialData,
     mode,
   });
-  const canShowTabs = mode === "admin" && initialExchangeRatesData !== null;
-  const routeActiveTab: AdminOrdersTab =
-    canShowTabs && searchParams.get("tab") === "exchange-rates"
-      ? "exchange-rates"
-      : "orders";
-  const [isTabSwitchPending, startTabSwitchTransition] = useTransition();
-  const [activeTab, setOptimisticActiveTab] = useOptimistic(
-    routeActiveTab,
-    (_currentTab, nextTab: AdminOrdersTab) => nextTab,
-  );
   const orderCurrencyOptions = useMemo(
-    () =>
-      buildOrderCurrencyOptions(
-        viewModel.orderCurrencyRates,
-        initialExchangeRatesData?.syncState?.pairs ?? [],
-      ),
-    [initialExchangeRatesData?.syncState?.pairs, viewModel.orderCurrencyRates],
-  );
-
-  const handleTabChange = useCallback(
-    (tab: AdminOrdersTab) => {
-      if (!canShowTabs) {
-        return;
-      }
-
-      const nextSearchParams = new URLSearchParams(searchParams.toString());
-
-      if (tab === "exchange-rates") {
-        nextSearchParams.set("tab", "exchange-rates");
-      } else {
-        nextSearchParams.delete("tab");
-      }
-
-      const queryString = nextSearchParams.toString();
-      startTabSwitchTransition(() => {
-        setOptimisticActiveTab(tab);
-        router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
-          scroll: false,
-        });
-      });
-    },
-    [
-      canShowTabs,
-      pathname,
-      router,
-      searchParams,
-      setOptimisticActiveTab,
-      startTabSwitchTransition,
-    ],
+    () => buildOrderCurrencyOptions(viewModel.orderCurrencyRates),
+    [viewModel.orderCurrencyRates],
   );
 
   return (
     <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      {canShowTabs ? (
-        <AdminOrdersTabs
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          pendingTab={isTabSwitchPending ? activeTab : null}
-        />
-      ) : null}
-
-      {activeTab === "exchange-rates" && initialExchangeRatesData ? (
-        <AdminOrderSettingsClient
-          initialExchangeRatesData={initialExchangeRatesData}
-          initialOrderDiscounts={orderDiscountOptions}
-          initialServiceFeeTypes={serviceFeeTypeOptions}
-          initialServiceOrderTypes={initialData.serviceOrderTypeOptions}
-          initialServicePriceOptions={serviceOrderPriceOptions}
-          onOrderDiscountsChange={setOrderDiscountOptions}
-          onServiceFeeTypesChange={setServiceFeeTypeOptions}
-          onServicePriceOptionsChange={setServiceOrderPriceOptions}
-        />
-      ) : (
-        <>
       {viewModel.pageFeedback ? (
         <PageBanner tone={viewModel.pageFeedback.tone}>
           {viewModel.pageFeedback.message}
@@ -259,8 +166,6 @@ export function AdminOrdersClient({
         supabase={viewModel.supabase}
         userLabelById={viewModel.userLabelById}
       />
-        </>
-      )}
     </section>
   );
 }

@@ -11,6 +11,11 @@ import {
 } from "../dashboard-section-panel";
 import { formatDiscountRatioValue } from "./admin-orders-utils";
 
+export type ServiceFeeRuleLine = {
+  text: string;
+  tone?: "primary" | "muted";
+};
+
 type ServiceFeeTierSectionCopy = {
   actions: string;
   cancel: string;
@@ -31,6 +36,7 @@ type ServiceFeeTierSectionProps = {
   pendingAction: string | null;
   rows: ServiceFeeTypeOption[];
   title: string;
+  getRuleLines: (row: ServiceFeeTypeOption) => ServiceFeeRuleLine[];
   onCancelEditing: () => void;
   onEditValueChange: (value: string) => void;
   onSave: (row: ServiceFeeTypeOption) => void;
@@ -46,6 +52,7 @@ export function AdminOrdersServiceFeeTierSection({
   pendingAction,
   rows,
   title,
+  getRuleLines,
   onCancelEditing,
   onEditValueChange,
   onSave,
@@ -54,9 +61,9 @@ export function AdminOrdersServiceFeeTierSection({
   return (
     <section className="flex flex-col gap-3">
       <div className="min-w-0">
-        <h3 className="text-xl font-bold tracking-tight text-[#23313a] sm:text-2xl">
+        <h4 className="text-lg font-bold tracking-tight text-[#23313a] sm:text-xl">
           {title}
-        </h3>
+        </h4>
         <p className="mt-1.5 text-sm leading-6 text-[#6f7b85] sm:leading-7">
           {description}
         </p>
@@ -66,19 +73,19 @@ export function AdminOrdersServiceFeeTierSection({
         {rows.length === 0 ? (
           <div className="px-5 py-6 text-sm text-[#65717b]">{copy.empty}</div>
         ) : (
-          <table className="w-full min-w-[760px] table-fixed border-collapse">
+          <table className="w-full min-w-[820px] table-fixed border-collapse">
             <thead className="bg-[#f7f5f2]">
               <tr className="border-b border-[#efebe5]">
-                <ServiceFeeHeaderCell className="w-[24%]">
+                <ServiceFeeHeaderCell className="w-[22%]">
                   {copy.tier}
                 </ServiceFeeHeaderCell>
-                <ServiceFeeHeaderCell className="w-[38%]">
+                <ServiceFeeHeaderCell className="w-[42%]">
                   {copy.rule}
                 </ServiceFeeHeaderCell>
-                <ServiceFeeHeaderCell className="w-[18%]">
+                <ServiceFeeHeaderCell className="w-[14%]">
                   {copy.rate}
                 </ServiceFeeHeaderCell>
-                <ServiceFeeHeaderCell className="w-[20%] text-right">
+                <ServiceFeeHeaderCell className="w-[22%] text-right">
                   {copy.actions}
                 </ServiceFeeHeaderCell>
               </tr>
@@ -87,6 +94,7 @@ export function AdminOrdersServiceFeeTierSection({
               {rows.map((row) => {
                 const isEditing = editingId === row.id;
                 const isSaving = pendingAction === `edit:${row.id}`;
+                const ruleLines = getRuleLines(row);
 
                 return (
                   <tr
@@ -97,7 +105,20 @@ export function AdminOrdersServiceFeeTierSection({
                       {row.display_name}
                     </td>
                     <td className="px-5 py-4 align-top text-sm leading-6 text-[#60707d]">
-                      {row.rule_description}
+                      <div className="grid gap-1.5">
+                        {ruleLines.map((line, index) => (
+                          <p
+                            className={`break-words [overflow-wrap:anywhere] ${
+                              line.tone === "primary"
+                                ? "font-semibold text-[#23313a]"
+                                : "text-[#6f7b85]"
+                            }`}
+                            key={`${row.id}-${index}`}
+                          >
+                            {line.text}
+                          </p>
+                        ))}
+                      </div>
                     </td>
                     <td className="px-5 py-4 align-top text-sm font-semibold text-[#23313a]">
                       {isEditing ? (

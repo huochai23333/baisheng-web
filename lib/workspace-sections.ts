@@ -7,6 +7,7 @@ export const workspaceSectionKeys = [
   "records",
   "commission",
   "exchange-rates",
+  "settings",
   "tasks",
   "reviews",
   "feedback",

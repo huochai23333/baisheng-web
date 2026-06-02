@@ -338,6 +338,7 @@
       "team": "团队",
       "people": "人员管理",
       "commission": "佣金",
+      "settings": "系统设置",
       "exchangeRates": "汇率",
       "tasks": "任务",
       "reviews": "审核",
@@ -500,6 +501,10 @@
     "commission": {
       "title": "佣金中心",
       "description": "这里将整合佣金规则、结算明细、发放进度和异常记录，后续会继续细化成财务与业务岗位的专属界面。"
+    },
+    "settings": {
+      "title": "系统设置",
+      "description": "集中维护订单规则、佣金规则和汇率设置。"
     },
     "exchange-rates": {
       "title": "汇率管理",
@@ -936,6 +941,34 @@
     "profileChangeSubmitted": "资料修改已提交，管理员确认后会更新展示。",
     "profileRequired": "请填写姓名和所在城市。"
   },
+  "SystemSettings": {
+    "metadata": {
+      "title": "系统设置"
+    },
+    "header": {
+      "badge": "系统设置",
+      "title": "系统设置",
+      "description": "订单规则、佣金规则和汇率设置都在这里统一维护；订单页和佣金页只保留日常处理和记录查看。"
+    },
+    "tabs": {
+      "orders": {
+        "title": "订单规则",
+        "description": "服务费、服务价格和折扣"
+      },
+      "commission": {
+        "title": "佣金规则",
+        "description": "订单、服务、推荐和 VIP 奖励"
+      },
+      "exchangeRates": {
+        "title": "汇率设置",
+        "description": "币种汇率和自动更新"
+      }
+    },
+    "states": {
+      "noPermissionTitle": "暂无权限",
+      "noPermissionDescription": "当前账号不能管理系统设置。"
+    }
+  },
   "Orders": {
     "metadata": {
       "admin": "订单中心",
@@ -944,7 +977,7 @@
     },
     "tabs": {
       "orders": "订单列表",
-      "exchange-rates": "订单设置"
+      "exchange-rates": "系统设置"
     },
     "modes": {
       "admin": {
@@ -1047,9 +1080,15 @@
         "emptyDescription": "当前还没有可维护的服务费档位。",
         "table": {
           "tier": "服务费档位",
-          "rule": "适用规则",
+          "rule": "计算规则",
           "rate": "当前费率",
           "actions": "操作"
+        },
+        "calculations": {
+          "serviceFeeShort": "服务费：金额 × {rate}",
+          "retailCommissionShort": "佣金：业务员 {tier1Limit}内{tier1Rate}/超出{tier2Rate}，推荐{referralRate}",
+          "commissionFallback": "佣金：按系统设置执行",
+          "noWholesaleCommissionShort": "佣金：不自动生成"
         },
         "validation": {
           "invalid": "请输入正确的服务费。",
@@ -1194,12 +1233,12 @@
       "lockedCurrencyAndRates": "已创建订单的币种和汇率保持原值。",
       "serviceAmountLocked": "服务订单金额会按服务价格和折扣自动填写。",
       "serviceFeeLocked": "服务费档位由管理员维护，当前会自动使用默认档位。",
-      "autoServiceFee": "服务费会按订单类型和订单设置自动匹配，不能在这里手动选择。",
+      "autoServiceFee": "服务费会按订单类型和系统设置自动匹配，不能在这里手动选择。",
       "autoTimestamps": "创建订单后，系统会自动写入创建时间；编辑订单保存后，系统会自动更新最后一次改动时间。"
     },
     "serviceFeePreview": {
       "title": "服务费预览",
-      "finalHint": "保存后会按订单设置最终确认。",
+      "finalHint": "保存后会按系统设置最终确认。",
       "savedHint": "这里显示当前订单实际使用的服务费。",
       "loading": "正在匹配",
       "waiting": "选择订单客户和订单类型后，会显示服务费率和费用。",
@@ -1229,7 +1268,7 @@
     },
     "errors": {
       "duplicateOrderNumber": "订单编号生成冲突，请稍后重试。",
-      "exchangeRateMissing": "这个币种的汇率还没有准备好，请先到订单设置中补充。",
+      "exchangeRateMissing": "这个币种的汇率还没有准备好，请先到系统设置中补充。",
       "invalidForeignKeys": "请选择有效的订单录入员、订单客户、订单类型，以及对应的采购、批发或服务信息选项。",
       "cannotCreate": "你没有创建该订单的权限。",
       "cannotUpdate": "你没有修改该订单的权限。",
@@ -1650,7 +1689,7 @@
         "meta": "{count} 条记录"
       },
       "settings": {
-        "title": "佣金设置",
+        "title": "佣金规则",
         "meta": "{count} 条规则"
       }
     },
@@ -1753,8 +1792,8 @@
       }
     },
     "settings": {
-      "badge": "佣金设置",
-      "title": "佣金设置",
+      "badge": "佣金规则",
+      "title": "佣金规则",
       "description": "这里集中管理订单佣金、推荐佣金和 VIP 首年奖励的计算规则；任务奖励仍在任务类型和任务创建时设置。",
       "summary": {
         "orderRules": "订单规则",
@@ -1813,11 +1852,11 @@
         "amount": "请输入大于 0 的金额。"
       },
       "feedback": {
-        "updateSuccess": "佣金设置已更新。"
+        "updateSuccess": "佣金规则已更新。"
       },
       "errors": {
-        "permission": "当前账号不能修改佣金设置。",
-        "unknown": "佣金设置保存失败，请稍后再试。"
+        "permission": "当前账号不能修改佣金规则。",
+        "unknown": "佣金规则保存失败，请稍后再试。"
       }
     },
     "salesmanTaskSection": {

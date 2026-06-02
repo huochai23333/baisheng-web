@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 
-import { DollarSign } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type {
@@ -17,7 +16,7 @@ import {
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useLocale } from "@/components/i18n/locale-provider";
 
-import { DashboardSectionHeader } from "../dashboard-section-header";
+import { DashboardListSection } from "../dashboard-section-panel";
 import { PageBanner, type NoticeTone } from "../dashboard-shared-ui";
 import {
   createOrdersUiCopy,
@@ -174,15 +173,9 @@ export function AdminOrdersServiceOrderSettings({
   }
 
   return (
-    <section className="flex flex-col gap-5">
-      <DashboardSectionHeader
-        badge={t("settings.serviceOrders.badge")}
-        badgeIcon={<DollarSign className="size-3.5" />}
-        contentClassName="max-w-3xl"
-        description={t("settings.serviceOrders.description")}
-        title={t("settings.serviceOrders.title")}
-      />
-
+    <DashboardListSection
+      bodyClassName="flex flex-col gap-5"
+    >
       {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
 
       <section className="flex flex-col gap-3">
@@ -223,7 +216,7 @@ export function AdminOrdersServiceOrderSettings({
           onSave={(row) => void handleSaveDiscount(row)}
         />
       </section>
-    </section>
+    </DashboardListSection>
   );
 }
 

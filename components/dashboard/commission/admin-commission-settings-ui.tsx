@@ -137,25 +137,6 @@ export function CommissionSettingsRulesTable({
   );
 }
 
-export function CommissionSettingsSectionTitle({
-  description,
-  title,
-}: {
-  description: string;
-  title: string;
-}) {
-  return (
-    <div className="min-w-0">
-      <h3 className="text-xl font-bold tracking-tight text-[#23313a] sm:text-2xl">
-        {title}
-      </h3>
-      <p className="mt-1.5 text-sm leading-6 text-[#6f7b85] sm:leading-7">
-        {description}
-      </p>
-    </div>
-  );
-}
-
 function RuleDraftInputs({
   definition,
   draft,

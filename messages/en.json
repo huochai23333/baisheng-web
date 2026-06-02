@@ -338,6 +338,7 @@
       "team": "Team",
       "people": "People Management",
       "commission": "Commission",
+      "settings": "System Settings",
       "exchangeRates": "FX Rates",
       "tasks": "Tasks",
       "reviews": "Reviews",
@@ -500,6 +501,10 @@
     "commission": {
       "title": "Commission Center",
       "description": "This section will combine commission rules, settlement details, payout progress, and exception records, and will later evolve into role-specific views for finance and sales."
+    },
+    "settings": {
+      "title": "System Settings",
+      "description": "Manage order rules, commission rules, and exchange rates in one place."
     },
     "exchange-rates": {
       "title": "FX Rate Management",
@@ -936,6 +941,34 @@
     "profileChangeSubmitted": "Profile changes submitted. They will update after admin confirmation.",
     "profileRequired": "Enter both your name and city."
   },
+  "SystemSettings": {
+    "metadata": {
+      "title": "System Settings"
+    },
+    "header": {
+      "badge": "System Settings",
+      "title": "System Settings",
+      "description": "Manage order rules, commission rules, and exchange rates from one place. Order and commission pages now focus on daily work and records."
+    },
+    "tabs": {
+      "orders": {
+        "title": "Order Rules",
+        "description": "Service fees, service prices, and discounts"
+      },
+      "commission": {
+        "title": "Commission Rules",
+        "description": "Order, service, referral, and VIP rewards"
+      },
+      "exchangeRates": {
+        "title": "Exchange Rates",
+        "description": "Currency rates and automatic updates"
+      }
+    },
+    "states": {
+      "noPermissionTitle": "No Access",
+      "noPermissionDescription": "The current account cannot manage system settings."
+    }
+  },
   "Orders": {
     "metadata": {
       "admin": "Order Center",
@@ -944,7 +977,7 @@
     },
     "tabs": {
       "orders": "Order List",
-      "exchange-rates": "Order Settings"
+      "exchange-rates": "System Settings"
     },
     "modes": {
       "admin": {
@@ -1047,9 +1080,15 @@
         "emptyDescription": "No service fee tiers are available yet.",
         "table": {
           "tier": "Service Fee Tier",
-          "rule": "Rule",
+          "rule": "Calculation Rule",
           "rate": "Current Rate",
           "actions": "Actions"
+        },
+        "calculations": {
+          "serviceFeeShort": "Service fee: amount × {rate}",
+          "retailCommissionShort": "Commission: salesman {tier1Rate}/{tier2Rate} after {tier1Limit}; referral {referralRate}",
+          "commissionFallback": "Commission: follows system settings",
+          "noWholesaleCommissionShort": "Commission: not automatic"
         },
         "validation": {
           "invalid": "Enter a valid service fee rate.",
@@ -1194,12 +1233,12 @@
       "lockedCurrencyAndRates": "The currency and exchange rates stay fixed after the order is created.",
       "serviceAmountLocked": "Service order amount is filled from the selected service price and discount.",
       "serviceFeeLocked": "Service fee tiers are managed by administrators. The default tier is used here.",
-      "autoServiceFee": "The service fee is matched automatically from the order type and order settings. It cannot be selected here.",
+      "autoServiceFee": "The service fee is matched automatically from the order type and system settings. It cannot be selected here.",
       "autoTimestamps": "After creation, the system writes the created time automatically. After editing, the system updates the latest modified time automatically."
     },
     "serviceFeePreview": {
       "title": "Service fee preview",
-      "finalHint": "The order settings confirm the final service fee after saving.",
+      "finalHint": "System settings confirm the final service fee after saving.",
       "savedHint": "This shows the service fee currently used by this order.",
       "loading": "Matching",
       "waiting": "Select the order customer and order type to show the service fee rate and amount.",
@@ -1229,7 +1268,7 @@
     },
     "errors": {
       "duplicateOrderNumber": "Order number generation conflicted. Please try again later.",
-      "exchangeRateMissing": "The selected currency does not have an exchange rate yet. Add it in order settings first.",
+      "exchangeRateMissing": "The selected currency does not have an exchange rate yet. Add it in system settings first.",
       "invalidForeignKeys": "Select a valid order owner, customer, order type, and matching purchase, wholesale, or service options.",
       "cannotCreate": "You do not have permission to create this order.",
       "cannotUpdate": "You do not have permission to update this order.",
@@ -1650,7 +1689,7 @@
         "meta": "{count} records"
       },
       "settings": {
-        "title": "Commission Settings",
+        "title": "Commission Rules",
         "meta": "{count} rules"
       }
     },
@@ -1753,8 +1792,8 @@
       }
     },
     "settings": {
-      "badge": "Commission Settings",
-      "title": "Commission Settings",
+      "badge": "Commission Rules",
+      "title": "Commission Rules",
       "description": "Manage order commission, referral commission, and VIP first-year reward rules here. Task rewards are still set from task types and task creation.",
       "summary": {
         "orderRules": "Order Rules",
@@ -1813,11 +1852,11 @@
         "amount": "Enter an amount greater than 0."
       },
       "feedback": {
-        "updateSuccess": "Commission settings have been updated."
+        "updateSuccess": "Commission rules have been updated."
       },
       "errors": {
-        "permission": "This account cannot update commission settings.",
-        "unknown": "Commission settings could not be saved. Please try again later."
+        "permission": "This account cannot update commission rules.",
+        "unknown": "Commission rules could not be saved. Please try again later."
       }
     },
     "salesmanTaskSection": {

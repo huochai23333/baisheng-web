@@ -16,6 +16,7 @@ import {
   PageBanner,
   type NoticeTone,
 } from "@/components/dashboard/dashboard-shared-ui";
+import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
 
 import {
   COMMISSION_RULE_DEFINITIONS,
@@ -26,7 +27,6 @@ import {
 } from "./commission-settings-display";
 import {
   CommissionSettingsRulesTable,
-  CommissionSettingsSectionTitle,
   type RuleDraft,
 } from "./admin-commission-settings-ui";
 
@@ -134,28 +134,24 @@ export function AdminCommissionSettingsSection({
   }
 
   return (
-    <section className="flex flex-col gap-5">
+    <DashboardListSection
+      bodyClassName="flex flex-col gap-5"
+    >
       {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
 
-      <section className="flex flex-col gap-3">
-        <CommissionSettingsSectionTitle
-          description={t("settings.rulesSection.description")}
-          title={t("settings.rulesSection.title")}
-        />
-        <CommissionSettingsRulesTable
-          canManageSettings={canManageSettings}
-          draft={draft}
-          editingRule={editingRule}
-          locale={locale}
-          pendingRule={pendingRule}
-          visibleRules={visibleRules}
-          onCancel={clearEditing}
-          onDraftChange={setDraft}
-          onEdit={startEditing}
-          onSave={(definition) => void saveRule(definition)}
-        />
-      </section>
-    </section>
+      <CommissionSettingsRulesTable
+        canManageSettings={canManageSettings}
+        draft={draft}
+        editingRule={editingRule}
+        locale={locale}
+        pendingRule={pendingRule}
+        visibleRules={visibleRules}
+        onCancel={clearEditing}
+        onDraftChange={setDraft}
+        onEdit={startEditing}
+        onSave={(definition) => void saveRule(definition)}
+      />
+    </DashboardListSection>
   );
 }
 

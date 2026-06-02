@@ -24,9 +24,7 @@ import { DashboardSectionHeader } from "../dashboard-section-header";
 import {
   DashboardFilterField,
   DashboardFilterPanel,
-  DashboardListHeader,
   DashboardListSection,
-  DashboardSectionPanel,
   DashboardTableFrame,
   dashboardFilterInputClassName,
 } from "../dashboard-section-panel";
@@ -82,6 +80,7 @@ type ExchangeRatesHistorySectionProps = {
   onTargetCurrencyChange: (value: string) => void;
   pagination: PaginationState;
   rows: ExchangeRateRow[];
+  showBackLink?: boolean;
   totalRates: number;
 };
 
@@ -187,15 +186,29 @@ export const ExchangeRatesHistorySection = memo(function ExchangeRatesHistorySec
   onTargetCurrencyChange,
   pagination,
   rows,
+  showBackLink = true,
   totalRates,
 }: ExchangeRatesHistorySectionProps) {
   const t = useTranslations("ExchangeRates");
   const { locale } = useLocale();
 
   return (
-    <DashboardSectionPanel className="p-4 sm:p-6 xl:p-8">
+    <DashboardListSection
+      actions={
+        showBackLink ? (
+          <Link
+            className="inline-flex h-9 items-center justify-center rounded-full border border-[#e1ddd7] bg-white px-4 text-sm font-medium text-[#31404b] transition-colors hover:bg-[#f4f6f8]"
+            href={homeHref}
+          >
+            {t("history.backHome")}
+          </Link>
+        ) : null
+      }
+      bodyClassName="flex flex-col gap-5"
+      eyebrow={t("history.eyebrow")}
+      title={t("history.title")}
+    >
       <DashboardFilterPanel
-        className="mb-5"
         gridClassName="lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
       >
         <DashboardFilterField label={t("filters.originalCurrencyLabel")}>
@@ -235,20 +248,6 @@ export const ExchangeRatesHistorySection = memo(function ExchangeRatesHistorySec
           </Button>
         </div>
       </DashboardFilterPanel>
-
-      <DashboardListHeader
-        actions={
-          <Link
-            className="inline-flex h-9 items-center justify-center rounded-full border border-[#e1ddd7] bg-white px-4 text-sm font-medium text-[#31404b] transition-colors hover:bg-[#f4f6f8]"
-            href={homeHref}
-          >
-            {t("history.backHome")}
-          </Link>
-        }
-        className="mb-5"
-        eyebrow={t("history.eyebrow")}
-        title={t("history.title")}
-      />
 
       {filteredRowsCount === 0 ? (
         <EmptyState
@@ -342,10 +341,10 @@ export const ExchangeRatesHistorySection = memo(function ExchangeRatesHistorySec
                   );
                 })}
               </tbody>
-            </table>
+          </table>
         </DashboardTableFrame>
       )}
-    </DashboardSectionPanel>
+    </DashboardListSection>
   );
 });
 

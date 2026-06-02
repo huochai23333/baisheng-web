@@ -33,6 +33,7 @@ const NAV_LABELS = {
   records: "操作记录",
   referrals: "推荐树",
   reviews: "审核",
+  settings: "系统设置",
   tasks: "任务",
   team: "团队",
 } as const satisfies Record<WorkspaceNavLabelKey, string>;
@@ -49,6 +50,7 @@ const NAV_ENTRY_DESCRIPTIONS = {
   records: "查看重要处理动作的留痕",
   referrals: "按当前可见业务板块查看推荐关系和邀请码线索",
   reviews: "处理资料和媒体审核",
+  settings: "集中维护订单规则、佣金规则和汇率设置",
   tasks: "查看、领取、提交或管理任务",
   team: "查看当前账号可见的团队范围",
 } as const satisfies Record<WorkspaceNavLabelKey, string>;
@@ -172,8 +174,9 @@ function buildPageVariantGuide(pageVariants: WorkspacePageVariants) {
     pageVariants.people ? getPeopleGuide(pageVariants.people) : null,
     pageVariants.tasks ? getTasksGuide(pageVariants.tasks) : null,
     pageVariants.commission ? getCommissionGuide(pageVariants.commission) : null,
+    pageVariants.settings ? "系统设置由管理员集中维护订单规则、佣金规则和汇率设置。" : null,
     pageVariants.exchangeRates === "manage"
-      ? "汇率设置由管理员在订单相关页面处理。"
+      ? "汇率管理入口已经集中到系统设置。"
       : null,
     pageVariants.feedback ? "反馈管理只用于管理员查看和处理用户反馈。" : null,
     pageVariants.records ? "操作记录只用于管理员核对重要处理动作。" : null,
@@ -189,7 +192,7 @@ function buildPageVariantGuide(pageVariants: WorkspacePageVariants) {
 
 function getOrdersGuide(mode: WorkspacePageVariants["orders"]) {
   if (mode === "admin") {
-    return "管理员订单页用于订单处理，并包含汇率设置入口。";
+    return "管理员订单页用于订单处理；订单规则和汇率设置在系统设置中维护。";
   }
 
   if (mode === "salesman") {

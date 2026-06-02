@@ -18,6 +18,7 @@ import { getAdminTaskReviewBoardData } from "@/lib/admin-task-reviews";
 import { getAdminReviewsPageData } from "@/lib/admin-reviews";
 import { getAdminPeoplePageData } from "@/lib/admin-people";
 import { getAdminOperationRecordsPageData } from "@/lib/admin-operation-records";
+import { getAdminSystemSettingsPageData } from "@/lib/admin-system-settings";
 import { getAdminTasksPageData, parseAdminTasksSearchParams } from "@/lib/admin-tasks";
 import { getExchangeRatesPageData } from "@/lib/exchange-rates";
 import { getSalesmanPeoplePageData } from "@/lib/salesman-people";
@@ -102,6 +103,13 @@ const AdminReviewsClient = dynamic(
     ),
 );
 
+const AdminSystemSettingsClient = dynamic(
+  () =>
+    import(
+      "@/components/dashboard/admin-system-settings/admin-system-settings-client"
+    ).then((mod) => mod.AdminSystemSettingsClient),
+);
+
 const AdminTasksClient = dynamic(
   () =>
     import("@/components/dashboard/admin-tasks/admin-tasks-client").then(
@@ -176,6 +184,14 @@ export async function generateMetadata({
 
   if (section === "exchange-rates" && config.pageVariants.exchangeRates) {
     const t = await getTranslations("ExchangeRates.metadata");
+
+    return {
+      title: t("title"),
+    };
+  }
+
+  if (section === "settings" && config.pageVariants.settings) {
+    const t = await getTranslations("SystemSettings.metadata");
 
     return {
       title: t("title"),
@@ -260,7 +276,7 @@ export default async function WorkspaceSectionPage({
   }
 
   if (section === "exchange-rates" && config.routeSegment === "admin") {
-    redirect(`${config.basePath}/orders?tab=exchange-rates`);
+    redirect(`${config.basePath}/settings`);
   }
 
   const namespaces = getSectionNamespaces(section, config);
@@ -287,14 +303,9 @@ export default async function WorkspaceSectionPage({
       includeOrderCosts: config.pageVariants.orders === "admin",
       page: orderSearchParams.page,
     });
-    const initialExchangeRatesData =
-      config.pageVariants.orders === "admin"
-        ? await getExchangeRatesPageData(supabase, "manage")
-        : null;
 
     content = (
       <AdminOrdersClient
-        initialExchangeRatesData={initialExchangeRatesData}
         initialData={initialData}
         mode={config.pageVariants.orders}
       />
@@ -350,6 +361,10 @@ export default async function WorkspaceSectionPage({
     const supabase = await getServerSupabaseClient();
     const initialData = await getAdminReviewsPageData(supabase);
     content = <AdminReviewsClient initialData={initialData} />;
+  } else if (section === "settings" && config.pageVariants.settings) {
+    const supabase = await getServerSupabaseClient();
+    const initialData = await getAdminSystemSettingsPageData(supabase);
+    content = <AdminSystemSettingsClient initialData={initialData} />;
   } else if (section === "people" && config.pageVariants.people) {
     const supabase = await getServerSupabaseClient();
     if (config.pageVariants.people === "admin") {
@@ -420,6 +435,8 @@ function isWorkspaceSectionEnabled(
       return config.pageVariants.referrals === true;
     case "reviews":
       return config.pageVariants.reviews === true;
+    case "settings":
+      return config.pageVariants.settings === true;
     case "tasks":
       return Boolean(config.pageVariants.tasks);
     case "team":
@@ -435,10 +452,6 @@ function getSectionNamespaces(
 
   if (section === "orders" && config.pageVariants.orders) {
     namespaces.push("Orders", "OrdersUI", "DashboardPagination", "DashboardShared");
-
-    if (config.pageVariants.orders === "admin") {
-      namespaces.push("ExchangeRates");
-    }
   }
 
   if (section === "announcements" && config.pageVariants.announcements) {
@@ -475,6 +488,17 @@ function getSectionNamespaces(
 
   if (section === "reviews" && config.pageVariants.reviews) {
     namespaces.push("Reviews", "ReviewsUI", "DashboardShared", "Tasks.shared");
+  }
+
+  if (section === "settings" && config.pageVariants.settings) {
+    namespaces.push(
+      "SystemSettings",
+      "Orders",
+      "OrdersUI",
+      "Commission",
+      "DashboardPagination",
+      "ExchangeRates",
+    );
   }
 
   if (section === "people" && config.pageVariants.people) {

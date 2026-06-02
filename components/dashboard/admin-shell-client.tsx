@@ -14,6 +14,7 @@ import {
   LogOut,
   Megaphone,
   MessageSquareWarning,
+  Settings,
   ShoppingCart,
   ShieldCheck,
   UserCog,
@@ -56,6 +57,7 @@ const NAV_ICONS: Record<WorkspaceNavItem["segment"], LucideIcon> = {
   records: ClipboardClock,
   referrals: GitBranchPlus,
   reviews: ShieldCheck,
+  settings: Settings,
   tasks: ClipboardList,
   team: UsersRound,
 };

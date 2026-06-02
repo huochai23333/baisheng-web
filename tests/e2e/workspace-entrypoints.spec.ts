@@ -20,6 +20,7 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
       "/admin/people",
       "/admin/records",
       "/admin/feedback",
+      "/admin/settings",
     ],
     role: "administrator",
   },

@@ -5,7 +5,6 @@ import { useCallback, useDeferredValue, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Coins,
-  Settings,
   ShieldAlert,
   WalletCards,
 } from "lucide-react";
@@ -35,7 +34,6 @@ import {
   summarizeByBeneficiary,
 } from "./admin-commission-sections";
 import { AdminCommissionHeader } from "./admin-commission-header";
-import { AdminCommissionSettingsSection } from "./admin-commission-settings-section";
 import { AdminTaskCommissionSection } from "./admin-task-commission-section";
 import { CommissionBoardSwitch } from "./commission-board-switch";
 import {
@@ -46,7 +44,7 @@ import {
 import { useManagedCommissionSettlement } from "./use-managed-commission-settlement";
 
 type PageFeedback = { message: string; tone: NoticeTone } | null;
-type CommissionBoard = "normal" | "settings" | "task";
+type CommissionBoard = "normal" | "task";
 
 const EMPTY_FILTERS: CommissionFilters = {
   beneficiaryUserId: "",
@@ -114,15 +112,9 @@ export function AdminCommissionClient({
   );
 
   const [pageFeedback, setPageFeedback] = useState<PageFeedback>(null);
-  const [canManageSettings, setCanManageSettings] = useState(
-    initialData.canManageSettings,
-  );
   const [hasPermission, setHasPermission] = useState(initialData.hasPermission);
   const [commissions, setCommissions] = useState<AdminCommissionRow[]>(
     initialData.commissions,
-  );
-  const [commissionRuleSettings, setCommissionRuleSettings] = useState(
-    initialData.commissionRuleSettings,
   );
   const [taskCommissions, setTaskCommissions] = useState(initialData.taskCommissions);
   const [activeBoard, setActiveBoard] = useState<CommissionBoard>("normal");
@@ -130,10 +122,8 @@ export function AdminCommissionClient({
   const deferredSearchText = useDeferredValue(filters.searchText);
 
   const applyPageData = useCallback((pageData: AdminCommissionPageData) => {
-    setCanManageSettings(pageData.canManageSettings);
     setHasPermission(pageData.hasPermission);
     setCommissions(pageData.commissions);
-    setCommissionRuleSettings(pageData.commissionRuleSettings);
     setTaskCommissions(pageData.taskCommissions);
   }, []);
 
@@ -263,14 +253,8 @@ export function AdminCommissionClient({
         meta: t("boards.task.meta", { count: taskCommissions.length }),
         icon: <Coins className="size-4" />,
       },
-      {
-        key: "settings" as const,
-        title: t("boards.settings.title"),
-        meta: t("boards.settings.meta", { count: commissionRuleSettings.length }),
-        icon: <Settings className="size-4" />,
-      },
     ],
-    [commissionRuleSettings.length, commissions.length, taskCommissions.length, t],
+    [commissions.length, taskCommissions.length, t],
   );
   const hasActiveFilters = Boolean(
     filters.searchText ||
@@ -357,17 +341,11 @@ export function AdminCommissionClient({
                 settlingCommissionId={settlingCommissionId}
               />
             </>
-          ) : activeBoard === "task" ? (
+          ) : (
             <AdminTaskCommissionSection
               onMarkAsPaid={handleMarkTaskCommissionAsPaid}
               rows={taskCommissions}
               settlingTaskCommissionId={settlingTaskCommissionId}
-            />
-          ) : (
-            <AdminCommissionSettingsSection
-              canManageSettings={canManageSettings}
-              onRowsChange={setCommissionRuleSettings}
-              rows={commissionRuleSettings}
             />
           )}
         </>

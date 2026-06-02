@@ -457,10 +457,12 @@ export function ExchangeRatesClient({
         <PageBanner tone={pageFeedback.tone}>{pageFeedback.message}</PageBanner>
       ) : null}
 
-      <ExchangeRatesHeaderSection
-        canManage={canManageDirectRates}
-        onCreate={openCreateDialog}
-      />
+      {embedded ? null : (
+        <ExchangeRatesHeaderSection
+          canManage={canManageDirectRates}
+          onCreate={openCreateDialog}
+        />
+      )}
 
       {hasPermission === false ? (
         <section className="rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8">
@@ -520,6 +522,7 @@ export function ExchangeRatesClient({
             onTargetCurrencyChange={handleTargetCurrencyChange}
             pagination={historyPaginationState}
             rows={historyPagination.items}
+            showBackLink={!embedded}
             totalRates={rates.length}
           />
         </>

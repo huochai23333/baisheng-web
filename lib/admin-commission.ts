@@ -1,10 +1,6 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 import { getOrderUserOptions, type OrderUserOption } from "./admin-orders";
-import {
-  getCommissionRuleSettings,
-  type CommissionRuleSetting,
-} from "./commission-settings";
 import { withRequestTimeout } from "./request-timeout";
 import {
   getTaskCommissions,
@@ -46,10 +42,8 @@ export type AdminCommissionViewerContext = {
 };
 
 export type AdminCommissionPageData = {
-  canManageSettings: boolean;
   hasPermission: boolean;
   commissions: AdminCommissionRow[];
-  commissionRuleSettings: CommissionRuleSetting[];
   taskCommissions: TaskCommissionRow[];
 };
 
@@ -149,25 +143,20 @@ export async function getAdminCommissionPageData(
 
   if (!viewer || !canViewAdminCommissionBoard(viewer.role, viewer.status)) {
     return {
-      canManageSettings: false,
       hasPermission: false,
       commissions: [],
-      commissionRuleSettings: [],
       taskCommissions: [],
     };
   }
 
-  const [commissions, taskCommissions, commissionRuleSettings] = await Promise.all([
+  const [commissions, taskCommissions] = await Promise.all([
     getAdminCommissions(supabase),
     getTaskCommissions(supabase),
-    getCommissionRuleSettings(supabase),
   ]);
 
   return {
-    canManageSettings: viewer.role === "administrator",
     hasPermission: true,
     commissions,
-    commissionRuleSettings,
     taskCommissions,
   };
 }

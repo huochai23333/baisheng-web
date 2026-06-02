@@ -1,0 +1,127 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
+import {
+  ArrowLeftRight,
+  Settings,
+  ShieldAlert,
+  ShoppingCart,
+  WalletCards,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+
+import type { AdminSystemSettingsPageData } from "@/lib/admin-system-settings";
+import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
+import { DashboardSegmentedTabs } from "@/components/dashboard/dashboard-segmented-tabs";
+import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
+import { ExchangeRatesClient } from "@/components/dashboard/exchange-rates/exchange-rates-client";
+import { AdminOrdersServiceFeeSettings } from "@/components/dashboard/admin-orders/admin-orders-service-fee-settings";
+import { AdminOrdersServiceOrderSettings } from "@/components/dashboard/admin-orders/admin-orders-service-order-settings";
+import { AdminCommissionSettingsSection } from "@/components/dashboard/commission/admin-commission-settings-section";
+
+type SettingsPanel = "commission" | "exchange-rates" | "orders";
+
+export function AdminSystemSettingsClient({
+  initialData,
+}: {
+  initialData: AdminSystemSettingsPageData;
+}) {
+  const t = useTranslations("SystemSettings");
+  const [activePanel, setActivePanel] = useState<SettingsPanel>("orders");
+  const [serviceFeeTypeOptions, setServiceFeeTypeOptions] = useState(
+    initialData.serviceFeeTypeOptions,
+  );
+  const [serviceOrderPriceOptions, setServiceOrderPriceOptions] = useState(
+    initialData.serviceOrderPriceOptions,
+  );
+  const [orderDiscountOptions, setOrderDiscountOptions] = useState(
+    initialData.orderDiscountOptions,
+  );
+  const [commissionRuleSettings, setCommissionRuleSettings] = useState(
+    initialData.commissionRuleSettings,
+  );
+  const tabOptions = useMemo(
+    () => [
+      {
+        description: t("tabs.orders.description"),
+        icon: <ShoppingCart className="size-4" />,
+        key: "orders" as const,
+        label: t("tabs.orders.title"),
+      },
+      {
+        description: t("tabs.commission.description"),
+        icon: <WalletCards className="size-4" />,
+        key: "commission" as const,
+        label: t("tabs.commission.title"),
+      },
+      {
+        description: t("tabs.exchangeRates.description"),
+        icon: <ArrowLeftRight className="size-4" />,
+        key: "exchange-rates" as const,
+        label: t("tabs.exchangeRates.title"),
+      },
+    ],
+    [t],
+  );
+
+  return (
+    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
+      <DashboardSectionHeader
+        badge={t("header.badge")}
+        badgeIcon={<Settings className="size-3.5" />}
+        contentClassName="max-w-3xl"
+        description={t("header.description")}
+        title={t("header.title")}
+      />
+
+      {!initialData.hasPermission ? (
+        <section className="rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8">
+          <EmptyState
+            description={t("states.noPermissionDescription")}
+            icon={<ShieldAlert className="size-6" />}
+            title={t("states.noPermissionTitle")}
+          />
+        </section>
+      ) : (
+        <>
+          <DashboardSegmentedTabs
+            onChange={setActivePanel}
+            options={tabOptions}
+            value={activePanel}
+          />
+
+          {activePanel === "orders" ? (
+            <div className="flex flex-col gap-8">
+              <AdminOrdersServiceFeeSettings
+                commissionRuleSettings={commissionRuleSettings}
+                initialRows={serviceFeeTypeOptions}
+                onRowsChange={setServiceFeeTypeOptions}
+              />
+              <AdminOrdersServiceOrderSettings
+                initialDiscounts={orderDiscountOptions}
+                initialPrices={serviceOrderPriceOptions}
+                serviceOrderTypes={initialData.serviceOrderTypeOptions}
+                onDiscountsChange={setOrderDiscountOptions}
+                onPricesChange={setServiceOrderPriceOptions}
+              />
+            </div>
+          ) : activePanel === "commission" ? (
+            <AdminCommissionSettingsSection
+              canManageSettings={initialData.canManageCommissionSettings}
+              onRowsChange={setCommissionRuleSettings}
+              rows={commissionRuleSettings}
+            />
+          ) : (
+            <ExchangeRatesClient
+              embedded
+              homeHref="/admin/settings"
+              initialData={initialData.exchangeRates}
+              mode="manage"
+            />
+          )}
+        </>
+      )}
+    </section>
+  );
+}

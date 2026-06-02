@@ -34,7 +34,8 @@ export type WorkspaceNavLabelKey =
   | "exchangeRates"
   | "feedback"
   | "tasks"
-  | "reviews";
+  | "reviews"
+  | "settings";
 
 export type WorkspaceOrdersPageMode = "admin" | "salesman" | "client";
 export type WorkspaceCommissionPageMode = "admin" | "salesman";
@@ -57,6 +58,7 @@ export type WorkspacePageVariants = {
   records?: true;
   referrals?: true;
   reviews?: true;
+  settings?: true;
   tasks?: WorkspaceTasksPageMode;
   team?: true;
 };
@@ -121,6 +123,7 @@ const adminNavItems = [
   { segment: "people", labelKey: "people" },
   { segment: "records", labelKey: "records" },
   { segment: "commission", labelKey: "commission" },
+  { segment: "settings", labelKey: "settings" },
   { segment: "tasks", labelKey: "tasks" },
   { segment: "reviews", labelKey: "reviews" },
   { segment: "feedback", labelKey: "feedback" },
@@ -142,6 +145,7 @@ const WORKSPACE_ROUTE_CONFIG_BY_SEGMENT = {
       records: true,
       referrals: true,
       reviews: true,
+      settings: true,
       tasks: "admin",
       team: true,
     },

@@ -232,9 +232,9 @@ export function ServiceOrderSettingsSectionTitle({
 }) {
   return (
     <div className="min-w-0">
-      <h3 className="text-xl font-bold tracking-tight text-[#23313a] sm:text-2xl">
+      <h4 className="text-lg font-bold tracking-tight text-[#23313a] sm:text-xl">
         {title}
-      </h3>
+      </h4>
       <p className="mt-1.5 text-sm leading-6 text-[#6f7b85] sm:leading-7">
         {description}
       </p>
