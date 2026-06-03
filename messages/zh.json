@@ -539,6 +539,39 @@
       "emptyTitle": "暂无公告",
       "emptyDescription": "管理员发布公告后，会在这里展示最新内容。"
     },
+    "customizer": {
+      "edit": "编辑组件",
+      "done": "完成",
+      "addWidget": "添加到首页",
+      "reset": "恢复默认",
+      "removeWidget": "移除组件",
+      "resizeWidget": "拖动调整大小",
+      "moveLeft": "向前移动",
+      "moveRight": "向后移动",
+      "sidebarTitle": "添加组件",
+      "sidebarDescription": "选择要放到首页的内容，同一种组件可以重复添加。",
+      "emptyTitle": "首页还没有组件",
+      "emptyDescription": "点击编辑组件，从右侧添加想看的内容。",
+      "sizeLabel": "{width} x {height}",
+      "summary": {
+        "announcementCount": "{count}条公告",
+        "todoCount": "{count}条待办"
+      },
+      "widgets": {
+        "greeting": {
+          "title": "问候卡片",
+          "description": "显示当前问候和欢迎信息。"
+        },
+        "announcements": {
+          "title": "公告栏",
+          "description": "显示当前账号可见的公告。"
+        },
+        "todos": {
+          "title": "我的待办",
+          "description": "添加、查看和处理个人待办。"
+        }
+      }
+    },
     "todos": {
       "title": "我的待办",
       "description": "记录自己要处理的事项，完成后可以勾选收起，重要事项会优先显示。",

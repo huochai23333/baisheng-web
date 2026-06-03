@@ -374,7 +374,10 @@ export function useDashboardHomeTodos({
     pendingAction,
     quickDraft,
     setFilter,
+    todos,
     updateFormField,
     updateQuickDraftField,
   };
 }
+
+export type DashboardHomeTodosState = ReturnType<typeof useDashboardHomeTodos>;

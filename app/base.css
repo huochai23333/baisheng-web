@@ -15,3 +15,64 @@
       radial-gradient(circle at bottom left, rgba(204, 221, 213, 0.22), transparent 28%);
   }
 }
+
+@layer utilities {
+  @keyframes dashboard-home-wiggle {
+    0% {
+      transform: rotate(-0.45deg) translateY(0);
+    }
+
+    100% {
+      transform: rotate(0.45deg) translateY(-1px);
+    }
+  }
+
+  @keyframes dashboard-home-widget-enter {
+    0% {
+      opacity: 0;
+      transform: scale(0.08);
+    }
+
+    72% {
+      opacity: 1;
+      transform: scale(1.03);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes dashboard-home-widget-exit {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: scale(0.08);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .dashboard-home-wiggle {
+      animation: dashboard-home-wiggle 180ms ease-in-out infinite alternate;
+    }
+
+    .dashboard-home-widget-enter {
+      animation: dashboard-home-widget-enter 260ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+      transform-origin: center;
+    }
+
+    .dashboard-home-widget-exit {
+      animation: dashboard-home-widget-exit 220ms cubic-bezier(0.7, 0, 0.84, 0) both;
+      transform-origin: center;
+    }
+
+    .dashboard-home-widget-resizing {
+      transform-origin: center;
+    }
+  }
+}

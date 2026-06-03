@@ -539,6 +539,39 @@
       "emptyTitle": "No announcements",
       "emptyDescription": "New published announcements will appear here."
     },
+    "customizer": {
+      "edit": "Edit Widgets",
+      "done": "Done",
+      "addWidget": "Add to Home",
+      "reset": "Reset Layout",
+      "removeWidget": "Remove Widget",
+      "resizeWidget": "Drag to Resize",
+      "moveLeft": "Move Earlier",
+      "moveRight": "Move Later",
+      "sidebarTitle": "Add Widgets",
+      "sidebarDescription": "Choose what to place on your home page. The same widget can be added more than once.",
+      "emptyTitle": "No widgets on this home page",
+      "emptyDescription": "Click Edit Widgets, then add what you want to see.",
+      "sizeLabel": "{width} x {height}",
+      "summary": {
+        "announcementCount": "{count} announcements",
+        "todoCount": "{count} todos"
+      },
+      "widgets": {
+        "greeting": {
+          "title": "Greeting Card",
+          "description": "Shows the current greeting and welcome message."
+        },
+        "announcements": {
+          "title": "Announcements",
+          "description": "Shows announcements visible to this account."
+        },
+        "todos": {
+          "title": "My Todos",
+          "description": "Add, review, and handle personal todos."
+        }
+      }
+    },
     "todos": {
       "title": "My Todos",
       "description": "Keep track of your own work, check items off when they are done, and keep important items at the top.",

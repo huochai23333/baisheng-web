@@ -11,6 +11,10 @@ import { AiAssistantClient } from "@/components/dashboard/ai-assistant/ai-assist
 import { BrandMark } from "@/components/brand/brand-mark";
 import { WorkspaceHeaderActions } from "@/components/dashboard/workspace-header-actions";
 import { WorkspaceSessionProvider } from "@/components/dashboard/workspace-session-provider";
+import {
+  WorkspaceCustomizationSidebarProvider,
+  WorkspaceDesktopSidebar,
+} from "@/components/dashboard/workspace-customization-sidebar";
 import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
 import { LanguageToggle } from "@/components/i18n/language-toggle";
 import {
@@ -57,6 +61,7 @@ export async function AdminShell({ children, config }: AdminShellProps) {
   return (
     <ScopedIntlProvider namespaces={["DashboardShell", "LanguageToggle"]}>
       <WorkspaceSessionProvider>
+        <WorkspaceCustomizationSidebarProvider>
         <div className="min-h-screen bg-[#faf9f7] text-[#1c262d]">
           <div className="pointer-events-none fixed inset-0 overflow-hidden">
             <div className="absolute right-[-10%] top-[-18%] h-[30rem] w-[30rem] rounded-full bg-[rgba(187,208,223,0.24)] blur-3xl" />
@@ -64,21 +69,27 @@ export async function AdminShell({ children, config }: AdminShellProps) {
           </div>
 
           <div className="relative flex min-h-screen">
-            <aside className="fixed inset-y-4 left-4 z-20 hidden w-[252px] rounded-[28px] border border-white/80 bg-[#f4f3f1]/92 px-4 py-6 shadow-[0_18px_45px_rgba(96,113,128,0.12)] backdrop-blur md:flex md:flex-col">
-              <div className="mb-10 flex items-center gap-3 px-3">
-                <BrandMark priority size={48} />
-                <div>
-                  <h2 className="text-sm font-bold tracking-wide text-[#415f76]">
-                    {workspace.title}
-                  </h2>
-                  <p className="text-xs text-[#415f76]/60">{workspace.subtitle}</p>
-                </div>
-              </div>
+            <WorkspaceDesktopSidebar
+              defaultContent={
+                <>
+                  <div className="mb-10 flex items-center gap-3 px-3">
+                    <BrandMark priority size={48} />
+                    <div>
+                      <h2 className="text-sm font-bold tracking-wide text-[#415f76]">
+                        {workspace.title}
+                      </h2>
+                      <p className="text-xs text-[#415f76]/60">
+                        {workspace.subtitle}
+                      </p>
+                    </div>
+                  </div>
 
-              <AdminShellNav items={workspace.navItems} mode="desktop" />
+                  <AdminShellNav items={workspace.navItems} mode="desktop" />
 
-              <AdminShellLogoutButton label={t("logout")} />
-            </aside>
+                  <AdminShellLogoutButton label={t("logout")} />
+                </>
+              }
+            />
 
             <div className="flex min-h-screen min-w-0 flex-1 flex-col md:ml-[284px]">
               <header className="sticky top-0 z-10 border-b border-white/50 bg-[#faf9f7]/82 backdrop-blur">
@@ -117,6 +128,7 @@ export async function AdminShell({ children, config }: AdminShellProps) {
             </div>
           </div>
         </div>
+        </WorkspaceCustomizationSidebarProvider>
       </WorkspaceSessionProvider>
     </ScopedIntlProvider>
   );

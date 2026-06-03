@@ -22,6 +22,7 @@ export type DashboardHomePageData = {
   announcements: AnnouncementRow[];
   displayName: string | null;
   greetingPeriod: DashboardHomeGreetingPeriod;
+  layoutScope: string;
   role: AppRole | null;
   status: UserStatus | null;
   todos: UserTodoItemRow[];
@@ -58,6 +59,7 @@ export async function getDashboardHomePageData(
       user.phone ||
       null,
     greetingPeriod: getShanghaiGreetingPeriod(),
+    layoutScope: user.id,
     role,
     status,
     todos,
