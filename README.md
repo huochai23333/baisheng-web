@@ -319,8 +319,10 @@ Git 推送约定：
 
 Supabase Auth 建议：
 
-- Site URL：线上站点根地址。
-- Redirect URLs：线上根地址、`/forgot-password`，以及本地开发地址 `http://localhost:3000`、`http://localhost:3000/forgot-password`。
+- Site URL：线上站点根地址，当前线上为 `https://account.pt5china.com`。
+- Redirect URLs：线上根地址、`/login`、`/auth/confirm`、`/forgot-password`，以及本地开发地址 `http://localhost:3000`、`http://localhost:3000/auth/confirm`、`http://localhost:3000/forgot-password`。
+- Confirm sign up 邮件模板使用自有域名确认路由：`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`，不要直接使用 `{{ .ConfirmationURL }}`，避免注册确认邮件里的主链接显示为 Supabase 项目域名。
+- 自定义 SMTP 发件人使用可回复的业务邮箱，不使用 `noreply`。当前发件地址为 `support@pt5china.com`，发件名为“柏盛账号”。
 
 ## 相关文档
 
