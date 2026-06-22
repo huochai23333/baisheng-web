@@ -210,13 +210,13 @@ export function RegisterForm({
         <span className="relative mt-0.5 flex size-5 shrink-0 items-center justify-center">
           <input
             checked={acceptedTerms}
-            className="peer sr-only"
+            className="peer absolute inset-0 z-10 size-5 cursor-pointer opacity-0"
             name="terms"
             onChange={(event) => setAcceptedTerms(event.target.checked)}
             type="checkbox"
           />
-          <span className="absolute inset-0 rounded-md border border-[#c7cbd0] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition-colors peer-checked:border-[#486782] peer-checked:bg-[#486782]" />
-          <Check className="relative size-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100" />
+          <span className="pointer-events-none absolute inset-0 rounded-md border border-[#c7cbd0] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition-colors peer-checked:border-[#486782] peer-checked:bg-[#486782]" />
+          <Check className="pointer-events-none relative size-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100" />
         </span>
         <span>
           {t("termsPrefix")}{" "}

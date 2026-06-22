@@ -100,17 +100,17 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                 : t("sync.autoFetchDisabled")}
             </p>
           </div>
-          <label className="inline-flex cursor-pointer items-center gap-3">
+          <label className="relative inline-flex cursor-pointer items-center gap-3">
             <input
               checked={isEnabled}
-              className="peer sr-only"
+              className="peer absolute inset-0 z-10 cursor-pointer opacity-0 disabled:cursor-not-allowed"
               disabled={settingsPending}
               onChange={(event) => onAutoSyncChange(event.target.checked)}
               type="checkbox"
             />
             <span
               className={cn(
-                "relative h-7 w-12 rounded-full border transition-colors",
+                "pointer-events-none relative h-7 w-12 rounded-full border transition-colors",
                 isEnabled
                   ? "border-[#5d7f69] bg-[#5d7f69]"
                   : "border-[#d8e0d8] bg-[#edf1ee]",
@@ -118,7 +118,7 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
             >
               <span
                 className={cn(
-                  "absolute top-1 size-5 rounded-full bg-white shadow-sm transition-transform",
+                  "pointer-events-none absolute top-1 size-5 rounded-full bg-white shadow-sm transition-transform",
                   isEnabled ? "translate-x-5" : "translate-x-1",
                 )}
               />

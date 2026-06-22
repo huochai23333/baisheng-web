@@ -1,12 +1,16 @@
 export function getPasswordPolicyState(password: string) {
-  const hasMinLength = password.length >= 8;
-  const hasLetter = /[a-z]/i.test(password);
+  // Keep this client-side check aligned with the Supabase Auth password policy.
+  const hasMinLength = password.length >= 10;
+  const hasLowercase = /[a-z]/.test(password);
+  const hasUppercase = /[A-Z]/.test(password);
   const hasNumber = /\d/.test(password);
 
   return {
-    hasLetter,
+    hasLetter: hasLowercase || hasUppercase,
+    hasLowercase,
     hasMinLength,
     hasNumber,
-    isValid: hasMinLength && hasLetter && hasNumber,
+    hasUppercase,
+    isValid: hasMinLength && hasLowercase && hasUppercase && hasNumber,
   };
 }

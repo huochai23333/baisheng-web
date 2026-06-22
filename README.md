@@ -94,6 +94,7 @@ DEEPSEEK_MODEL=deepseek-v4-flash
 - `EXCHANGE_RATE_API_KEY` 只配置为 Supabase Edge Function secret。
 - `USER_MEDIA_IMAGE_REVIEW_PROVIDER` 和真实内容安全供应商密钥只配置为 Supabase Function secrets，默认 provider 为 `disabled`。
 - `DEEPSEEK_API_KEY` 只在 Next.js 服务端接口中使用，用于登录后右下角的工作台助手；助手名称从 `lib/company-config.ts` 读取。
+- `next.config.ts` 对所有页面和 API 返回基础浏览器安全头：不允许页面被嵌入其他网站，禁止浏览器猜测文件类型，限制来源信息和默认浏览器权限。
 
 ## 常用命令
 
@@ -398,6 +399,8 @@ Supabase Auth 建议：
 - Confirm sign up 邮件模板使用自有域名确认路由：`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`，不要直接使用 `{{ .ConfirmationURL }}`，避免注册确认邮件里的主链接显示为 Supabase 项目域名。
 - Reset password 邮件模板也使用自有域名确认路由：`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`，避免重置邮件里的主链接显示为 Supabase 项目域名。
 - Password recovery 邮件由登录页和账号中心共同触发，回跳地址固定为当前站点的 `/forgot-password`；Resend 显示 sent 只代表发信服务已接收或开始发送，delivered 只代表收件方服务器已接收，仍需结合 Resend Insights、收件箱、垃圾邮件和域名 DNS 认证状态判断最终可见性。
+- 注册和重置密码统一要求至少 10 位，并同时包含大写字母、小写字母和数字；前端表单校验要与 Supabase Auth 的 `minimum_password_length`、`password_requirements` 和 `secure_password_change` 配置保持一致。
+- 注册页允许匿名调用的邀请码校验 RPC 只有 `validate_signup_referral_code` 和 `resolve_signup_referral_business_board`；管理、批发、VIP、任务和触发器辅助 RPC 都应在数据库侧撤销匿名执行权。
 - 自定义 SMTP 发件人使用可回复的业务邮箱，不使用 `noreply`。当前发件地址和发件名以公司配置和 Supabase Auth 设置为准。
 
 ## 相关文档
