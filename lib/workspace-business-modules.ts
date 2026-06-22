@@ -15,6 +15,8 @@ export const workspaceWholesaleSectionKeys = [
   "referrals",
   "commission",
   "incentives",
+  "vip",
+  "settings",
 ] as const;
 
 export type WorkspaceWholesaleSectionKey =
@@ -42,10 +44,13 @@ export type WorkspaceNavLabelKey =
   | "people"
   | "records"
   | "referrals"
+  | "businessSettings"
   | "team"
   | "commission"
+  | "exchangeRates"
   | "feedback"
   | "tasks"
+  | "vip"
   | "reviews"
   | "settings"
   | "incentives"
@@ -59,6 +64,7 @@ export type WorkspaceOrdersPageMode = "admin" | "salesman" | "client";
 export type WorkspaceCommissionPageMode = "admin" | "salesman";
 export type WorkspaceTasksPageMode = "admin" | "staff";
 export type WorkspacePeoplePageMode = "admin" | "salesman";
+export type WorkspaceVipPageMode = "admin" | "salesman";
 
 export type WorkspaceBusinessPageVariants = {
   commission?: WorkspaceCommissionPageMode;
@@ -67,8 +73,10 @@ export type WorkspaceBusinessPageVariants = {
   records?: true;
   referrals?: true;
   reviews?: true;
+  settings?: true;
   tasks?: WorkspaceTasksPageMode;
   team?: true;
+  vip?: WorkspaceVipPageMode;
 };
 
 export type WorkspaceNavItem = {
@@ -146,6 +154,7 @@ const recruiterTourismNavItems = [
 const sharedSalesTourismNavItems = [
   { segment: "orders", labelKey: "orders" },
   { segment: "people", labelKey: "people" },
+  { segment: "vip", labelKey: "vip" },
   { segment: "referrals", labelKey: "referrals" },
   { segment: "team", labelKey: "team" },
   { segment: "commission", labelKey: "commission" },
@@ -157,10 +166,12 @@ const adminTourismNavItems = [
   { segment: "referrals", labelKey: "referrals" },
   { segment: "team", labelKey: "team" },
   { segment: "people", labelKey: "people" },
+  { segment: "vip", labelKey: "vip" },
   { segment: "records", labelKey: "records" },
   { segment: "commission", labelKey: "commission" },
   { segment: "tasks", labelKey: "tasks" },
   { segment: "reviews", labelKey: "reviews" },
+  { segment: "settings", labelKey: "businessSettings" },
 ] as const satisfies readonly WorkspaceNavItem[];
 
 const adminWholesaleNavItems = createWholesaleNavItems([
@@ -168,9 +179,11 @@ const adminWholesaleNavItems = createWholesaleNavItems([
   ["order-claims", "orderClaims"],
   ["logistics", "logistics"],
   ["people", "people"],
+  ["vip", "vip"],
   ["referrals", "referrals"],
   ["commission", "commission"],
   ["incentives", "incentives"],
+  ["settings", "businessSettings"],
 ]);
 
 const salesWholesaleNavItems = createWholesaleNavItems([
@@ -178,6 +191,7 @@ const salesWholesaleNavItems = createWholesaleNavItems([
   ["order-claims", "orderClaims"],
   ["logistics", "logistics"],
   ["people", "people"],
+  ["vip", "vip"],
   ["referrals", "referrals"],
   ["commission", "commission"],
   ["incentives", "incentives"],
@@ -237,8 +251,10 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
         records: true,
         referrals: true,
         reviews: true,
+        settings: true,
         tasks: "admin",
         team: true,
+        vip: "admin",
       },
       client: {
         orders: "client",
@@ -267,6 +283,7 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
         referrals: true,
         tasks: "staff",
         team: true,
+        vip: "salesman",
       },
       recruiter: {
         referrals: true,
@@ -279,6 +296,7 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
         referrals: true,
         tasks: "staff",
         team: true,
+        vip: "salesman",
       },
     },
     settings: {
@@ -321,7 +339,11 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
       sections: [
         {
           kind: "commissionRules",
-          ruleCodes: ["purchase_salesman_tier", "purchase_referral_rate"],
+          ruleCodes: [
+            "purchase_salesman_tier",
+            "wholesale_referral_order_amount_rate",
+            "wholesale_referral_waybill_bonus",
+          ],
         },
       ],
       titleKey: "tabs.wholesale.title",

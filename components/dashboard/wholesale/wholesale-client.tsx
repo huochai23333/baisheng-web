@@ -109,8 +109,11 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
       {initialData.section === "commission" || initialData.section === "incentives" ? (
         <WholesaleCommissionSection
           canAdmin={canAdmin}
+          commissionRuleSettings={initialData.commissionRuleSettings}
           commissions={initialData.commissions}
           customersById={customersById}
+          exchangeRates={initialData.exchangeRates}
+          logisticsOrders={initialData.logisticsOrders}
           onSettleCommission={actions.settleCommission}
           orders={initialData.orders}
           pendingKey={actions.pendingKey}

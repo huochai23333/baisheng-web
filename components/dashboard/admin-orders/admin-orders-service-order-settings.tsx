@@ -26,12 +26,14 @@ import {
   parseServiceFeeInput,
 } from "./admin-orders-service-fee-settings-utils";
 import {
-  ServiceOrderDiscountsTable,
-  type ServiceOrderPriceDraft,
   ServiceOrderPricesTable,
+} from "./admin-orders-service-order-settings-tables";
+import {
+  type ServiceOrderPriceDraft,
   ServiceOrderSettingsSectionTitle,
   type ServiceOrderSettingsEditingTarget,
-} from "./admin-orders-service-order-settings-tables";
+} from "./admin-orders-service-order-settings-shared";
+import { ServiceOrderDiscountsTable } from "./admin-orders-service-order-discounts-table";
 
 type PageFeedback = { tone: NoticeTone; message: string } | null;
 

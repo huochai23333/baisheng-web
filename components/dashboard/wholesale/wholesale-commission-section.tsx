@@ -11,10 +11,13 @@ import {
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import type { CommissionRuleSetting } from "@/lib/commission-settings";
+import type { ExchangeRateRow } from "@/lib/exchange-rates";
 import { normalizeSearchText } from "@/lib/value-normalizers";
 import type {
   WholesaleCommission,
   WholesaleCustomer,
+  WholesaleLogisticsOrder,
   WholesaleOrder,
   WholesaleProfile,
   WholesaleReferral,
@@ -36,11 +39,18 @@ import {
   WholesaleTd,
   WholesaleTh,
 } from "./wholesale-ui";
+import {
+  buildReferralCommissionRows,
+} from "./wholesale-referral-commission";
+import { WholesaleReferralCommissionSection } from "./wholesale-referral-commission-section";
 
 type WholesaleCommissionSectionProps = {
   canAdmin: boolean;
+  commissionRuleSettings: CommissionRuleSetting[];
   commissions: WholesaleCommission[];
   customersById: Map<string, WholesaleCustomer>;
+  exchangeRates: ExchangeRateRow[];
+  logisticsOrders: WholesaleLogisticsOrder[];
   onSettleCommission: (commissionId: string) => void;
   orders: WholesaleOrder[];
   pendingKey: string | null;
@@ -53,8 +63,11 @@ const ALL = "all";
 
 export function WholesaleCommissionSection({
   canAdmin,
+  commissionRuleSettings,
   commissions,
   customersById,
+  exchangeRates,
+  logisticsOrders,
   onSettleCommission,
   orders,
   pendingKey,
@@ -62,8 +75,6 @@ export function WholesaleCommissionSection({
   referrals,
   variant,
 }: WholesaleCommissionSectionProps) {
-  const [commissionSearch, setCommissionSearch] = useState("");
-  const [commissionCustomerFilter, setCommissionCustomerFilter] = useState(ALL);
   const [incentiveSearch, setIncentiveSearch] = useState("");
   const [incentiveStatusFilter, setIncentiveStatusFilter] = useState(ALL);
   const [incentiveSalesFilter, setIncentiveSalesFilter] = useState(ALL);
@@ -72,30 +83,17 @@ export function WholesaleCommissionSection({
     [orders],
   );
   const referralRows = useMemo(
-    () => buildReferralCommissionRows(orders, referrals, customersById),
-    [customersById, orders, referrals],
+    () =>
+      buildReferralCommissionRows({
+        commissionRuleSettings,
+        customersById,
+        exchangeRates,
+        logisticsOrders,
+        orders,
+        referrals,
+      }),
+    [commissionRuleSettings, customersById, exchangeRates, logisticsOrders, orders, referrals],
   );
-  const filteredReferralRows = useMemo(() => {
-    const searchValue = normalizeSearchText(commissionSearch);
-
-    return referralRows.filter((row) => {
-      if (
-        commissionCustomerFilter !== ALL &&
-        row.referrerCustomerId !== commissionCustomerFilter &&
-        row.referredCustomerId !== commissionCustomerFilter
-      ) {
-        return false;
-      }
-
-      if (!searchValue) return true;
-
-      return [
-        getCustomerName(customersById, row.referrerCustomerId),
-        getCustomerName(customersById, row.referredCustomerId),
-        row.orderNumbers.join(" "),
-      ].some((value) => normalizeSearchText(value).includes(searchValue));
-    });
-  }, [commissionCustomerFilter, commissionSearch, customersById, referralRows]);
   const filteredCommissions = useMemo(() => {
     const searchValue = normalizeSearchText(incentiveSearch);
 
@@ -140,10 +138,6 @@ export function WholesaleCommissionSection({
   const pendingCommission = commissions
     .filter((row) => row.status === "pending")
     .reduce((sum, row) => sum + Number(row.commission_amount_rmb ?? 0), 0);
-  const totalReferralCommission = referralRows.reduce(
-    (sum, row) => sum + row.amount,
-    0,
-  );
   const salesAccounts = useMemo(() => {
     const userIds = new Set(
       commissions
@@ -158,142 +152,12 @@ export function WholesaleCommissionSection({
   }, [commissions, profilesById]);
 
   if (variant === "commission") {
-    const hasActiveFilters =
-      commissionSearch || commissionCustomerFilter !== ALL;
-
     return (
-      <WholesalePageShell
-        description="汇总批发客户之间产生的推荐佣金，和业务员提成分开查看。"
-        eyebrow="批发业务"
-        title="佣金"
-      >
-        <WholesaleStatGrid
-          stats={[
-            { label: "佣金合计", value: formatCurrency(totalReferralCommission) },
-            { label: "佣金记录", value: `${referralRows.length}` },
-            { label: "当前显示", value: `${filteredReferralRows.length}` },
-            { label: "关联订单", value: `${orders.length}` },
-          ]}
-        />
-        <DashboardListSection
-          actions={
-            <Button
-              className="rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
-              disabled={!hasActiveFilters}
-              onClick={() => {
-                setCommissionSearch("");
-                setCommissionCustomerFilter(ALL);
-              }}
-              type="button"
-              variant="outline"
-            >
-              <RefreshCcw className="size-4" />
-              清空筛选
-            </Button>
-          }
-          description={`共 ${referralRows.length} 条佣金记录，当前显示 ${filteredReferralRows.length} 条。`}
-          title="客户推荐佣金"
-        >
-          <div className="mb-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_260px]">
-            <DashboardFilterField label="搜索佣金">
-              <input
-                className={dashboardFilterInputClassName}
-                onChange={(event) => setCommissionSearch(event.target.value)}
-                placeholder="推荐客户、被推荐客户或订单编号"
-                type="search"
-                value={commissionSearch}
-              />
-            </DashboardFilterField>
-            <DashboardFilterField label="客户">
-              <select
-                className={dashboardFilterInputClassName}
-                onChange={(event) => setCommissionCustomerFilter(event.target.value)}
-                value={commissionCustomerFilter}
-              >
-                <option value={ALL}>全部客户</option>
-                {[...customersById.values()].map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.unique_name}
-                  </option>
-                ))}
-              </select>
-            </DashboardFilterField>
-          </div>
-          {filteredReferralRows.length === 0 ? (
-            <WholesaleEmptyState
-              description="没有匹配的客户推荐佣金。"
-              icon={<Calculator className="size-5" />}
-              title="暂无匹配佣金"
-            />
-          ) : (
-            <>
-              <div className="hidden md:block">
-                <DashboardTableFrame>
-              <table className="w-full table-fixed border-collapse text-left text-sm">
-                <colgroup>
-                  <col className="w-[28%]" />
-                  <col className="w-[28%]" />
-                  <col className="w-[26%]" />
-                  <col className="w-[18%]" />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <WholesaleTh className="whitespace-normal">推荐客户</WholesaleTh>
-                    <WholesaleTh className="whitespace-normal">被推荐客户</WholesaleTh>
-                    <WholesaleTh className="whitespace-normal">相关订单</WholesaleTh>
-                    <WholesaleTh className="whitespace-normal">佣金</WholesaleTh>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredReferralRows.map((row) => (
-                    <tr key={`${row.referrerCustomerId}-${row.referredCustomerId}`}>
-                      <WholesaleTd className="whitespace-normal">
-                        {getCustomerName(customersById, row.referrerCustomerId)}
-                      </WholesaleTd>
-                      <WholesaleTd className="whitespace-normal">
-                        {getCustomerName(customersById, row.referredCustomerId)}
-                      </WholesaleTd>
-                      <WholesaleTd className="whitespace-normal">
-                        {row.orderNumbers.join("、")}
-                      </WholesaleTd>
-                      <WholesaleTd className="whitespace-normal">
-                        {formatCurrency(row.amount)}
-                      </WholesaleTd>
-                    </tr>
-                  ))}
-                </tbody>
-                </table>
-                </DashboardTableFrame>
-              </div>
-              <div className="grid gap-3 md:hidden">
-                {filteredReferralRows.map((row) => (
-                  <div
-                    className="rounded-[8px] border border-[#e4e8ec] bg-white p-4"
-                    key={`${row.referrerCustomerId}-${row.referredCustomerId}`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="break-words font-semibold text-[#23313a]">
-                          {getCustomerName(customersById, row.referrerCustomerId)}
-                        </p>
-                        <p className="mt-1 break-words text-sm text-[#6f7b85]">
-                          推荐给 {getCustomerName(customersById, row.referredCustomerId)}
-                        </p>
-                      </div>
-                      <p className="shrink-0 text-sm font-semibold text-[#486782]">
-                        {formatCurrency(row.amount)}
-                      </p>
-                    </div>
-                    <p className="mt-3 break-words text-sm text-[#6f7b85]">
-                      相关订单：{row.orderNumbers.join("、")}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </DashboardListSection>
-      </WholesalePageShell>
+      <WholesaleReferralCommissionSection
+        customersById={customersById}
+        logisticsOrders={logisticsOrders}
+        referralRows={referralRows}
+      />
     );
   }
 
@@ -535,51 +399,4 @@ export function WholesaleCommissionSection({
       </DashboardListSection>
     </WholesalePageShell>
   );
-}
-
-function buildReferralCommissionRows(
-  orders: WholesaleOrder[],
-  referrals: WholesaleReferral[],
-  customersById: Map<string, WholesaleCustomer>,
-) {
-  const referredToReferrer = new Map(
-    referrals.map((referral) => [
-      referral.referred_customer_id,
-      referral.referrer_customer_id,
-    ]),
-  );
-  const grouped = new Map<
-    string,
-    {
-      amount: number;
-      orderNumbers: string[];
-      referredCustomerId: string;
-      referrerCustomerId: string;
-    }
-  >();
-
-  for (const order of orders) {
-    const referrerCustomerId = referredToReferrer.get(order.customer_id);
-    const amount = Number(order.referral_commission_fee ?? 0);
-
-    if (!referrerCustomerId || amount <= 0 || !customersById.has(referrerCustomerId)) {
-      continue;
-    }
-
-    const key = `${referrerCustomerId}:${order.customer_id}`;
-    const current =
-      grouped.get(key) ??
-      {
-        amount: 0,
-        orderNumbers: [],
-        referredCustomerId: order.customer_id,
-        referrerCustomerId,
-      };
-
-    current.amount += amount;
-    current.orderNumbers.push(order.order_number);
-    grouped.set(key, current);
-  }
-
-  return [...grouped.values()];
 }

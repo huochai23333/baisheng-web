@@ -2,6 +2,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { UserStatus } from "./auth-metadata";
 import type { AppRole } from "./auth-routing";
+import {
+  getCommissionRuleSettings,
+  type CommissionRuleSetting,
+} from "./commission-settings";
 import { getCurrentSessionContext } from "./current-session-context";
 import {
   getLatestCnyExchangeRates,
@@ -132,6 +136,7 @@ export type WholesaleProfile = {
 export type WholesalePageData = {
   currentUserId: string | null;
   currentRole: AppRole | null;
+  commissionRuleSettings: CommissionRuleSetting[];
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
   orders: WholesaleOrder[];
@@ -168,6 +173,7 @@ export async function getWholesalePageData(
     rolesResult,
     linkCandidateProfilesResult,
     exchangeRates,
+    commissionRuleSettings,
   ] = await Promise.all([
     supabase
       .from("wholesale_customers")
@@ -222,6 +228,7 @@ export async function getWholesalePageData(
       QueryResult<WholesaleProfile>
     >,
     getLatestCnyExchangeRates(supabase).catch(() => []),
+    getCommissionRuleSettings(supabase).catch(() => []),
   ]);
 
   const rolesById = new Map(
@@ -261,6 +268,7 @@ export async function getWholesalePageData(
   return {
     currentRole,
     currentUserId,
+    commissionRuleSettings,
     customers: scopedRows.customers,
     exchangeRates,
     orders: scopedRows.orders,

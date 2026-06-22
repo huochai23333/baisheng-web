@@ -100,6 +100,22 @@ export async function generateWorkspaceSectionMetadata({
     };
   }
 
+  if (section === "vip" && config.pageVariants.vip) {
+    const t = await getTranslations("BusinessVip.metadata");
+
+    return {
+      title: t("title"),
+    };
+  }
+
+  if (section === "settings" && config.pageVariants.settings) {
+    const t = await getTranslations("SystemSettings.tabs");
+
+    return {
+      title: t(`${business}.title`),
+    };
+  }
+
   const sectionT = await getTranslations("WorkspaceSections");
   const fallbackT = await getTranslations(
     `WorkspaceSections.fallbacks.${config.routeSegment}`,

@@ -39,15 +39,12 @@ export function SalesmanPeopleClient({
       ) : (
         <>
           <SalesmanPeopleDirectorySection
-            businessBoards={viewModel.businessBoards}
             customerTypeLabels={viewModel.customerTypeLabels}
             filteredCustomers={viewModel.filteredCustomers}
             locale={locale}
             onAdjustCustomerType={viewModel.openCustomerTypeDialog}
             onEditCustomerNote={viewModel.personNoteEditor.openNoteDialog}
-            onRequestVip={viewModel.handleRequestVip}
             onSearchTextChange={viewModel.setSearchText}
-            pendingVipRequestKey={viewModel.vipRequestPendingKey}
             searchText={viewModel.searchText}
           />
 

@@ -11,7 +11,6 @@ import {
   type SalesmanCustomerType,
   type SalesmanPeoplePageData,
 } from "@/lib/salesman-people";
-import type { VipMembershipScope } from "@/lib/vip-memberships";
 import { usePersonPrivateNoteEditor } from "@/components/dashboard/person-notes/use-person-private-note-editor";
 
 import {
@@ -43,9 +42,6 @@ export function useSalesmanPeopleViewModel({
     useState<SalesmanCustomerRow | null>(null);
   const [draftType, setDraftType] = useState<SalesmanCustomerType | "">("");
   const [saving, setSaving] = useState(false);
-  const [vipRequestPendingKey, setVipRequestPendingKey] = useState<string | null>(
-    null,
-  );
   const businessBoards = initialData.businessBoards;
   const customerTypeOptions = useMemo(
     () => getSalesmanCustomerTypeOptionsForBusinessBoards(businessBoards),
@@ -180,61 +176,6 @@ export function useSalesmanPeopleViewModel({
     }
   };
 
-  const handleRequestVip = async (
-    customer: SalesmanCustomerRow,
-    vipScope: VipMembershipScope,
-  ) => {
-    const pendingKey = getVipRequestPendingKey(customer.user_id, vipScope);
-
-    if (vipRequestPendingKey) {
-      return;
-    }
-
-    setVipRequestPendingKey(pendingKey);
-    setFeedback(null);
-
-    try {
-      const response = await fetch("/api/salesman/people/vip-request", {
-        body: JSON.stringify({
-          customerUserId: customer.user_id,
-          vipScope,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-      });
-      const result = await readUpdateResponse(response);
-
-      if (!response.ok || !result.customer) {
-        setFeedback({
-          tone: "error",
-          message: t(`errors.${normalizeErrorCode(result.error)}`),
-        });
-        return;
-      }
-
-      const updatedCustomer = result.customer;
-
-      setCustomers((currentCustomers) =>
-        currentCustomers.map((item) =>
-          item.user_id === updatedCustomer.user_id ? updatedCustomer : item,
-        ),
-      );
-      setFeedback({
-        tone: "success",
-        message: t("feedback.vipRequested"),
-      });
-    } catch {
-      setFeedback({
-        tone: "error",
-        message: t("errors.serviceUnavailable"),
-      });
-    } finally {
-      setVipRequestPendingKey(null);
-    }
-  };
-
   return {
     canSaveDraft,
     currentViewerId: initialData.currentViewerId,
@@ -251,21 +192,12 @@ export function useSalesmanPeopleViewModel({
     searchText,
     selectedCustomer,
     summary,
-    vipRequestPendingKey,
     closeCustomerTypeDialog,
     handleDraftTypeChange,
     handleSaveCustomerType,
-    handleRequestVip,
     openCustomerTypeDialog,
     setSearchText,
   };
-}
-
-export function getVipRequestPendingKey(
-  customerUserId: string,
-  vipScope: VipMembershipScope,
-) {
-  return `${customerUserId}:${vipScope}`;
 }
 
 async function readUpdateResponse(response: Response): Promise<UpdateResponse> {

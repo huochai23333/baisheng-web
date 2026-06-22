@@ -34,7 +34,8 @@ type PageFeedback = { message: string; tone: NoticeTone } | null;
 type SettingsErrorKey =
   | "settings.errors.permission"
   | "settings.errors.unknown"
-  | "settings.validation.amount";
+  | "settings.validation.amount"
+  | "settings.validation.count";
 type SettingsErrorTranslator = (key: SettingsErrorKey) => string;
 
 export function AdminCommissionSettingsSection({
@@ -182,7 +183,13 @@ function parseDraft(
   draft: RuleDraft,
 ):
   | { config: CommissionRuleConfig; ok: true }
-  | { messageKey: "settings.validation.amount" | "settings.validation.rate"; ok: false } {
+  | {
+      messageKey:
+        | "settings.validation.amount"
+        | "settings.validation.count"
+        | "settings.validation.rate";
+      ok: false;
+    } {
   const nextConfig = { ...currentConfig };
 
   for (const field of definition.fields) {
@@ -194,7 +201,9 @@ function parseDraft(
         messageKey:
           field.kind === "rate"
             ? "settings.validation.rate"
-            : "settings.validation.amount",
+            : field.kind === "count"
+              ? "settings.validation.count"
+              : "settings.validation.amount",
       };
     }
 
@@ -219,6 +228,12 @@ function parseFieldValue(field: CommissionRuleField, rawValue: string) {
     }
 
     return Math.round(ratio * 10000) / 10000;
+  }
+
+  if (field.kind === "count") {
+    const count = Math.trunc(parsed);
+
+    return count > 0 ? count : null;
   }
 
   if (parsed <= 0) {

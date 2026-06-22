@@ -335,8 +335,11 @@
       "referrals": "Referral Tree",
       "team": "Team",
       "people": "People Management",
+      "vip": "VIP Management",
       "commission": "Commission",
       "settings": "System Settings",
+      "businessSettings": "Business Settings",
+      "exchangeRates": "Exchange Rates",
       "tasks": "Tasks",
       "reviews": "Reviews",
       "feedback": "Feedback",
@@ -478,6 +481,10 @@
         "title": "People Management",
         "description": "Manage wholesale customer profiles and the sales or promoter accounts that can handle wholesale work in one place."
       },
+      "vip": {
+        "title": "VIP Management",
+        "description": "Handle wholesale VIP applications, payment confirmation, recharge records, and validity changes inside the wholesale business."
+      },
       "referrals": {
         "title": "Wholesale Referral Tree",
         "description": "Show wholesale customer referral relationships and summarize customer referral commission."
@@ -489,6 +496,10 @@
       "incentives": {
         "title": "Wholesale Incentives",
         "description": "Calculate sales incentives from wholesale order profit and order amount separately from tourism order commission."
+      },
+      "settings": {
+        "title": "Wholesale Settings",
+        "description": "Manage wholesale sales incentive and customer referral commission rules."
       }
     }
   },
@@ -547,13 +558,17 @@
       "title": "People Management",
       "description": "This area shows the people or customer records available to the current account. Referral relationships and team membership remain in their own sections."
     },
+    "vip": {
+      "title": "VIP Management",
+      "description": "Handle customer VIP applications, payment confirmation, recharge records, and validity changes inside the matching business."
+    },
     "commission": {
       "title": "Commission Center",
       "description": "This section will combine commission rules, settlement details, payout progress, and exception records, and will later evolve into role-specific views for finance and sales."
     },
     "settings": {
-      "title": "System Settings",
-      "description": "Manage tourism settings, wholesale settings, and exchange rate settings in one place."
+      "title": "Business Settings",
+      "description": "Manage prices, commission, and related rules inside the current business."
     },
     "tasks": {
       "title": "Task Board",
@@ -566,6 +581,197 @@
     "feedback": {
       "title": "Feedback",
       "description": "Administrators can review problems and improvement ideas submitted by every role, then update the handling status."
+    }
+  },
+  "BusinessVip": {
+    "metadata": {
+      "title": "VIP Management"
+    },
+    "business": {
+      "tourism": "Tourism Business",
+      "wholesale": "Wholesale Business"
+    },
+    "header": {
+      "title": "VIP Management",
+      "admin": {
+        "description": "Handle customer VIP applications, confirm payment, review recharge records, and adjust validity inside this business."
+      },
+      "salesman": {
+        "description": "Review VIP status for customers you can follow and submit opening or renewal applications."
+      },
+      "wholesale": {
+        "admin": {
+          "description": "Review wholesale customer VIP status and directly open or renew membership."
+        },
+        "salesman": {
+          "description": "Review wholesale customers you follow and directly open or renew membership."
+        }
+      }
+    },
+    "summary": {
+      "total": "Visible Customers",
+      "active": "Active VIP",
+      "pending": "Pending Requests"
+    },
+    "filters": {
+      "search": "Search Customers",
+      "searchPlaceholder": "Name, contact, or city",
+      "status": "VIP Status",
+      "statusOptions": {
+        "all": "All Statuses",
+        "active": "Active",
+        "expired": "Expired",
+        "cancelled": "Cancelled",
+        "none": "Not Opened"
+      }
+    },
+    "directory": {
+      "eyebrow": "Customer VIP",
+      "title": "VIP Customer List",
+      "description": "Each customer's applications, recharges, and adjustments are filed under this business.",
+      "wholesaleTitle": "Wholesale Customer VIP",
+      "wholesaleDescription": "Only customer, current status, and action are shown here. Opening or renewing VIP automatically creates a record.",
+      "emptyTitle": "No Matching Customers",
+      "emptyDescription": "Change the filters and check again.",
+      "columns": {
+        "customer": "Customer",
+        "status": "Current Status",
+        "requests": "Applications",
+        "records": "Recharge & Changes",
+        "actions": "Actions"
+      }
+    },
+    "status": {
+      "labels": {
+        "active": "Active",
+        "expired": "Expired",
+        "cancelled": "Cancelled",
+        "none": "Not Opened"
+      },
+      "startedAt": "Starts: {value}",
+      "expiresAt": "Valid Until: {value}",
+      "latestPaidAt": "Latest Recharge: {value}"
+    },
+    "requests": {
+      "empty": "No applications yet",
+      "unknownRequester": "Requester not provided",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "actions": {
+        "approve": "Confirm Payment",
+        "reject": "Reject"
+      }
+    },
+    "history": {
+      "empty": "No recharge or adjustment records yet",
+      "latestRecharge": "Latest Recharge",
+      "latestAdjustment": "Latest Adjustment"
+    },
+    "adjustments": {
+      "action": {
+        "set_expires_at": "Change Validity",
+        "cancel": "Cancel Member"
+      }
+    },
+    "operationRecords": {
+      "eyebrow": "VIP Records",
+      "title": "Operation Records",
+      "description": "Every VIP opening, renewal, and adjustment is recorded here by time.",
+      "emptyTitle": "No VIP operation records yet",
+      "emptyDescription": "Records will appear here after a customer is opened or renewed.",
+      "actorFallback": "Handler not recorded",
+      "columns": {
+        "customer": "Customer",
+        "action": "Record",
+        "time": "Time",
+        "actor": "Handler"
+      },
+    "types": {
+      "open": "Open VIP",
+      "renew": "Renew One Year",
+      "set_expires_at": "Change Validity",
+      "cancel": "Cancel Member"
+    },
+    "expiresChange": "Validity: {previous} -> {next}",
+    "annualFee": "Annual fee: {amount}"
+  },
+    "actions": {
+      "open": "Open VIP",
+      "request": "Submit Request",
+      "renew": "Submit Renewal",
+      "directRenew": "Renew One Year",
+      "viewRecords": "View Records",
+      "viewCustomerRecords": "View opening and renewal records for {name}",
+      "pending": "Waiting",
+      "adjust": "Adjust Time"
+    },
+    "dialogs": {
+      "cancel": "Cancel",
+      "noteLabel": "Note",
+      "request": {
+        "title": "Submit VIP Request",
+        "description": "Submit a VIP opening or renewal request for {name}. It takes effect after an administrator confirms payment.",
+        "notePlaceholder": "Add payment details or follow-up notes",
+        "submit": "Submit Request"
+      },
+      "review": {
+        "approveTitle": "Confirm Payment",
+        "rejectTitle": "Reject Request",
+        "approveDescription": "After confirming payment for {name}, a VIP recharge record will be created and the validity period will update.",
+        "rejectDescription": "After rejecting {name}'s request, this application will not take effect.",
+        "noteLabel": "Handling Note",
+        "notePlaceholder": "Add a handling note",
+        "approveSubmit": "Confirm Payment",
+        "rejectSubmit": "Reject Request"
+      },
+      "adjust": {
+        "title": "Adjust VIP Time",
+        "description": "Change {name}'s VIP validity period or cancel membership, and keep a handling record.",
+        "actionLabel": "Handling Type",
+        "setExpiresAt": "Set a specific time",
+        "cancelVip": "Cancel member",
+        "dateLabel": "New Validity",
+        "notePlaceholder": "Add the reason for this change",
+        "submit": "Save Change"
+      },
+      "wholesale": {
+        "openTitle": "Confirm VIP Opening",
+        "renewTitle": "Confirm VIP Renewal",
+      "openDescription": "After confirmation, wholesale VIP will be opened for {name}.",
+      "renewDescription": "After confirmation, wholesale VIP will be renewed for {name}.",
+      "openRule": "Opening starts from today and expires one year later.",
+      "renewRule": "Renewal adds one year after the current end time.",
+      "annualFee": "Annual fee: 200 USD",
+      "commissionRule": "This action does not create a VIP commission for sales.",
+      "openSubmit": "Confirm Opening",
+      "renewSubmit": "Confirm Renewal",
+        "recordsTitle": "Opening and Renewal Records",
+        "recordsDescription": "All opening and renewal records for {name}.",
+        "recordsEmptyTitle": "No opening or renewal records yet",
+        "recordsEmptyDescription": "Records will appear here after this customer is opened or renewed."
+      }
+    },
+    "feedback": {
+      "requested": "VIP request submitted. It is waiting for administrator payment confirmation.",
+      "approved": "Payment confirmed and VIP record updated.",
+      "rejected": "Request rejected.",
+      "adjusted": "VIP time updated.",
+      "wholesaleOpened": "VIP opened.",
+      "wholesaleRenewed": "VIP renewed."
+    },
+    "errors": {
+      "forbidden": "This account cannot handle this VIP action.",
+      "invalidInput": "Check the entered details and submit again.",
+      "notFound": "The matching customer or VIP record was not found.",
+      "processed": "This request has already been handled.",
+      "serviceUnavailable": "The service is temporarily unavailable. Please try again later.",
+      "unknown": "The action did not go through. Please try again later."
+    },
+    "fallback": {
+      "noRecord": "No record yet"
     }
   },
   "DashboardHome": {
@@ -1044,22 +1250,27 @@
   },
   "SystemSettings": {
     "metadata": {
-      "title": "System Settings"
+      "title": "Exchange Rate Settings"
     },
     "header": {
-      "badge": "System Settings",
-      "title": "System Settings",
-      "description": "Manage tourism business rules, wholesale business rules, and exchange rate rules from one place. Business pages focus on daily work and records."
+      "badge": "Exchange Rate Settings",
+      "title": "Exchange Rate Settings",
+      "description": "Manage currency rates, automatic fetching, and history here. Tourism settings and wholesale settings are kept inside their own business areas."
+    },
+    "businessHeader": {
+      "badge": "Business Settings",
+      "title": "Business Settings",
+      "description": "Manage prices, commission, and related rules inside the current business."
     },
     "tabs": {
       "tourism": {
         "title": "Tourism Settings",
         "description": "Tourism orders, service prices, discounts, and tourism commission"
       },
-      "wholesale": {
-        "title": "Wholesale Settings",
-        "description": "Wholesale order sales commission and referral commission"
-      },
+    "wholesale": {
+      "title": "Wholesale Settings",
+      "description": "Wholesale sales incentives and customer referral commission"
+    },
       "exchangeRates": {
         "title": "Exchange Rate Settings",
         "description": "Currency rates, automatic fetch, and history"
@@ -1368,7 +1579,7 @@
     },
     "errors": {
       "duplicateOrderNumber": "Order number generation conflicted. Please try again later.",
-      "exchangeRateMissing": "The selected currency does not have an exchange rate yet. Add it in System Settings first.",
+      "exchangeRateMissing": "The selected currency does not have an exchange rate yet. Add it in Exchange Rate Settings first.",
       "invalidForeignKeys": "Select a valid order owner, customer, order type, and matching purchase or service options.",
       "cannotCreate": "You do not have permission to create this order.",
       "cannotUpdate": "You do not have permission to update this order.",
@@ -1913,45 +2124,58 @@
         "missing": "Not available"
       },
       "fields": {
-        "tier1Rate": "First Rate",
-        "tier1Limit": "First Amount",
-        "tier2Rate": "Extra Rate",
-        "rate": "Rate",
-        "bonusUsd": "Reward Amount"
-      },
+      "tier1Rate": "First Rate",
+      "tier1Limit": "First Amount",
+      "tier2Rate": "Extra Rate",
+      "tier1Count": "First Count",
+      "tier1BonusUsd": "First Reward",
+      "tier2Count": "Second Count",
+      "tier2BonusUsd": "Second Reward",
+      "tier3Count": "Third Count",
+      "tier3BonusUsd": "Third Reward",
+      "rate": "Rate",
+      "bonusUsd": "Reward Amount"
+    },
       "rules": {
         "purchaseSalesmanTier": "Purchase Order Sales Commission",
         "purchaseReferral": "Purchase Order Referral Commission",
         "serviceEscortSalesman": "Escort Service Sales Commission",
-        "digitalSurvivalSalesman": "Digital Survival Sales Commission",
-        "serviceReferral": "Service Order Referral Commission",
-        "vipFirstYearReferralBonus": "VIP First-Year Referral Reward"
-      },
+      "digitalSurvivalSalesman": "Digital Survival Sales Commission",
+      "serviceReferral": "Service Order Referral Commission",
+      "vipFirstYearReferralBonus": "VIP First-Year Referral Reward",
+      "wholesaleReferralOrderAmount": "Wholesale Monthly Order Referral",
+      "wholesaleReferralWaybillBonus": "Wholesale Monthly Waybill Reward"
+    },
       "ruleDescriptions": {
         "purchaseSalesmanTier": "Created for the salesperson who entered a completed purchase order.",
         "purchaseReferral": "Created for the referrer when a referred customer completes a purchase order.",
         "serviceEscortSalesman": "Applies to tour escort orders and medical escort orders. Created for the salesperson after the order is completed.",
-        "digitalSurvivalSalesman": "Created for the salesperson after a digital survival service is completed.",
-        "serviceReferral": "Created for the referrer when a referred customer completes a service order.",
-        "vipFirstYearReferralBonus": "Created for the referrer when a referred customer opens the matching VIP for the first time."
-      },
+      "digitalSurvivalSalesman": "Created for the salesperson after a digital survival service is completed.",
+      "serviceReferral": "Created for the referrer when a referred customer completes a service order.",
+      "vipFirstYearReferralBonus": "Created for the referrer when a referred customer opens the matching VIP for the first time.",
+      "wholesaleReferralOrderAmount": "Calculated from each referred wholesale customer's monthly order amount.",
+      "wholesaleReferralWaybillBonus": "Adds a reward from each referred wholesale customer's monthly waybill count."
+    },
       "calculations": {
         "purchaseSalesmanTier": "Commission = min(purchase order RMB amount, {tier1Limit}) × {tier1Rate} + max(purchase order RMB amount - {tier1Limit}, 0) × {tier2Rate}",
         "purchaseReferral": "Commission = purchase order RMB amount × {rate}",
         "serviceEscortSalesman": "Commission = cost amount + (service order RMB amount - cost amount) × {rate}",
-        "digitalSurvivalSalesman": "Commission = max(service order RMB amount - cost amount, 0) × {rate}",
-        "serviceReferral": "Commission = service order RMB amount × {rate}",
-        "vipFirstYearReferralBonus": "Commission = {bonusUsd} × order transaction rate"
-      },
+      "digitalSurvivalSalesman": "Commission = max(service order RMB amount - cost amount, 0) × {rate}",
+      "serviceReferral": "Commission = service order RMB amount × {rate}",
+      "vipFirstYearReferralBonus": "Commission = {bonusUsd} × order transaction rate",
+      "wholesaleReferralOrderAmount": "Commission = monthly order RMB amount × {rate}",
+      "wholesaleReferralWaybillBonus": "More than {tier1Count} waybills adds {tier1BonusUsd}; more than {tier2Count} adds {tier2BonusUsd}; more than {tier3Count} adds {tier3BonusUsd}"
+    },
       "actions": {
         "edit": "Edit",
         "save": "Save",
         "cancel": "Cancel"
       },
-      "validation": {
-        "rate": "Enter a rate between 0 and 100.",
-        "amount": "Enter an amount greater than 0."
-      },
+    "validation": {
+      "rate": "Enter a rate between 0 and 100.",
+      "amount": "Enter an amount greater than 0.",
+      "count": "Enter a whole number greater than 0."
+    },
       "feedback": {
         "updateSuccess": "Commission rules have been updated."
       },
@@ -2783,9 +3007,7 @@
       "noTeam": "No team"
     },
     "feedback": {
-      "saved": "Account information saved. The person will see the updated role, status, and details after the next sign-in or page refresh.",
-      "vipApproved": "VIP request approved and the VIP recharge order has been created.",
-      "vipRejected": "VIP request rejected."
+      "saved": "Account information saved. The person will see the updated role, status, and details after the next sign-in or page refresh."
     },
     "errors": {
       "forbidden": "The current account cannot adjust people accounts.",
@@ -2795,18 +3017,7 @@
       "notFound": "The person account could not be found.",
       "selfChange": "You cannot adjust your own account information here.",
       "serviceUnavailable": "The account adjustment could not be saved. Please try again later.",
-      "unknown": "The account adjustment could not be saved. Please try again later.",
-      "processed": "This VIP request has already been handled."
-    },
-    "vip": {
-      "retail": "Retail/Service VIP",
-      "wholesale": "Disabled",
-      "activeUntil": "Valid until {value}",
-      "inactive": "Not active",
-      "pendingRequest": "{value} pending",
-      "requestedAt": "Submitted: {value}",
-      "approve": "Approve",
-      "reject": "Reject"
+      "unknown": "The account adjustment could not be saved. Please try again later."
     }
   },
   "SalesmanPeople": {
@@ -2845,8 +3056,7 @@
         "city": "City",
         "currentType": "Customer Mark",
         "markedAt": "Marked At",
-        "actions": "Actions",
-        "vip": "VIP Status"
+        "actions": "Actions"
       },
       "currentType": "Current: {value}"
     },
@@ -2875,8 +3085,7 @@
       "unmarked": "Unmarked"
     },
     "feedback": {
-      "saved": "Customer mark saved.",
-      "vipRequested": "VIP request submitted. It will take effect after admin payment confirmation."
+      "saved": "Customer mark saved."
     },
     "errors": {
       "forbidden": "The current account cannot mark customers.",
@@ -2884,15 +3093,6 @@
       "notFound": "The customer could not be found.",
       "serviceUnavailable": "The customer mark could not be saved. Please try again later.",
       "unknown": "The customer mark could not be saved. Please try again later."
-    },
-    "vip": {
-      "retail": "Retail/Service VIP",
-      "wholesale": "Disabled",
-      "activeUntil": "Valid until {value}",
-      "inactive": "Not active",
-      "open": "Request",
-      "renew": "Renew",
-      "pending": "Pending"
     }
   },
   "TeamManagement": {

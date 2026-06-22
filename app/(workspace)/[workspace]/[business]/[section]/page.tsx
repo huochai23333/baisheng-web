@@ -6,6 +6,8 @@ import { getTranslations } from "next-intl/server";
 
 import { AdminSectionPlaceholder } from "@/components/dashboard/admin-section-placeholder";
 import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
+import { getBusinessVipPageData } from "@/lib/business-vip-management";
+import { getBusinessSettingsPageData } from "@/lib/business-settings";
 import {
   getAdminOrdersPageData,
   parseAdminOrdersSearchParams,
@@ -124,6 +126,20 @@ const TeamManagementClient = dynamic(
   () =>
     import("@/components/dashboard/team-management/team-management-client").then(
       (mod) => mod.TeamManagementClient,
+    ),
+);
+
+const BusinessVipClient = dynamic(
+  () =>
+    import("@/components/dashboard/business-vip/business-vip-client").then(
+      (mod) => mod.BusinessVipClient,
+    ),
+);
+
+const BusinessSettingsClient = dynamic(
+  () =>
+    import("@/components/dashboard/business-settings/business-settings-client").then(
+      (mod) => mod.BusinessSettingsClient,
     ),
 );
 
@@ -246,6 +262,18 @@ export default async function WorkspaceSectionPage({
     const supabase = await getServerSupabaseClient();
     const initialData = await getTeamManagementPageData(supabase);
     content = <TeamManagementClient initialData={initialData} />;
+  } else if (section === "vip" && config.pageVariants.vip) {
+    const supabase = await getServerSupabaseClient();
+    const initialData = await getBusinessVipPageData(
+      supabase,
+      "tourism",
+      config.pageVariants.vip,
+    );
+    content = <BusinessVipClient initialData={initialData} />;
+  } else if (section === "settings" && config.pageVariants.settings) {
+    const supabase = await getServerSupabaseClient();
+    const initialData = await getBusinessSettingsPageData(supabase, "tourism");
+    content = <BusinessSettingsClient initialData={initialData} />;
   }
 
   if (!content) {

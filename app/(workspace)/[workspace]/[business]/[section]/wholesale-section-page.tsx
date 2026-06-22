@@ -2,6 +2,8 @@ import { forbidden, notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 
 import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
+import { getBusinessVipPageData } from "@/lib/business-vip-management";
+import { getBusinessSettingsPageData } from "@/lib/business-settings";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import { getWholesalePageData } from "@/lib/wholesale";
 import {
@@ -14,6 +16,20 @@ const WholesaleClient = dynamic(
   () =>
     import("@/components/dashboard/wholesale/wholesale-client").then(
       (mod) => mod.WholesaleClient,
+    ),
+);
+
+const BusinessVipClient = dynamic(
+  () =>
+    import("@/components/dashboard/business-vip/business-vip-client").then(
+      (mod) => mod.BusinessVipClient,
+    ),
+);
+
+const BusinessSettingsClient = dynamic(
+  () =>
+    import("@/components/dashboard/business-settings/business-settings-client").then(
+      (mod) => mod.BusinessSettingsClient,
     ),
 );
 
@@ -32,6 +48,39 @@ export async function renderWholesaleSectionPage(
   }
 
   const supabase = await getServerSupabaseClient();
+
+  if (wholesaleSection === "vip") {
+    const initialData = await getBusinessVipPageData(
+      supabase,
+      "wholesale",
+      config.routeSegment === "admin" ? "admin" : "salesman",
+    );
+
+    return (
+      <ScopedIntlProvider namespaces={["BusinessVip", "DashboardShared"]}>
+        <BusinessVipClient initialData={initialData} />
+      </ScopedIntlProvider>
+    );
+  }
+
+  if (wholesaleSection === "settings") {
+    const initialData = await getBusinessSettingsPageData(supabase, "wholesale");
+
+    return (
+      <ScopedIntlProvider
+        namespaces={[
+          "Commission",
+          "DashboardShared",
+          "Orders",
+          "OrdersUI",
+          "SystemSettings",
+        ]}
+      >
+        <BusinessSettingsClient initialData={initialData} />
+      </ScopedIntlProvider>
+    );
+  }
+
   const initialData = await getWholesalePageData(supabase, wholesaleSection);
 
   return (

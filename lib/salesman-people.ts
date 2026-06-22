@@ -11,12 +11,6 @@ import {
 import { isSalesStaffRole } from "./sales-staff-roles";
 import { getCurrentSessionContext, type UserStatus } from "./user-self-service";
 import { normalizeOptionalString } from "./value-normalizers";
-import {
-  normalizeVipMembershipSummary,
-  normalizeVipRechargeRequests,
-  type VipMembershipSummary,
-  type VipRechargeRequestSummary,
-} from "./vip-memberships";
 
 export const SALESMAN_CUSTOMER_TYPE_OPTIONS = ["retail"] as const;
 
@@ -34,9 +28,6 @@ export type SalesmanCustomerRow = {
   marked_at: string | null;
   created_at: string;
   private_note: string | null;
-  pending_vip_requests: VipRechargeRequestSummary[];
-  retail_vip: VipMembershipSummary;
-  wholesale_vip: VipMembershipSummary;
 };
 
 export type SalesmanPeoplePageData = {
@@ -170,11 +161,6 @@ export function normalizeSalesmanCustomerRow(
     marked_at: normalizeOptionalString(value.marked_at),
     created_at: createdAt,
     private_note: normalizeOptionalString(value.private_note),
-    pending_vip_requests: normalizeVipRechargeRequests(
-      value.pending_vip_requests,
-    ),
-    retail_vip: normalizeVipMembershipSummary(value.retail_vip),
-    wholesale_vip: normalizeVipMembershipSummary(value.wholesale_vip),
   };
 }
 

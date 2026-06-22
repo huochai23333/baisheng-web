@@ -1,14 +1,9 @@
 "use client";
 
-import { LoaderCircle, PencilLine, Save, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import type {
-  OrderDiscountTypeOption,
-  ServiceOrderPriceOption,
-} from "@/lib/admin-orders";
+import type { ServiceOrderPriceOption } from "@/lib/admin-orders";
 import type { Locale } from "@/lib/locale";
-import { Button } from "@/components/ui/button";
 import {
   DashboardTableFrame,
   dashboardFilterInputClassName,
@@ -16,20 +11,16 @@ import {
 
 import type { OrdersUiCopy } from "./admin-orders-copy";
 import {
-  formatDiscountRatioValue,
   formatMoneyValue,
   formatServiceOrderSubtype,
 } from "./admin-orders-utils";
-
-export type ServiceOrderSettingsEditingTarget =
-  | { kind: "discount"; id: string }
-  | { kind: "price"; id: string }
-  | null;
-
-export type ServiceOrderPriceDraft = {
-  amountUsd: string;
-  costAmountRmb: string;
-};
+import {
+  ServiceOrderActionButtons,
+  ServiceOrderHeaderCell as HeaderCell,
+  ServiceOrderMobileField as MobileField,
+  type ServiceOrderPriceDraft,
+  type ServiceOrderSettingsEditingTarget,
+} from "./admin-orders-service-order-settings-shared";
 
 export function ServiceOrderPricesTable({
   editingTarget,
@@ -59,35 +50,33 @@ export function ServiceOrderPricesTable({
   const t = useTranslations("Orders");
 
   return (
-    <DashboardTableFrame>
-      <table className="w-full min-w-[920px] table-fixed border-collapse">
-        <thead className="bg-[#f7f5f2]">
-          <tr className="border-b border-[#efebe5]">
-            <HeaderCell className="w-[24%]">{t("settings.serviceOrders.table.service")}</HeaderCell>
-            <HeaderCell className="w-[20%]">{t("settings.serviceOrders.table.option")}</HeaderCell>
-            <HeaderCell className="w-[18%]">{t("settings.serviceOrders.table.price")}</HeaderCell>
-            <HeaderCell className="w-[18%]">{t("settings.serviceOrders.table.cost")}</HeaderCell>
-            <HeaderCell className="w-[20%] text-right">{t("settings.serviceOrders.table.actions")}</HeaderCell>
-          </tr>
-        </thead>
-        <tbody>
-          {prices.map((row) => {
-            const isEditing =
-              editingTarget?.kind === "price" && editingTarget.id === row.id;
-            const isSaving = pendingAction === `price:${row.id}`;
+    <>
+      {/* 移动端用卡片展示服务价格，避免价格、成本和操作列被截断。 */}
+      <div className="grid gap-3 md:hidden">
+        {prices.map((row) => {
+          const isEditing =
+            editingTarget?.kind === "price" && editingTarget.id === row.id;
+          const isSaving = pendingAction === `price:${row.id}`;
+          const serviceLabel = formatServiceOrderSubtype(
+            serviceTypeById.get(row.service_order_type_id) ?? null,
+            orderUiCopy,
+          );
 
-            return (
-              <tr className="border-b border-[#efebe5] last:border-b-0" key={row.id}>
-                <td className="px-5 py-4 text-sm font-semibold leading-6 text-[#23313a]">
-                  {formatServiceOrderSubtype(
-                    serviceTypeById.get(row.service_order_type_id) ?? null,
-                    orderUiCopy,
-                  )}
-                </td>
-                <td className="px-5 py-4 text-sm leading-6 text-[#60707d]">
-                  {row.display_name}
-                </td>
-                <td className="px-5 py-4 text-sm font-semibold text-[#23313a]">
+          return (
+            <article
+              className="rounded-[18px] border border-[#ebe7e1] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.04)]"
+              key={row.id}
+            >
+              <h5 className="break-words text-sm font-semibold leading-6 text-[#23313a]">
+                {serviceLabel}
+              </h5>
+              <div className="mt-3 grid gap-3">
+                <MobileField label={t("settings.serviceOrders.table.option")}>
+                  <p className="break-words text-sm leading-6 text-[#60707d]">
+                    {row.display_name}
+                  </p>
+                </MobileField>
+                <MobileField label={t("settings.serviceOrders.table.price")}>
                   {isEditing ? (
                     <input
                       className={dashboardFilterInputClassName}
@@ -101,10 +90,12 @@ export function ServiceOrderPricesTable({
                       value={priceDraft.amountUsd}
                     />
                   ) : (
-                    `$${formatMoneyValue(row.amount_usd, locale)}`
+                    <p className="text-sm font-semibold text-[#23313a]">
+                      ${formatMoneyValue(row.amount_usd, locale)}
+                    </p>
                   )}
-                </td>
-                <td className="px-5 py-4 text-sm font-semibold text-[#23313a]">
+                </MobileField>
+                <MobileField label={t("settings.serviceOrders.table.cost")}>
                   {isEditing ? (
                     <input
                       className={dashboardFilterInputClassName}
@@ -118,10 +109,12 @@ export function ServiceOrderPricesTable({
                       value={priceDraft.costAmountRmb}
                     />
                   ) : (
-                    `¥${formatMoneyValue(row.cost_amount_rmb, locale)}`
+                    <p className="text-sm font-semibold text-[#23313a]">
+                      ¥{formatMoneyValue(row.cost_amount_rmb, locale)}
+                    </p>
                   )}
-                </td>
-                <ActionsCell
+                </MobileField>
+                <ServiceOrderActionButtons
                   isEditing={isEditing}
                   isSaving={isSaving}
                   pendingAction={pendingAction}
@@ -129,173 +122,102 @@ export function ServiceOrderPricesTable({
                   onEdit={() => onEdit(row)}
                   onSave={() => onSave(row)}
                 />
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </DashboardTableFrame>
-  );
-}
-
-export function ServiceOrderDiscountsTable({
-  discounts,
-  editValue,
-  editingTarget,
-  locale,
-  onCancel,
-  onDiscountDraftChange,
-  onEdit,
-  onSave,
-  pendingAction,
-  regularDiscountId,
-}: {
-  discounts: OrderDiscountTypeOption[];
-  editValue: string;
-  editingTarget: ServiceOrderSettingsEditingTarget;
-  locale: Locale;
-  onCancel: () => void;
-  onDiscountDraftChange: (value: string) => void;
-  onEdit: (row: OrderDiscountTypeOption) => void;
-  onSave: (row: OrderDiscountTypeOption) => void;
-  pendingAction: string | null;
-  regularDiscountId: string | null;
-}) {
-  const t = useTranslations("Orders");
-
-  return (
-    <DashboardTableFrame>
-      <table className="w-full min-w-[350px] table-fixed border-collapse sm:min-w-[560px]">
-        <thead className="bg-[#f7f5f2]">
-          <tr className="border-b border-[#efebe5]">
-            <HeaderCell className="w-[44%]">
-              {t("settings.serviceOrders.table.customerType")}
-            </HeaderCell>
-            <HeaderCell className="w-[20%]">
-              {t("settings.serviceOrders.table.discount")}
-            </HeaderCell>
-            <HeaderCell className="w-[36%] text-right">
-              {t("settings.serviceOrders.table.actions")}
-            </HeaderCell>
-          </tr>
-        </thead>
-        <tbody>
-          {discounts.map((row) => {
-            const isEditing =
-              editingTarget?.kind === "discount" && editingTarget.id === row.id;
-            const isSaving = pendingAction === `discount:${row.id}`;
-            const userTypeLabel =
-              row.id === regularDiscountId
-                ? t("settings.serviceOrders.table.regularUser")
-                : t("settings.serviceOrders.table.retailServiceVipUser");
-
-            return (
-              <tr className="border-b border-[#efebe5] last:border-b-0" key={row.id}>
-                <td className="px-4 py-4 text-sm font-semibold leading-6 text-[#23313a] sm:px-5">
-                  {userTypeLabel}
-                </td>
-                <td className="px-4 py-4 text-sm font-semibold text-[#23313a] sm:px-5">
-                  {isEditing ? (
-                    <input
-                      className={dashboardFilterInputClassName}
-                      inputMode="decimal"
-                      onChange={(event) => onDiscountDraftChange(event.target.value)}
-                      value={editValue}
-                    />
-                  ) : (
-                    formatDiscountRatioValue(row.discount_ratio, locale)
-                  )}
-                </td>
-                <ActionsCell
-                  isEditing={isEditing}
-                  isSaving={isSaving}
-                  pendingAction={pendingAction}
-                  onCancel={onCancel}
-                  onEdit={() => onEdit(row)}
-                  onSave={() => onSave(row)}
-                />
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </DashboardTableFrame>
-  );
-}
-
-export function ServiceOrderSettingsSectionTitle({
-  description,
-  title,
-}: {
-  description: string;
-  title: string;
-}) {
-  return (
-    <div className="min-w-0">
-      <h4 className="text-lg font-bold tracking-tight text-[#23313a] sm:text-xl">
-        {title}
-      </h4>
-      <p className="mt-1.5 text-sm leading-6 text-[#6f7b85] sm:leading-7">
-        {description}
-      </p>
-    </div>
-  );
-}
-
-function ActionsCell({
-  isEditing,
-  isSaving,
-  pendingAction,
-  onCancel,
-  onEdit,
-  onSave,
-}: {
-  isEditing: boolean;
-  isSaving: boolean;
-  pendingAction: string | null;
-  onCancel: () => void;
-  onEdit: () => void;
-  onSave: () => void;
-}) {
-  const t = useTranslations("Orders");
-
-  return (
-    <td className="px-4 py-4 align-top sm:px-5">
-      <div className="flex flex-wrap justify-end gap-2">
-        {isEditing ? (
-          <>
-            <Button disabled={pendingAction !== null} onClick={onSave} type="button" variant="outline">
-              {isSaving ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
-              {t("settings.serviceOrders.save")}
-            </Button>
-            <Button disabled={pendingAction !== null} onClick={onCancel} type="button" variant="outline">
-              <X className="size-4" />
-              {t("settings.serviceOrders.cancel")}
-            </Button>
-          </>
-        ) : (
-          <Button disabled={pendingAction !== null} onClick={onEdit} type="button" variant="outline">
-            <PencilLine className="size-4" />
-            {t("settings.serviceOrders.edit")}
-          </Button>
-        )}
+              </div>
+            </article>
+          );
+        })}
       </div>
-    </td>
-  );
-}
 
-function HeaderCell({
-  children,
-  className = "",
-}: {
-  children: string;
-  className?: string;
-}) {
-  return (
-    <th
-      className={`px-4 py-4 text-left font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase sm:px-5 ${className}`}
-    >
-      {children}
-    </th>
+      <div className="hidden md:block">
+        <DashboardTableFrame>
+          <table className="w-full min-w-[920px] table-fixed border-collapse">
+            <thead className="bg-[#f7f5f2]">
+              <tr className="border-b border-[#efebe5]">
+                <HeaderCell className="w-[24%]">
+                  {t("settings.serviceOrders.table.service")}
+                </HeaderCell>
+                <HeaderCell className="w-[20%]">
+                  {t("settings.serviceOrders.table.option")}
+                </HeaderCell>
+                <HeaderCell className="w-[18%]">
+                  {t("settings.serviceOrders.table.price")}
+                </HeaderCell>
+                <HeaderCell className="w-[18%]">
+                  {t("settings.serviceOrders.table.cost")}
+                </HeaderCell>
+                <HeaderCell className="w-[20%] text-right">
+                  {t("settings.serviceOrders.table.actions")}
+                </HeaderCell>
+              </tr>
+            </thead>
+            <tbody>
+              {prices.map((row) => {
+                const isEditing =
+                  editingTarget?.kind === "price" && editingTarget.id === row.id;
+                const isSaving = pendingAction === `price:${row.id}`;
+
+                return (
+                  <tr className="border-b border-[#efebe5] last:border-b-0" key={row.id}>
+                    <td className="px-5 py-4 text-sm font-semibold leading-6 text-[#23313a]">
+                      {formatServiceOrderSubtype(
+                        serviceTypeById.get(row.service_order_type_id) ?? null,
+                        orderUiCopy,
+                      )}
+                    </td>
+                    <td className="px-5 py-4 text-sm leading-6 text-[#60707d]">
+                      {row.display_name}
+                    </td>
+                    <td className="px-5 py-4 text-sm font-semibold text-[#23313a]">
+                      {isEditing ? (
+                        <input
+                          className={dashboardFilterInputClassName}
+                          inputMode="decimal"
+                          onChange={(event) =>
+                            onPriceDraftChange({
+                              ...priceDraft,
+                              amountUsd: event.target.value,
+                            })
+                          }
+                          value={priceDraft.amountUsd}
+                        />
+                      ) : (
+                        `$${formatMoneyValue(row.amount_usd, locale)}`
+                      )}
+                    </td>
+                    <td className="px-5 py-4 text-sm font-semibold text-[#23313a]">
+                      {isEditing ? (
+                        <input
+                          className={dashboardFilterInputClassName}
+                          inputMode="decimal"
+                          onChange={(event) =>
+                            onPriceDraftChange({
+                              ...priceDraft,
+                              costAmountRmb: event.target.value,
+                            })
+                          }
+                          value={priceDraft.costAmountRmb}
+                        />
+                      ) : (
+                        `¥${formatMoneyValue(row.cost_amount_rmb, locale)}`
+                      )}
+                    </td>
+                    <td className="px-4 py-4 align-top sm:px-5">
+                      <ServiceOrderActionButtons
+                        isEditing={isEditing}
+                        isSaving={isSaving}
+                        pendingAction={pendingAction}
+                        onCancel={onCancel}
+                        onEdit={() => onEdit(row)}
+                        onSave={() => onSave(row)}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </DashboardTableFrame>
+      </div>
+    </>
   );
 }

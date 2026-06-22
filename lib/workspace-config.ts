@@ -66,7 +66,7 @@ const adminGlobalNavItems = [
   { segment: "accounts", labelKey: "accounts" },
   { segment: "announcements", labelKey: "announcements" },
   { segment: "feedback", labelKey: "feedback" },
-  { segment: "settings", labelKey: "settings" },
+  { segment: "settings", labelKey: "exchangeRates" },
 ] as const satisfies readonly WorkspaceNavItem[];
 
 function createWorkspaceRouteConfig({
@@ -252,10 +252,6 @@ export function getWorkspaceBusinessNavHref(
     typeof configOrSegment === "string"
       ? WORKSPACE_ROUTE_CONFIG_BY_SEGMENT[configOrSegment]
       : configOrSegment;
-
-  if (isWorkspaceGlobalNavSegment(segment)) {
-    return `${config.basePath}/${segment}`;
-  }
 
   return `${config.basePath}/${business}/${segment}`;
 }

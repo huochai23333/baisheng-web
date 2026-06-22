@@ -3,7 +3,7 @@ import type {
   CommissionRuleConfig,
 } from "@/lib/commission-settings";
 
-export type CommissionRuleFieldKind = "amountRmb" | "amountUsd" | "rate";
+export type CommissionRuleFieldKind = "amountRmb" | "amountUsd" | "count" | "rate";
 
 export type CommissionRuleField = {
   configKey: string;
@@ -120,6 +120,59 @@ export const COMMISSION_RULE_DEFINITIONS: CommissionRuleDefinition[] = [
     group: "referral",
     labelKey: "settings.rules.vipFirstYearReferralBonus",
   },
+  {
+    calculationKey: "settings.calculations.wholesaleReferralOrderAmount",
+    code: "wholesale_referral_order_amount_rate",
+    descriptionKey: "settings.ruleDescriptions.wholesaleReferralOrderAmount",
+    fields: [
+      {
+        configKey: "rate",
+        kind: "rate",
+        labelKey: "settings.fields.rate",
+      },
+    ],
+    group: "referral",
+    labelKey: "settings.rules.wholesaleReferralOrderAmount",
+  },
+  {
+    calculationKey: "settings.calculations.wholesaleReferralWaybillBonus",
+    code: "wholesale_referral_waybill_bonus",
+    descriptionKey: "settings.ruleDescriptions.wholesaleReferralWaybillBonus",
+    fields: [
+      {
+        configKey: "tier_1_threshold",
+        kind: "count",
+        labelKey: "settings.fields.tier1Count",
+      },
+      {
+        configKey: "tier_1_bonus_usd",
+        kind: "amountUsd",
+        labelKey: "settings.fields.tier1BonusUsd",
+      },
+      {
+        configKey: "tier_2_threshold",
+        kind: "count",
+        labelKey: "settings.fields.tier2Count",
+      },
+      {
+        configKey: "tier_2_bonus_usd",
+        kind: "amountUsd",
+        labelKey: "settings.fields.tier2BonusUsd",
+      },
+      {
+        configKey: "tier_3_threshold",
+        kind: "count",
+        labelKey: "settings.fields.tier3Count",
+      },
+      {
+        configKey: "tier_3_bonus_usd",
+        kind: "amountUsd",
+        labelKey: "settings.fields.tier3BonusUsd",
+      },
+    ],
+    group: "referral",
+    labelKey: "settings.rules.wholesaleReferralWaybillBonus",
+  },
 ];
 
 export function formatCommissionSettingValue(
@@ -131,6 +184,12 @@ export function formatCommissionSettingValue(
     return new Intl.NumberFormat(locale, {
       maximumFractionDigits: 2,
       style: "percent",
+    }).format(value);
+  }
+
+  if (kind === "count") {
+    return new Intl.NumberFormat(locale, {
+      maximumFractionDigits: 0,
     }).format(value);
   }
 
@@ -175,12 +234,22 @@ export function formatCommissionCalculationFormula(
     case "service_escort_salesman":
     case "digital_survival_salesman":
     case "service_referral_rate":
+    case "wholesale_referral_order_amount_rate":
       return t(definition.calculationKey, {
         rate: formattedValue("rate", "rate"),
       });
     case "vip_first_year_referral_bonus":
       return t(definition.calculationKey, {
         bonusUsd: formattedValue("bonus_usd", "amountUsd"),
+      });
+    case "wholesale_referral_waybill_bonus":
+      return t(definition.calculationKey, {
+        tier1BonusUsd: formattedValue("tier_1_bonus_usd", "amountUsd"),
+        tier1Count: formattedValue("tier_1_threshold", "count"),
+        tier2BonusUsd: formattedValue("tier_2_bonus_usd", "amountUsd"),
+        tier2Count: formattedValue("tier_2_threshold", "count"),
+        tier3BonusUsd: formattedValue("tier_3_bonus_usd", "amountUsd"),
+        tier3Count: formattedValue("tier_3_threshold", "count"),
       });
     default:
       return t(definition.calculationKey);
@@ -198,7 +267,7 @@ export function formatCommissionSettingInput(
   const normalized = kind === "rate" ? value * 100 : value;
 
   return new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: kind === "rate" ? 4 : 2,
+    maximumFractionDigits: kind === "count" ? 0 : kind === "rate" ? 4 : 2,
     useGrouping: false,
   }).format(normalized);
 }

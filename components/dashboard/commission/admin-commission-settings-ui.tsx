@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { LoaderCircle, PencilLine, Save, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -52,41 +54,28 @@ export function CommissionSettingsRulesTable({
   const t = useTranslations("Commission");
 
   return (
-    <DashboardTableFrame>
-      <table className="w-full min-w-[980px] table-fixed border-collapse">
-        <thead className="bg-[#f7f5f2]">
-          <tr className="border-b border-[#efebe5]">
-            <HeaderCell className="w-[28%]">{t("settings.table.rule")}</HeaderCell>
-            <HeaderCell className="w-[24%]">{t("settings.table.value")}</HeaderCell>
-            <HeaderCell className="w-[30%]">
-              {t("settings.table.calculation")}
-            </HeaderCell>
-            {canManageSettings ? (
-              <HeaderCell className="w-[18%] text-right">
-                {t("settings.table.actions")}
-              </HeaderCell>
-            ) : null}
-          </tr>
-        </thead>
-        <tbody>
-          {visibleRules.map(({ definition, row }) => {
-            const isEditing = editingRule === definition.code;
-            const isSaving = pendingRule === definition.code;
+    <>
+      {/* 移动端用卡片承载每条佣金规则，避免设置表格横向滑动。 */}
+      <div className="grid gap-3 md:hidden">
+        {visibleRules.map(({ definition, row }) => {
+          const isEditing = editingRule === definition.code;
+          const isSaving = pendingRule === definition.code;
 
-            return (
-              <tr
-                className="border-b border-[#efebe5] align-top last:border-b-0"
-                key={definition.code}
-              >
-                <td className="px-5 py-4">
-                  <div className="text-sm font-semibold leading-6 text-[#23313a]">
-                    {t(definition.labelKey)}
-                  </div>
-                  <p className="mt-1 text-xs leading-5 text-[#6f7b85]">
-                    {t(definition.descriptionKey)}
-                  </p>
-                </td>
-                <td className="px-5 py-4">
+          return (
+            <article
+              className="rounded-[18px] border border-[#ebe7e1] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.04)]"
+              key={definition.code}
+            >
+              <div className="min-w-0">
+                <h4 className="break-words text-sm font-semibold leading-6 text-[#23313a]">
+                  {t(definition.labelKey)}
+                </h4>
+                <p className="mt-1 break-words text-xs leading-5 text-[#6f7b85]">
+                  {t(definition.descriptionKey)}
+                </p>
+              </div>
+              <div className="mt-4 grid gap-3">
+                <MobileField label={t("settings.table.value")}>
                   {row ? (
                     isEditing ? (
                       <RuleDraftInputs
@@ -106,19 +95,21 @@ export function CommissionSettingsRulesTable({
                       {t("settings.table.missing")}
                     </span>
                   )}
-                </td>
-                <td className="px-5 py-4 text-sm leading-6 text-[#60707d]">
-                  {row
-                    ? formatCommissionCalculationFormula(
-                        definition,
-                        row.config,
-                        locale,
-                        t,
-                      )
-                    : t("settings.table.missing")}
-                </td>
+                </MobileField>
+                <MobileField label={t("settings.table.calculation")}>
+                  <p className="break-words text-sm leading-6 text-[#60707d] [overflow-wrap:anywhere]">
+                    {row
+                      ? formatCommissionCalculationFormula(
+                          definition,
+                          row.config,
+                          locale,
+                          t,
+                        )
+                      : t("settings.table.missing")}
+                  </p>
+                </MobileField>
                 {canManageSettings ? (
-                  <ActionsCell
+                  <RuleActionButtons
                     isEditing={isEditing}
                     isSaving={isSaving}
                     pendingRule={pendingRule}
@@ -128,12 +119,97 @@ export function CommissionSettingsRulesTable({
                     onSave={() => onSave(definition)}
                   />
                 ) : null}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="hidden md:block">
+        <DashboardTableFrame>
+          <table className="w-full min-w-[980px] table-fixed border-collapse">
+            <thead className="bg-[#f7f5f2]">
+              <tr className="border-b border-[#efebe5]">
+                <HeaderCell className="w-[28%]">{t("settings.table.rule")}</HeaderCell>
+                <HeaderCell className="w-[24%]">{t("settings.table.value")}</HeaderCell>
+                <HeaderCell className="w-[30%]">
+                  {t("settings.table.calculation")}
+                </HeaderCell>
+                {canManageSettings ? (
+                  <HeaderCell className="w-[18%] text-right">
+                    {t("settings.table.actions")}
+                  </HeaderCell>
+                ) : null}
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </DashboardTableFrame>
+            </thead>
+            <tbody>
+              {visibleRules.map(({ definition, row }) => {
+                const isEditing = editingRule === definition.code;
+                const isSaving = pendingRule === definition.code;
+
+                return (
+                  <tr
+                    className="border-b border-[#efebe5] align-top last:border-b-0"
+                    key={definition.code}
+                  >
+                    <td className="px-5 py-4">
+                      <div className="text-sm font-semibold leading-6 text-[#23313a]">
+                        {t(definition.labelKey)}
+                      </div>
+                      <p className="mt-1 text-xs leading-5 text-[#6f7b85]">
+                        {t(definition.descriptionKey)}
+                      </p>
+                    </td>
+                    <td className="px-5 py-4">
+                      {row ? (
+                        isEditing ? (
+                          <RuleDraftInputs
+                            definition={definition}
+                            draft={draft}
+                            onDraftChange={onDraftChange}
+                          />
+                        ) : (
+                          <RuleValueList
+                            definition={definition}
+                            locale={locale}
+                            row={row}
+                          />
+                        )
+                      ) : (
+                        <span className="text-sm text-[#8a949c]">
+                          {t("settings.table.missing")}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-5 py-4 text-sm leading-6 text-[#60707d]">
+                      {row
+                        ? formatCommissionCalculationFormula(
+                            definition,
+                            row.config,
+                            locale,
+                            t,
+                          )
+                        : t("settings.table.missing")}
+                    </td>
+                    {canManageSettings ? (
+                      <ActionsCell
+                        isEditing={isEditing}
+                        isSaving={isSaving}
+                        pendingRule={pendingRule}
+                        row={row}
+                        onCancel={onCancel}
+                        onEdit={() => onEdit(definition)}
+                        onSave={() => onSave(definition)}
+                      />
+                    ) : null}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </DashboardTableFrame>
+      </div>
+    </>
   );
 }
 
@@ -222,35 +298,82 @@ function ActionsCell({
   onEdit: () => void;
   onSave: () => void;
 }) {
+  return (
+    <td className="px-5 py-4">
+      <RuleActionButtons
+        isEditing={isEditing}
+        isSaving={isSaving}
+        pendingRule={pendingRule}
+        row={row}
+        onCancel={onCancel}
+        onEdit={onEdit}
+        onSave={onSave}
+      />
+    </td>
+  );
+}
+
+function RuleActionButtons({
+  isEditing,
+  isSaving,
+  pendingRule,
+  row,
+  onCancel,
+  onEdit,
+  onSave,
+}: {
+  isEditing: boolean;
+  isSaving: boolean;
+  pendingRule: CommissionRuleCode | null;
+  row: CommissionRuleSetting | null;
+  onCancel: () => void;
+  onEdit: () => void;
+  onSave: () => void;
+}) {
   const t = useTranslations("Commission");
 
   return (
-    <td className="px-5 py-4">
-      <div className="flex flex-wrap justify-end gap-2">
-        {isEditing ? (
-          <>
-            <Button disabled={pendingRule !== null} onClick={onSave} type="button" variant="outline">
-              {isSaving ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
-              {t("settings.actions.save")}
-            </Button>
-            <Button disabled={pendingRule !== null} onClick={onCancel} type="button" variant="outline">
-              <X className="size-4" />
-              {t("settings.actions.cancel")}
-            </Button>
-          </>
-        ) : (
-          <Button
-            disabled={pendingRule !== null || row === null}
-            onClick={onEdit}
-            type="button"
-            variant="outline"
-          >
-            <PencilLine className="size-4" />
-            {t("settings.actions.edit")}
+    <div className="flex flex-wrap gap-2 md:justify-end">
+      {isEditing ? (
+        <>
+          <Button disabled={pendingRule !== null} onClick={onSave} type="button" variant="outline">
+            {isSaving ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
+            {t("settings.actions.save")}
           </Button>
-        )}
-      </div>
-    </td>
+          <Button disabled={pendingRule !== null} onClick={onCancel} type="button" variant="outline">
+            <X className="size-4" />
+            {t("settings.actions.cancel")}
+          </Button>
+        </>
+      ) : (
+        <Button
+          disabled={pendingRule !== null || row === null}
+          onClick={onEdit}
+          type="button"
+          variant="outline"
+        >
+          <PencilLine className="size-4" />
+          {t("settings.actions.edit")}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function MobileField({
+  children,
+  label,
+}: {
+  children: ReactNode;
+  label: string;
+}) {
+  return (
+    <div>
+      <p className="mb-1.5 font-label text-[10px] font-semibold tracking-[0.14em] text-[#7d8890] uppercase">
+        {label}
+      </p>
+      {children}
+    </div>
   );
 }
 

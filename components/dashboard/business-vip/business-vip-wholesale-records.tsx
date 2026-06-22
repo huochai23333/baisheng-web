@@ -1,0 +1,168 @@
+"use client";
+
+import { FileClock } from "lucide-react";
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
+
+import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
+import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
+import type { BusinessVipRow } from "@/lib/business-vip-management";
+import type { Locale } from "@/lib/locale";
+
+import {
+  formatBusinessVipAmount,
+  formatBusinessVipDate,
+  getBusinessVipOperationRecords,
+  type BusinessVipOperationRecord,
+} from "./business-vip-display";
+
+export function BusinessVipWholesaleRecordTable({
+  locale,
+  rows,
+}: {
+  locale: Locale;
+  rows: BusinessVipRow[];
+}) {
+  const t = useTranslations("BusinessVip");
+  const records = useMemo(() => getBusinessVipOperationRecords(rows), [rows]);
+
+  if (records.length === 0) {
+    return (
+      <EmptyState
+        description={t("operationRecords.emptyDescription")}
+        icon={<FileClock className="size-5" />}
+        title={t("operationRecords.emptyTitle")}
+      />
+    );
+  }
+
+  return (
+    <>
+      <div className="hidden lg:block">
+        <DashboardTableFrame innerClassName="overflow-x-visible">
+          <table className="w-full table-fixed text-left text-sm">
+            <colgroup>
+              <col className="w-[28%]" />
+              <col className="w-[30%]" />
+              <col className="w-[22%]" />
+              <col className="w-[20%]" />
+            </colgroup>
+            <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
+              <tr>
+                <th className="px-4 py-3">
+                  {t("operationRecords.columns.customer")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("operationRecords.columns.action")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("operationRecords.columns.time")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("operationRecords.columns.actor")}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#eee9e1]">
+              {records.map((record) => (
+                <tr className="align-top" key={record.id}>
+                  <td className="px-4 py-4">
+                    <p className="break-words font-semibold text-[#23313a] [overflow-wrap:anywhere]">
+                      {record.customerLabel}
+                    </p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <OperationRecordSummary locale={locale} record={record} />
+                  </td>
+                  <td className="px-4 py-4 text-sm text-[#53616d]">
+                    {formatBusinessVipDate(
+                      record.createdAt,
+                      locale,
+                      t("fallback.noRecord"),
+                    )}
+                  </td>
+                  <td className="px-4 py-4 text-sm text-[#53616d]">
+                    {record.actorName ?? t("operationRecords.actorFallback")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </DashboardTableFrame>
+      </div>
+
+      <div className="grid gap-3 lg:hidden">
+        {records.map((record) => (
+          <article
+            className="rounded-[18px] border border-[#ebe7e1] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]"
+            key={record.id}
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <p className="break-words font-semibold text-[#23313a] [overflow-wrap:anywhere]">
+                {record.customerLabel}
+              </p>
+              <span className="text-xs text-[#7b858d]">
+                {formatBusinessVipDate(
+                  record.createdAt,
+                  locale,
+                  t("fallback.noRecord"),
+                )}
+              </span>
+            </div>
+            <div className="mt-3">
+              <OperationRecordSummary locale={locale} record={record} />
+            </div>
+            <p className="mt-3 text-sm text-[#53616d]">
+              {record.actorName ?? t("operationRecords.actorFallback")}
+            </p>
+          </article>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function OperationRecordSummary({
+  locale,
+  record,
+}: {
+  locale: Locale;
+  record: BusinessVipOperationRecord;
+}) {
+  const t = useTranslations("BusinessVip");
+  const fallback = t("fallback.noRecord");
+
+  return (
+    <div className="min-w-0">
+      <p className="font-semibold text-[#486782]">
+        {t(`operationRecords.types.${record.kind}`)}
+      </p>
+      <p className="mt-1 break-words text-xs leading-5 text-[#6f7b85] [overflow-wrap:anywhere]">
+        {t("operationRecords.expiresChange", {
+          next: formatBusinessVipDate(record.nextExpiresAt, locale, fallback),
+          previous: formatBusinessVipDate(
+            record.previousExpiresAt,
+            locale,
+            fallback,
+          ),
+        })}
+      </p>
+      {record.amount !== null ? (
+        <p className="mt-1 break-words text-xs leading-5 text-[#6f7b85] [overflow-wrap:anywhere]">
+          {t("operationRecords.annualFee", {
+            amount: formatBusinessVipAmount(
+              record.amount,
+              record.currency,
+              fallback,
+            ),
+          })}
+        </p>
+      ) : null}
+      {record.note ? (
+        <p className="mt-1 break-words text-xs leading-5 text-[#8a949c] [overflow-wrap:anywhere]">
+          {record.note}
+        </p>
+      ) : null}
+    </div>
+  );
+}

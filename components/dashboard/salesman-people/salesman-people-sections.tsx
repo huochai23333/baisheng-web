@@ -24,7 +24,6 @@ import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { SalesmanCustomerRow } from "@/lib/salesman-people";
 import type { Locale } from "@/lib/locale";
-import type { VipMembershipScope } from "@/lib/vip-memberships";
 import { cn } from "@/lib/utils";
 
 import {
@@ -34,7 +33,6 @@ import {
   getSalesmanCustomerTypeLabel,
 } from "./salesman-people-display";
 import type { useSalesmanPeopleViewModel } from "./use-salesman-people-view-model";
-import { SalesmanPeopleVipCell } from "./salesman-people-vip-cell";
 
 type SalesmanPeopleViewModel = ReturnType<typeof useSalesmanPeopleViewModel>;
 
@@ -101,29 +99,20 @@ export function SalesmanPeopleNoPermissionSection() {
 }
 
 export function SalesmanPeopleDirectorySection({
-  businessBoards,
   customerTypeLabels,
   filteredCustomers,
   locale,
   onAdjustCustomerType,
   onEditCustomerNote,
-  onRequestVip,
   onSearchTextChange,
-  pendingVipRequestKey,
   searchText,
 }: {
-  businessBoards: SalesmanPeopleViewModel["businessBoards"];
   customerTypeLabels: SalesmanPeopleViewModel["customerTypeLabels"];
   filteredCustomers: SalesmanCustomerRow[];
   locale: Locale;
   onAdjustCustomerType: (customer: SalesmanCustomerRow) => void;
   onEditCustomerNote: (customer: SalesmanCustomerRow) => void;
-  onRequestVip: (
-    customer: SalesmanCustomerRow,
-    vipScope: VipMembershipScope,
-  ) => void;
   onSearchTextChange: (value: string) => void;
-  pendingVipRequestKey: string | null;
   searchText: string;
 }) {
   const t = useTranslations("SalesmanPeople");
@@ -157,21 +146,19 @@ export function SalesmanPeopleDirectorySection({
           />
         ) : (
           <DashboardTableFrame>
-            <table className="min-w-[1120px] table-fixed w-full text-left text-sm">
+            <table className="min-w-[960px] table-fixed w-full text-left text-sm">
               <colgroup>
-                <col className="w-[18%]" />
-                <col className="w-[17%]" />
-                <col className="w-[23%]" />
-                <col className="w-[9%]" />
-                <col className="w-[11%]" />
-                <col className="w-[10%]" />
+                <col className="w-[24%]" />
+                <col className="w-[24%]" />
                 <col className="w-[12%]" />
+                <col className="w-[15%]" />
+                <col className="w-[12%]" />
+                <col className="w-[13%]" />
               </colgroup>
               <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
                 <tr>
                   <th className="px-3 py-3">{t("directory.columns.customer")}</th>
                   <th className="px-3 py-3">{t("directory.columns.privateNote")}</th>
-                  <th className="px-3 py-3">{t("directory.columns.vip")}</th>
                   <th className="px-3 py-3">{t("directory.columns.city")}</th>
                   <th className="px-3 py-3">{t("directory.columns.currentType")}</th>
                   <th className="px-3 py-3">{t("directory.columns.markedAt")}</th>
@@ -199,15 +186,6 @@ export function SalesmanPeopleDirectorySection({
                       <p className="break-words leading-6 [overflow-wrap:anywhere]">
                         {customer.private_note ?? t("fallback.noPrivateNote")}
                       </p>
-                    </td>
-                    <td className="px-3 py-4">
-                      <SalesmanPeopleVipCell
-                        businessBoards={businessBoards}
-                        customer={customer}
-                        locale={locale}
-                        onRequestVip={onRequestVip}
-                        pendingKey={pendingVipRequestKey}
-                      />
                     </td>
                     <td className="px-3 py-4 text-[#53616d]">
                       {customer.city ?? t("fallback.notProvided")}

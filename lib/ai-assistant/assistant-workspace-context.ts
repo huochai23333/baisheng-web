@@ -28,7 +28,9 @@ const ROLE_LABELS = {
 const NAV_LABELS = {
   accounts: "账号管理",
   announcements: "公告管理",
+  businessSettings: "业务设置",
   commission: "佣金",
+  exchangeRates: "汇率设置",
   feedback: "反馈管理",
   home: "首页",
   incentives: "提成",
@@ -43,13 +45,16 @@ const NAV_LABELS = {
   settings: "系统设置",
   tasks: "任务",
   team: "团队",
+  vip: "VIP管理",
   wholesaleOrders: "批发订单",
 } as const satisfies Record<WorkspaceNavLabelKey, string>;
 
 const NAV_ENTRY_DESCRIPTIONS = {
   accounts: "管理系统登录账号、身份、状态和城市",
   announcements: "发布和管理系统公告",
+  businessSettings: "维护当前业务内的价格、佣金和相关规则",
   commission: "查看或处理订单佣金与任务奖励",
+  exchangeRates: "维护币种汇率、自动获取和历史记录",
   feedback: "管理员查看和跟进用户反馈",
   home: "查看问候、公告和当前提醒",
   incentives: "查看批发业务员提成、待结算金额和结算状态",
@@ -61,9 +66,10 @@ const NAV_ENTRY_DESCRIPTIONS = {
   records: "查看重要处理动作的留痕",
   referrals: "按当前可见业务板块查看推荐关系和邀请码线索",
   reviews: "处理资料和媒体审核",
-  settings: "集中维护旅游业务设置、批发业务设置和汇率设置",
+  settings: "维护汇率设置",
   tasks: "查看、领取、提交或管理任务",
   team: "查看当前账号可见的团队范围",
+  vip: "在对应业务内处理VIP申请、收款确认、充值记录和有效期调整",
   wholesaleOrders: "管理批发客户订单、费用、毛利、订单月份和关联 1688 采购订单",
 } as const satisfies Record<WorkspaceNavLabelKey, string>;
 
@@ -225,9 +231,10 @@ function buildPageVariantGuide(pageVariants: WorkspacePageVariants) {
   const roleNotes = [
     pageVariants.orders ? getOrdersGuide(pageVariants.orders) : null,
     pageVariants.people ? getPeopleGuide(pageVariants.people) : null,
+    pageVariants.vip ? getVipGuide(pageVariants.vip) : null,
     pageVariants.tasks ? getTasksGuide(pageVariants.tasks) : null,
     pageVariants.commission ? getCommissionGuide(pageVariants.commission) : null,
-    pageVariants.settings ? "系统设置由管理员集中维护旅游业务设置、批发业务设置和汇率设置；采购订单业务员佣金和采购订单推荐佣金归在批发业务设置里。" : null,
+    pageVariants.settings ? "业务设置在对应业务侧栏内维护；外侧设置只维护汇率。" : null,
     pageVariants.feedback ? "反馈管理只用于管理员查看和处理用户反馈。" : null,
     pageVariants.records ? "操作记录只用于管理员核对重要处理动作。" : null,
     pageVariants.reviews ? "审核中心由管理员处理资料和媒体审核。" : null,
@@ -242,7 +249,7 @@ function buildPageVariantGuide(pageVariants: WorkspacePageVariants) {
 
 function getOrdersGuide(mode: WorkspacePageVariants["orders"]) {
   if (mode === "admin") {
-    return "管理员订单页用于订单处理；旅游订单规则和汇率都在系统设置中维护。";
+    return "管理员订单页用于订单处理；旅游订单规则在旅游业务设置中维护，汇率在汇率设置中维护。";
   }
 
   if (mode === "salesman") {
@@ -258,6 +265,14 @@ function getPeopleGuide(mode: WorkspacePageVariants["people"]) {
   }
 
   return "人员入口按当前账号的业务范围展示客户管理内容。";
+}
+
+function getVipGuide(mode: WorkspacePageVariants["vip"]) {
+  if (mode === "admin") {
+    return "管理员VIP管理用于处理业务内VIP：旅游业务仍确认或拒绝申请，批发业务由管理员或业务员直接开通、续费并查看操作记录；不要再引导到账号管理里处理VIP。";
+  }
+
+  return "业务员VIP管理用于查看客户VIP状态：旅游业务提交开通或续费申请，批发业务直接开通或续费并查看操作记录。";
 }
 
 function getTasksGuide(mode: WorkspacePageVariants["tasks"]) {

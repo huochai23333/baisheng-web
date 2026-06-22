@@ -7,6 +7,8 @@ export const workspaceSectionKeys = [
   "commission",
   "tasks",
   "reviews",
+  "settings",
+  "vip",
 ] as const;
 
 export type WorkspaceSectionKey = (typeof workspaceSectionKeys)[number];

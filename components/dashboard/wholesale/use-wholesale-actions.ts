@@ -386,7 +386,7 @@ function toWholesaleActionErrorMessage(error: unknown) {
   const normalized = rawMessage.toLowerCase();
 
   if (normalized.includes("exchange rate is not ready")) {
-    return "这个币种的汇率还没有准备好，请先到系统设置的汇率设置中补充。";
+    return "这个币种的汇率还没有准备好，请先到汇率设置中补充。";
   }
 
   if (

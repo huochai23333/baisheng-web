@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import Link from "next/link";
 import {
+  BadgeCheck,
   BadgeDollarSign,
   ChevronDown,
   ClipboardCheck,
@@ -59,6 +60,7 @@ const NAV_ICONS: Record<WorkspaceNavSegment, LucideIcon> = {
   settings: Settings,
   tasks: ClipboardList,
   team: UsersRound,
+  vip: BadgeCheck,
 };
 
 export function AdminShellNav({

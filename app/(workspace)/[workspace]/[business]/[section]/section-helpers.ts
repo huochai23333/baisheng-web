@@ -22,10 +22,14 @@ export function isWorkspaceSectionEnabled(
       return config.pageVariants.referrals === true;
     case "reviews":
       return config.pageVariants.reviews === true;
+    case "settings":
+      return config.pageVariants.settings === true;
     case "tasks":
       return Boolean(config.pageVariants.tasks);
     case "team":
       return config.pageVariants.team === true;
+    case "vip":
+      return Boolean(config.pageVariants.vip);
   }
 }
 
@@ -88,6 +92,14 @@ export function getSectionNamespaces(
 
   if (section === "team" && config.pageVariants.team) {
     namespaces.push("TeamManagement");
+  }
+
+  if (section === "vip" && config.pageVariants.vip) {
+    namespaces.push("BusinessVip", "DashboardShared");
+  }
+
+  if (section === "settings" && config.pageVariants.settings) {
+    namespaces.push("Commission", "DashboardShared", "Orders", "OrdersUI", "SystemSettings");
   }
 
   return namespaces;

@@ -11,6 +11,8 @@ export const COMMISSION_RULE_CODES = [
   "digital_survival_salesman",
   "service_referral_rate",
   "vip_first_year_referral_bonus",
+  "wholesale_referral_order_amount_rate",
+  "wholesale_referral_waybill_bonus",
 ] as const;
 
 export type CommissionRuleCode = (typeof COMMISSION_RULE_CODES)[number];
