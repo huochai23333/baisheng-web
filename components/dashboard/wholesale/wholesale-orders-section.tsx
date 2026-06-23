@@ -3,8 +3,6 @@
 import { useMemo, useState } from "react";
 
 import {
-  CheckCircle2,
-  LoaderCircle,
   Plus,
   ReceiptText,
   RefreshCcw,
@@ -22,39 +20,37 @@ import type {
   Wholesale1688Order,
   WholesaleCustomer,
   WholesaleLogisticsOrder,
+  WholesaleOrderChangeLog,
+  WholesaleOrderEditRequest,
   WholesaleOrder,
   WholesaleProfile,
 } from "@/lib/wholesale";
 
 import {
   formatCurrency,
-  formatDate,
-  formatDateTime,
-  formatNumber,
   formatPercent,
   getCustomerName,
   getProfileName,
-  WHOLESALE_ORDER_STATUS_LABELS,
 } from "./wholesale-display";
+import { WholesaleOrderChangeSections } from "./wholesale-order-change-sections";
+import { WholesaleOrderEditDialog } from "./wholesale-order-edit-dialog";
 import {
-  LinkedLogisticsOrders,
-  LinkedPurchaseOrders,
-} from "./wholesale-order-linked-records";
+  canCurrentUserManageWholesaleOrder,
+  getWholesaleOrderEditMode,
+} from "./wholesale-order-edit-rules";
 import {
   WholesaleOrderAssessmentPanel,
 } from "./wholesale-order-assessment-panel";
 import { WholesaleOrderFormDialog } from "./wholesale-order-form-dialog";
+import {
+  WholesaleOrdersTable,
+  type WholesaleOrderEditAction,
+} from "./wholesale-orders-table";
 import type { WholesaleOrderAssessmentFilters } from "./use-wholesale-order-assessment";
 import {
   WholesaleEmptyState,
   WholesalePageShell,
   WholesaleStatGrid,
-  WholesaleStatusBadge,
-  WholesaleTable,
-  WholesaleTd,
-  WholesaleTh,
-  wholesaleStickyFirstTdClassName,
-  wholesaleStickyFirstThClassName,
 } from "./wholesale-ui";
 
 type WholesaleOrdersSectionProps = {
@@ -66,7 +62,14 @@ type WholesaleOrdersSectionProps = {
   exchangeRates: ExchangeRateRow[];
   logisticsOrders: WholesaleLogisticsOrder[];
   onCreateOrder: (formData: FormData) => void | Promise<void>;
+  onApproveOrderEditRequest: (requestId: string) => void | Promise<void>;
   onMarkOrderSettled: (orderId: string) => void | Promise<void>;
+  onRejectOrderEditRequest: (requestId: string) => void | Promise<void>;
+  onRequestOrderEdit: (formData: FormData) => void | Promise<void>;
+  onUpdateOrder: (formData: FormData) => void | Promise<void>;
+  orderChangeLogs: WholesaleOrderChangeLog[];
+  orderEditRequests: WholesaleOrderEditRequest[];
+  orderEditWindowDays: number;
   orders: WholesaleOrder[];
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
@@ -84,8 +87,15 @@ export function WholesaleOrdersSection({
   customersById,
   exchangeRates,
   logisticsOrders,
+  onApproveOrderEditRequest,
   onCreateOrder,
   onMarkOrderSettled,
+  onRejectOrderEditRequest,
+  onRequestOrderEdit,
+  onUpdateOrder,
+  orderChangeLogs,
+  orderEditRequests,
+  orderEditWindowDays,
   orders,
   pendingKey,
   profilesById,
@@ -93,6 +103,9 @@ export function WholesaleOrdersSection({
   salesAccounts,
 }: WholesaleOrdersSectionProps) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [selectedEditOrder, setSelectedEditOrder] = useState<WholesaleOrder | null>(
+    null,
+  );
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState(ALL);
   const [customerFilter, setCustomerFilter] = useState(ALL);
@@ -123,6 +136,10 @@ export function WholesaleOrdersSection({
 
     return grouped;
   }, [logisticsOrders]);
+  const ordersById = useMemo(
+    () => new Map(orders.map((order) => [order.id, order])),
+    [orders],
+  );
   const totalPayment = orders.reduce(
     (sum, order) => sum + Number(order.customer_payment_rmb_amount ?? 0),
     0,
@@ -216,10 +233,45 @@ export function WholesaleOrdersSection({
   );
   const canMarkOrderSettled = (order: WholesaleOrder) =>
     order.status === "unsettled" &&
-    canEdit &&
-    (canManageAllOrders ||
-      order.sales_user_id === currentUserId ||
-      order.created_by_user_id === currentUserId);
+    canCurrentUserManageWholesaleOrder({
+      canEdit,
+      canManageAllOrders,
+      currentUserId,
+      customer: customersById.get(order.customer_id),
+      order,
+    });
+  const getOrderEditAction = (
+    order: WholesaleOrder,
+  ): WholesaleOrderEditAction | null => {
+    if (
+      !canCurrentUserManageWholesaleOrder({
+        canEdit,
+        canManageAllOrders,
+        currentUserId,
+        customer: customersById.get(order.customer_id),
+        order,
+      })
+    ) {
+      return null;
+    }
+
+    const mode = getWholesaleOrderEditMode({
+      canManageAllOrders,
+      editWindowDays: orderEditWindowDays,
+      order,
+    });
+
+    return mode === "direct"
+      ? { label: "修改订单", tone: "direct" }
+      : { label: "申请修改", tone: "request" };
+  };
+  const selectedEditMode = selectedEditOrder
+    ? getWholesaleOrderEditMode({
+        canManageAllOrders,
+        editWindowDays: orderEditWindowDays,
+        order: selectedEditOrder,
+      })
+    : "direct";
 
   return (
     <WholesalePageShell
@@ -360,126 +412,32 @@ export function WholesaleOrdersSection({
             title="暂无匹配订单"
           />
         ) : (
-          <WholesaleTable minWidth={3260}>
-            <thead>
-              <tr>
-                <WholesaleTh className={wholesaleStickyFirstThClassName}>
-                  订单编号
-                </WholesaleTh>
-                <WholesaleTh>客户</WholesaleTh>
-                <WholesaleTh>业务员</WholesaleTh>
-                <WholesaleTh>小单数量</WholesaleTh>
-                <WholesaleTh>产品采购金额</WholesaleTh>
-                <WholesaleTh>打包费</WholesaleTh>
-                <WholesaleTh>国际运费</WholesaleTh>
-                <WholesaleTh>其他费用</WholesaleTh>
-                <WholesaleTh>推荐佣金费用</WholesaleTh>
-                <WholesaleTh>快递公司</WholesaleTh>
-                <WholesaleTh>结汇汇率</WholesaleTh>
-                <WholesaleTh>支付币种</WholesaleTh>
-                <WholesaleTh>客户支付金额</WholesaleTh>
-                <WholesaleTh>人民币金额</WholesaleTh>
-                <WholesaleTh>收款平台</WholesaleTh>
-                <WholesaleTh>毛利</WholesaleTh>
-                <WholesaleTh>毛利率</WholesaleTh>
-                <WholesaleTh>单位毛利</WholesaleTh>
-                <WholesaleTh>订单计入月份</WholesaleTh>
-                <WholesaleTh>下单时间</WholesaleTh>
-                <WholesaleTh>结汇时间</WholesaleTh>
-                <WholesaleTh className="min-w-[320px] whitespace-normal">
-                  关联 1688 采购订单
-                </WholesaleTh>
-                <WholesaleTh className="min-w-[320px] whitespace-normal">
-                  关联物流订单
-                </WholesaleTh>
-                <WholesaleTh className="min-w-[240px] whitespace-normal">备注</WholesaleTh>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map((order) => (
-                <tr className="group" key={order.id}>
-                  <WholesaleTd className={wholesaleStickyFirstTdClassName}>
-                    <div className="font-semibold [overflow-wrap:anywhere]">
-                      {order.order_number}
-                    </div>
-                    <div className="mt-2">
-                      <WholesaleStatusBadge
-                        tone={order.status === "settled" ? "success" : "warning"}
-                      >
-                        {WHOLESALE_ORDER_STATUS_LABELS[order.status]}
-                      </WholesaleStatusBadge>
-                    </div>
-                    {canMarkOrderSettled(order) ? (
-                      <Button
-                        className="mt-3 h-9 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
-                        disabled={pendingKey === `order:settle:${order.id}`}
-                        onClick={() => void onMarkOrderSettled(order.id)}
-                        type="button"
-                      >
-                        {pendingKey === `order:settle:${order.id}` ? (
-                          <LoaderCircle className="size-3.5 animate-spin" />
-                        ) : (
-                          <CheckCircle2 className="size-3.5" />
-                        )}
-                        标记已结汇
-                      </Button>
-                    ) : null}
-                  </WholesaleTd>
-                  <WholesaleTd className="min-w-[160px] whitespace-normal">
-                    {getCustomerName(customersById, order.customer_id)}
-                  </WholesaleTd>
-                  <WholesaleTd className="min-w-[150px] whitespace-normal">
-                    {getProfileName(profilesById, order.sales_user_id)}
-                  </WholesaleTd>
-                  <WholesaleTd>{formatNumber(order.small_order_count)}</WholesaleTd>
-                  <WholesaleTd>{formatCurrency(order.product_purchase_amount)}</WholesaleTd>
-                  <WholesaleTd>{formatCurrency(order.packing_fee)}</WholesaleTd>
-                  <WholesaleTd>{formatCurrency(order.international_shipping_fee)}</WholesaleTd>
-                  <WholesaleTd>{formatCurrency(order.other_fee)}</WholesaleTd>
-                  <WholesaleTd>{formatCurrency(order.referral_commission_fee)}</WholesaleTd>
-                  <WholesaleTd className="min-w-[140px] whitespace-normal">
-                    {order.courier_company ?? "未记录"}
-                  </WholesaleTd>
-                  <WholesaleTd>{formatNumber(order.settlement_exchange_rate)}</WholesaleTd>
-                  <WholesaleTd>{order.customer_payment_currency}</WholesaleTd>
-                  <WholesaleTd>
-                    {formatCurrency(
-                      order.customer_payment_amount,
-                      order.customer_payment_currency,
-                    )}
-                  </WholesaleTd>
-                  <WholesaleTd>{formatCurrency(order.customer_payment_rmb_amount)}</WholesaleTd>
-                  <WholesaleTd className="min-w-[140px] whitespace-normal">
-                    {order.payment_platform ?? "未记录"}
-                  </WholesaleTd>
-                  <WholesaleTd>{formatCurrency(order.gross_profit)}</WholesaleTd>
-                  <WholesaleTd>{formatPercent(order.gross_margin)}</WholesaleTd>
-                  <WholesaleTd>{formatCurrency(order.unit_gross_profit)}</WholesaleTd>
-                  <WholesaleTd>{formatDate(order.order_month)}</WholesaleTd>
-                  <WholesaleTd>{formatDateTime(order.ordered_at)}</WholesaleTd>
-                  <WholesaleTd>
-                    {order.settled_at ? formatDateTime(order.settled_at) : "未结汇"}
-                  </WholesaleTd>
-                  <WholesaleTd className="min-w-[320px] whitespace-normal">
-                    <LinkedPurchaseOrders
-                      profilesById={profilesById}
-                      purchaseOrders={purchaseOrdersByOrderId.get(order.id) ?? []}
-                    />
-                  </WholesaleTd>
-                  <WholesaleTd className="min-w-[320px] whitespace-normal">
-                    <LinkedLogisticsOrders
-                      logisticsOrders={logisticsOrdersByOrderId.get(order.id) ?? []}
-                    />
-                  </WholesaleTd>
-                  <WholesaleTd className="min-w-[240px] whitespace-normal">
-                    {order.notes ?? "未记录"}
-                  </WholesaleTd>
-                </tr>
-              ))}
-            </tbody>
-          </WholesaleTable>
+          <WholesaleOrdersTable
+            canMarkOrderSettled={canMarkOrderSettled}
+            customersById={customersById}
+            getOrderEditAction={getOrderEditAction}
+            logisticsOrdersByOrderId={logisticsOrdersByOrderId}
+            onMarkOrderSettled={onMarkOrderSettled}
+            onOpenOrderEdit={setSelectedEditOrder}
+            orders={filteredOrders}
+            pendingKey={pendingKey}
+            profilesById={profilesById}
+            purchaseOrdersByOrderId={purchaseOrdersByOrderId}
+          />
         )}
       </DashboardListSection>
+
+      <WholesaleOrderChangeSections
+        canReviewRequests={canManageAllOrders}
+        customersById={customersById}
+        logs={orderChangeLogs}
+        onApproveRequest={onApproveOrderEditRequest}
+        onRejectRequest={onRejectOrderEditRequest}
+        ordersById={ordersById}
+        pendingKey={pendingKey}
+        profilesById={profilesById}
+        requests={orderEditRequests}
+      />
 
       <WholesaleOrderFormDialog
         customers={customers}
@@ -490,6 +448,31 @@ export function WholesaleOrdersSection({
         pending={pendingKey === "order:create"}
         salesAccounts={salesAccounts}
       />
+
+      {selectedEditOrder ? (
+        <WholesaleOrderEditDialog
+          canManageAllOrders={canManageAllOrders}
+          customers={customers}
+          editWindowDays={orderEditWindowDays}
+          exchangeRates={exchangeRates}
+          key={`${selectedEditOrder.id}-${selectedEditMode}`}
+          mode={selectedEditMode}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedEditOrder(null);
+            }
+          }}
+          onRequestOrderEdit={onRequestOrderEdit}
+          onUpdateOrder={onUpdateOrder}
+          open
+          order={selectedEditOrder}
+          pending={
+            pendingKey === `order:update:${selectedEditOrder.id}` ||
+            pendingKey === `order:edit-request:${selectedEditOrder.id}`
+          }
+          salesAccounts={salesAccounts}
+        />
+      ) : null}
 
     </WholesalePageShell>
   );

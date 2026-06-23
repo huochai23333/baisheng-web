@@ -1269,7 +1269,7 @@
       },
     "wholesale": {
       "title": "批发业务设置",
-      "description": "批发订单业务员提成和客户推荐佣金"
+      "description": "批发订单修改规则、业务员提成和客户推荐佣金"
     },
       "exchangeRates": {
         "title": "汇率设置",

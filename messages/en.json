@@ -1269,7 +1269,7 @@
       },
     "wholesale": {
       "title": "Wholesale Settings",
-      "description": "Wholesale sales incentives and customer referral commission"
+      "description": "Wholesale order edit rules, sales incentives, and customer referral commission"
     },
       "exchangeRates": {
         "title": "Exchange Rate Settings",

@@ -116,32 +116,59 @@ export function useWholesaleActions() {
         const supabase = getBrowserSupabaseClient();
         if (!supabase) throw new Error("client unavailable");
 
-        const { error } = await supabase.rpc("create_wholesale_order", {
-          p_courier_company: optionalString(formData.get("courier_company")),
-          p_customer_id: requiredString(formData.get("customer_id")),
-          p_customer_payment_amount: nonnegativeNumber(
-            formData.get("customer_payment_amount"),
-          ),
-          p_customer_payment_currency:
-            optionalString(formData.get("customer_payment_currency")) ?? "CNY",
-          p_international_shipping_fee: nonnegativeNumber(
-            formData.get("international_shipping_fee"),
-          ),
-          p_notes: optionalString(formData.get("notes")),
-          p_order_month: normalizeMonth(formData.get("order_month")),
-          p_other_fee: nonnegativeNumber(formData.get("other_fee")),
-          p_payment_platform: optionalString(formData.get("payment_platform")),
-          p_product_purchase_amount: nonnegativeNumber(
-            formData.get("product_purchase_amount"),
-          ),
-          p_referral_commission_fee: nonnegativeNumber(
-            formData.get("referral_commission_fee"),
-          ),
-          p_sales_user_id: optionalString(formData.get("sales_user_id")),
-          p_small_order_count: nonnegativeInteger(formData.get("small_order_count")),
-        });
+        const { error } = await supabase.rpc(
+          "create_wholesale_order",
+          getWholesaleOrderRpcPayload(formData),
+        );
         if (error) throw error;
       }),
+    [runAction],
+  );
+
+  const updateOrder = useCallback(
+    (formData: FormData) => {
+      const orderId = requiredString(formData.get("order_id"));
+
+      return runAction(
+        `order:update:${orderId}`,
+        "批发订单已更新。",
+        async () => {
+          const supabase = getBrowserSupabaseClient();
+          if (!supabase) throw new Error("client unavailable");
+
+          const { error } = await supabase.rpc("update_wholesale_order", {
+            p_order_id: orderId,
+            ...getWholesaleOrderRpcPayload(formData),
+          });
+
+          if (error) throw error;
+        },
+      );
+    },
+    [runAction],
+  );
+
+  const requestOrderEdit = useCallback(
+    (formData: FormData) => {
+      const orderId = requiredString(formData.get("order_id"));
+
+      return runAction(
+        `order:edit-request:${orderId}`,
+        "修改申请已提交，等待管理员处理。",
+        async () => {
+          const supabase = getBrowserSupabaseClient();
+          if (!supabase) throw new Error("client unavailable");
+
+          const { error } = await supabase.rpc("request_wholesale_order_edit", {
+            p_order_id: orderId,
+            p_request_note: optionalString(formData.get("request_note")),
+            ...getWholesaleOrderRpcPayload(formData),
+          });
+
+          if (error) throw error;
+        },
+      );
+    },
     [runAction],
   );
 
@@ -157,6 +184,52 @@ export function useWholesaleActions() {
 
         if (error) throw error;
       }),
+    [runAction],
+  );
+
+  const approveOrderEditRequest = useCallback(
+    (requestId: string) =>
+      runAction(
+        `order-edit:approve:${requestId}`,
+        "修改申请已通过，订单已更新。",
+        async () => {
+          const supabase = getBrowserSupabaseClient();
+          if (!supabase) throw new Error("client unavailable");
+
+          const { error } = await supabase.rpc(
+            "approve_wholesale_order_edit_request",
+            {
+              p_request_id: requestId,
+              p_review_note: null,
+            },
+          );
+
+          if (error) throw error;
+        },
+      ),
+    [runAction],
+  );
+
+  const rejectOrderEditRequest = useCallback(
+    (requestId: string) =>
+      runAction(
+        `order-edit:reject:${requestId}`,
+        "修改申请已退回。",
+        async () => {
+          const supabase = getBrowserSupabaseClient();
+          if (!supabase) throw new Error("client unavailable");
+
+          const { error } = await supabase.rpc(
+            "reject_wholesale_order_edit_request",
+            {
+              p_request_id: requestId,
+              p_review_note: null,
+            },
+          );
+
+          if (error) throw error;
+        },
+      ),
     [runAction],
   );
 
@@ -310,6 +383,7 @@ export function useWholesaleActions() {
   );
 
   return {
+    approveOrderEditRequest,
     claim1688Order,
     createCustomer,
     createLogisticsOrder,
@@ -321,7 +395,39 @@ export function useWholesaleActions() {
     linkCustomerAccount,
     markOrderSettled,
     pendingKey,
+    rejectOrderEditRequest,
+    requestOrderEdit,
     settleCommission,
+    updateOrder,
+  };
+}
+
+function getWholesaleOrderRpcPayload(formData: FormData) {
+  // Keep every order-writing RPC on the same parsed shape so calculations and
+  // audit logs always describe the fields the user actually edited.
+  return {
+    p_courier_company: optionalString(formData.get("courier_company")),
+    p_customer_id: requiredString(formData.get("customer_id")),
+    p_customer_payment_amount: nonnegativeNumber(
+      formData.get("customer_payment_amount"),
+    ),
+    p_customer_payment_currency:
+      optionalString(formData.get("customer_payment_currency")) ?? "CNY",
+    p_international_shipping_fee: nonnegativeNumber(
+      formData.get("international_shipping_fee"),
+    ),
+    p_notes: optionalString(formData.get("notes")),
+    p_order_month: normalizeMonth(formData.get("order_month")),
+    p_other_fee: nonnegativeNumber(formData.get("other_fee")),
+    p_payment_platform: optionalString(formData.get("payment_platform")),
+    p_product_purchase_amount: nonnegativeNumber(
+      formData.get("product_purchase_amount"),
+    ),
+    p_referral_commission_fee: nonnegativeNumber(
+      formData.get("referral_commission_fee"),
+    ),
+    p_sales_user_id: optionalString(formData.get("sales_user_id")),
+    p_small_order_count: nonnegativeInteger(formData.get("small_order_count")),
   };
 }
 
@@ -421,6 +527,22 @@ function toWholesaleActionErrorMessage(error: unknown) {
 
   if (normalized.includes("wholesale_order_not_found")) {
     return "没有找到这笔批发订单，请刷新后再试。";
+  }
+
+  if (normalized.includes("wholesale_order_edit_window_expired")) {
+    return "这笔订单已超过可直接修改天数，请提交修改申请。";
+  }
+
+  if (normalized.includes("wholesale_order_edit_window_available")) {
+    return "这笔订单还可以直接修改，不需要提交申请。";
+  }
+
+  if (normalized.includes("wholesale_order_edit_request_processed")) {
+    return "这条修改申请已经处理过，请刷新后查看最新状态。";
+  }
+
+  if (normalized.includes("wholesale_order_edit_request_not_found")) {
+    return "没有找到这条修改申请，请刷新后再试。";
   }
 
   if (normalized.includes("wholesale_order_settlement_locked")) {

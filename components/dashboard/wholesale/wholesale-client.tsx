@@ -45,8 +45,15 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
           customersById={customersById}
           exchangeRates={initialData.exchangeRates}
           logisticsOrders={initialData.logisticsOrders}
+          onApproveOrderEditRequest={actions.approveOrderEditRequest}
           onMarkOrderSettled={actions.markOrderSettled}
           onCreateOrder={actions.createOrder}
+          onRejectOrderEditRequest={actions.rejectOrderEditRequest}
+          onRequestOrderEdit={actions.requestOrderEdit}
+          onUpdateOrder={actions.updateOrder}
+          orderChangeLogs={initialData.orderChangeLogs}
+          orderEditRequests={initialData.orderEditRequests}
+          orderEditWindowDays={initialData.orderEditSettings.directEditWindowDays}
           orders={initialData.orders}
           pendingKey={actions.pendingKey}
           profilesById={profilesById}

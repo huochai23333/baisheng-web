@@ -4,6 +4,8 @@ import type {
   WholesaleCommission,
   WholesaleCustomer,
   WholesaleLogisticsOrder,
+  WholesaleOrderChangeLog,
+  WholesaleOrderEditRequest,
   WholesaleOrder,
   WholesaleProfile,
   WholesaleReferral,
@@ -15,6 +17,8 @@ type ScopeWholesaleRowsInput = {
   currentUserId: string | null;
   customers: WholesaleCustomer[];
   logisticsOrders: WholesaleLogisticsOrder[];
+  orderChangeLogs: WholesaleOrderChangeLog[];
+  orderEditRequests: WholesaleOrderEditRequest[];
   orders: WholesaleOrder[];
   profiles: WholesaleProfile[];
   purchaseOrders: Wholesale1688Order[];
@@ -28,6 +32,8 @@ export function scopeWholesaleRows({
   currentUserId,
   customers,
   logisticsOrders,
+  orderChangeLogs,
+  orderEditRequests,
   orders,
   profiles,
   purchaseOrders,
@@ -74,11 +80,25 @@ export function scopeWholesaleRows({
     customerIds,
     referrals,
   });
+  const scopedOrderEditRequests = scopeWholesaleOrderEditRequests({
+    currentRole,
+    currentUserId,
+    orderEditRequests,
+    orderIds,
+  });
+  const scopedOrderChangeLogs = scopeWholesaleOrderChangeLogs({
+    currentRole,
+    currentUserId,
+    orderChangeLogs,
+    orderIds,
+  });
   const scopedProfiles = scopeWholesaleProfiles({
     currentRole,
     currentUserId,
     customers: scopedCustomers,
     logisticsOrders: scopedLogisticsOrders,
+    orderChangeLogs: scopedOrderChangeLogs,
+    orderEditRequests: scopedOrderEditRequests,
     orders: scopedOrders,
     profiles,
     purchaseOrders: scopedPurchaseOrders,
@@ -89,6 +109,8 @@ export function scopeWholesaleRows({
     commissions: scopedCommissions,
     customers: scopedCustomers,
     logisticsOrders: scopedLogisticsOrders,
+    orderChangeLogs: scopedOrderChangeLogs,
+    orderEditRequests: scopedOrderEditRequests,
     orders: scopedOrders,
     profiles: scopedProfiles,
     purchaseOrders: scopedPurchaseOrders,
@@ -276,11 +298,66 @@ function scopeWholesaleReferrals({
   );
 }
 
+function scopeWholesaleOrderEditRequests({
+  currentRole,
+  currentUserId,
+  orderEditRequests,
+  orderIds,
+}: {
+  currentRole: AppRole | null;
+  currentUserId: string | null;
+  orderEditRequests: WholesaleOrderEditRequest[];
+  orderIds: Set<string>;
+}) {
+  if (canReadFullWholesaleBackoffice(currentRole)) {
+    return orderEditRequests;
+  }
+
+  if (!currentUserId) {
+    return [];
+  }
+
+  return orderEditRequests.filter(
+    (request) =>
+      orderIds.has(request.order_id) ||
+      request.requested_by_user_id === currentUserId ||
+      request.reviewer_user_id === currentUserId,
+  );
+}
+
+function scopeWholesaleOrderChangeLogs({
+  currentRole,
+  currentUserId,
+  orderChangeLogs,
+  orderIds,
+}: {
+  currentRole: AppRole | null;
+  currentUserId: string | null;
+  orderChangeLogs: WholesaleOrderChangeLog[];
+  orderIds: Set<string>;
+}) {
+  if (canReadFullWholesaleBackoffice(currentRole)) {
+    return orderChangeLogs;
+  }
+
+  if (!currentUserId) {
+    return [];
+  }
+
+  return orderChangeLogs.filter(
+    (log) =>
+      orderIds.has(log.order_id) ||
+      log.actor_user_id === currentUserId,
+  );
+}
+
 function scopeWholesaleProfiles({
   currentRole,
   currentUserId,
   customers,
   logisticsOrders,
+  orderChangeLogs,
+  orderEditRequests,
   orders,
   profiles,
   purchaseOrders,
@@ -290,6 +367,8 @@ function scopeWholesaleProfiles({
   currentUserId: string | null;
   customers: WholesaleCustomer[];
   logisticsOrders: WholesaleLogisticsOrder[];
+  orderChangeLogs: WholesaleOrderChangeLog[];
+  orderEditRequests: WholesaleOrderEditRequest[];
   orders: WholesaleOrder[];
   profiles: WholesaleProfile[];
   purchaseOrders: Wholesale1688Order[];
@@ -321,6 +400,15 @@ function scopeWholesaleProfiles({
 
   for (const order of logisticsOrders) {
     addOptionalId(visibleProfileIds, order.created_by_user_id);
+  }
+
+  for (const request of orderEditRequests) {
+    addOptionalId(visibleProfileIds, request.requested_by_user_id);
+    addOptionalId(visibleProfileIds, request.reviewer_user_id);
+  }
+
+  for (const log of orderChangeLogs) {
+    addOptionalId(visibleProfileIds, log.actor_user_id);
   }
 
   for (const profile of registeredCandidates) {

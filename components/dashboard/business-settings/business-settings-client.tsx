@@ -31,6 +31,9 @@ export function BusinessSettingsClient({
   const [commissionRuleSettings, setCommissionRuleSettings] = useState(
     initialData.commissionRuleSettings,
   );
+  const [wholesaleOrderEditSettings, setWholesaleOrderEditSettings] = useState(
+    initialData.wholesaleOrderEditSettings,
+  );
 
   return (
     <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
@@ -62,11 +65,13 @@ export function BusinessSettingsClient({
           onOrderDiscountRowsChange={setOrderDiscountOptions}
           onServiceFeeRowsChange={setServiceFeeTypeOptions}
           onServiceOrderPriceRowsChange={setServiceOrderPriceOptions}
+          onWholesaleOrderEditSettingsChange={setWholesaleOrderEditSettings}
           orderDiscountOptions={orderDiscountOptions}
           settingsModule={settingsModule}
           serviceFeeTypeOptions={serviceFeeTypeOptions}
           serviceOrderPriceOptions={serviceOrderPriceOptions}
           serviceOrderTypeOptions={initialData.serviceOrderTypeOptions}
+          wholesaleOrderEditSettings={wholesaleOrderEditSettings}
         />
       )}
     </section>

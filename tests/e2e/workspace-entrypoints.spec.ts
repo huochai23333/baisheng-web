@@ -204,6 +204,44 @@ test.describe("workspace entrypoint regression", () => {
     await expect(assessmentOutput).not.toContainText("*");
   });
 
+  test("admin can see wholesale order edit rule and open edit dialog", async ({
+    page,
+  }) => {
+    await loginAs(page, "administrator");
+    await page.goto("/admin/wholesale/settings");
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
+
+    await expect(page.getByRole("heading", { name: "订单修改规则" })).toBeVisible();
+    await expect(page.getByLabel("可直接修改天数")).toBeVisible();
+    await expect(page.getByRole("button", { name: "保存规则" })).toBeVisible();
+
+    await page.goto("/admin/wholesale/orders");
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
+
+    const editButton = page.getByRole("button", { name: "修改订单" }).first();
+    await expect(editButton).toBeVisible();
+    await editButton.click();
+
+    await expect(page.getByRole("heading", { name: "修改批发订单" })).toBeVisible();
+    await expect(page.getByLabel("客户支付金额")).toBeVisible();
+    await expect(page.getByRole("button", { name: "保存修改" })).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await page.setViewportSize({ height: 844, width: 390 });
+
+    await page.goto("/admin/wholesale/settings");
+    await expect(page.getByRole("heading", { name: "订单修改规则" })).toBeVisible();
+    await expect(page.getByLabel("可直接修改天数")).toBeVisible();
+    await expectNoDocumentHorizontalOverflow(page);
+
+    await page.goto("/admin/wholesale/orders");
+    await expect(page.getByRole("heading", { name: "批发订单" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "修改订单" }).first()).toBeVisible();
+    await expectNoDocumentHorizontalOverflow(page);
+  });
+
   test("wholesale claim page separates assisted, hall, and claimed orders", async ({
     page,
   }) => {
@@ -297,4 +335,12 @@ async function mockClipboard(page: Page) {
       },
     });
   });
+}
+
+async function expectNoDocumentHorizontalOverflow(page: Page) {
+  const overflowPixels = await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  );
+
+  expect(overflowPixels).toBeLessThanOrEqual(2);
 }

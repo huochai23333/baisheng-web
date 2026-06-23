@@ -12,6 +12,10 @@ import {
   type ExchangeRateRow,
 } from "./exchange-rates";
 import { scopeWholesaleRows } from "./wholesale-scope";
+import {
+  getWholesaleOrderEditSettings,
+  type WholesaleOrderEditSettings,
+} from "./wholesale-order-edit-settings";
 import type { WorkspaceWholesaleSectionKey } from "./workspace-config";
 
 export type WholesaleCustomer = {
@@ -58,6 +62,38 @@ export type WholesaleOrder = {
   created_by_user_id: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type WholesaleOrderEditRequestStatus =
+  | "approved"
+  | "pending"
+  | "rejected";
+
+export type WholesaleOrderEditRequest = {
+  id: string;
+  order_id: string;
+  requested_by_user_id: string;
+  requested_changes: Record<string, unknown>;
+  current_snapshot: Record<string, unknown>;
+  request_note: string | null;
+  status: WholesaleOrderEditRequestStatus;
+  reviewer_user_id: string | null;
+  review_note: string | null;
+  processed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type WholesaleOrderChangeLog = {
+  id: string;
+  order_id: string;
+  request_id: string | null;
+  actor_user_id: string | null;
+  action: "approved_update" | "direct_update";
+  previous_data: Record<string, unknown>;
+  next_data: Record<string, unknown>;
+  note: string | null;
+  created_at: string;
 };
 
 export type Wholesale1688Order = {
@@ -139,6 +175,9 @@ export type WholesalePageData = {
   commissionRuleSettings: CommissionRuleSetting[];
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
+  orderChangeLogs: WholesaleOrderChangeLog[];
+  orderEditRequests: WholesaleOrderEditRequest[];
+  orderEditSettings: WholesaleOrderEditSettings;
   orders: WholesaleOrder[];
   purchaseOrders: Wholesale1688Order[];
   logisticsOrders: WholesaleLogisticsOrder[];
@@ -168,12 +207,15 @@ export async function getWholesalePageData(
     logisticsOrdersResult,
     commissionsResult,
     referralsResult,
+    orderEditRequestsResult,
+    orderChangeLogsResult,
     profilesResult,
     roleRowsResult,
     rolesResult,
     linkCandidateProfilesResult,
     exchangeRates,
     commissionRuleSettings,
+    orderEditSettings,
   ] = await Promise.all([
     supabase
       .from("wholesale_customers")
@@ -213,6 +255,18 @@ export async function getWholesalePageData(
       QueryResult<WholesaleReferral>
     >,
     supabase
+      .from("wholesale_order_edit_requests")
+      .select("*")
+      .order("created_at", { ascending: false }) as unknown as Promise<
+      QueryResult<WholesaleOrderEditRequest>
+    >,
+    supabase
+      .from("wholesale_order_change_logs")
+      .select("*")
+      .order("created_at", { ascending: false }) as unknown as Promise<
+      QueryResult<WholesaleOrderChangeLog>
+    >,
+    supabase
       .from("user_profiles")
       .select("user_id,name,email,phone,status,city")
       .order("created_at", { ascending: false }) as unknown as Promise<
@@ -229,6 +283,11 @@ export async function getWholesalePageData(
     >,
     getLatestCnyExchangeRates(supabase).catch(() => []),
     getCommissionRuleSettings(supabase).catch(() => []),
+    getWholesaleOrderEditSettings(supabase).catch(() => ({
+      directEditWindowDays: 30,
+      updatedAt: null,
+      updatedByUserId: null,
+    })),
   ]);
 
   const rolesById = new Map(
@@ -258,6 +317,8 @@ export async function getWholesalePageData(
     currentUserId,
     customers: readRows(customersResult),
     logisticsOrders: readRows(logisticsOrdersResult),
+    orderChangeLogs: readRows(orderChangeLogsResult),
+    orderEditRequests: readRows(orderEditRequestsResult),
     orders: readRows(ordersResult),
     purchaseOrders: readRows(purchaseOrdersResult),
     referrals: readRows(referralsResult),
@@ -271,6 +332,9 @@ export async function getWholesalePageData(
     commissionRuleSettings,
     customers: scopedRows.customers,
     exchangeRates,
+    orderChangeLogs: scopedRows.orderChangeLogs,
+    orderEditRequests: scopedRows.orderEditRequests,
+    orderEditSettings,
     orders: scopedRows.orders,
     purchaseOrders: scopedRows.purchaseOrders,
     logisticsOrders: scopedRows.logisticsOrders,

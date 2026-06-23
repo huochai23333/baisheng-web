@@ -29,20 +29,10 @@ import {
   WholesaleSubmitButton,
   WholesaleTextarea,
 } from "./wholesale-ui";
-
-const PAYMENT_PLATFORM_OPTIONS = [
-  "银行转账",
-  "支付宝",
-  "微信支付",
-  "PayPal",
-  "Wise",
-  "Payoneer",
-  "WorldFirst",
-  "PingPong",
-  "Stripe",
-  "现金",
-  "其他",
-] as const;
+import {
+  dedupeWholesaleCurrencyOptions,
+  WHOLESALE_PAYMENT_PLATFORM_OPTIONS,
+} from "./wholesale-order-form-options";
 
 type WholesaleOrderFormDialogProps = {
   customers: WholesaleCustomer[];
@@ -64,7 +54,9 @@ export function WholesaleOrderFormDialog({
   salesAccounts,
 }: WholesaleOrderFormDialogProps) {
   const currencyOptions = useMemo(() => {
-    const options = buildOrderCurrencyOptions(exchangeRates);
+    const options = dedupeWholesaleCurrencyOptions(
+      buildOrderCurrencyOptions(exchangeRates),
+    );
 
     return options.some((option) => option.currency === "CNY")
       ? options
@@ -225,7 +217,7 @@ export function WholesaleOrderFormDialog({
         </DashboardFilterField>
         <WholesaleSelect label="收款平台" name="payment_platform">
           <option value="">选择收款平台</option>
-          {PAYMENT_PLATFORM_OPTIONS.map((platform) => (
+          {WHOLESALE_PAYMENT_PLATFORM_OPTIONS.map((platform) => (
             <option key={platform} value={platform}>
               {platform}
             </option>
