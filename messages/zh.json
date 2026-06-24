@@ -504,7 +504,7 @@
       },
       "settings": {
         "title": "批发业务设置",
-        "description": "维护批发订单业务员提成和客户推荐佣金规则。"
+        "description": "维护批发订单修改规则、业务员提成和客户推荐佣金规则。"
       }
     }
   },
@@ -1274,7 +1274,7 @@
     "tabs": {
       "tourism": {
         "title": "旅游业务设置",
-        "description": "旅游订单、服务价格、折扣和旅游佣金"
+        "description": "旅游订单服务费、服务价格、折扣和服务佣金"
       },
     "wholesale": {
       "title": "批发业务设置",
@@ -1408,8 +1408,6 @@
         },
         "calculations": {
           "serviceFeeShort": "服务费：金额 × {rate}",
-          "retailCommissionShort": "佣金：业务员 {tier1Limit}内{tier1Rate}/超出{tier2Rate}，推荐{referralRate}",
-          "commissionFallback": "佣金：按系统设置执行",
           "noWholesaleCommissionShort": "佣金：不自动生成"
         },
         "validation": {
@@ -2146,32 +2144,29 @@
       "bonusUsd": "奖励金额"
     },
       "rules": {
-        "purchaseSalesmanTier": "采购订单业务员佣金",
-        "purchaseReferral": "采购订单推荐佣金",
         "serviceEscortSalesman": "陪同类服务业务员佣金",
       "digitalSurvivalSalesman": "数字化生存业务员佣金",
-      "serviceReferral": "服务订单推荐佣金",
-      "vipFirstYearReferralBonus": "VIP 首年推荐奖励",
+        "serviceReferral": "服务订单推荐佣金",
+        "vipFirstYearReferralBonus": "VIP 首年推荐奖励",
+      "wholesaleOrderSalesmanTier": "批发订单业务员佣金",
       "wholesaleReferralOrderAmount": "批发推荐月订单金额佣金",
       "wholesaleReferralWaybillBonus": "批发推荐月运单奖励"
     },
       "ruleDescriptions": {
-        "purchaseSalesmanTier": "采购订单完成后，给录入订单的业务员生成。",
-        "purchaseReferral": "被推荐客户完成采购订单后，给推荐人生成。",
         "serviceEscortSalesman": "适用于旅游陪同订单、医疗陪同订单；订单完成后，给录入订单的业务员生成。",
       "digitalSurvivalSalesman": "数字化生存服务完成后，给录入订单的业务员生成。",
       "serviceReferral": "被推荐客户完成服务订单后，给推荐人生成。",
       "vipFirstYearReferralBonus": "被推荐客户首次开通对应 VIP 后，给推荐人生成。",
+      "wholesaleOrderSalesmanTier": "批发订单保存后，给订单业务员生成。",
       "wholesaleReferralOrderAmount": "按被推荐批发客户每月订单金额给推荐客户计算。",
       "wholesaleReferralWaybillBonus": "按被推荐批发客户每月运单数量给推荐客户追加奖励。"
     },
       "calculations": {
-        "purchaseSalesmanTier": "佣金 = min(采购订单人民币金额, {tier1Limit}) × {tier1Rate} + max(采购订单人民币金额 - {tier1Limit}, 0) × {tier2Rate}",
-        "purchaseReferral": "佣金 = 采购订单人民币金额 × {rate}",
         "serviceEscortSalesman": "佣金 = 成本金额 + (服务订单人民币金额 - 成本金额) × {rate}",
       "digitalSurvivalSalesman": "佣金 = max(服务订单人民币金额 - 成本金额, 0) × {rate}",
       "serviceReferral": "佣金 = 服务订单人民币金额 × {rate}",
       "vipFirstYearReferralBonus": "佣金 = {bonusUsd} × 订单成交汇率",
+      "wholesaleOrderSalesmanTier": "佣金 = max(批发订单毛利, 0) × 对应比例；订单人民币金额不超过 {tier1Limit} 用 {tier1Rate}，超过用 {tier2Rate}",
       "wholesaleReferralOrderAmount": "佣金 = 每月订单人民币金额 × {rate}",
       "wholesaleReferralWaybillBonus": "运单数量大于 {tier1Count} 加 {tier1BonusUsd}，大于 {tier2Count} 加 {tier2BonusUsd}，大于 {tier3Count} 加 {tier3BonusUsd}"
     },

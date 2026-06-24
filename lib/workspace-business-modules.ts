@@ -205,6 +205,18 @@ const salesWholesaleNavItems = createWholesaleNavItems([
   ["incentives", "incentives"],
 ]);
 
+// 业务员只管理自己的批发客户与订单，承接账号目录留给管理员查看。
+const salesmanWholesaleNavItems = createWholesaleNavItems([
+  ["orders", "wholesaleOrders"],
+  ["order-claims", "orderClaims"],
+  ["logistics", "logistics"],
+  ["customers", "customers"],
+  ["vip", "vip"],
+  ["referrals", "referrals"],
+  ["commission", "commission"],
+  ["incentives", "incentives"],
+]);
+
 const clientWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
   ["logistics", "logistics"],
@@ -338,7 +350,7 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
       operator: operatorWholesaleNavItems,
       promoter: salesWholesaleNavItems,
       recruiter: recruiterWholesaleNavItems,
-      salesman: salesWholesaleNavItems,
+      salesman: salesmanWholesaleNavItems,
     },
     pageEntry: "wholesale",
     pageVariantsByRouteSegment: {},
@@ -350,7 +362,7 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
         {
           kind: "commissionRules",
           ruleCodes: [
-            "purchase_salesman_tier",
+            "wholesale_order_salesman_tier",
             "wholesale_referral_order_amount_rate",
             "wholesale_referral_waybill_bonus",
           ],
@@ -366,7 +378,7 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
       operator: createWholesalePageVariants(operatorWholesaleNavItems),
       promoter: createWholesalePageVariants(salesWholesaleNavItems),
       recruiter: createWholesalePageVariants(recruiterWholesaleNavItems),
-      salesman: createWholesalePageVariants(salesWholesaleNavItems),
+      salesman: createWholesalePageVariants(salesmanWholesaleNavItems),
     },
   },
 ];

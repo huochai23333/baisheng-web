@@ -504,7 +504,7 @@
       },
       "settings": {
         "title": "Wholesale Settings",
-        "description": "Manage wholesale sales incentive and customer referral commission rules."
+        "description": "Manage wholesale order edit rules, sales incentives, and customer referral commission rules."
       }
     }
   },
@@ -1274,7 +1274,7 @@
     "tabs": {
       "tourism": {
         "title": "Tourism Settings",
-        "description": "Tourism orders, service prices, discounts, and tourism commission"
+        "description": "Tourism service fees, service prices, discounts, and service commission"
       },
     "wholesale": {
       "title": "Wholesale Settings",
@@ -1408,8 +1408,6 @@
         },
         "calculations": {
           "serviceFeeShort": "Service fee: amount × {rate}",
-          "retailCommissionShort": "Commission: salesman {tier1Rate}/{tier2Rate} after {tier1Limit}; referral {referralRate}",
-          "commissionFallback": "Commission: follows system settings",
           "noWholesaleCommissionShort": "Commission: not automatic"
         },
         "validation": {
@@ -2146,32 +2144,29 @@
       "bonusUsd": "Reward Amount"
     },
       "rules": {
-        "purchaseSalesmanTier": "Purchase Order Sales Commission",
-        "purchaseReferral": "Purchase Order Referral Commission",
         "serviceEscortSalesman": "Escort Service Sales Commission",
       "digitalSurvivalSalesman": "Digital Survival Sales Commission",
       "serviceReferral": "Service Order Referral Commission",
       "vipFirstYearReferralBonus": "VIP First-Year Referral Reward",
+      "wholesaleOrderSalesmanTier": "Wholesale Order Sales Commission",
       "wholesaleReferralOrderAmount": "Wholesale Monthly Order Referral",
       "wholesaleReferralWaybillBonus": "Wholesale Monthly Waybill Reward"
     },
       "ruleDescriptions": {
-        "purchaseSalesmanTier": "Created for the salesperson who entered a completed purchase order.",
-        "purchaseReferral": "Created for the referrer when a referred customer completes a purchase order.",
         "serviceEscortSalesman": "Applies to tour escort orders and medical escort orders. Created for the salesperson after the order is completed.",
       "digitalSurvivalSalesman": "Created for the salesperson after a digital survival service is completed.",
       "serviceReferral": "Created for the referrer when a referred customer completes a service order.",
       "vipFirstYearReferralBonus": "Created for the referrer when a referred customer opens the matching VIP for the first time.",
+      "wholesaleOrderSalesmanTier": "Created for the salesperson when a wholesale order is saved.",
       "wholesaleReferralOrderAmount": "Calculated from each referred wholesale customer's monthly order amount.",
       "wholesaleReferralWaybillBonus": "Adds a reward from each referred wholesale customer's monthly waybill count."
     },
       "calculations": {
-        "purchaseSalesmanTier": "Commission = min(purchase order RMB amount, {tier1Limit}) × {tier1Rate} + max(purchase order RMB amount - {tier1Limit}, 0) × {tier2Rate}",
-        "purchaseReferral": "Commission = purchase order RMB amount × {rate}",
         "serviceEscortSalesman": "Commission = cost amount + (service order RMB amount - cost amount) × {rate}",
       "digitalSurvivalSalesman": "Commission = max(service order RMB amount - cost amount, 0) × {rate}",
       "serviceReferral": "Commission = service order RMB amount × {rate}",
       "vipFirstYearReferralBonus": "Commission = {bonusUsd} × order transaction rate",
+      "wholesaleOrderSalesmanTier": "Commission = max(wholesale order gross profit, 0) × matching rate; orders up to {tier1Limit} use {tier1Rate}, orders above that use {tier2Rate}",
       "wholesaleReferralOrderAmount": "Commission = monthly order RMB amount × {rate}",
       "wholesaleReferralWaybillBonus": "More than {tier1Count} waybills adds {tier1BonusUsd}; more than {tier2Count} adds {tier2BonusUsd}; more than {tier3Count} adds {tier3BonusUsd}"
     },

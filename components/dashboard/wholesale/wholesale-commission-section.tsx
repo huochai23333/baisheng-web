@@ -10,6 +10,7 @@ import {
   DashboardTableFrame,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
+import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 import type { CommissionRuleSetting } from "@/lib/commission-settings";
 import type { ExchangeRateRow } from "@/lib/exchange-rates";
@@ -42,6 +43,7 @@ import {
 import {
   buildReferralCommissionRows,
 } from "./wholesale-referral-commission";
+import { formatWholesaleOrderCommissionDescription } from "./wholesale-commission-settings";
 import { WholesaleReferralCommissionSection } from "./wholesale-referral-commission-section";
 
 type WholesaleCommissionSectionProps = {
@@ -78,9 +80,14 @@ export function WholesaleCommissionSection({
   const [incentiveSearch, setIncentiveSearch] = useState("");
   const [incentiveStatusFilter, setIncentiveStatusFilter] = useState(ALL);
   const [incentiveSalesFilter, setIncentiveSalesFilter] = useState(ALL);
+  const { locale } = useLocale();
   const orderById = useMemo(
     () => new Map(orders.map((order) => [order.id, order])),
     [orders],
+  );
+  const commissionDescription = useMemo(
+    () => formatWholesaleOrderCommissionDescription(commissionRuleSettings, locale),
+    [commissionRuleSettings, locale],
   );
   const referralRows = useMemo(
     () =>
@@ -166,7 +173,7 @@ export function WholesaleCommissionSection({
 
   return (
     <WholesalePageShell
-      description="批发订单保存后会自动计算业务提成：订单人民币金额 10000 以内按毛利 10%，大于 10000 按毛利 12%。"
+      description={commissionDescription}
       eyebrow="批发业务"
       title="提成"
     >

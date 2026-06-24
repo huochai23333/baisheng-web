@@ -4,9 +4,6 @@ import { useMemo, useState } from "react";
 
 import { useTranslations } from "next-intl";
 
-import type {
-  CommissionRuleSetting,
-} from "@/lib/commission-settings";
 import {
   updateServiceFeeType,
   type ServiceFeeTypeOption,
@@ -16,10 +13,6 @@ import { useLocale } from "@/components/i18n/locale-provider";
 
 import { DashboardListSection } from "../dashboard-section-panel";
 import { PageBanner, type NoticeTone } from "../dashboard-shared-ui";
-import {
-  formatCommissionSettingValue,
-  getRuleConfigValue,
-} from "../commission/commission-settings-display";
 import {
   getServiceFeeRowsByScope,
   sortServiceFeeRows,
@@ -39,11 +32,9 @@ type PageFeedback = { tone: NoticeTone; message: string } | null;
 type DiscountLocale = Parameters<typeof formatDiscountRatioValue>[1];
 
 export function AdminOrdersServiceFeeSettings({
-  commissionRuleSettings,
   initialRows,
   onRowsChange,
 }: {
-  commissionRuleSettings: CommissionRuleSetting[];
   initialRows: ServiceFeeTypeOption[];
   onRowsChange?: (rows: ServiceFeeTypeOption[]) => void;
 }) {
@@ -61,19 +52,6 @@ export function AdminOrdersServiceFeeSettings({
   const retailRows = useMemo(
     () => getServiceFeeRowsByScope(rows, "retail"),
     [rows],
-  );
-  const commissionRowsByCode = useMemo(
-    () => new Map(commissionRuleSettings.map((row) => [row.ruleCode, row])),
-    [commissionRuleSettings],
-  );
-  const retailCommissionSummary = useMemo(
-    () =>
-      getRetailCommissionSummary(
-        commissionRowsByCode,
-        locale,
-        t,
-      ),
-    [commissionRowsByCode, locale, t],
   );
 
   async function handleSave(row: ServiceFeeTypeOption) {
@@ -147,7 +125,6 @@ export function AdminOrdersServiceFeeSettings({
         title={t("settings.serviceFees.retail.title")}
         getRuleLines={(row) =>
           getServiceFeeRuleLines({
-            commissionLine: retailCommissionSummary,
             locale,
             row,
             t,
@@ -164,12 +141,10 @@ export function AdminOrdersServiceFeeSettings({
 }
 
 function getServiceFeeRuleLines({
-  commissionLine,
   locale,
   row,
   t,
 }: {
-  commissionLine: string;
   locale: DiscountLocale;
   row: ServiceFeeTypeOption;
   t: ReturnType<typeof useTranslations<"Orders">>;
@@ -181,56 +156,5 @@ function getServiceFeeRuleLines({
       }),
       tone: "primary",
     },
-    {
-      text: commissionLine,
-      tone: "muted",
-    },
   ];
-}
-
-function getRetailCommissionSummary(
-  rowsByCode: Map<CommissionRuleSetting["ruleCode"], CommissionRuleSetting>,
-  locale: string,
-  t: ReturnType<typeof useTranslations<"Orders">>,
-) {
-  const salesmanRule = rowsByCode.get("purchase_salesman_tier");
-  const referralRule = rowsByCode.get("purchase_referral_rate");
-  const tier1Limit = salesmanRule
-    ? getRuleConfigValue(salesmanRule.config, "tier_1_limit_rmb")
-    : null;
-  const tier1Rate = salesmanRule
-    ? getRuleConfigValue(salesmanRule.config, "tier_1_rate")
-    : null;
-  const tier2Rate = salesmanRule
-    ? getRuleConfigValue(salesmanRule.config, "tier_2_rate")
-    : null;
-  const referralRate = referralRule
-    ? getRuleConfigValue(referralRule.config, "rate")
-    : null;
-
-  if (
-    tier1Limit === null ||
-    tier1Rate === null ||
-    tier2Rate === null ||
-    referralRate === null
-  ) {
-    return t("settings.serviceFees.calculations.commissionFallback");
-  }
-
-  return t("settings.serviceFees.calculations.retailCommissionShort", {
-    referralRate: formatCommissionSettingValue("rate", referralRate, locale),
-    tier1Limit: formatCompactRmbValue(tier1Limit, locale),
-    tier1Rate: formatCommissionSettingValue("rate", tier1Rate, locale),
-    tier2Rate: formatCommissionSettingValue("rate", tier2Rate, locale),
-  });
-}
-
-function formatCompactRmbValue(value: number, locale: string) {
-  return new Intl.NumberFormat(locale, {
-    currency: "CNY",
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 0,
-    minimumFractionDigits: 0,
-    style: "currency",
-  }).format(value);
 }

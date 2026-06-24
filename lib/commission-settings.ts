@@ -5,12 +5,11 @@ import { withRequestTimeout } from "./request-timeout";
 const COMMISSION_RULE_SELECT = "rule_code,config,sort_order,updated_at";
 
 export const COMMISSION_RULE_CODES = [
-  "purchase_salesman_tier",
-  "purchase_referral_rate",
   "service_escort_salesman",
   "digital_survival_salesman",
   "service_referral_rate",
   "vip_first_year_referral_bonus",
+  "wholesale_order_salesman_tier",
   "wholesale_referral_order_amount_rate",
   "wholesale_referral_waybill_bonus",
 ] as const;

@@ -27,44 +27,6 @@ type FormulaTranslator = (
 
 export const COMMISSION_RULE_DEFINITIONS: CommissionRuleDefinition[] = [
   {
-    calculationKey: "settings.calculations.purchaseSalesmanTier",
-    code: "purchase_salesman_tier",
-    descriptionKey: "settings.ruleDescriptions.purchaseSalesmanTier",
-    fields: [
-      {
-        configKey: "tier_1_rate",
-        kind: "rate",
-        labelKey: "settings.fields.tier1Rate",
-      },
-      {
-        configKey: "tier_1_limit_rmb",
-        kind: "amountRmb",
-        labelKey: "settings.fields.tier1Limit",
-      },
-      {
-        configKey: "tier_2_rate",
-        kind: "rate",
-        labelKey: "settings.fields.tier2Rate",
-      },
-    ],
-    group: "order",
-    labelKey: "settings.rules.purchaseSalesmanTier",
-  },
-  {
-    calculationKey: "settings.calculations.purchaseReferral",
-    code: "purchase_referral_rate",
-    descriptionKey: "settings.ruleDescriptions.purchaseReferral",
-    fields: [
-      {
-        configKey: "rate",
-        kind: "rate",
-        labelKey: "settings.fields.rate",
-      },
-    ],
-    group: "referral",
-    labelKey: "settings.rules.purchaseReferral",
-  },
-  {
     calculationKey: "settings.calculations.serviceEscortSalesman",
     code: "service_escort_salesman",
     descriptionKey: "settings.ruleDescriptions.serviceEscortSalesman",
@@ -119,6 +81,30 @@ export const COMMISSION_RULE_DEFINITIONS: CommissionRuleDefinition[] = [
     ],
     group: "referral",
     labelKey: "settings.rules.vipFirstYearReferralBonus",
+  },
+  {
+    calculationKey: "settings.calculations.wholesaleOrderSalesmanTier",
+    code: "wholesale_order_salesman_tier",
+    descriptionKey: "settings.ruleDescriptions.wholesaleOrderSalesmanTier",
+    fields: [
+      {
+        configKey: "tier_1_rate",
+        kind: "rate",
+        labelKey: "settings.fields.tier1Rate",
+      },
+      {
+        configKey: "tier_1_limit_rmb",
+        kind: "amountRmb",
+        labelKey: "settings.fields.tier1Limit",
+      },
+      {
+        configKey: "tier_2_rate",
+        kind: "rate",
+        labelKey: "settings.fields.tier2Rate",
+      },
+    ],
+    group: "order",
+    labelKey: "settings.rules.wholesaleOrderSalesmanTier",
   },
   {
     calculationKey: "settings.calculations.wholesaleReferralOrderAmount",
@@ -224,13 +210,12 @@ export function formatCommissionCalculationFormula(
   };
 
   switch (definition.code) {
-    case "purchase_salesman_tier":
+    case "wholesale_order_salesman_tier":
       return t(definition.calculationKey, {
         tier1Limit: formattedValue("tier_1_limit_rmb", "amountRmb"),
         tier1Rate: formattedValue("tier_1_rate", "rate"),
         tier2Rate: formattedValue("tier_2_rate", "rate"),
       });
-    case "purchase_referral_rate":
     case "service_escort_salesman":
     case "digital_survival_salesman":
     case "service_referral_rate":

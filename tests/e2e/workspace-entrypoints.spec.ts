@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import {
+  expectForbiddenPage,
   expectNotForbiddenPage,
   expectWorkspaceShell,
   loginAs,
@@ -36,7 +37,6 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
       "/salesman/wholesale/order-claims",
       "/salesman/wholesale/logistics",
       "/salesman/wholesale/customers",
-      "/salesman/wholesale/people",
       "/salesman/wholesale/incentives",
     ],
     role: "salesman",
@@ -219,6 +219,17 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByRole("heading", { name: "订单修改规则" })).toBeVisible();
     await expect(page.getByLabel("可直接修改天数")).toBeVisible();
     await expect(page.getByRole("button", { name: "保存规则" })).toBeVisible();
+    await expect(visibleExactText(page, "批发订单业务员佣金")).toHaveCount(1);
+    await expect(visibleExactText(page, "批发推荐月订单金额佣金")).toHaveCount(1);
+    await expect(page.getByText("采购订单业务员佣金", { exact: true })).toHaveCount(0);
+
+    await page.goto("/admin/tourism/settings");
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
+    await expect(visibleExactText(page, "陪同类服务业务员佣金")).toHaveCount(1);
+    await expect(page.getByText("采购订单业务员佣金", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("采购订单推荐佣金", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("批发订单业务员佣金", { exact: true })).toHaveCount(0);
 
     await page.goto("/admin/wholesale/orders");
     await expectWorkspaceShell(page);
@@ -234,6 +245,12 @@ test.describe("workspace entrypoint regression", () => {
 
     await page.keyboard.press("Escape");
     await page.setViewportSize({ height: 844, width: 390 });
+
+    await page.goto("/admin/tourism/settings");
+    await expect(visibleExactText(page, "陪同类服务业务员佣金")).toHaveCount(1);
+    await expect(page.getByText("采购订单业务员佣金", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("批发订单业务员佣金", { exact: true })).toHaveCount(0);
+    await expectNoDocumentHorizontalOverflow(page);
 
     await page.goto("/admin/wholesale/settings");
     await expect(page.getByRole("heading", { name: "订单修改规则" })).toBeVisible();
@@ -311,7 +328,7 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByLabel("关联批发订单")).toBeEnabled();
   });
 
-  test("salesman wholesale customers and people are separate sections", async ({
+  test("salesman wholesale customer page hides people management", async ({
     page,
   }) => {
     await loginAs(page, "salesman");
@@ -323,23 +340,15 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByText("Wholesale Alpha").first()).toBeVisible();
     await expect(page.getByText("Wholesale Beta").first()).toBeVisible();
     await expect(page.getByText("Promoter Wholesale Shop")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "人员管理" })).toHaveCount(0);
 
     await page.goto("/salesman/wholesale/people");
-    await expectWorkspaceShell(page);
-    await expectNotForbiddenPage(page);
-
-    await expect(page.getByRole("heading", { name: "人员管理" })).toBeVisible();
-    await expect(page.getByText("本地业务员").first()).toBeVisible();
-    await expect(page.getByText("Wholesale Alpha")).toHaveCount(0);
-    await expect(page.getByText("本地地推")).toHaveCount(0);
+    await expectForbiddenPage(page);
 
     await page.setViewportSize({ height: 844, width: 390 });
     await page.goto("/salesman/wholesale/customers");
     await expect(page.getByRole("heading", { name: "客户管理" })).toBeVisible();
-    await expectNoDocumentHorizontalOverflow(page);
-
-    await page.goto("/salesman/wholesale/people");
-    await expect(page.getByRole("heading", { name: "人员管理" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "人员管理" })).toHaveCount(0);
     await expectNoDocumentHorizontalOverflow(page);
   });
 
@@ -373,6 +382,10 @@ test.describe("workspace entrypoint regression", () => {
     await expect(createdToInput).toHaveValue("");
   });
 });
+
+function visibleExactText(page: Page, text: string) {
+  return page.getByText(text, { exact: true }).filter({ visible: true });
+}
 
 async function mockClipboard(page: Page) {
   await page.addInitScript(() => {

@@ -63,7 +63,6 @@ export function BusinessSettingsPanel({
         if (section.kind === "tourismServiceFees") {
           return (
             <AdminOrdersServiceFeeSettings
-              commissionRuleSettings={commissionRuleSettings}
               initialRows={serviceFeeTypeOptions}
               key={section.kind}
               onRowsChange={onServiceFeeRowsChange}
