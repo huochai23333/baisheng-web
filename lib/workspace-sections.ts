@@ -1,5 +1,6 @@
 export const workspaceSectionKeys = [
   "orders",
+  "customers",
   "referrals",
   "team",
   "people",

@@ -46,6 +46,7 @@ const NAV_ICONS: Record<WorkspaceNavSegment, LucideIcon> = {
   accounts: UserCog,
   announcements: Megaphone,
   commission: WalletCards,
+  customers: UsersRound,
   feedback: MessageSquareWarning,
   home: Home,
   incentives: BadgeDollarSign,

@@ -73,6 +73,13 @@ const TourismPeopleClient = dynamic(
     ),
 );
 
+const TourismCustomersClient = dynamic(
+  () =>
+    import(
+      "@/components/dashboard/tourism-people/tourism-customers-client"
+    ).then((mod) => mod.TourismCustomersClient),
+);
+
 const SalesmanPeopleClient = dynamic(
   () =>
     import("@/components/dashboard/salesman-people/salesman-people-client").then(
@@ -239,6 +246,15 @@ export default async function WorkspaceSectionPage({
     const supabase = await getServerSupabaseClient();
     const initialData = await getAdminReviewsPageData(supabase);
     content = <AdminReviewsClient initialData={initialData} />;
+  } else if (section === "customers" && config.pageVariants.customers) {
+    const supabase = await getServerSupabaseClient();
+    if (config.pageVariants.customers === "admin") {
+      const initialData = await getAdminPeoplePageData(supabase);
+      content = <TourismCustomersClient initialData={initialData} />;
+    } else {
+      const initialData = await getSalesmanPeoplePageData(supabase);
+      content = <SalesmanPeopleClient initialData={initialData} />;
+    }
   } else if (section === "people" && config.pageVariants.people) {
     const supabase = await getServerSupabaseClient();
     if (config.pageVariants.people === "admin") {

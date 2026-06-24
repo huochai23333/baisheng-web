@@ -5,6 +5,7 @@ import type { WholesalePageData } from "@/lib/wholesale";
 
 import { WholesaleClaimsSection } from "./wholesale-claims-section";
 import { WholesaleCommissionSection } from "./wholesale-commission-section";
+import { WholesaleCustomersSection } from "./wholesale-customers-section";
 import { WholesaleLogisticsSection } from "./wholesale-logistics-section";
 import { WholesaleOrdersSection } from "./wholesale-orders-section";
 import { WholesalePeopleSection } from "./wholesale-people-section";
@@ -88,8 +89,8 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
         />
       ) : null}
 
-      {initialData.section === "people" ? (
-        <WholesalePeopleSection
+      {initialData.section === "customers" ? (
+        <WholesaleCustomersSection
           canEdit={canEdit}
           canLinkCustomerAccount={canLinkCustomerAccount}
           customers={initialData.customers}
@@ -98,6 +99,12 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
           pendingKey={actions.pendingKey}
           profilesById={profilesById}
           registeredAccounts={registeredAccounts}
+          salesAccounts={salesAccounts}
+        />
+      ) : null}
+
+      {initialData.section === "people" ? (
+        <WholesalePeopleSection
           salesAccounts={salesAccounts}
         />
       ) : null}

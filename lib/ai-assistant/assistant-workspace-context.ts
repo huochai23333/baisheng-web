@@ -30,6 +30,7 @@ const NAV_LABELS = {
   announcements: "公告管理",
   businessSettings: "业务设置",
   commission: "佣金",
+  customers: "客户管理",
   exchangeRates: "汇率设置",
   feedback: "反馈管理",
   home: "首页",
@@ -54,6 +55,7 @@ const NAV_ENTRY_DESCRIPTIONS = {
   announcements: "发布和管理系统公告",
   businessSettings: "维护当前业务内的价格、佣金和相关规则",
   commission: "查看或处理订单佣金与任务奖励",
+  customers: "按当前业务查看和维护客户资料、客户标记或客户归属",
   exchangeRates: "维护币种汇率、自动获取和历史记录",
   feedback: "管理员查看和跟进用户反馈",
   home: "查看问候、公告和当前提醒",
@@ -62,7 +64,7 @@ const NAV_ENTRY_DESCRIPTIONS = {
   my: "从头像进入个人资料、邀请码和账号入口",
   orderClaims: "接收 1688 采购订单并由业务员认领归属客户",
   orders: "查看或处理当前账号可见的订单",
-  people: "按当前业务查看客户、地推或业务员资料",
+  people: "按当前业务查看业务人员或承接账号资料",
   records: "查看重要处理动作的留痕",
   referrals: "按当前可见业务板块查看推荐关系和邀请码线索",
   reviews: "处理资料和媒体审核",
@@ -153,8 +155,12 @@ function getNavEntryDescription(
       : "按当前账号可见旅游业务处理订单；如果页面没有该入口，以当前工作台实际显示为准";
   }
 
+  if (isSalesStaffRole(config.authRole) && item.segment === "customers") {
+    return "按当前账号可见业务范围查看客户；如果页面没有该入口，以当前工作台实际显示为准";
+  }
+
   if (isSalesStaffRole(config.authRole) && item.segment === "people") {
-    return "拥有客户管理入口时使用；如果页面没有该入口，以当前工作台实际显示为准";
+    return "按当前账号可见业务范围查看业务人员或承接账号；如果页面没有该入口，以当前工作台实际显示为准";
   }
 
   return NAV_ENTRY_DESCRIPTIONS[item.labelKey];
@@ -230,6 +236,7 @@ function buildSystemGuide(config: WorkspaceRouteConfig | null) {
 function buildPageVariantGuide(pageVariants: WorkspacePageVariants) {
   const roleNotes = [
     pageVariants.orders ? getOrdersGuide(pageVariants.orders) : null,
+    pageVariants.customers ? getCustomersGuide(pageVariants.customers) : null,
     pageVariants.people ? getPeopleGuide(pageVariants.people) : null,
     pageVariants.vip ? getVipGuide(pageVariants.vip) : null,
     pageVariants.tasks ? getTasksGuide(pageVariants.tasks) : null,
@@ -261,10 +268,18 @@ function getOrdersGuide(mode: WorkspacePageVariants["orders"]) {
 
 function getPeopleGuide(mode: WorkspacePageVariants["people"]) {
   if (mode === "admin") {
-    return "管理员旅游人员管理用于查看旅游客户和地推资料；账号身份、状态和城市在全局账号管理中调整。";
+    return "管理员旅游人员管理用于查看旅游业务人员；账号身份、状态和城市在全局账号管理中调整。";
   }
 
-  return "人员入口按当前账号的业务范围展示客户管理内容。";
+  return "人员入口按当前账号的业务范围展示业务人员或承接账号。";
+}
+
+function getCustomersGuide(mode: WorkspacePageVariants["customers"]) {
+  if (mode === "admin") {
+    return "管理员客户管理按业务查看客户资料；旅游客户和批发客户分别在各自业务下维护。";
+  }
+
+  return "业务员或地推客户管理用于查看自己可跟进的客户，客户资料不再放在人员管理里。";
 }
 
 function getVipGuide(mode: WorkspacePageVariants["vip"]) {

@@ -16,22 +16,19 @@ import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 import type { AdminPeoplePageData, AdminPersonRow } from "@/lib/admin-people";
-import type { Locale } from "@/lib/locale";
-import { normalizeSearchText } from "@/lib/value-normalizers";
 import { cn } from "@/lib/utils";
+import { normalizeSearchText } from "@/lib/value-normalizers";
 
 import {
-  formatTourismPeopleDate,
-  getTourismPersonContact,
   getTourismPersonName,
-  isTourismPromoter,
-  TOURISM_STATUS_LABELS,
+  isTourismCustomer,
 } from "./tourism-people-display";
+import { TourismPersonDetails } from "./tourism-people-client";
 import { TourismPeopleTable } from "./tourism-people-table";
 
 const ALL = "all";
 
-export function TourismPeopleClient({
+export function TourismCustomersClient({
   initialData,
 }: {
   initialData: AdminPeoplePageData;
@@ -39,20 +36,19 @@ export function TourismPeopleClient({
   const { locale } = useLocale();
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState(ALL);
-  const [selectedPerson, setSelectedPerson] = useState<AdminPersonRow | null>(
-    null,
-  );
+  const [selectedCustomer, setSelectedCustomer] =
+    useState<AdminPersonRow | null>(null);
 
-  // 业务内人员管理只保留真实业务人员，客户目录由客户管理板块承接。
-  const promoters = useMemo(
-    () => initialData.people.filter(isTourismPromoter),
+  // 旅游客户从账号目录里筛出，但在业务下以独立客户板块展示。
+  const tourismCustomers = useMemo(
+    () => initialData.people.filter(isTourismCustomer),
     [initialData.people],
   );
-  const filteredPeople = useMemo(() => {
+  const filteredCustomers = useMemo(() => {
     const searchValue = normalizeSearchText(searchText);
 
-    return promoters.filter((person) => {
-      if (statusFilter !== ALL && person.status !== statusFilter) {
+    return tourismCustomers.filter((customer) => {
+      if (statusFilter !== ALL && customer.status !== statusFilter) {
         return false;
       }
 
@@ -61,31 +57,31 @@ export function TourismPeopleClient({
       }
 
       return [
-        person.name ?? "",
-        person.email ?? "",
-        person.phone ?? "",
-        person.city ?? "",
-        person.referral_code ?? "",
-        person.referrer_name ?? "",
-        person.referrer_email ?? "",
-        person.team_name ?? "",
+        customer.name ?? "",
+        customer.email ?? "",
+        customer.phone ?? "",
+        customer.city ?? "",
+        customer.referral_code ?? "",
+        customer.referrer_name ?? "",
+        customer.referrer_email ?? "",
+        customer.team_name ?? "",
       ].some((value) => normalizeSearchText(value).includes(searchValue));
     });
-  }, [promoters, searchText, statusFilter]);
+  }, [searchText, statusFilter, tourismCustomers]);
   const hasFilters = searchText || statusFilter !== ALL;
-  const activeCount = promoters.filter(
-    (person) => person.status === "active",
+  const activeCount = tourismCustomers.filter(
+    (customer) => customer.status === "active",
   ).length;
 
   if (!initialData.hasPermission) {
     return (
       <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
         <DashboardListSection
-          description="只有正常启用的管理员账号可以查看旅游人员。"
-          title="没有旅游人员管理权限"
+          description="只有正常启用的管理员账号可以查看旅游客户。"
+          title="没有旅游客户管理权限"
         >
           <EmptyState
-            description="请使用正常启用的管理员账号查看旅游人员。"
+            description="请使用正常启用的管理员账号查看旅游客户。"
             icon={<UsersRound className="size-5" />}
             title="暂无权限"
           />
@@ -99,16 +95,16 @@ export function TourismPeopleClient({
       <DashboardSectionHeader
         badge="旅游业务"
         badgeIcon={<UsersRound className="size-4" />}
-        description="这里查看旅游业务人员。登录账号的身份、状态和城市调整统一在全局账号管理中处理。"
+        description="这里单独查看旅游客户资料。账号身份、状态和城市调整仍在全局账号管理中处理。"
         metrics={[
           {
             accent: "blue",
             icon: <UsersRound className="size-5" />,
-            label: "地推账户",
-            value: promoters.length,
+            label: "旅游客户",
+            value: tourismCustomers.length,
           },
           {
-            accent: "blue",
+            accent: "green",
             icon: <UserCheck className="size-5" />,
             label: "当前正常",
             value: activeCount,
@@ -116,7 +112,7 @@ export function TourismPeopleClient({
         ]}
         metricsClassName="grid-cols-1 sm:grid-cols-2"
         metricsPlacement="below"
-        title="旅游人员管理"
+        title="旅游客户管理"
       />
 
       <DashboardListSection
@@ -135,11 +131,11 @@ export function TourismPeopleClient({
             清空筛选
           </Button>
         }
-        description={`共 ${promoters.length} 人，当前显示 ${filteredPeople.length} 人。`}
-        title="地推账户"
+        description={`共 ${tourismCustomers.length} 位客户，当前显示 ${filteredCustomers.length} 位。`}
+        title="旅游客户"
       >
         <DashboardFilterPanel gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-          <DashboardFilterField label="搜索人员">
+          <DashboardFilterField label="搜索客户">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
               <input
@@ -168,77 +164,28 @@ export function TourismPeopleClient({
         <div className="mt-5">
           <TourismPeopleTable
             locale={locale}
-            onSelect={setSelectedPerson}
-            people={filteredPeople}
-            tab="promoters"
+            onSelect={setSelectedCustomer}
+            people={filteredCustomers}
+            tab="customers"
           />
         </div>
       </DashboardListSection>
 
       <DashboardDialog
         onOpenChange={(open) => {
-          if (!open) setSelectedPerson(null);
+          if (!open) setSelectedCustomer(null);
         }}
-        open={Boolean(selectedPerson)}
-        title={selectedPerson ? getTourismPersonName(selectedPerson) : "人员详情"}
+        open={Boolean(selectedCustomer)}
+        title={
+          selectedCustomer
+            ? getTourismPersonName(selectedCustomer)
+            : "客户详情"
+        }
       >
-        {selectedPerson ? (
-          <TourismPersonDetails locale={locale} person={selectedPerson} />
+        {selectedCustomer ? (
+          <TourismPersonDetails locale={locale} person={selectedCustomer} />
         ) : null}
       </DashboardDialog>
     </section>
-  );
-}
-
-export function TourismPersonDetails({
-  locale,
-  person,
-}: {
-  locale: Locale;
-  person: AdminPersonRow;
-}) {
-  const rows = [
-    { label: "联系方式", value: getTourismPersonContact(person) },
-    { label: "账号状态", value: TOURISM_STATUS_LABELS[person.status] },
-    { label: "城市", value: person.city ?? "待补充" },
-    { label: "邀请码", value: person.referral_code ?? "待补充" },
-    {
-      label: "推荐人",
-      value: person.referrer_name ?? person.referrer_email ?? "无",
-    },
-    {
-      label: "团队",
-      value: person.team_name ?? "未加入团队",
-    },
-    {
-      label: "直接推荐",
-      value: `${person.direct_referral_count} 人`,
-    },
-    {
-      label: "注册时间",
-      value: formatTourismPeopleDate(person.created_at, locale),
-    },
-    {
-      label: "最近调整",
-      value: formatTourismPeopleDate(person.latest_change_at, locale),
-    },
-  ];
-
-  return (
-    <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {rows.map((row) => (
-        <div
-          className="min-w-0 rounded-[18px] border border-[#e4e9ed] bg-white px-4 py-3"
-          key={row.label}
-        >
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
-            {row.label}
-          </p>
-          <p className="mt-1 break-words text-sm leading-6 text-[#53616d] [overflow-wrap:anywhere]">
-            {row.value}
-          </p>
-        </div>
-      ))}
-    </div>
   );
 }

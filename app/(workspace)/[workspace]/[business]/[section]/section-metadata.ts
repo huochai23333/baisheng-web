@@ -64,6 +64,20 @@ export async function generateWorkspaceSectionMetadata({
     };
   }
 
+  if (section === "customers" && config.pageVariants.customers) {
+    const t = await getTranslations(
+      config.pageVariants.customers === "admin"
+        ? "TourismPeople.metadata"
+        : "SalesmanPeople.metadata",
+    );
+
+    return {
+      title: t(
+        config.pageVariants.customers === "admin" ? "customersTitle" : "title",
+      ),
+    };
+  }
+
   if (section === "tasks" && config.pageVariants.tasks) {
     const t = await getTranslations("Tasks.metadata");
 

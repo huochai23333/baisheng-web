@@ -332,6 +332,7 @@
       "accounts": "Account Management",
       "announcements": "Announcements",
       "orders": "Orders",
+      "customers": "Customer Management",
       "referrals": "Referral Tree",
       "team": "Team",
       "people": "People Management",
@@ -477,9 +478,13 @@
         "title": "Logistics",
         "description": "Track international order numbers, destination order numbers, freight forwarder progress, and logistics costs so each customer can review daily shipment status."
       },
+      "customers": {
+        "title": "Customer Management",
+        "description": "Manage wholesale customer profiles, contact details, source, assigned sales account, and linked sign-in account status separately."
+      },
       "people": {
         "title": "People Management",
-        "description": "Manage wholesale customer profiles and the sales or promoter accounts that can handle wholesale work in one place."
+        "description": "Review sales accounts that can handle wholesale customers and orders. Customer profiles are maintained in Customer Management."
       },
       "vip": {
         "title": "VIP Management",
@@ -546,6 +551,10 @@
       "title": "Order Management",
       "description": "This area will handle order browsing, filtering, status flow, and exception handling. It will later be split into role-specific views for administrators, sales, finance, and clients."
     },
+    "customers": {
+      "title": "Customer Management",
+      "description": "Maintain customer profiles, customer marks, and customer ownership inside the current business."
+    },
     "referrals": {
       "title": "Referral Tree",
       "description": "This section shows the referral relationships visible to the current role, including who referred you and whom you referred. Different roles only see the relationships they are allowed to view."
@@ -556,7 +565,7 @@
     },
     "people": {
       "title": "People Management",
-      "description": "This area shows the people or customer records available to the current account. Referral relationships and team membership remain in their own sections."
+      "description": "This area shows people records available inside the current business. Customer profiles are maintained in Customer Management."
     },
     "vip": {
       "title": "VIP Management",
@@ -2867,7 +2876,8 @@
   },
   "TourismPeople": {
     "metadata": {
-      "title": "Tourism People Management"
+      "title": "Tourism People Management",
+      "customersTitle": "Tourism Customer Management"
     }
   },
   "AdminPeople": {
@@ -2877,7 +2887,7 @@
     "header": {
       "badge": "Admin Only",
       "title": "Account Management",
-      "description": "Review system sign-in accounts and adjust account role, status, and city. Business profiles are managed inside each business area."
+      "description": "Review system sign-in accounts and adjust account role, status, and city. Business profiles are managed in each business area's Customer Management or People Management section."
     },
     "summary": {
       "total": "Total Accounts",

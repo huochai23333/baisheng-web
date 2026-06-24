@@ -11,6 +11,7 @@ export const workspaceWholesaleSectionKeys = [
   "orders",
   "order-claims",
   "logistics",
+  "customers",
   "people",
   "referrals",
   "commission",
@@ -41,6 +42,7 @@ export type WorkspaceNavLabelKey =
   | "home"
   | "my"
   | "orders"
+  | "customers"
   | "people"
   | "records"
   | "referrals"
@@ -64,10 +66,12 @@ export type WorkspaceOrdersPageMode = "admin" | "salesman" | "client";
 export type WorkspaceCommissionPageMode = "admin" | "salesman";
 export type WorkspaceTasksPageMode = "admin" | "staff";
 export type WorkspacePeoplePageMode = "admin" | "salesman";
+export type WorkspaceCustomersPageMode = "admin" | "salesman";
 export type WorkspaceVipPageMode = "admin" | "salesman";
 
 export type WorkspaceBusinessPageVariants = {
   commission?: WorkspaceCommissionPageMode;
+  customers?: WorkspaceCustomersPageMode;
   orders?: WorkspaceOrdersPageMode;
   people?: WorkspacePeoplePageMode;
   records?: true;
@@ -154,7 +158,7 @@ const recruiterTourismNavItems = [
 
 const sharedSalesTourismNavItems = [
   { segment: "orders", labelKey: "orders" },
-  { segment: "people", labelKey: "people" },
+  { segment: "customers", labelKey: "customers" },
   { segment: "vip", labelKey: "vip" },
   { segment: "referrals", labelKey: "referrals" },
   { segment: "team", labelKey: "team" },
@@ -164,6 +168,7 @@ const sharedSalesTourismNavItems = [
 
 const adminTourismNavItems = [
   { segment: "orders", labelKey: "orders" },
+  { segment: "customers", labelKey: "customers" },
   { segment: "referrals", labelKey: "referrals" },
   { segment: "team", labelKey: "team" },
   { segment: "people", labelKey: "people" },
@@ -179,6 +184,7 @@ const adminWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
   ["order-claims", "orderClaims"],
   ["logistics", "logistics"],
+  ["customers", "customers"],
   ["people", "people"],
   ["vip", "vip"],
   ["referrals", "referrals"],
@@ -191,6 +197,7 @@ const salesWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
   ["order-claims", "orderClaims"],
   ["logistics", "logistics"],
+  ["customers", "customers"],
   ["people", "people"],
   ["vip", "vip"],
   ["referrals", "referrals"],
@@ -247,6 +254,7 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
     pageVariantsByRouteSegment: {
       admin: {
         commission: "admin",
+        customers: "admin",
         orders: "admin",
         people: "admin",
         records: true,
@@ -279,8 +287,8 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
       },
       promoter: {
         commission: "salesman",
+        customers: "salesman",
         orders: "salesman",
-        people: "salesman",
         referrals: true,
         tasks: "staff",
         team: true,
@@ -292,8 +300,8 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
       },
       salesman: {
         commission: "salesman",
+        customers: "salesman",
         orders: "salesman",
-        people: "salesman",
         referrals: true,
         tasks: "staff",
         team: true,

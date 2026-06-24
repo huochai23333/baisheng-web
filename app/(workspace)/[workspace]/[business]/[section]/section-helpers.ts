@@ -12,6 +12,8 @@ export function isWorkspaceSectionEnabled(
   switch (section) {
     case "commission":
       return Boolean(config.pageVariants.commission);
+    case "customers":
+      return Boolean(config.pageVariants.customers);
     case "orders":
       return Boolean(config.pageVariants.orders);
     case "people":
@@ -52,6 +54,19 @@ export function getSectionNamespaces(
 
   if (section === "commission" && config.pageVariants.commission) {
     namespaces.push("Commission", "DashboardPagination", "Tasks.shared");
+  }
+
+  if (section === "customers" && config.pageVariants.customers) {
+    namespaces.push(
+      config.pageVariants.customers === "admin"
+        ? "TourismPeople"
+        : "SalesmanPeople",
+      "DashboardShared",
+    );
+
+    if (config.pageVariants.customers === "salesman") {
+      namespaces.push("PersonPrivateNotes");
+    }
   }
 
   if (section === "tasks") {

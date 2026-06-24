@@ -21,9 +21,12 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
       "/admin/settings",
       "/admin/tourism/orders",
       "/admin/tourism/reviews",
+      "/admin/tourism/customers",
       "/admin/tourism/people",
       "/admin/tourism/records",
       "/admin/wholesale/orders",
+      "/admin/wholesale/customers",
+      "/admin/wholesale/people",
     ],
     role: "administrator",
   },
@@ -32,6 +35,7 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
       "/salesman/wholesale/orders",
       "/salesman/wholesale/order-claims",
       "/salesman/wholesale/logistics",
+      "/salesman/wholesale/customers",
       "/salesman/wholesale/people",
       "/salesman/wholesale/incentives",
     ],
@@ -42,7 +46,7 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
       "/promoter/tourism/orders",
       "/promoter/tourism/tasks",
       "/promoter/tourism/commission",
-      "/promoter/tourism/people",
+      "/promoter/tourism/customers",
     ],
     role: "promoter",
   },
@@ -242,6 +246,38 @@ test.describe("workspace entrypoint regression", () => {
     await expectNoDocumentHorizontalOverflow(page);
   });
 
+  test("admin business customer pages are separate from people pages", async ({
+    page,
+  }) => {
+    await loginAs(page, "administrator");
+
+    await page.goto("/admin/tourism/customers");
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
+    await expect(page.getByRole("heading", { name: "旅游客户管理" })).toBeVisible();
+    await expect(page.getByText("地推账户")).toHaveCount(0);
+
+    await page.goto("/admin/tourism/people");
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
+    await expect(page.getByRole("heading", { name: "旅游人员管理" })).toBeVisible();
+    await expect(page.getByText("旅游客户")).toHaveCount(0);
+    await expect(page.getByText("地推账户").first()).toBeVisible();
+
+    await page.goto("/admin/wholesale/customers");
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
+    await expect(page.getByRole("heading", { name: "客户管理" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "新增客户" })).toBeVisible();
+
+    await page.goto("/admin/wholesale/people");
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
+    await expect(page.getByRole("heading", { name: "人员管理" })).toBeVisible();
+    await expect(page.getByText("业务员账户").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "新增客户" })).toHaveCount(0);
+  });
+
   test("wholesale claim page separates assisted, hall, and claimed orders", async ({
     page,
   }) => {
@@ -275,22 +311,36 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByLabel("关联批发订单")).toBeEnabled();
   });
 
-  test("salesman wholesale people only shows scoped customers", async ({
+  test("salesman wholesale customers and people are separate sections", async ({
     page,
   }) => {
     await loginAs(page, "salesman");
-    await page.goto("/salesman/wholesale/people");
+    await page.goto("/salesman/wholesale/customers");
     await expectWorkspaceShell(page);
     await expectNotForbiddenPage(page);
 
+    await expect(page.getByRole("heading", { name: "客户管理" })).toBeVisible();
     await expect(page.getByText("Wholesale Alpha").first()).toBeVisible();
     await expect(page.getByText("Wholesale Beta").first()).toBeVisible();
     await expect(page.getByText("Promoter Wholesale Shop")).toHaveCount(0);
 
-    await page.getByRole("button", { name: /业务员账户/ }).click();
+    await page.goto("/salesman/wholesale/people");
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
 
+    await expect(page.getByRole("heading", { name: "人员管理" })).toBeVisible();
     await expect(page.getByText("本地业务员").first()).toBeVisible();
+    await expect(page.getByText("Wholesale Alpha")).toHaveCount(0);
     await expect(page.getByText("本地地推")).toHaveCount(0);
+
+    await page.setViewportSize({ height: 844, width: 390 });
+    await page.goto("/salesman/wholesale/customers");
+    await expect(page.getByRole("heading", { name: "客户管理" })).toBeVisible();
+    await expectNoDocumentHorizontalOverflow(page);
+
+    await page.goto("/salesman/wholesale/people");
+    await expect(page.getByRole("heading", { name: "人员管理" })).toBeVisible();
+    await expectNoDocumentHorizontalOverflow(page);
   });
 
   test("tourism order list can filter by ordered date range", async ({

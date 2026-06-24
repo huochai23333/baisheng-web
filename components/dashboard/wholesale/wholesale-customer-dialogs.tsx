@@ -4,7 +4,6 @@ import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 
 import { WholesaleCustomerDetails } from "./wholesale-customer-details";
-import { WholesaleAccountDetails } from "./wholesale-people-directories";
 import {
   WholesaleField,
   WholesaleSelect,
@@ -12,7 +11,7 @@ import {
   WholesaleTextarea,
 } from "./wholesale-ui";
 
-type WholesalePeopleDialogsProps = {
+type WholesaleCustomerDialogsProps = {
   canLinkCustomerAccount: boolean;
   createDialogOpen: boolean;
   linkedRegisteredUserIds: Set<string>;
@@ -20,17 +19,15 @@ type WholesalePeopleDialogsProps = {
   onCreateDialogOpenChange: (open: boolean) => void;
   onLinkCustomerAccount: (formData: FormData) => void | Promise<void>;
   onSelectedCustomerIdChange: (id: string | null) => void;
-  onSelectedProfileChange: (profile: WholesaleProfile | null) => void;
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
   registeredAccounts: WholesaleProfile[];
   salesAccounts: WholesaleProfile[];
   selectedCustomer: WholesaleCustomer | null;
   selectedCustomerId: string | null;
-  selectedProfile: WholesaleProfile | null;
 };
 
-export function WholesalePeopleDialogs({
+export function WholesaleCustomerDialogs({
   canLinkCustomerAccount,
   createDialogOpen,
   linkedRegisteredUserIds,
@@ -38,15 +35,13 @@ export function WholesalePeopleDialogs({
   onCreateDialogOpenChange,
   onLinkCustomerAccount,
   onSelectedCustomerIdChange,
-  onSelectedProfileChange,
   pendingKey,
   profilesById,
   registeredAccounts,
   salesAccounts,
   selectedCustomer,
   selectedCustomerId,
-  selectedProfile,
-}: WholesalePeopleDialogsProps) {
+}: WholesaleCustomerDialogsProps) {
   return (
     <>
       <DashboardDialog
@@ -104,18 +99,6 @@ export function WholesalePeopleDialogs({
             profilesById={profilesById}
             registeredAccounts={registeredAccounts}
           />
-        ) : null}
-      </DashboardDialog>
-
-      <DashboardDialog
-        onOpenChange={(open) => {
-          if (!open) onSelectedProfileChange(null);
-        }}
-        open={Boolean(selectedProfile)}
-        title={selectedProfile?.name || selectedProfile?.email || "账号详情"}
-      >
-        {selectedProfile ? (
-          <WholesaleAccountDetails profile={selectedProfile} />
         ) : null}
       </DashboardDialog>
     </>

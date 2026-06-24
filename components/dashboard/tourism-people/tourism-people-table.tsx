@@ -32,12 +32,14 @@ export function TourismPeopleTable({
   people,
   tab,
 }: TourismPeopleTableProps) {
+  const subjectLabel = tab === "customers" ? "客户" : "人员";
+
   if (people.length === 0) {
     return (
       <EmptyState
-        description="没有匹配的人员。可以调整搜索或筛选条件后再查看。"
+        description={`没有匹配的${subjectLabel}。可以调整搜索或筛选条件后再查看。`}
         icon={<UsersRound className="size-5" />}
-        title="暂无匹配人员"
+        title={`暂无匹配${subjectLabel}`}
       />
     );
   }
@@ -56,7 +58,7 @@ export function TourismPeopleTable({
             </colgroup>
             <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
               <tr>
-                <th className="px-3 py-3">人员</th>
+                <th className="px-3 py-3">{subjectLabel}</th>
                 <th className="px-3 py-3">账号状态</th>
                 <th className="px-3 py-3">推荐信息</th>
                 <th className="px-3 py-3">城市</th>
