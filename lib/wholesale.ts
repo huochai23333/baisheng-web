@@ -45,12 +45,12 @@ export type WholesaleOrder = {
   other_fee: number;
   referral_commission_fee: number;
   courier_company: string | null;
-  settlement_exchange_rate: number;
+  settlement_exchange_rate: number | null;
   customer_payment_currency: string;
   customer_payment_amount: number;
-  customer_payment_rmb_amount: number;
+  customer_payment_rmb_amount: number | null;
   payment_platform: string | null;
-  gross_profit: number;
+  gross_profit: number | null;
   gross_margin: number | null;
   unit_gross_profit: number | null;
   commission_rate: number;
@@ -89,7 +89,11 @@ export type WholesaleOrderChangeLog = {
   order_id: string;
   request_id: string | null;
   actor_user_id: string | null;
-  action: "approved_update" | "direct_update";
+  action:
+    | "approved_update"
+    | "direct_update"
+    | "settlement_rate_batch_update"
+    | "settlement_rate_update";
   previous_data: Record<string, unknown>;
   next_data: Record<string, unknown>;
   note: string | null;

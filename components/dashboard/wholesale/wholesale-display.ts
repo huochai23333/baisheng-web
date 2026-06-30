@@ -36,6 +36,23 @@ export function formatNumber(value: number | null | undefined) {
   }).format(Number.isFinite(amount) ? amount : 0);
 }
 
+export function formatOptionalCurrency(
+  value: number | null | undefined,
+  fallback = "结汇后计算",
+  currency = "CNY",
+) {
+  return value === null || value === undefined
+    ? fallback
+    : formatCurrency(value, currency);
+}
+
+export function formatOptionalNumber(
+  value: number | null | undefined,
+  fallback = "未记录",
+) {
+  return value === null || value === undefined ? fallback : formatNumber(value);
+}
+
 export function formatPercent(value: number | null | undefined) {
   if (value === null || value === undefined) {
     return "未产生";

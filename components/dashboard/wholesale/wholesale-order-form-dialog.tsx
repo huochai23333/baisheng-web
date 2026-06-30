@@ -1,28 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
-import {
-  DashboardFilterField,
-  dashboardFilterInputClassName,
-} from "@/components/dashboard/dashboard-section-panel";
-import {
-  buildOrderCurrencyOptions,
-  deriveRmbAmountValue,
-  formatEditableNumericValue,
-} from "@/components/dashboard/admin-orders/admin-orders-utils";
-import {
-  findLatestCnyExchangeRate,
-  type ExchangeRateRow,
-} from "@/lib/exchange-rates";
+import { buildOrderCurrencyOptions } from "@/components/dashboard/admin-orders/admin-orders-utils";
+import type { ExchangeRateRow } from "@/lib/exchange-rates";
 
 import type {
   WholesaleCustomer,
   WholesaleProfile,
 } from "@/lib/wholesale";
 
-import { formatCurrency } from "./wholesale-display";
 import {
   WholesaleField,
   WholesaleSelect,
@@ -73,33 +61,11 @@ export function WholesaleOrderFormDialog({
     currencyOptions.find((option) => option.currency === "USD")?.currency ??
     currencyOptions[0]?.currency ??
     "CNY";
-  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
-  const [paymentAmount, setPaymentAmount] = useState("");
-  const activeCurrency = selectedCurrency ?? defaultCurrency;
-  const selectedRate = useMemo(
-    () => findLatestCnyExchangeRate(exchangeRates, activeCurrency),
-    [activeCurrency, exchangeRates],
-  );
-  const settlementExchangeRate =
-    formatEditableNumericValue(selectedRate?.daily_exchange_rate) ||
-    (activeCurrency === "CNY" ? "1" : "");
-  const rmbAmountPreview = deriveRmbAmountValue(
-    paymentAmount,
-    settlementExchangeRate,
-  );
-  const resetFormState = () => {
-    setSelectedCurrency(null);
-    setPaymentAmount("");
-  };
 
   return (
     <DashboardDialog
-      description="订单编号会自动生成。填写客户支付、采购、运费和订单月份后，系统会自动计算打包费、毛利、毛利率、单位毛利和业务提成。"
+      description="订单编号会自动生成。录入阶段只记录客户支付和成本，结汇时再确认汇率并计算人民币金额、毛利和提成。"
       onOpenChange={(nextOpen) => {
-        if (!nextOpen) {
-          resetFormState();
-        }
-
         onOpenChange(nextOpen);
       }}
       open={open}
@@ -111,7 +77,6 @@ export function WholesaleOrderFormDialog({
           event.preventDefault();
           void onCreateOrder(new FormData(event.currentTarget));
           event.currentTarget.reset();
-          resetFormState();
           onOpenChange(false);
         }}
       >
@@ -172,9 +137,8 @@ export function WholesaleOrderFormDialog({
         <WholesaleSelect
           label="客户支付币种"
           name="customer_payment_currency"
-          onChange={(event) => setSelectedCurrency(event.target.value)}
           required
-          value={activeCurrency}
+          defaultValue={defaultCurrency}
         >
           <option value="">选择币种</option>
           {currencyOptions.map((option) => (
@@ -183,38 +147,14 @@ export function WholesaleOrderFormDialog({
             </option>
           ))}
         </WholesaleSelect>
-        <DashboardFilterField label="结汇汇率">
-          <input
-            className={dashboardFilterInputClassName}
-            min={0}
-            name="settlement_exchange_rate"
-            readOnly
-            required
-            step="0.000001"
-            type="number"
-            value={settlementExchangeRate}
-          />
-          <p className="mt-2 text-xs leading-5 text-[#7b8790]">
-            按当前币种汇率自动填入，保存时会再次确认当前汇率。
-          </p>
-        </DashboardFilterField>
-        <DashboardFilterField label="客户支付金额">
-          <input
-            className={dashboardFilterInputClassName}
-            min={0}
-            name="customer_payment_amount"
-            onChange={(event) => setPaymentAmount(event.target.value)}
-            required
-            step="0.01"
-            type="number"
-            value={paymentAmount}
-          />
-          {rmbAmountPreview ? (
-            <p className="mt-2 text-xs leading-5 text-[#7b8790]">
-              预计人民币金额 {formatCurrency(Number(rmbAmountPreview))}
-            </p>
-          ) : null}
-        </DashboardFilterField>
+        <WholesaleField
+          label="客户支付金额"
+          min={0}
+          name="customer_payment_amount"
+          required
+          step="0.01"
+          type="number"
+        />
         <WholesaleSelect label="收款平台" name="payment_platform">
           <option value="">选择收款平台</option>
           {WHOLESALE_PAYMENT_PLATFORM_OPTIONS.map((platform) => (

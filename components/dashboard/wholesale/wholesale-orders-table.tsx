@@ -21,6 +21,8 @@ import {
   formatDate,
   formatDateTime,
   formatNumber,
+  formatOptionalCurrency,
+  formatOptionalNumber,
   formatPercent,
   getCustomerName,
   getProfileName,
@@ -46,31 +48,37 @@ export type WholesaleOrderEditAction = {
 
 type WholesaleOrdersTableProps = {
   canMarkOrderSettled: (order: WholesaleOrder) => boolean;
+  canUpdateSettlementRate: (order: WholesaleOrder) => boolean;
   customersById: Map<string, WholesaleCustomer>;
   getOrderEditAction: (order: WholesaleOrder) => WholesaleOrderEditAction | null;
   logisticsOrdersByOrderId: Map<string, WholesaleLogisticsOrder[]>;
-  onMarkOrderSettled: (orderId: string) => void | Promise<void>;
   onOpenOrderEdit: (order: WholesaleOrder) => void;
+  onOpenOrderSettlement: (order: WholesaleOrder) => void;
+  onToggleOrderSelection: (orderId: string, selected: boolean) => void;
   orders: WholesaleOrder[];
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
   purchaseOrdersByOrderId: Map<string, Wholesale1688Order[]>;
+  selectedOrderIds: Set<string>;
 };
 
 export function WholesaleOrdersTable({
   canMarkOrderSettled,
+  canUpdateSettlementRate,
   customersById,
   getOrderEditAction,
   logisticsOrdersByOrderId,
-  onMarkOrderSettled,
   onOpenOrderEdit,
+  onOpenOrderSettlement,
+  onToggleOrderSelection,
   orders,
   pendingKey,
   profilesById,
   purchaseOrdersByOrderId,
+  selectedOrderIds,
 }: WholesaleOrdersTableProps) {
   return (
-    <WholesaleTable minWidth={3260}>
+    <WholesaleTable minWidth={3380}>
       <thead>
         <tr>
           <WholesaleTh className={wholesaleStickyFirstThClassName}>
@@ -108,10 +116,24 @@ export function WholesaleOrdersTable({
       <tbody>
         {orders.map((order) => {
           const editAction = getOrderEditAction(order);
+          const canEditRate = canUpdateSettlementRate(order);
 
           return (
             <tr className="group" key={order.id}>
               <WholesaleTd className={wholesaleStickyFirstTdClassName}>
+                {canEditRate ? (
+                  <label className="mb-3 flex w-fit items-center gap-2 text-xs text-[#5f6f79]">
+                    <input
+                      checked={selectedOrderIds.has(order.id)}
+                      className="size-4 rounded border-[#c8d3da]"
+                      onChange={(event) =>
+                        onToggleOrderSelection(order.id, event.target.checked)
+                      }
+                      type="checkbox"
+                    />
+                    选择
+                  </label>
+                ) : null}
                 <div className="font-semibold [overflow-wrap:anywhere]">
                   {order.order_number}
                 </div>
@@ -145,7 +167,7 @@ export function WholesaleOrdersTable({
                   <Button
                     className="mt-3 h-9 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
                     disabled={pendingKey === `order:settle:${order.id}`}
-                    onClick={() => void onMarkOrderSettled(order.id)}
+                    onClick={() => onOpenOrderSettlement(order)}
                     type="button"
                   >
                     {pendingKey === `order:settle:${order.id}` ? (
@@ -172,7 +194,9 @@ export function WholesaleOrdersTable({
               <WholesaleTd className="min-w-[140px] whitespace-normal">
                 {order.courier_company ?? "未记录"}
               </WholesaleTd>
-              <WholesaleTd>{formatNumber(order.settlement_exchange_rate)}</WholesaleTd>
+              <WholesaleTd>
+                {formatOptionalNumber(order.settlement_exchange_rate, "未结汇")}
+              </WholesaleTd>
               <WholesaleTd>{order.customer_payment_currency}</WholesaleTd>
               <WholesaleTd>
                 {formatCurrency(
@@ -180,13 +204,17 @@ export function WholesaleOrdersTable({
                   order.customer_payment_currency,
                 )}
               </WholesaleTd>
-              <WholesaleTd>{formatCurrency(order.customer_payment_rmb_amount)}</WholesaleTd>
+              <WholesaleTd>
+                {formatOptionalCurrency(order.customer_payment_rmb_amount)}
+              </WholesaleTd>
               <WholesaleTd className="min-w-[140px] whitespace-normal">
                 {order.payment_platform ?? "未记录"}
               </WholesaleTd>
-              <WholesaleTd>{formatCurrency(order.gross_profit)}</WholesaleTd>
+              <WholesaleTd>{formatOptionalCurrency(order.gross_profit)}</WholesaleTd>
               <WholesaleTd>{formatPercent(order.gross_margin)}</WholesaleTd>
-              <WholesaleTd>{formatCurrency(order.unit_gross_profit)}</WholesaleTd>
+              <WholesaleTd>
+                {formatOptionalCurrency(order.unit_gross_profit)}
+              </WholesaleTd>
               <WholesaleTd>{formatDate(order.order_month)}</WholesaleTd>
               <WholesaleTd>{formatDateTime(order.ordered_at)}</WholesaleTd>
               <WholesaleTd>

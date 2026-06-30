@@ -54,6 +54,7 @@ const EDIT_FIELD_LABELS: Record<string, string> = {
   product_purchase_amount: "产品采购金额",
   referral_commission_fee: "推荐佣金费用",
   sales_user_id: "业务员",
+  settlement_exchange_rate: "结汇汇率",
   small_order_count: "小单数量",
 };
 
@@ -224,9 +225,7 @@ export function WholesaleOrderChangeSections({
                     <WholesaleTd className="min-w-[150px] whitespace-normal">
                       {getProfileName(profilesById, log.actor_user_id)}
                     </WholesaleTd>
-                    <WholesaleTd>
-                      {log.action === "approved_update" ? "管理员通过申请" : "直接修改"}
-                    </WholesaleTd>
+                    <WholesaleTd>{getLogActionLabel(log.action)}</WholesaleTd>
                     <WholesaleTd className="min-w-[240px] whitespace-normal">
                       {formatLogChangeSummary(log)}
                     </WholesaleTd>
@@ -251,6 +250,19 @@ function formatRequestChangeSummary(request: WholesaleOrderEditRequest) {
 
 function formatLogChangeSummary(log: WholesaleOrderChangeLog) {
   return formatChangedFieldLabels(log.previous_data, log.next_data);
+}
+
+function getLogActionLabel(action: WholesaleOrderChangeLog["action"]) {
+  switch (action) {
+    case "approved_update":
+      return "管理员通过申请";
+    case "settlement_rate_batch_update":
+      return "批量改汇率";
+    case "settlement_rate_update":
+      return "修改汇率";
+    case "direct_update":
+      return "直接修改";
+  }
 }
 
 function formatChangedFieldLabels(

@@ -52,6 +52,7 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
           onRejectOrderEditRequest={actions.rejectOrderEditRequest}
           onRequestOrderEdit={actions.requestOrderEdit}
           onUpdateOrder={actions.updateOrder}
+          onUpdateOrderSettlementRate={actions.updateOrderSettlementRate}
           orderChangeLogs={initialData.orderChangeLogs}
           orderEditRequests={initialData.orderEditRequests}
           orderEditWindowDays={initialData.orderEditSettings.directEditWindowDays}

@@ -133,8 +133,10 @@ export function WholesaleTable({
   minWidth?: number;
 }) {
   return (
-    <DashboardTableFrame>
+    // 长列表在表格内部滚动，配合固定表头避免查看下方订单时失去字段含义。
+    <DashboardTableFrame innerClassName="max-h-[72vh] overflow-auto overscroll-contain">
       <table
+        data-wholesale-table
         className="w-full border-collapse text-left text-sm [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[#fcfbf8] [&_tbody_tr:last-child_td]:border-b-0"
         style={{ minWidth }}
       >
@@ -154,7 +156,7 @@ export function WholesaleTh({
   return (
     <th
       className={cn(
-        "whitespace-nowrap border-b border-[#efebe5] bg-[#f7f5f2] px-5 py-4 text-left font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase",
+        "sticky top-0 z-10 whitespace-nowrap border-b border-[#efebe5] bg-[#f7f5f2] px-5 py-4 text-left font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase",
         className,
       )}
     >
