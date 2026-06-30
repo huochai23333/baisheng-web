@@ -27,9 +27,11 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
     (profile) => profile.role === "client",
   );
   const canAdmin = initialData.currentRole === "administrator";
-  const canEdit = canAdmin || initialData.currentRole === "salesman";
+  const canUseSalesTools =
+    initialData.currentRole === "salesman" || initialData.currentRole === "finance";
+  const canEdit = canAdmin || canUseSalesTools;
   const canLinkCustomerAccount =
-    canAdmin || initialData.currentRole === "salesman";
+    canAdmin || canUseSalesTools;
 
   return (
     <div className="space-y-6">

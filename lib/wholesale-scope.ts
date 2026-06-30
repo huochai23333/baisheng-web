@@ -136,7 +136,7 @@ function scopeWholesaleCustomers({
   }
 
   return customers.filter((customer) => {
-    if (currentRole === "salesman") {
+    if (canUseWholesaleSalesScope(currentRole)) {
       return (
         customer.assigned_sales_user_id === currentUserId ||
         customer.created_by_user_id === currentUserId
@@ -207,7 +207,7 @@ function scopeWholesalePurchaseOrders({
       (order.wholesale_order_id ? orderIds.has(order.wholesale_order_id) : false) ||
       order.claimed_by_user_id === currentUserId ||
       order.imported_by_user_id === currentUserId ||
-      (currentRole === "salesman" && isUnclaimedHallOrder)
+      (canUseWholesaleSalesScope(currentRole) && isUnclaimedHallOrder)
     );
   });
 }
@@ -429,7 +429,6 @@ function canReadFullWholesaleDirectory(role: AppRole | null) {
     role === "administrator" ||
     role === "manager" ||
     role === "operator" ||
-    role === "finance" ||
     role === "recruiter"
   );
 }
@@ -438,7 +437,10 @@ function canReadFullWholesaleBackoffice(role: AppRole | null) {
   return (
     role === "administrator" ||
     role === "manager" ||
-    role === "operator" ||
-    role === "finance"
+    role === "operator"
   );
+}
+
+function canUseWholesaleSalesScope(role: AppRole | null) {
+  return role === "salesman" || role === "finance";
 }

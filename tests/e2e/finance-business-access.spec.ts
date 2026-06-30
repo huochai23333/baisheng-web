@@ -8,12 +8,16 @@ import {
 } from "./helpers/auth";
 
 test.describe("finance business access", () => {
-  test("finance can open key wholesale sections", async ({ page }) => {
+  test("finance can open salesman-like wholesale sections", async ({ page }) => {
     await loginAs(page, "finance");
 
     for (const workspacePath of [
       "/finance/wholesale/orders",
+      "/finance/wholesale/order-claims",
       "/finance/wholesale/logistics",
+      "/finance/wholesale/customers",
+      "/finance/wholesale/vip",
+      "/finance/wholesale/referrals",
       "/finance/wholesale/commission",
       "/finance/wholesale/incentives",
     ]) {
@@ -23,7 +27,7 @@ test.describe("finance business access", () => {
     }
   });
 
-  test("finance sees both business groups on desktop and mobile", async ({
+  test("finance only sees wholesale business on desktop and mobile", async ({
     page,
   }) => {
     await loginAs(page, "finance");
@@ -34,9 +38,12 @@ test.describe("finance business access", () => {
     const desktopSidebar = page.locator("aside").first();
     await expect(
       desktopSidebar.getByRole("button", { name: "旅游业务" }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await expect(
       desktopSidebar.getByRole("button", { name: "批发业务" }),
+    ).toBeVisible();
+    await expect(
+      desktopSidebar.getByRole("link", { name: "公司费用" }),
     ).toBeVisible();
     await expect(
       desktopSidebar.getByRole("link", { name: "批发订单" }),
@@ -55,19 +62,30 @@ test.describe("finance business access", () => {
     const mobileNav = mobileHeader.locator("nav");
     await expect(
       mobileNav.getByText("旅游业务", { exact: true }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await expect(
       mobileNav.getByText("批发业务", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      mobileNav.getByRole("link", { name: "公司费用" }),
     ).toBeVisible();
     await expectNoDocumentHorizontalOverflow(page);
   });
 
-  test("finance cannot open hidden wholesale management pages", async ({
+  test("finance cannot open administrator-only wholesale pages", async ({
     page,
   }) => {
     await loginAs(page, "finance");
 
-    await page.goto("/finance/wholesale/customers");
+    await page.goto("/finance/wholesale/people");
+
+    await expectForbiddenPage(page);
+  });
+
+  test("finance cannot open tourism business", async ({ page }) => {
+    await loginAs(page, "finance");
+
+    await page.goto("/finance/tourism/commission");
 
     await expectForbiddenPage(page);
   });

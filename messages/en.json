@@ -331,6 +331,7 @@
       "my": "My Profile",
       "accounts": "Account Management",
       "announcements": "Announcements",
+      "companyExpenses": "Company Expenses",
       "orders": "Orders",
       "customers": "Customer Management",
       "referrals": "Referral Tree",
@@ -463,6 +464,88 @@
   "AdminSectionPlaceholder": {
     "viewMyPage": "Back to Home",
     "badge": "This page will continue adding useful content for different roles."
+  },
+  "CompanyExpenses": {
+    "metadata": {
+      "title": "Company Expenses"
+    },
+    "header": {
+      "title": "Company Expenses",
+      "description": "Record monthly company spending so administrators and finance can check it together.",
+      "create": "Add Expense"
+    },
+    "filters": {
+      "searchPlaceholder": "Search name, payee, or note",
+      "monthLabel": "Month",
+      "categoryLabel": "Category",
+      "currencyLabel": "Currency",
+      "allMonths": "All Months",
+      "allCategories": "All Categories",
+      "allCurrencies": "All Currencies"
+    },
+    "summary": {
+      "title": "Expense Total",
+      "count": "{count} records",
+      "empty": "No expense total for the current filters."
+    },
+    "categories": {
+      "rent": "Rent and Property",
+      "office": "Office Purchase",
+      "salary": "Staff Cost",
+      "marketing": "Marketing",
+      "logistics": "Logistics",
+      "service": "Service Purchase",
+      "tax": "Taxes and Fees",
+      "other": "Other"
+    },
+    "list": {
+      "recordsTitle": "Expense Records",
+      "amount": "Amount",
+      "month": "Month",
+      "paidAt": "Paid Date",
+      "payee": "Payee",
+      "note": "Note",
+      "updatedAt": "Updated",
+      "edit": "Edit",
+      "delete": "Delete",
+      "emptyTitle": "No expense records yet",
+      "emptyDescription": "After adding company expenses, they will appear here by month."
+    },
+    "dialog": {
+      "createTitle": "Add Expense",
+      "createDescription": "Enter the month, amount, and purpose for this expense.",
+      "editTitle": "Edit Expense",
+      "editDescription": "Saved changes will update this expense record.",
+      "expenseMonthLabel": "Month",
+      "expenseDateLabel": "Paid Date",
+      "titleLabel": "Expense Name",
+      "titlePlaceholder": "Example: Office rent",
+      "categoryLabel": "Category",
+      "amountLabel": "Amount",
+      "currencyLabel": "Currency",
+      "payeeLabel": "Payee",
+      "payeePlaceholder": "Example: Property company",
+      "noteLabel": "Note",
+      "notePlaceholder": "Add payment or invoice details",
+      "cancel": "Cancel",
+      "createSubmit": "Save Expense",
+      "editSubmit": "Save Changes"
+    },
+    "feedback": {
+      "createSuccess": "Expense saved.",
+      "updateSuccess": "Expense updated.",
+      "deleteSuccess": "Expense deleted.",
+      "deleteConfirm": "Delete “{title}”?",
+      "missingTitle": "Enter an expense name.",
+      "missingAmount": "Enter an amount.",
+      "invalidAmount": "Amount must be greater than 0.",
+      "invalidMonth": "Choose a month.",
+      "notFoundError": "This expense record no longer exists.",
+      "permissionError": "This account cannot manage company expenses.",
+      "unknownError": "Expense could not be saved. Please try again later."
+    },
+    "noPermissionTitle": "This account cannot view company expenses",
+    "noPermissionDescription": "Company expenses are available only to administrators and finance."
   },
   "WholesaleBusiness": {
     "sections": {

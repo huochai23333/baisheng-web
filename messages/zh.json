@@ -331,6 +331,7 @@
       "my": "我的",
       "accounts": "账号管理",
       "announcements": "公告管理",
+      "companyExpenses": "公司费用",
       "orders": "订单",
       "customers": "客户管理",
       "referrals": "推荐树",
@@ -463,6 +464,88 @@
   "AdminSectionPlaceholder": {
     "viewMyPage": "返回首页",
     "badge": "这个页面会根据不同身份继续补充可用内容"
+  },
+  "CompanyExpenses": {
+    "metadata": {
+      "title": "公司费用"
+    },
+    "header": {
+      "title": "公司费用",
+      "description": "按月份记录公司对外支出的费用，方便管理员和财务一起核对。",
+      "create": "新增费用"
+    },
+    "filters": {
+      "searchPlaceholder": "搜索费用名称、收款方或备注",
+      "monthLabel": "所属月份",
+      "categoryLabel": "费用分类",
+      "currencyLabel": "币种",
+      "allMonths": "全部月份",
+      "allCategories": "全部分类",
+      "allCurrencies": "全部币种"
+    },
+    "summary": {
+      "title": "费用合计",
+      "count": "{count} 条记录",
+      "empty": "当前筛选下暂无费用合计。"
+    },
+    "categories": {
+      "rent": "房租物业",
+      "office": "办公采购",
+      "salary": "人员费用",
+      "marketing": "推广费用",
+      "logistics": "物流费用",
+      "service": "服务采购",
+      "tax": "税费",
+      "other": "其他费用"
+    },
+    "list": {
+      "recordsTitle": "费用记录",
+      "amount": "金额",
+      "month": "所属月份",
+      "paidAt": "付款日期",
+      "payee": "收款方",
+      "note": "备注",
+      "updatedAt": "更新时间",
+      "edit": "编辑",
+      "delete": "删除",
+      "emptyTitle": "暂无费用记录",
+      "emptyDescription": "新增公司费用后，会在这里按月份展示。"
+    },
+    "dialog": {
+      "createTitle": "新增费用",
+      "createDescription": "填写这笔费用所属月份、金额和用途。",
+      "editTitle": "编辑费用",
+      "editDescription": "修改后会同步更新费用记录。",
+      "expenseMonthLabel": "所属月份",
+      "expenseDateLabel": "付款日期",
+      "titleLabel": "费用名称",
+      "titlePlaceholder": "例如：办公室房租",
+      "categoryLabel": "费用分类",
+      "amountLabel": "金额",
+      "currencyLabel": "币种",
+      "payeeLabel": "收款方",
+      "payeePlaceholder": "例如：物业公司",
+      "noteLabel": "备注",
+      "notePlaceholder": "补充付款说明或发票情况",
+      "cancel": "取消",
+      "createSubmit": "保存费用",
+      "editSubmit": "保存修改"
+    },
+    "feedback": {
+      "createSuccess": "费用已保存。",
+      "updateSuccess": "费用已更新。",
+      "deleteSuccess": "费用已删除。",
+      "deleteConfirm": "确定删除“{title}”吗？",
+      "missingTitle": "请填写费用名称。",
+      "missingAmount": "请填写金额。",
+      "invalidAmount": "金额需要大于 0。",
+      "invalidMonth": "请选择所属月份。",
+      "notFoundError": "这条费用记录已经不存在。",
+      "permissionError": "当前账号不能维护公司费用。",
+      "unknownError": "费用暂时没有保存成功，请稍后再试。"
+    },
+    "noPermissionTitle": "当前账号不能查看公司费用",
+    "noPermissionDescription": "公司费用只开放给管理员和财务账号。"
   },
   "WholesaleBusiness": {
     "sections": {

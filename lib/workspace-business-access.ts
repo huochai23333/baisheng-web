@@ -67,9 +67,11 @@ export function getDefaultWorkspaceBusinessAccessForRole(
 ): WorkspaceBusinessKey[] {
   switch (role) {
     case "administrator":
-    case "finance":
-      // 管理员和财务都需要同时核对旅游与批发两条业务线。
+      // 管理员负责总览公司业务，因此固定拥有旅游与批发两条业务线。
       return ["tourism", "wholesale"];
+    case "finance":
+      // 财务按业务员同类权限进入批发业务，不再展示旅游业务。
+      return ["wholesale"];
     case "salesman":
       return ["wholesale"];
     case "promoter":

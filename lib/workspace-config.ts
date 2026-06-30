@@ -42,6 +42,7 @@ export type {
 export type WorkspacePageVariants = WorkspaceBusinessPageVariants & {
   accounts?: true;
   announcements?: true;
+  companyExpenses?: true;
   feedback?: true;
   settings?: true;
 };
@@ -65,8 +66,14 @@ const adminGlobalNavItems = [
   { segment: "home", labelKey: "home" },
   { segment: "accounts", labelKey: "accounts" },
   { segment: "announcements", labelKey: "announcements" },
+  { segment: "company-expenses", labelKey: "companyExpenses" },
   { segment: "feedback", labelKey: "feedback" },
   { segment: "settings", labelKey: "exchangeRates" },
+] as const satisfies readonly WorkspaceNavItem[];
+
+const financeGlobalNavItems = [
+  { segment: "home", labelKey: "home" },
+  { segment: "company-expenses", labelKey: "companyExpenses" },
 ] as const satisfies readonly WorkspaceNavItem[];
 
 function createWorkspaceRouteConfig({
@@ -82,7 +89,7 @@ function createWorkspaceRouteConfig({
   globalNavItems?: readonly WorkspaceNavItem[];
   globalPageVariants?: Pick<
     WorkspacePageVariants,
-    "accounts" | "announcements" | "feedback" | "settings"
+    "accounts" | "announcements" | "companyExpenses" | "feedback" | "settings"
   >;
   initials: string;
   routeSegment: WorkspaceRouteSegment;
@@ -110,6 +117,7 @@ const WORKSPACE_ROUTE_CONFIG_BY_SEGMENT = {
     globalPageVariants: {
       accounts: true,
       announcements: true,
+      companyExpenses: true,
       feedback: true,
       settings: true,
     },
@@ -125,6 +133,10 @@ const WORKSPACE_ROUTE_CONFIG_BY_SEGMENT = {
   finance: createWorkspaceRouteConfig({
     authRole: "finance",
     basePath: "/finance",
+    globalNavItems: financeGlobalNavItems,
+    globalPageVariants: {
+      companyExpenses: true,
+    },
     initials: "FN",
     routeSegment: "finance",
   }),
@@ -177,6 +189,7 @@ const workspaceWholesaleSectionKeySet = new Set<string>(workspaceWholesaleSectio
 const workspaceGlobalNavSegmentSet = new Set<string>([
   "accounts",
   "announcements",
+  "company-expenses",
   "feedback",
   "home",
   "my",

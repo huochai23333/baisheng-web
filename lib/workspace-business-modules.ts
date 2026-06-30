@@ -26,6 +26,7 @@ export type WorkspaceWholesaleSectionKey =
 export type WorkspaceGlobalNavSegment =
   | "accounts"
   | "announcements"
+  | "company-expenses"
   | "feedback"
   | "home"
   | "my"
@@ -39,6 +40,7 @@ export type WorkspaceNavSegment =
 export type WorkspaceNavLabelKey =
   | "accounts"
   | "announcements"
+  | "companyExpenses"
   | "home"
   | "my"
   | "orders"
@@ -141,11 +143,6 @@ const staffReadTourismNavItems = [
   { segment: "tasks", labelKey: "tasks" },
 ] as const satisfies readonly WorkspaceNavItem[];
 
-const financeTourismNavItems = [
-  ...staffReadTourismNavItems,
-  { segment: "commission", labelKey: "commission" },
-] as const satisfies readonly WorkspaceNavItem[];
-
 const clientTourismNavItems = [
   { segment: "orders", labelKey: "orders" },
   { segment: "referrals", labelKey: "referrals" },
@@ -224,12 +221,8 @@ const clientWholesaleNavItems = createWholesaleNavItems([
   ["commission", "commission"],
 ]);
 
-const financeWholesaleNavItems = createWholesaleNavItems([
-  ["orders", "wholesaleOrders"],
-  ["logistics", "logistics"],
-  ["commission", "commission"],
-  ["incentives", "incentives"],
-]);
+// 财务批发权限和业务员保持一致，避免两个角色的入口清单出现差异。
+const financeWholesaleNavItems = salesmanWholesaleNavItems;
 
 const managerWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
@@ -255,7 +248,6 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
     navItemsByRouteSegment: {
       admin: adminTourismNavItems,
       client: clientTourismNavItems,
-      finance: financeTourismNavItems,
       manager: managerTourismNavItems,
       operator: staffReadTourismNavItems,
       promoter: sharedSalesTourismNavItems,
@@ -280,12 +272,6 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
       client: {
         orders: "client",
         referrals: true,
-      },
-      finance: {
-        commission: "admin",
-        referrals: true,
-        tasks: "staff",
-        team: true,
       },
       manager: {
         referrals: true,

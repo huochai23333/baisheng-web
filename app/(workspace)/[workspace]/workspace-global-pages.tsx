@@ -8,6 +8,7 @@ import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
 import { getAdminPeoplePageData } from "@/lib/admin-people";
 import { getAdminAnnouncementsPageData } from "@/lib/announcements";
 import { getAdminSystemSettingsPageData } from "@/lib/admin-system-settings";
+import { getCompanyExpensesPageData } from "@/lib/company-expenses";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import { getAdminWorkspaceFeedbackPageData } from "@/lib/workspace-feedback";
 import {
@@ -40,6 +41,13 @@ const AdminFeedbackClient = dynamic(
     ),
 );
 
+const CompanyExpensesClient = dynamic(
+  () =>
+    import(
+      "@/components/dashboard/company-expenses/company-expenses-client"
+    ).then((mod) => mod.CompanyExpensesClient),
+);
+
 const AdminSystemSettingsClient = dynamic(
   () =>
     import(
@@ -57,6 +65,14 @@ export async function generateWorkspaceAccountsMetadata(): Promise<Metadata> {
 
 export async function generateWorkspaceAnnouncementsMetadata(): Promise<Metadata> {
   const t = await getTranslations("Announcements.metadata");
+
+  return {
+    title: t("title"),
+  };
+}
+
+export async function generateWorkspaceCompanyExpensesMetadata(): Promise<Metadata> {
+  const t = await getTranslations("CompanyExpenses.metadata");
 
   return {
     title: t("title"),
@@ -115,6 +131,25 @@ export async function renderWorkspaceAnnouncementsPage({
   return (
     <ScopedIntlProvider namespaces={["Announcements", "DashboardShared"]}>
       <AdminAnnouncementsClient initialData={initialData} />
+    </ScopedIntlProvider>
+  );
+}
+
+export async function renderWorkspaceCompanyExpensesPage({
+  params,
+}: WorkspaceGlobalPageProps) {
+  const config = await getGlobalPageConfig(params);
+
+  if (!config.pageVariants.companyExpenses) {
+    forbidden();
+  }
+
+  const supabase = await getServerSupabaseClient();
+  const initialData = await getCompanyExpensesPageData(supabase);
+
+  return (
+    <ScopedIntlProvider namespaces={["CompanyExpenses", "DashboardShared"]}>
+      <CompanyExpensesClient initialData={initialData} />
     </ScopedIntlProvider>
   );
 }

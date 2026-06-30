@@ -57,10 +57,27 @@ test.describe("workspace permission regression", () => {
     await expectNotForbiddenPage(page);
   });
 
-  test("finance cannot open hidden wholesale management pages", async ({ page }) => {
+  test("finance can open salesman wholesale customer page", async ({ page }) => {
     await loginAs(page, "finance");
 
     await page.goto("/finance/wholesale/customers");
+
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
+  });
+
+  test("finance cannot open administrator-only wholesale pages", async ({ page }) => {
+    await loginAs(page, "finance");
+
+    await page.goto("/finance/wholesale/people");
+
+    await expectForbiddenPage(page);
+  });
+
+  test("finance cannot open tourism business", async ({ page }) => {
+    await loginAs(page, "finance");
+
+    await page.goto("/finance/tourism/commission");
 
     await expectForbiddenPage(page);
   });
@@ -77,6 +94,14 @@ test.describe("workspace permission regression", () => {
     await loginAs(page, "finance");
 
     await page.goto("/salesman/tourism/tasks");
+
+    await expectForbiddenPage(page);
+  });
+
+  test("salesman cannot open company expenses", async ({ page }) => {
+    await loginAs(page, "salesman");
+
+    await page.goto("/salesman/company-expenses");
 
     await expectForbiddenPage(page);
   });

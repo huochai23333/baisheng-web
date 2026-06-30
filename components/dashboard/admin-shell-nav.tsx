@@ -15,6 +15,7 @@ import {
   LoaderCircle,
   Megaphone,
   MessageSquareWarning,
+  ReceiptText,
   Settings,
   ShieldCheck,
   ShoppingCart,
@@ -45,6 +46,7 @@ type AdminShellNavProps = {
 const NAV_ICONS: Record<WorkspaceNavSegment, LucideIcon> = {
   accounts: UserCog,
   announcements: Megaphone,
+  "company-expenses": ReceiptText,
   commission: WalletCards,
   customers: UsersRound,
   feedback: MessageSquareWarning,
