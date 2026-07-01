@@ -27,7 +27,7 @@ export function ForbiddenSessionActions({
 
     setPending(true);
 
-    // 清理当前浏览器保存的登录信息，再回到登录页，避免旧账号一直挡住换号登录。
+    // 先清理本地会话，再交给服务端删除登录 Cookie，避免旧账号继续挡住换号登录。
     signOutCurrentBrowserSession(supabase, "/login");
   };
 

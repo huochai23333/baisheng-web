@@ -166,6 +166,8 @@ app/
 │  ├─ privacy/
 │  ├─ terms/
 │  └─ help/
+├─ auth/
+│  └─ sign-out/
 ├─ (workspace)/
 │  └─ [workspace]/
 │     ├─ announcements/
@@ -190,7 +192,9 @@ app/
 - `lib/workspace-route-segments.ts`：工作台角色路由段枚举。
 - `lib/workspace-business-access.ts`：当前账号可见业务读取、业务键规范化和导航过滤辅助。
 - `lib/auth-routing.ts`：角色与工作台 base path 映射。
-- `components/auth/forbidden-session-actions.tsx`：访问错误页的返回首页和重新登录按钮，重新登录会清理当前浏览器会话后进入登录页。
+- `app/auth/sign-out/route.ts`：服务端退出登录入口，负责删除 Supabase 登录 Cookie 后回到登录页。
+- `lib/browser-auth-session.ts`：浏览器端退出登录和本地会话清理工具，退出后统一进入服务端退出登录入口。
+- `components/auth/forbidden-session-actions.tsx`：访问错误页的返回首页和重新登录按钮，重新登录会清理当前浏览器会话和服务端 Cookie 后进入登录页。
 - `lib/business-vip-management*.ts`：业务 VIP 的服务端边界；`queries` 读取旅游/批发 VIP 列表，`mutations` 调用旅游申请审批 RPC 和批发直接开通/续费 RPC，`normalizers` 统一整理 RPC 返回值，`errors` 把技术错误映射成页面提示。
 - `lib/company-expenses.ts`：公司费用页面的数据读取、权限判断和增删改操作。
 - `components/dashboard/company-expenses/`：公司费用页面的展示区块、表单弹窗、状态 hook 和显示工具。

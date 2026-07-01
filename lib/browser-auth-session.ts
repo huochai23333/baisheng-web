@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const SUPABASE_AUTH_KEY_PATTERN = /^sb-.*-auth-token(?:\.\d+)?(?:-code-verifier)?$/;
+const SERVER_SIGN_OUT_PATH = "/auth/sign-out";
 
 export function signOutCurrentBrowserSession(
   supabase: SupabaseClient | null,
@@ -10,7 +11,7 @@ export function signOutCurrentBrowserSession(
   clearSupabaseBrowserSession();
 
   if (typeof window !== "undefined") {
-    window.location.replace(destination);
+    window.location.replace(buildServerSignOutPath(destination));
   }
 }
 
@@ -29,7 +30,7 @@ function clearSupabaseBrowserSession() {
     clearMatchingStorageKeys(window.sessionStorage);
     clearMatchingCookies();
   } catch {
-    // Best-effort local cleanup should not block the visible logout transition.
+    // 本地清理失败不阻塞退出跳转，服务端退出路由会继续删除登录 Cookie。
   }
 }
 
@@ -58,6 +59,18 @@ function clearMatchingCookies() {
       expireCookie(name);
       getRootCookieDomain()?.forEach((domain) => expireCookie(name, domain));
     });
+}
+
+function buildServerSignOutPath(destination: string) {
+  if (destination.startsWith(SERVER_SIGN_OUT_PATH)) {
+    return destination;
+  }
+
+  if (!destination.startsWith("/") || destination.startsWith("//")) {
+    return SERVER_SIGN_OUT_PATH;
+  }
+
+  return `${SERVER_SIGN_OUT_PATH}?next=${encodeURIComponent(destination)}`;
 }
 
 function expireCookie(name: string, domain?: string) {
