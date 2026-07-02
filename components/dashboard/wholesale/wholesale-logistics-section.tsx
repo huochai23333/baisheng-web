@@ -57,14 +57,14 @@ export function WholesaleLogisticsSection({
 
   return (
     <WholesalePageShell
-      description="添加需要跟进的物流号后，系统会每天核对一次状态；已送达或出现无法继续配送的情况后会自动停止核对。"
+      description="系统会每天同步物流号、客户和当前状态；已送达或出现无法继续配送的情况后会自动停止核对。"
       eyebrow="批发业务"
       title="物流管理"
     >
       {canEdit ? (
         <WholesalePanel
-          description="先录入物流号和客户名；如果已经确定对应客户或批发订单，也可以一起关联，方便客户查看自己的物流进展。"
-          title="新增物流核对"
+          description="通常会自动同步；如果需要提前跟进某个物流号，可以在这里手动补充。"
+          title="手动补充物流"
         >
           <form
             className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
@@ -119,7 +119,7 @@ export function WholesaleLogisticsSection({
       >
         {logisticsStatuses.length === 0 ? (
           <WholesaleEmptyState
-            description="还没有物流号。添加后，这里会显示客户、当前状态和最近核对时间。"
+            description="还没有同步到物流记录。同步后，这里会显示客户、当前状态和最近核对时间。"
             icon={<PackageCheck className="size-5" />}
             title="暂无物流核对记录"
           />
