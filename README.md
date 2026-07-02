@@ -8,14 +8,14 @@
 
 - Web 仓库：`/home/huochai/project/system/baisheng-web`
 - Supabase 目录：`/home/huochai/project/system/baisheng-supabase`
-- 本地测试账号：优先读取 `/home/huochai/project/system/baisheng-supabase/local-test-data.sql` 中的 `local.*@bs.test` 账号。
+- 本地测试账号：优先读取 `/home/huochai/project/system/baisheng-supabase/supabase/local-test-data.sql` 中的 `local.*@bs.test` 账号。
 - Windows 旧资料目录如仍需查看，可从 `/mnt/c/...` 路径访问。
 
 说明：
 
 - `/home/huochai/project/system` 只是工作区容器，不是 Web Git 仓库。
 - Web 代码提交和推送只在 `baisheng-web` 目录执行。
-- 数据库迁移、Edge Function 和 Supabase secrets 以同级 `baisheng-supabase` 目录为准。
+- 数据库迁移、Edge Function 和 Supabase secrets 以同级 `baisheng-supabase/supabase` 项目目录为准。
 
 ## 技术栈
 
@@ -355,7 +355,7 @@ baisheng-web/
 
 ## 数据与 Supabase
 
-- Web 仓库不保存数据库迁移源文件；迁移源在 `D:\code\code-project\supabase`。
+- Web 仓库不保存数据库迁移源文件；迁移源在同级 `baisheng-supabase/supabase` 项目目录。
 - Web 改动如果依赖新表、新字段、新 RPC 或 Edge Function，必须先在本地 Docker Supabase 验证，再按 Supabase 操作指南上传。
 - 账号角色和状态以 Supabase 数据库里的用户资料和角色关联为准，Auth 元数据只做兜底，避免旧账号的登录令牌信息滞后时被误判为无权限。
 - 账号可见业务由 Supabase 里的工作区业务可见范围记录、角色固定规则和对应 RPC 提供，Web 只负责读取后结合业务模块清单过滤导航和路由；管理员固定双业务，财务和业务员固定批发，地推固定旅游。当前登录用户的业务权限读取异常或返回空时，Web 会按已验证角色和 active 状态使用固定默认业务范围，避免固定业务角色因临时读取失败误显示为没有业务入口。
@@ -382,7 +382,7 @@ baisheng-web/
 - `playwright.config.ts` 默认使用 `http://localhost:3000`。
 - 如果 `3000` 不是当前项目服务，不要直接运行默认 e2e；先设置 `PLAYWRIGHT_BASE_URL` 指向当前项目端口，已手动启动 dev server 时同时设置 `PLAYWRIGHT_SKIP_WEB_SERVER=1`。
 - `tests/e2e` 覆盖登录、角色首页、越权拦截和关键工作区入口。
-- 测试账号优先读取 `E2E_*` 环境变量；未设置时，若当前 `.env.local` 指向本地 Supabase，则优先从同级 `supabase/local-test-data.sql` 或 `baisheng-supabase/local-test-data.sql` 读取 `local.*@bs.test` 账号，再读取本机测试账号文件。
+- 测试账号优先读取 `E2E_*` 环境变量；未设置时，若当前 `.env.local` 指向本地 Supabase，则优先从同级 `supabase/local-test-data.sql`、`supabase/supabase/local-test-data.sql` 或 `baisheng-supabase/supabase/local-test-data.sql` 读取 `local.*@bs.test` 账号，再读取本机测试账号文件。
 - 回归产物输出到 `output/playwright-results` 和 `output/playwright-report`，不提交。
 
 ## 构建与本地产物
@@ -416,7 +416,7 @@ Git 推送约定：
 - 推送前确认在 `main` 分支。
 - 只暂存本次相关文件。
 - 推送后用 `git ls-remote origin refs/heads/main` 确认远端 HEAD。
-- 详细流程以 `D:\code\code-project\web项目说明及推送流程.md` 为准。
+- 详细流程以当前仓库和 `baisheng-supabase` 仓库 README 为准。
 
 Supabase Auth 建议：
 
@@ -433,5 +433,4 @@ Supabase Auth 建议：
 
 ## 相关文档
 
-- [web项目说明及推送流程.md](D:/code/code-project/web项目说明及推送流程.md)
-- [SUPABASE操作指南.md](D:/code/code-project/SUPABASE操作指南.md)
+- `baisheng-supabase/README.md`

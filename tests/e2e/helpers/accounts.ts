@@ -184,10 +184,18 @@ function loadLocalDockerAccounts(): Partial<Record<RegressionRole, RegressionAcc
 }
 
 function findLocalSeedPath() {
-  // 本地开发仓库可能叫 supabase 或 baisheng-supabase，测试优先读取真实存在的种子文件。
-  const candidatePaths = ["supabase", "baisheng-supabase"].map((directory) =>
-    path.resolve(process.cwd(), "..", directory, "local-test-data.sql"),
-  );
+  // 本地开发仓库可能使用旧的根目录布局或新的 supabase/ 标准项目目录，测试优先读取真实存在的种子文件。
+  const candidatePaths = [
+    path.resolve(process.cwd(), "..", "supabase", "local-test-data.sql"),
+    path.resolve(process.cwd(), "..", "supabase", "supabase", "local-test-data.sql"),
+    path.resolve(
+      process.cwd(),
+      "..",
+      "baisheng-supabase",
+      "supabase",
+      "local-test-data.sql",
+    ),
+  ];
 
   return candidatePaths.find((candidatePath) => fs.existsSync(candidatePath));
 }
