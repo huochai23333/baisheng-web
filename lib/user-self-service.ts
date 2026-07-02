@@ -258,13 +258,18 @@ export async function createPrivacyRequest(
     value: string;
   },
 ) {
-  const payload =
-    options.field === "id_card"
-      ? { user_id: options.userId, id_card_requests: options.value.trim() }
-      : { user_id: options.userId, passport_requests: options.value.trim() };
+  const trimmedValue = options.value.trim();
 
   const { error } = await withRequestTimeout(
-    supabase.from("user_privacy_requests").insert(payload),
+    options.field === "id_card"
+      ? supabase.from("user_privacy_requests").insert({
+          user_id: options.userId,
+          id_card_requests: trimmedValue,
+        })
+      : supabase.from("user_privacy_requests").insert({
+          user_id: options.userId,
+          passport_requests: trimmedValue,
+        }),
     {
       timeoutMs: PROFILE_MUTATION_TIMEOUT_MS,
       message: PROFILE_MUTATION_TIMEOUT_MESSAGE,

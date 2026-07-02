@@ -34,6 +34,7 @@ export function useTeamManagementActions({
   supabase: ReturnType<typeof getBrowserSupabaseClient>;
 }) {
   const t = useTranslations("TeamManagement");
+  const currentTeamId = currentData.detail.team?.team_id ?? null;
 
   const refreshAuthClaims = useCallback(async () => {
     if (!supabase) {
@@ -185,7 +186,7 @@ export function useTeamManagementActions({
 
   const handleAddSalesman = useCallback(
     async (salesmanUserId: string) => {
-      if (!supabase || !currentData.detail.team?.team_id) {
+      if (!supabase || !currentTeamId) {
         return;
       }
 
@@ -194,7 +195,7 @@ export function useTeamManagementActions({
       try {
         const teamId = await addTeamSalesman(supabase, {
           salesmanUserId,
-          teamId: currentData.detail.team.team_id,
+          teamId: currentTeamId,
         });
         await refreshAuthClaims();
         await refreshQuietly(teamId);
@@ -212,7 +213,7 @@ export function useTeamManagementActions({
       }
     },
     [
-      currentData.detail.team?.team_id,
+      currentTeamId,
       refreshAuthClaims,
       refreshQuietly,
       setBusyKey,
@@ -224,7 +225,7 @@ export function useTeamManagementActions({
 
   const handleRemoveSalesman = useCallback(
     async (salesmanUserId: string) => {
-      if (!supabase || !currentData.detail.team?.team_id) {
+      if (!supabase || !currentTeamId) {
         return;
       }
 
@@ -233,7 +234,7 @@ export function useTeamManagementActions({
       try {
         const teamId = await removeTeamSalesman(supabase, {
           salesmanUserId,
-          teamId: currentData.detail.team.team_id,
+          teamId: currentTeamId,
         });
         await refreshAuthClaims();
         await refreshQuietly(teamId);
@@ -251,7 +252,7 @@ export function useTeamManagementActions({
       }
     },
     [
-      currentData.detail.team?.team_id,
+      currentTeamId,
       refreshAuthClaims,
       refreshQuietly,
       setBusyKey,

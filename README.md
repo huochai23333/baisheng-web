@@ -2,21 +2,20 @@
 
 柏盛管理系统 Web 端基于 `Next.js 16 App Router`、`React 19`、`TypeScript`、`Tailwind CSS 4`、`Supabase` 和 `next-intl` 构建。
 
-项目目录：`D:\code\code-project\baisheng-web`
+项目目录：`/home/huochai/project/system/baisheng-web`
 
 ## 快速定位
 
-- Web 仓库：`D:\code\code-project\baisheng-web`
-- Supabase 目录：`D:\code\code-project\supabase`
-- 测试账号：`D:\code\code-project\测试账号.txt`
-- Web 推送说明：`D:\code\code-project\web项目说明及推送流程.md`
-- Supabase 操作说明：`D:\code\code-project\SUPABASE操作指南.md`
+- Web 仓库：`/home/huochai/project/system/baisheng-web`
+- Supabase 目录：`/home/huochai/project/system/baisheng-supabase`
+- 本地测试账号：优先读取 `/home/huochai/project/system/baisheng-supabase/local-test-data.sql` 中的 `local.*@bs.test` 账号。
+- Windows 旧资料目录如仍需查看，可从 `/mnt/c/...` 路径访问。
 
 说明：
 
-- `D:\code\code-project` 只是工作区容器，不是 Web Git 仓库。
+- `/home/huochai/project/system` 只是工作区容器，不是 Web Git 仓库。
 - Web 代码提交和推送只在 `baisheng-web` 目录执行。
-- 数据库迁移、Edge Function 和 Supabase secrets 以同级 `supabase` 目录为准。
+- 数据库迁移、Edge Function 和 Supabase secrets 以同级 `baisheng-supabase` 目录为准。
 
 ## 技术栈
 
@@ -32,19 +31,34 @@
 
 ## 本地运行
 
-1. 安装依赖
+1. 准备 WSL Node.js
+
+```bash
+source ~/.nvm/nvm.sh
+nvm install --lts
+nvm alias default lts/*
+node -v
+```
+
+说明：
+
+- 当前 WSL 使用 nvm 管理 Node.js，默认 LTS 为 `v24.18.0`。
+- 在普通交互式 WSL 终端中，`.bashrc` 会自动加载 nvm；在脚本或非交互命令里如果找不到 `node`，先执行 `source ~/.nvm/nvm.sh`。
+- 不要混用 `/mnt/c/Program Files/nodejs` 下的 Windows 版 `npm` 或 `corepack` 运行本项目。
+
+2. 安装依赖
 
 ```bash
 npm install
 ```
 
-2. 准备环境变量
+3. 准备环境变量
 
-```powershell
-Copy-Item .env.example .env.local
+```bash
+cp .env.example .env.local
 ```
 
-3. 启动开发服务
+4. 启动开发服务
 
 ```bash
 npm run dev
@@ -354,7 +368,7 @@ baisheng-web/
 
 - 更新 `README.md` 中相关说明。
 - 使用 Playwright 在真实浏览器环境验证受影响页面。
-- 使用 `D:\code\code-project\测试账号.txt` 中的测试账号验证登录、跳转和权限链路；本地 Supabase 验证时 e2e 默认优先读取 `local.*@bs.test` 本地账号，环境变量仍可覆盖。
+- 使用测试账号验证登录、跳转和权限链路；本地 Supabase 验证时 e2e 默认优先读取 `local.*@bs.test` 本地账号，环境变量仍可覆盖。
 - 检查桌面和移动宽度下是否有文字竖排、遮挡、溢出或按钮/表格压缩。
 - 运行与改动风险匹配的命令，通常至少包括 `npm run lint`、`npm run typecheck`，重要改动再跑 `npm run build`。
 
