@@ -114,7 +114,7 @@ export function WholesaleLogisticsSection({
       ) : null}
 
       <WholesalePanel
-        description="状态会按物流号每天更新一次，送达或异常终止后不再重复核对。"
+        description="状态会按物流号每天更新一次，先显示最近更新的记录；送达或异常终止后不再重复核对。"
         title="每日核对列表"
       >
         {logisticsStatuses.length === 0 ? (

@@ -358,7 +358,7 @@ baisheng-web/
 
 - Web 仓库不保存数据库迁移源文件；迁移源在同级 `baisheng-supabase/supabase` 项目目录。
 - Web 改动如果依赖新表、新字段、新 RPC 或 Edge Function，必须先在本地 Docker Supabase 验证，再按 Supabase 操作指南上传。
-- 批发物流状态每日核对由 Supabase `wholesale-logistics-status-sync` Edge Function 执行；该函数优先调用物流库的 `logistics-status-lookup` 接口，先自动导入物流号和客户名，再更新物流状态，主页面只读取本项目 Supabase 里的物流状态镜像表。
+- 批发物流状态每日核对由 Supabase `wholesale-logistics-status-sync` Edge Function 执行；该函数优先调用物流库的 `logistics-status-lookup` 接口，先自动导入物流号和客户名，再更新物流状态，主页面只读取本项目 Supabase 里的物流状态镜像表，并先展示最近更新的一批记录，避免物流记录很多时页面加载变慢。
 - 账号角色和状态以 Supabase 数据库里的用户资料和角色关联为准，Auth 元数据只做兜底，避免旧账号的登录令牌信息滞后时被误判为无权限。
 - 账号可见业务由 Supabase 里的工作区业务可见范围记录、角色固定规则和对应 RPC 提供，Web 只负责读取后结合业务模块清单过滤导航和路由；管理员固定双业务，财务和业务员固定批发，地推固定旅游。当前登录用户的业务权限读取异常或返回空时，Web 会按已验证角色和 active 状态使用固定默认业务范围，避免固定业务角色因临时读取失败误显示为没有业务入口。
 - Supabase 上传完成后，再提交和推送 Web 仓库。

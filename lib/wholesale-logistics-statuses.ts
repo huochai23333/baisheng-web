@@ -29,14 +29,17 @@ export type WholesaleLogisticsStatusQueryResult = {
   error: { message: string } | null;
 };
 
+const WHOLESALE_LOGISTICS_STATUS_LIST_LIMIT = 500;
+
 export function getWholesaleLogisticsStatuses(supabase: SupabaseClient) {
   // 物流状态镜像表是物流页、订单搜索和佣金统计共同使用的数据源。
-  // 这里统一按待处理优先、更新时间倒序读取，页面不再各自拼查询条件。
+  // 云端物流量会持续增长，列表只读取最近更新的一批，避免一次加载过多导致页面空白或响应变慢。
   return supabase
     .from("wholesale_logistics_statuses")
     .select("*")
     .order("is_terminal", { ascending: true })
-    .order("updated_at", { ascending: false }) as unknown as Promise<
+    .order("updated_at", { ascending: false })
+    .limit(WHOLESALE_LOGISTICS_STATUS_LIST_LIMIT) as unknown as Promise<
     WholesaleLogisticsStatusQueryResult
   >;
 }
