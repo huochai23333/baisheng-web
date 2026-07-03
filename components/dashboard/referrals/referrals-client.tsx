@@ -198,7 +198,10 @@ export function ReferralsClient({
 
   useWorkspaceSyncEffect(refreshReferrals);
 
-  const graph = useMemo(() => buildReferralGraph(edges), [edges]);
+  const graph = useMemo(
+    () => buildReferralGraph(edges, copy.tree.companyBranch),
+    [copy.tree.companyBranch, edges],
+  );
   const sectionDescription = useMemo(
     () => getReferralSectionDescription(currentViewerRole, copy),
     [copy, currentViewerRole],

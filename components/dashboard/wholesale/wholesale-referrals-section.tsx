@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { Network, Plus, Search } from "lucide-react";
+import { Building2, Network, Plus, Search } from "lucide-react";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import {
@@ -10,13 +10,17 @@ import {
   DashboardListSection,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
-import { normalizeSearchText } from "@/lib/value-normalizers";
 import type {
   WholesaleCustomer,
   WholesaleReferral,
 } from "@/lib/wholesale";
 
 import { formatDate } from "./wholesale-display";
+import {
+  buildWholesaleReferralTree,
+  filterWholesaleReferralTree,
+  type WholesaleReferralTreeNode,
+} from "./wholesale-referrals-display";
 import {
   WholesaleEmptyState,
   WholesalePageShell,
@@ -44,11 +48,17 @@ export function WholesaleReferralsSection({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const tree = useMemo(
-    () => buildReferralTree(customers, referrals, customersById),
+    () =>
+      buildWholesaleReferralTree({
+        companyBranchName: "公司",
+        customers,
+        customersById,
+        referrals,
+      }),
     [customers, customersById, referrals],
   );
   const filteredTree = useMemo(
-    () => filterTree(tree, searchText),
+    () => filterWholesaleReferralTree(tree, searchText),
     [searchText, tree],
   );
 
@@ -71,7 +81,7 @@ export function WholesaleReferralsSection({
       title="推荐树"
     >
       <DashboardListSection
-        description={`共 ${referrals.length} 条推荐关系。`}
+        description={`共 ${customers.length} 位客户，${referrals.length} 条推荐关系。`}
         title="客户推荐树"
       >
         <div className="mb-5">
@@ -91,14 +101,14 @@ export function WholesaleReferralsSection({
 
         {filteredTree.length === 0 ? (
           <WholesaleEmptyState
-            description="没有匹配的批发客户推荐关系。"
+            description="没有匹配的批发客户。"
             icon={<Network className="size-5" />}
             title="暂无推荐关系"
           />
         ) : (
           <div className="space-y-3">
             {filteredTree.map((node) => (
-              <ReferralTreeNode key={node.customer.id} node={node} />
+              <ReferralTreeNode key={node.id} node={node} />
             ))}
           </div>
         )}
@@ -146,32 +156,49 @@ export function WholesaleReferralsSection({
   );
 }
 
-type TreeNode = {
-  children: TreeNode[];
-  createdAt: string | null;
-  customer: WholesaleCustomer;
-};
+function ReferralTreeNode({ node }: { node: WholesaleReferralTreeNode }) {
+  const isCompanyNode = node.kind === "company";
 
-function ReferralTreeNode({ node }: { node: TreeNode }) {
   return (
-    <div className="rounded-[22px] border border-[#ebe7e1] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
+    <div
+      className={[
+        "rounded-[22px] border bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]",
+        isCompanyNode ? "border-[#d6e3ec] bg-[#f6fbfd]" : "border-[#ebe7e1]",
+      ].join(" ")}
+    >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <p className="break-words font-semibold text-[#23313a]">
-            {node.customer.unique_name}
-          </p>
-          <p className="mt-1 text-sm text-[#71808d]">
-            {node.createdAt ? `推荐时间：${formatDate(node.createdAt)}` : "推荐起点"}
-          </p>
+        <div className="flex min-w-0 gap-3">
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#eef3f6] text-[#486782]">
+            {isCompanyNode ? (
+              <Building2 className="size-5" />
+            ) : (
+              <Network className="size-5" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="break-words font-semibold text-[#23313a]">
+              {node.name}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-[#71808d]">
+              {getReferralNodeHelper(node)}
+            </p>
+          </div>
         </div>
-        <span className="inline-flex w-fit rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
-          下级 {node.children.length}
+        <span
+          className={[
+            "inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold",
+            isCompanyNode
+              ? "bg-[#e4edf3] text-[#486782]"
+              : "bg-[#eef3f6] text-[#486782]",
+          ].join(" ")}
+        >
+          {isCompanyNode ? "主分支" : `下级 ${node.children.length}`}
         </span>
       </div>
       {node.children.length > 0 ? (
         <div className="mt-3 space-y-3 border-l border-[#dfe5ea] pl-4">
           {node.children.map((child) => (
-            <ReferralTreeNode key={child.customer.id} node={child} />
+            <ReferralTreeNode key={child.id} node={child} />
           ))}
         </div>
       ) : null}
@@ -179,71 +206,14 @@ function ReferralTreeNode({ node }: { node: TreeNode }) {
   );
 }
 
-function buildReferralTree(
-  customers: WholesaleCustomer[],
-  referrals: WholesaleReferral[],
-  customersById: Map<string, WholesaleCustomer>,
-) {
-  const createTreeNode = (
-    customer: WholesaleCustomer,
-    createdAt: string | null = null,
-  ): TreeNode => ({
-    children: [],
-    createdAt,
-    customer,
-  });
-
-  const nodeByCustomerId = new Map<string, TreeNode>(
-    customers.map((customer) => [
-      customer.id,
-      createTreeNode(customer),
-    ]),
-  );
-  const childIds = new Set<string>();
-
-  for (const referral of referrals) {
-    const referrerNode = nodeByCustomerId.get(referral.referrer_customer_id);
-    const referredCustomer = customersById.get(referral.referred_customer_id);
-
-    if (!referrerNode || !referredCustomer) continue;
-
-    const referredNode =
-      nodeByCustomerId.get(referral.referred_customer_id) ??
-      createTreeNode(referredCustomer, referral.created_at);
-
-    referredNode.createdAt = referral.created_at;
-    referrerNode.children.push(referredNode);
-    nodeByCustomerId.set(referral.referred_customer_id, referredNode);
-    childIds.add(referral.referred_customer_id);
+function getReferralNodeHelper(node: WholesaleReferralTreeNode) {
+  if (node.kind === "company") {
+    return "所有客户都归在公司主分支下，已有推荐关系会继续在客户下方展开。";
   }
 
-  return [...nodeByCustomerId.values()]
-    .filter((node) => !childIds.has(node.customer.id) && node.children.length > 0)
-    .sort((a, b) => a.customer.unique_name.localeCompare(b.customer.unique_name, "zh"));
-}
+  if (!node.createdAt) {
+    return "公司子类";
+  }
 
-function filterTree(nodes: TreeNode[], searchText: string): TreeNode[] {
-  const searchValue = normalizeSearchText(searchText);
-
-  if (!searchValue) return nodes;
-
-  return nodes
-    .map((node) => filterNode(node, searchValue))
-    .filter((node): node is TreeNode => Boolean(node));
-}
-
-function filterNode(node: TreeNode, searchValue: string): TreeNode | null {
-  const matched = normalizeSearchText(
-    `${node.customer.unique_name} ${node.customer.other_names.join(" ")}`,
-  ).includes(searchValue);
-  const children = node.children
-    .map((child) => filterNode(child, searchValue))
-    .filter((child): child is TreeNode => Boolean(child));
-
-  if (!matched && children.length === 0) return null;
-
-  return {
-    ...node,
-    children: matched ? node.children : children,
-  };
+  return `推荐时间：${formatDate(node.createdAt)}`;
 }

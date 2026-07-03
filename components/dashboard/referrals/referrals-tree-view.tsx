@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 
 import {
+  Building2,
   ChevronDown,
   ChevronRight,
   Folder,
@@ -138,7 +139,8 @@ function ReferralTreeNode({
     visibleNodeIds.has(edge.new_user_id),
   );
   const hasChildren = childEdges.length > 0;
-  const isCurrentViewer = nodeId === currentViewerId;
+  const isCompanyNode = person?.kind === "company";
+  const isCurrentViewer = !isCompanyNode && nodeId === currentViewerId;
   const isMatchingNode = matchingNodeIds.has(nodeId);
   const [expanded, setExpanded] = useState<boolean>(true);
 
@@ -156,7 +158,7 @@ function ReferralTreeNode({
           : "relative pl-4 before:absolute before:left-0 before:top-9 before:w-3 before:border-t before:border-dashed before:border-[#d7d3cb] sm:pl-6 sm:before:top-10 sm:before:w-4",
       ].join(" ")}
     >
-      {incomingEdge ? (
+      {incomingEdge && !incomingEdge.is_company_root_edge ? (
         <div className="mb-2 ml-4 flex flex-wrap items-center gap-2 text-[10px] leading-6 text-[#7b868f] sm:ml-6 sm:text-[11px]">
           <span className="rounded-full bg-[#eef3f6] px-2.5 py-0.5 font-medium text-[#486782]">
             {copy.tree.referredOn(formatDateTime(incomingEdge.created_at, locale))}
@@ -188,6 +190,8 @@ function ReferralTreeNode({
               ) : (
                 <ChevronRight className="size-4" />
               )
+            ) : isCompanyNode ? (
+              <Building2 className="size-4" />
             ) : (
               <UserRound className="size-4" />
             )}
@@ -195,7 +199,9 @@ function ReferralTreeNode({
 
           <div className="flex min-w-0 flex-1 items-start gap-2 sm:gap-3">
             <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-[14px] bg-[#f3f7fa] text-[#486782] sm:h-10 sm:w-10 sm:rounded-2xl">
-              {hasChildren && isOpen ? (
+              {isCompanyNode ? (
+                <Building2 className="size-5" />
+              ) : hasChildren && isOpen ? (
                 <FolderOpen className="size-5" />
               ) : hasChildren ? (
                 <Folder className="size-5" />
@@ -212,6 +218,9 @@ function ReferralTreeNode({
                 {isCurrentViewer ? (
                   <NodeTag accent="blue">{copy.tree.currentAccount}</NodeTag>
                 ) : null}
+                {isCompanyNode ? (
+                  <NodeTag accent="gold">{copy.tree.mainBranch}</NodeTag>
+                ) : null}
                 {person.isTeamSalesman ? (
                   <NodeTag accent="green">{copy.tree.teamSales}</NodeTag>
                 ) : null}
@@ -222,13 +231,19 @@ function ReferralTreeNode({
                 ) : null}
               </div>
 
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm leading-7 text-[#6f7b85]">
-                <span>{person.email ?? copy.tree.noEmail}</span>
-                <span className="text-[#a6b0b7]">/</span>
-                <span>{getRoleLabel(person.role, copy)}</span>
-                <span className="text-[#a6b0b7]">/</span>
-                <span>{mapUserStatus(person.status, sharedCopy).label}</span>
-              </div>
+              {isCompanyNode ? (
+                <p className="mt-2 break-words text-sm leading-7 text-[#6f7b85]">
+                  {copy.tree.companyBranchDescription}
+                </p>
+              ) : (
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm leading-7 text-[#6f7b85]">
+                  <span>{person.email ?? copy.tree.noEmail}</span>
+                  <span className="text-[#a6b0b7]">/</span>
+                  <span>{getRoleLabel(person.role, copy)}</span>
+                  <span className="text-[#a6b0b7]">/</span>
+                  <span>{mapUserStatus(person.status, sharedCopy).label}</span>
+                </div>
+              )}
             </div>
           </div>
         </button>

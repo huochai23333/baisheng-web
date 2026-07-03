@@ -9,6 +9,8 @@ import {
   type DashboardSharedCopy,
 } from "@/components/dashboard/dashboard-shared-ui";
 
+import { attachCompanyRoot } from "./referrals-company-root";
+
 type TranslationValues = Record<string, string | number>;
 type ReferralTranslator = (key: string, values?: TranslationValues) => string;
 
@@ -19,6 +21,7 @@ export type ReferralPerson = {
   role: AppRole | null;
   status: UserStatus | null;
   isTeamSalesman: boolean;
+  kind: "person" | "company";
 };
 
 export type ReferralGraph = {
@@ -48,8 +51,11 @@ export type ReferralsCopy = {
     recruiter: string;
   };
   tree: {
+    companyBranch: string;
+    companyBranchDescription: string;
     currentAccount: string;
     downstreamCount: (count: number) => string;
+    mainBranch: string;
     noEmail: string;
     referredOn: (date: string) => string;
     teamSales: string;
@@ -84,8 +90,11 @@ export function createReferralsCopy(t: ReferralTranslator): ReferralsCopy {
       recruiter: t("sections.recruiter"),
     },
     tree: {
+      companyBranch: t("tree.companyBranch"),
+      companyBranchDescription: t("tree.companyBranchDescription"),
       currentAccount: t("tree.currentAccount"),
       downstreamCount: (count) => t("tree.downstreamCount", { count }),
+      mainBranch: t("tree.mainBranch"),
       noEmail: t("tree.noEmail"),
       referredOn: (date) => t("tree.referredOn", { date }),
       teamSales: t("tree.teamSales"),
@@ -93,7 +102,10 @@ export function createReferralsCopy(t: ReferralTranslator): ReferralsCopy {
   };
 }
 
-export function buildReferralGraph(edges: ReferralTreeEdge[]): ReferralGraph {
+export function buildReferralGraph(
+  edges: ReferralTreeEdge[],
+  companyBranchName: string,
+): ReferralGraph {
   const nodes = new Map<string, ReferralPerson>();
   const childEdgesByParent = new Map<string, ReferralTreeEdge[]>();
   const parentByChild = new Map<string, string>();
@@ -106,6 +118,7 @@ export function buildReferralGraph(edges: ReferralTreeEdge[]): ReferralGraph {
       role: edge.referrer_role,
       status: edge.referrer_status,
       isTeamSalesman: edge.referrer_is_team_salesman,
+      kind: "person",
     });
 
     nodes.set(edge.new_user_id, {
@@ -115,6 +128,7 @@ export function buildReferralGraph(edges: ReferralTreeEdge[]): ReferralGraph {
       role: edge.new_user_role,
       status: edge.new_user_status,
       isTeamSalesman: edge.new_user_is_team_salesman,
+      kind: "person",
     });
 
     const existingChildEdges = childEdgesByParent.get(edge.referrer_user_id) ?? [];
@@ -137,6 +151,13 @@ export function buildReferralGraph(edges: ReferralTreeEdge[]): ReferralGraph {
 
     childEdgesByParent.set(parentId, childEdges);
   }
+
+  attachCompanyRoot({
+    childEdgesByParent,
+    companyBranchName,
+    nodes,
+    parentByChild,
+  });
 
   return {
     nodes,
@@ -293,6 +314,18 @@ function matchesReferralPerson(
   copy: ReferralsCopy,
   sharedCopy: DashboardSharedCopy,
 ) {
+  if (person.kind === "company") {
+    return [
+      person.name,
+      copy.tree.mainBranch,
+      copy.tree.companyBranchDescription,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(normalizedSearchText);
+  }
+
   const haystack = [
     person.name,
     person.email,

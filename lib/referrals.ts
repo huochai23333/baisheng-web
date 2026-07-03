@@ -44,6 +44,7 @@ export type ReferralTreeEdge = {
   new_user_is_team_salesman: boolean;
   created_at: string;
   relation_scope: ReferralTreeScope;
+  is_company_root_edge?: boolean;
 };
 
 export type ReferralTreeViewerContext = {
