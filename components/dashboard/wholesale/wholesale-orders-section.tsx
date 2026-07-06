@@ -14,7 +14,10 @@ import {
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
-import type { ExchangeRateRow } from "@/lib/exchange-rates";
+import {
+  getBeijingDateString,
+  type ExchangeRateRow,
+} from "@/lib/exchange-rates";
 import { normalizeSearchText } from "@/lib/value-normalizers";
 import type {
   Wholesale1688Order,
@@ -119,8 +122,12 @@ export function WholesaleOrdersSection({
   const [statusFilter, setStatusFilter] = useState(ALL);
   const [customerFilter, setCustomerFilter] = useState(ALL);
   const [salesFilter, setSalesFilter] = useState(ALL);
-  const [orderedFromDate, setOrderedFromDate] = useState("");
-  const [orderedToDate, setOrderedToDate] = useState("");
+  const [orderedFromDate, setOrderedFromDate] = useState(
+    () => getCurrentMonthDateRange().from,
+  );
+  const [orderedToDate, setOrderedToDate] = useState(
+    () => getCurrentMonthDateRange().to,
+  );
   const purchaseOrdersByOrderId = useMemo(() => {
     const grouped = new Map<string, Wholesale1688Order[]>();
 
@@ -547,6 +554,19 @@ function getDateBoundaryTime(value: string, boundary: "start" | "end") {
   const time = new Date(`${value}${suffix}`).getTime();
 
   return Number.isFinite(time) ? time : null;
+}
+
+function getCurrentMonthDateRange() {
+  const today = getBeijingDateString();
+  const year = Number(today.slice(0, 4));
+  const month = Number(today.slice(5, 7));
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const monthText = String(month).padStart(2, "0");
+
+  return {
+    from: `${year}-${monthText}-01`,
+    to: `${year}-${monthText}-${String(lastDay).padStart(2, "0")}`,
+  };
 }
 
 function isDateWithinRange(

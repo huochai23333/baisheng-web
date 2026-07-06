@@ -172,6 +172,12 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByText("AI订单评估")).toBeVisible();
     await expect(assessmentButton).toBeVisible();
 
+    const currentMonthRange = getCurrentMonthDateRange();
+
+    await expect(orderedFromInput).toHaveValue(currentMonthRange.from);
+    await expect(orderedToInput).toHaveValue(currentMonthRange.to);
+    await expect(clearFiltersButton).toBeEnabled();
+
     await fillDateInput(orderedFromInput, "2099-01-01");
     await fillDateInput(orderedToInput, "2099-01-31");
 
@@ -412,6 +418,21 @@ async function fillDateInput(locator: Locator, value: string) {
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
   }, value);
+}
+
+function getCurrentMonthDateRange() {
+  const today = new Date(Date.now() + 8 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+  const year = Number(today.slice(0, 4));
+  const month = Number(today.slice(5, 7));
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const monthText = String(month).padStart(2, "0");
+
+  return {
+    from: `${year}-${monthText}-01`,
+    to: `${year}-${monthText}-${String(lastDay).padStart(2, "0")}`,
+  };
 }
 
 async function expectNoDocumentHorizontalOverflow(page: Page) {
