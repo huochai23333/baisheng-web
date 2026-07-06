@@ -44,6 +44,7 @@ export type WorkspacePageVariants = WorkspaceBusinessPageVariants & {
   announcements?: true;
   companyExpenses?: true;
   feedback?: true;
+  operatorReimbursements?: true;
   settings?: true;
 };
 
@@ -76,6 +77,11 @@ const financeGlobalNavItems = [
   { segment: "company-expenses", labelKey: "companyExpenses" },
 ] as const satisfies readonly WorkspaceNavItem[];
 
+const operatorGlobalNavItems = [
+  { segment: "home", labelKey: "home" },
+  { segment: "reimbursements", labelKey: "reimbursements" },
+] as const satisfies readonly WorkspaceNavItem[];
+
 function createWorkspaceRouteConfig({
   authRole,
   basePath,
@@ -89,7 +95,12 @@ function createWorkspaceRouteConfig({
   globalNavItems?: readonly WorkspaceNavItem[];
   globalPageVariants?: Pick<
     WorkspacePageVariants,
-    "accounts" | "announcements" | "companyExpenses" | "feedback" | "settings"
+    | "accounts"
+    | "announcements"
+    | "companyExpenses"
+    | "feedback"
+    | "operatorReimbursements"
+    | "settings"
   >;
   initials: string;
   routeSegment: WorkspaceRouteSegment;
@@ -149,6 +160,10 @@ const WORKSPACE_ROUTE_CONFIG_BY_SEGMENT = {
   operator: createWorkspaceRouteConfig({
     authRole: "operator",
     basePath: "/operator",
+    globalNavItems: operatorGlobalNavItems,
+    globalPageVariants: {
+      operatorReimbursements: true,
+    },
     initials: "OP",
     routeSegment: "operator",
   }),
@@ -193,6 +208,7 @@ const workspaceGlobalNavSegmentSet = new Set<string>([
   "feedback",
   "home",
   "my",
+  "reimbursements",
   "settings",
 ]);
 

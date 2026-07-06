@@ -9,6 +9,7 @@ import { getAdminPeoplePageData } from "@/lib/admin-people";
 import { getAdminAnnouncementsPageData } from "@/lib/announcements";
 import { getAdminSystemSettingsPageData } from "@/lib/admin-system-settings";
 import { getCompanyExpensesPageData } from "@/lib/company-expenses";
+import { getOperatorReimbursementsPageData } from "@/lib/operator-reimbursements";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import { getAdminWorkspaceFeedbackPageData } from "@/lib/workspace-feedback";
 import {
@@ -48,6 +49,13 @@ const CompanyExpensesClient = dynamic(
     ).then((mod) => mod.CompanyExpensesClient),
 );
 
+const OperatorReimbursementsClient = dynamic(
+  () =>
+    import(
+      "@/components/dashboard/operator-reimbursements/operator-reimbursements-client"
+    ).then((mod) => mod.OperatorReimbursementsClient),
+);
+
 const AdminSystemSettingsClient = dynamic(
   () =>
     import(
@@ -73,6 +81,14 @@ export async function generateWorkspaceAnnouncementsMetadata(): Promise<Metadata
 
 export async function generateWorkspaceCompanyExpensesMetadata(): Promise<Metadata> {
   const t = await getTranslations("CompanyExpenses.metadata");
+
+  return {
+    title: t("title"),
+  };
+}
+
+export async function generateWorkspaceOperatorReimbursementsMetadata(): Promise<Metadata> {
+  const t = await getTranslations("OperatorReimbursements.metadata");
 
   return {
     title: t("title"),
@@ -150,6 +166,27 @@ export async function renderWorkspaceCompanyExpensesPage({
   return (
     <ScopedIntlProvider namespaces={["CompanyExpenses", "DashboardShared"]}>
       <CompanyExpensesClient initialData={initialData} />
+    </ScopedIntlProvider>
+  );
+}
+
+export async function renderWorkspaceOperatorReimbursementsPage({
+  params,
+}: WorkspaceGlobalPageProps) {
+  const config = await getGlobalPageConfig(params);
+
+  if (!config.pageVariants.operatorReimbursements) {
+    forbidden();
+  }
+
+  const supabase = await getServerSupabaseClient();
+  const initialData = await getOperatorReimbursementsPageData(supabase);
+
+  return (
+    <ScopedIntlProvider
+      namespaces={["OperatorReimbursements", "DashboardShared"]}
+    >
+      <OperatorReimbursementsClient initialData={initialData} />
     </ScopedIntlProvider>
   );
 }

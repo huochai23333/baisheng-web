@@ -333,6 +333,7 @@
       "accounts": "Account Management",
       "announcements": "Announcements",
       "companyExpenses": "Company Expenses",
+      "reimbursements": "Reimbursements",
       "orders": "Orders",
       "customers": "Customer Management",
       "referrals": "Referral Tree",
@@ -547,6 +548,75 @@
     },
     "noPermissionTitle": "This account cannot view company expenses",
     "noPermissionDescription": "Company expenses are available only to administrators and finance."
+  },
+  "OperatorReimbursements": {
+    "metadata": {
+      "title": "Reimbursements"
+    },
+    "header": {
+      "title": "Reimbursements",
+      "description": "Record everyday reimbursement items and amounts. Unreimbursed records in the current period can be marked as reimbursed together.",
+      "create": "Add Record",
+      "reimburseCurrent": "Reimburse This Month",
+      "currentPeriodLabel": "This month: "
+    },
+    "filters": {
+      "searchPlaceholder": "Search content, amount, or date",
+      "periodLabel": "Period",
+      "statusLabel": "Status",
+      "allPeriods": "All Periods",
+      "allStatuses": "All Statuses"
+    },
+    "summary": {
+      "currentPeriod": "This Month",
+      "currentUnreimbursed": "This Month Unreimbursed",
+      "currentReimbursed": "This Month Reimbursed",
+      "totalUnreimbursed": "All Unreimbursed",
+      "count": "{count} records"
+    },
+    "status": {
+      "unreimbursed": "Unreimbursed",
+      "reimbursed": "Reimbursed"
+    },
+    "list": {
+      "recordsTitle": "Reimbursement Details",
+      "amount": "Amount",
+      "spentAt": "Date",
+      "period": "Period",
+      "status": "Status",
+      "reimbursedAt": "Reimbursed At",
+      "updatedAt": "Updated",
+      "delete": "Delete",
+      "emptyTitle": "No reimbursement records yet",
+      "emptyDescription": "After adding reimbursements, they will appear here by period."
+    },
+    "dialog": {
+      "createTitle": "Add Record",
+      "createDescription": "Enter the date, content, and amount. New records start as unreimbursed.",
+      "spentAtLabel": "Date",
+      "contentLabel": "Content",
+      "contentPlaceholder": "Example: Travel fare or client meal",
+      "amountLabel": "Amount",
+      "cancel": "Cancel",
+      "createSubmit": "Save Record"
+    },
+    "feedback": {
+      "createSuccess": "Record saved.",
+      "deleteSuccess": "Record deleted.",
+      "deleteConfirm": "Delete “{content}”?",
+      "reimburseSuccess": "{count} unreimbursed records for this month were marked as reimbursed.",
+      "reimburseEmpty": "There are no unreimbursed records this month.",
+      "missingContent": "Enter the reimbursement content.",
+      "missingAmount": "Enter the reimbursement amount.",
+      "invalidAmount": "Amount must be greater than 0.",
+      "invalidDate": "Choose a date.",
+      "notFoundError": "This reimbursement record no longer exists.",
+      "deleteLockedError": "Reimbursed records cannot be deleted.",
+      "permissionError": "This account cannot manage reimbursement records.",
+      "unknownError": "Reimbursement record could not be saved. Please try again later."
+    },
+    "noPermissionTitle": "This account cannot view reimbursements",
+    "noPermissionDescription": "Reimbursements are available only to operators."
   },
   "WholesaleBusiness": {
     "sections": {

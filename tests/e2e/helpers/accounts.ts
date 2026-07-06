@@ -5,6 +5,7 @@ export type RegressionRole =
   | "administrator"
   | "salesman"
   | "promoter"
+  | "operator"
   | "client"
   | "finance";
 
@@ -19,6 +20,7 @@ const ROLE_ENV_PREFIX: Record<RegressionRole, string> = {
   administrator: "E2E_ADMIN",
   client: "E2E_CLIENT",
   finance: "E2E_FINANCE",
+  operator: "E2E_OPERATOR",
   promoter: "E2E_PROMOTER",
   salesman: "E2E_SALESMAN",
 };
@@ -27,6 +29,7 @@ const ROLE_WORKSPACE_PATH: Record<RegressionRole, string> = {
   administrator: "/admin",
   client: "/client",
   finance: "/finance",
+  operator: "/operator",
   promoter: "/promoter",
   salesman: "/salesman",
 };
@@ -35,6 +38,7 @@ const LOCAL_ROLE_EMAIL_PREFIX: Record<RegressionRole, string> = {
   administrator: "local.admin@",
   client: "local.client@",
   finance: "local.finance@",
+  operator: "local.operator@",
   promoter: "local.promoter@",
   salesman: "local.salesman@",
 };
@@ -45,6 +49,7 @@ const FALLBACK_ROLE_ORDER: readonly RegressionRole[] = [
   "promoter",
   "client",
   "finance",
+  "operator",
 ];
 
 const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;

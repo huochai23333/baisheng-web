@@ -58,6 +58,7 @@ const NAV_ICONS: Record<WorkspaceNavSegment, LucideIcon> = {
   orders: ShoppingCart,
   people: UsersRound,
   records: ClipboardClock,
+  reimbursements: ReceiptText,
   referrals: GitBranchPlus,
   reviews: ShieldCheck,
   settings: Settings,

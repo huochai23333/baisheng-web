@@ -333,6 +333,7 @@
       "accounts": "账号管理",
       "announcements": "公告管理",
       "companyExpenses": "公司费用",
+      "reimbursements": "报销记录",
       "orders": "订单",
       "customers": "客户管理",
       "referrals": "推荐树",
@@ -547,6 +548,75 @@
     },
     "noPermissionTitle": "当前账号不能查看公司费用",
     "noPermissionDescription": "公司费用只开放给管理员和财务账号。"
+  },
+  "OperatorReimbursements": {
+    "metadata": {
+      "title": "报销记录"
+    },
+    "header": {
+      "title": "报销记录",
+      "description": "记录日常需要报销的内容和金额。当前周期内还未报销的记录，可以一起标记为已报销。",
+      "create": "新增报销",
+      "reimburseCurrent": "报销本月",
+      "currentPeriodLabel": "本月范围："
+    },
+    "filters": {
+      "searchPlaceholder": "搜索报销内容、金额或日期",
+      "periodLabel": "报销周期",
+      "statusLabel": "报销状态",
+      "allPeriods": "全部周期",
+      "allStatuses": "全部状态"
+    },
+    "summary": {
+      "currentPeriod": "本月范围",
+      "currentUnreimbursed": "本月未报销",
+      "currentReimbursed": "本月已报销",
+      "totalUnreimbursed": "全部未报销",
+      "count": "{count} 条记录"
+    },
+    "status": {
+      "unreimbursed": "未报销",
+      "reimbursed": "已报销"
+    },
+    "list": {
+      "recordsTitle": "报销明细",
+      "amount": "金额",
+      "spentAt": "发生日期",
+      "period": "报销周期",
+      "status": "状态",
+      "reimbursedAt": "报销时间",
+      "updatedAt": "更新时间",
+      "delete": "删除",
+      "emptyTitle": "暂无报销记录",
+      "emptyDescription": "新增报销后，会在这里按周期展示。"
+    },
+    "dialog": {
+      "createTitle": "新增报销",
+      "createDescription": "填写发生日期、报销内容和金额。保存后默认显示为未报销。",
+      "spentAtLabel": "发生日期",
+      "contentLabel": "报销内容",
+      "contentPlaceholder": "例如：外出交通费、客户沟通餐费",
+      "amountLabel": "报销金额",
+      "cancel": "取消",
+      "createSubmit": "保存记录"
+    },
+    "feedback": {
+      "createSuccess": "记录已保存。",
+      "deleteSuccess": "记录已删除。",
+      "deleteConfirm": "确定删除“{content}”吗？",
+      "reimburseSuccess": "本月 {count} 条未报销记录已标记为已报销。",
+      "reimburseEmpty": "本月没有未报销记录。",
+      "missingContent": "请填写报销内容。",
+      "missingAmount": "请填写报销金额。",
+      "invalidAmount": "报销金额需要大于 0。",
+      "invalidDate": "请选择发生日期。",
+      "notFoundError": "这条报销记录已经不存在。",
+      "deleteLockedError": "已报销的记录不能删除。",
+      "permissionError": "当前账号不能维护报销记录。",
+      "unknownError": "报销记录暂时没有保存成功，请稍后再试。"
+    },
+    "noPermissionTitle": "当前账号不能查看报销记录",
+    "noPermissionDescription": "报销记录只开放给运营账号。"
   },
   "WholesaleBusiness": {
     "sections": {

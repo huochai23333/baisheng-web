@@ -42,6 +42,7 @@ const NAV_LABELS = {
   orders: "订单",
   people: "人员管理",
   records: "操作记录",
+  reimbursements: "报销记录",
   referrals: "推荐树",
   reviews: "审核",
   settings: "系统设置",
@@ -68,6 +69,7 @@ const NAV_ENTRY_DESCRIPTIONS = {
   orders: "查看或处理当前账号可见的订单",
   people: "按当前业务查看业务人员或承接账号资料",
   records: "查看重要处理动作的留痕",
+  reimbursements: "记录运营自己的报销内容和金额，并按当前周期标记为已报销",
   referrals: "按当前可见业务板块查看推荐关系和邀请码线索",
   reviews: "处理资料和媒体审核",
   settings: "维护汇率设置",
@@ -245,6 +247,9 @@ function buildPageVariantGuide(pageVariants: WorkspacePageVariants) {
     pageVariants.commission ? getCommissionGuide(pageVariants.commission) : null,
     pageVariants.settings ? "业务设置在对应业务侧栏内维护；外侧设置只维护汇率。" : null,
     pageVariants.feedback ? "反馈管理只用于管理员查看和处理用户反馈。" : null,
+    pageVariants.operatorReimbursements
+      ? "报销记录只用于运营记录自己的报销内容和金额，并把当前周期未报销记录标记为已报销。"
+      : null,
     pageVariants.records ? "操作记录只用于管理员核对重要处理动作。" : null,
     pageVariants.reviews ? "审核中心由管理员处理资料和媒体审核。" : null,
   ].filter(Boolean);

@@ -146,7 +146,7 @@ npm run supabase:admin -- summary
 | `promoter` | `/promoter/home` | 全局首页；固定仅可见旅游业务，显示旅游订单、客户管理、VIP管理、推荐树、团队、佣金和任务 |
 | `client` | `/client/home` | 全局首页；使用地推邀请码注册的客户默认进入旅游业务；使用业务员邀请码注册的客户默认进入批发业务；后续关联其他业务客户身份后可见对应业务的订单、物流、推荐树和佣金 |
 | `manager` | `/manager/home` | 全局首页；旅游业务下的推荐树、团队、任务 |
-| `operator` | `/operator/home` | 全局首页；旅游业务下的推荐树、团队、任务 |
+| `operator` | `/operator/home` | 全局首页、报销记录；旅游业务下的推荐树、团队、任务 |
 | `finance` | `/finance/home` | 全局首页、公司费用；固定仅可见批发业务，显示批发订单、订单认领、物流、客户管理、VIP管理、推荐树、佣金和提成 |
 | `recruiter` | `/recruiter/home` | 全局首页；旅游业务下的推荐树、任务 |
 
@@ -156,6 +156,7 @@ npm run supabase:admin -- summary
 - `/[role]/home` 和 `/[role]/my` 是全局页面，不归属于单个业务。
 - `/admin/accounts`、`/admin/announcements`、`/admin/company-expenses` 和 `/admin/feedback` 是管理员全局管理页面，不归属于旅游业务或批发业务。
 - `/finance/company-expenses` 是财务全局公司费用页面，不归属于旅游业务或批发业务。
+- `/operator/reimbursements` 是运营全局报销记录页面，不归属于旅游业务或批发业务。
 - `/admin/settings` 是管理员全局汇率设置页面，不归属于旅游业务或批发业务。
 - `/admin/tourism/settings` 是旅游业务设置，维护旅游订单服务费、服务价格、服务折扣和服务相关佣金。
 - `/admin/wholesale/settings` 是批发业务设置，维护批发订单可直接修改天数、批发订单业务员提成和批发客户推荐佣金。
@@ -190,6 +191,7 @@ app/
 │     ├─ feedback/
 │     ├─ home/
 │     ├─ my/
+│     ├─ reimbursements/
 │     ├─ settings/
 │     └─ [business]/
 │        └─ [section]/
@@ -213,6 +215,8 @@ app/
 - `lib/business-vip-management*.ts`：业务 VIP 的服务端边界；`queries` 读取旅游/批发 VIP 列表，`mutations` 调用旅游申请审批 RPC 和批发直接开通/续费 RPC，`normalizers` 统一整理 RPC 返回值，`errors` 把技术错误映射成页面提示。
 - `lib/company-expenses.ts`：公司费用页面的数据读取、权限判断和增删改操作。
 - `components/dashboard/company-expenses/`：公司费用页面的展示区块、表单弹窗、状态 hook 和显示工具。
+- `lib/operator-reimbursements.ts`：运营报销记录的数据读取、权限判断、创建、删除和“报销本月”操作。
+- `components/dashboard/operator-reimbursements/`：运营报销记录页面的页头、筛选、汇总、列表、表单弹窗、状态 hook 和显示工具。
 - `components/dashboard/admin-shell.tsx`：工作台服务端壳层。
 - `components/dashboard/admin-shell-client.tsx`：工作台登出等客户端动作。
 - `components/dashboard/admin-shell-nav.tsx`：桌面和移动端分组导航。
@@ -267,6 +271,7 @@ baisheng-web/
 - `announcements/`：管理员全局公告管理列表、筛选、发布和下线，不挂在旅游业务或批发业务下。
 - `dashboard-home/`：各角色首页组件化工作台；问候、当前时间、个人邀请码、公告和个人待办都作为可重复放置的首页组件呈现，编辑时用红色虚线框标出可放置区域；布局定义、布局状态 hook、组件卡片、侧栏和内容渲染拆在同层模块中；时钟刷新、邀请码复制、待办查询、保存状态、弹窗和展示继续拆分，不放进首页 Client/Page。
 - `admin-feedback/`：管理员反馈管理列表、筛选和状态调整。
+- `operator-reimbursements/`：运营全局报销记录，按 25 号到 24 号的周期展示报销内容、金额和状态；页头、筛选、汇总、列表、弹窗、状态 hook 和显示工具拆在同层文件中，Client 只负责组装。
 - `ai-assistant/`：右下角工作台助手浮窗、聊天状态、流式消息和反馈衔接；助手名称、产品名和反馈草稿标题从公司配置读取。
 - `lib/account-switcher.ts`：本机常用账号会话切换，不保存密码，不写数据库。
 - `business-vip/`：旅游业务和批发业务共用 VIP 入口但保持不同流程；旅游业务承接客户 VIP 申请、管理员确认收款或拒绝、充值记录、当前状态和有效期调整，批发业务显示精简客户列表、直接开通/续费按钮和独立操作记录表，点击批发客户可查看该客户全部开通和续费记录。批发 VIP 每次开通或续费都按 200 USD 年费记录，不产生业务员 VIP 佣金。Client 只负责筛选、弹窗状态和提交调度，列表、弹窗、展示格式和服务端查询/写入拆在同层或 `lib/business-vip-management*.ts`，底层数据仍按业务分开读取和写入。
@@ -303,6 +308,7 @@ baisheng-web/
 - 当前旅游业务不包含采购类订单，旅游业务设置不维护采购订单佣金规则。
 - 当前旅游订单体系只承载旅游/零售/服务相关订单，不再承载批发订单、批发服务费或批发推荐入口。
 - 当前业务模块清单注册 `tourism` 和 `wholesale` 两个业务。导航分组、角色可用模块、旅游/批发页面入口和业务内设置都从 `lib/workspace-business-modules.ts` 组装；工作台总配置不再直接维护每个业务的导航细节。
+- 运营报销记录是运营角色的全局页面，不挂在旅游业务或批发业务下。报销记录包含发生日期、报销内容、报销金额和状态；新增记录默认未报销。点击“报销本月”会把当前报销周期内仍未报销的记录全部标记为已报销；当前周期按上海时区当天计算，25 号及以后为当月 25 号到下月 24 号，24 号及以前为上月 25 号到本月 24 号。已报销记录保留在列表中作为核对凭证，不再提供删除按钮。
 - 新批发业务保留在同一个后台壳内，但不复用旅游订单结构；批发客户、订单、订单修改申请、订单修改记录、1688 采购单、物流费用记录、物流状态核对、客户推荐佣金、业务员提成、推荐关系和 VIP 权益分别走 `wholesale_customers`、`wholesale_orders`、`wholesale_order_edit_requests`、`wholesale_order_change_logs`、`wholesale_1688_orders`、`wholesale_logistics_orders`、`wholesale_logistics_statuses`、`wholesale_commissions`、`wholesale_referrals` 和批发 VIP 相关表等独立模型。
 - 业务入口不再由管理员在人员管理里手动开关；管理员固定同时可见旅游业务和批发业务，财务和业务员固定只可见批发业务，地推、经理、运营和招聘员固定只可见旅游业务；客户按业务标记进入，拥有批发业务标记的客户可见批发业务，只有旅游业务标记的客户只可见旅游业务。
 - 各业务下客户管理与人员管理分开。旅游客户进入旅游业务的客户管理，旅游人员管理只保留旅游业务人员；批发客户进入批发业务的客户管理，批发人员管理只在管理员工作台展示，用于查看可承接批发客户和订单的业务员账号，业务员工作台不显示人员管理板块。

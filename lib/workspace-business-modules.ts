@@ -30,6 +30,7 @@ export type WorkspaceGlobalNavSegment =
   | "feedback"
   | "home"
   | "my"
+  | "reimbursements"
   | "settings";
 
 export type WorkspaceNavSegment =
@@ -47,6 +48,7 @@ export type WorkspaceNavLabelKey =
   | "customers"
   | "people"
   | "records"
+  | "reimbursements"
   | "referrals"
   | "businessSettings"
   | "team"
