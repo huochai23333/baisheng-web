@@ -220,10 +220,12 @@ export function WholesaleField({
 }
 
 export function WholesaleTextarea({
+  defaultValue,
   label,
   name,
   placeholder,
 }: {
+  defaultValue?: string;
   label: string;
   name: string;
   placeholder?: string;
@@ -235,6 +237,7 @@ export function WholesaleTextarea({
           dashboardFilterInputClassName,
           "h-auto min-h-24 py-3 sm:h-auto",
         )}
+        defaultValue={defaultValue}
         name={name}
         placeholder={placeholder}
       />

@@ -1,24 +1,28 @@
 "use client";
 
+import { useState } from "react";
+
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 
+import { WholesaleCustomerDeleteDialog } from "./wholesale-customer-delete-dialog";
 import { WholesaleCustomerDetails } from "./wholesale-customer-details";
-import {
-  WholesaleField,
-  WholesaleSelect,
-  WholesaleSubmitButton,
-  WholesaleTextarea,
-} from "./wholesale-ui";
+import { WholesaleCustomerForm } from "./wholesale-customer-form";
 
 type WholesaleCustomerDialogsProps = {
+  canAssignSalesUser: boolean;
+  canEdit: boolean;
   canLinkCustomerAccount: boolean;
   createDialogOpen: boolean;
+  currentUserId: string | null;
   linkedRegisteredUserIds: Set<string>;
-  onCreateCustomer: (formData: FormData) => void | Promise<void>;
+  onAddCustomerOtherName: (formData: FormData) => void | Promise<void>;
+  onCreateCustomer: (formData: FormData) => boolean | Promise<boolean>;
   onCreateDialogOpenChange: (open: boolean) => void;
+  onDeleteCustomer: (customerId: string) => boolean | Promise<boolean>;
   onLinkCustomerAccount: (formData: FormData) => void | Promise<void>;
   onSelectedCustomerIdChange: (id: string | null) => void;
+  onUpdateCustomer: (formData: FormData) => boolean | Promise<boolean>;
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
   registeredAccounts: WholesaleProfile[];
@@ -28,13 +32,19 @@ type WholesaleCustomerDialogsProps = {
 };
 
 export function WholesaleCustomerDialogs({
+  canAssignSalesUser,
+  canEdit,
   canLinkCustomerAccount,
   createDialogOpen,
+  currentUserId,
   linkedRegisteredUserIds,
+  onAddCustomerOtherName,
   onCreateCustomer,
   onCreateDialogOpenChange,
+  onDeleteCustomer,
   onLinkCustomerAccount,
   onSelectedCustomerIdChange,
+  onUpdateCustomer,
   pendingKey,
   profilesById,
   registeredAccounts,
@@ -42,6 +52,12 @@ export function WholesaleCustomerDialogs({
   selectedCustomer,
   selectedCustomerId,
 }: WholesaleCustomerDialogsProps) {
+  const [customerToEdit, setCustomerToEdit] = useState<WholesaleCustomer | null>(
+    null,
+  );
+  const [customerToDelete, setCustomerToDelete] =
+    useState<WholesaleCustomer | null>(null);
+
   return (
     <>
       <DashboardDialog
@@ -50,50 +66,38 @@ export function WholesaleCustomerDialogs({
         open={createDialogOpen}
         title="新增批发客户"
       >
-        <form
-          className="grid gap-4 md:grid-cols-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void onCreateCustomer(new FormData(event.currentTarget));
-            event.currentTarget.reset();
-            onCreateDialogOpenChange(false);
-          }}
-        >
-          <WholesaleField label="客户唯一标识名称" name="unique_name" required />
-          <WholesaleField label="客户其他名称" name="other_names" />
-          <WholesaleField label="联系方式" name="contact_details" />
-          <WholesaleField label="客户来源" name="source" />
-          <WholesaleSelect label="关联业务员" name="assigned_sales_user_id">
-            <option value="">暂不分配</option>
-            {salesAccounts.map((profile) => (
-              <option key={profile.user_id} value={profile.user_id}>
-                {profile.name || profile.email}
-              </option>
-            ))}
-          </WholesaleSelect>
-          <div className="md:col-span-2">
-            <WholesaleTextarea label="备注" name="notes" />
-          </div>
-          <div className="flex justify-end md:col-span-2">
-            <WholesaleSubmitButton pending={pendingKey === "customer:create"}>
-              保存客户
-            </WholesaleSubmitButton>
-          </div>
-        </form>
+        <WholesaleCustomerForm
+          canAssignSalesUser={canAssignSalesUser}
+          currentUserId={currentUserId}
+          mode="create"
+          onSaved={() => onCreateDialogOpenChange(false)}
+          onSubmit={onCreateCustomer}
+          pending={pendingKey === "customer:create"}
+          profilesById={profilesById}
+          salesAccounts={salesAccounts}
+        />
       </DashboardDialog>
 
       <DashboardDialog
         onOpenChange={(open) => {
-          if (!open) onSelectedCustomerIdChange(null);
+          if (!open) {
+            onSelectedCustomerIdChange(null);
+            setCustomerToEdit(null);
+            setCustomerToDelete(null);
+          }
         }}
         open={Boolean(selectedCustomerId)}
         title={selectedCustomer?.unique_name ?? "客户详情"}
       >
         {selectedCustomer ? (
           <WholesaleCustomerDetails
+            canEdit={canEdit}
             canLinkAccount={canLinkCustomerAccount}
             customer={selectedCustomer}
             linkedRegisteredUserIds={linkedRegisteredUserIds}
+            onAddOtherName={onAddCustomerOtherName}
+            onDeleteCustomer={() => setCustomerToDelete(selectedCustomer)}
+            onEditCustomer={() => setCustomerToEdit(selectedCustomer)}
             onLinkRegisteredUser={onLinkCustomerAccount}
             pendingKey={pendingKey}
             profilesById={profilesById}
@@ -101,6 +105,50 @@ export function WholesaleCustomerDialogs({
           />
         ) : null}
       </DashboardDialog>
+
+      <DashboardDialog
+        description="修改客户唯一名称、联系方式、来源、其他名称、关联业务员和备注。"
+        onOpenChange={(open) => {
+          if (!open) setCustomerToEdit(null);
+        }}
+        open={Boolean(customerToEdit)}
+        title="编辑批发客户"
+      >
+        {customerToEdit ? (
+          <WholesaleCustomerForm
+            canAssignSalesUser={canAssignSalesUser}
+            currentUserId={currentUserId}
+            customer={customerToEdit}
+            mode="edit"
+            onSaved={() => setCustomerToEdit(null)}
+            onSubmit={onUpdateCustomer}
+            pending={pendingKey === `customer:update:${customerToEdit.id}`}
+            profilesById={profilesById}
+            salesAccounts={salesAccounts}
+          />
+        ) : null}
+      </DashboardDialog>
+
+      <WholesaleCustomerDeleteDialog
+        customer={customerToDelete}
+        onDeleteCustomer={async (customerId) => {
+          const deleted = await onDeleteCustomer(customerId);
+
+          if (deleted) {
+            onSelectedCustomerIdChange(null);
+          }
+
+          return deleted;
+        }}
+        onOpenChange={(open) => {
+          if (!open) setCustomerToDelete(null);
+        }}
+        open={Boolean(customerToDelete)}
+        pending={Boolean(
+          customerToDelete &&
+            pendingKey === `customer:delete:${customerToDelete.id}`,
+        )}
+      />
     </>
   );
 }

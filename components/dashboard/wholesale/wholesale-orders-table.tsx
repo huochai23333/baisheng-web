@@ -28,14 +28,12 @@ import {
   formatRate,
   getCustomerName,
   getProfileName,
-  WHOLESALE_ORDER_STATUS_LABELS,
 } from "./wholesale-display";
 import {
   LinkedLogisticsOrders,
   LinkedPurchaseOrders,
 } from "./wholesale-order-linked-records";
 import {
-  WholesaleStatusBadge,
   WholesaleTable,
   WholesaleTd,
   WholesaleTh,
@@ -136,52 +134,51 @@ export function WholesaleOrdersTable({
               data-testid={`wholesale-order-row-${order.id}`}
               key={order.id}
             >
-              <WholesaleTd className={wholesaleStickyFirstTdClassName}>
-                <div className="font-semibold [overflow-wrap:anywhere]">
-                  {order.order_number}
+              <WholesaleTd
+                className={`${wholesaleStickyFirstTdClassName} min-w-[230px] px-4 py-3`}
+              >
+                <div className="space-y-2">
+                  <div className="font-semibold [overflow-wrap:anywhere]">
+                    {order.order_number}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {editAction ? (
+                      <Button
+                        className={
+                          editAction.tone === "direct"
+                            ? "h-8 rounded-full border border-[#d8e2e8] bg-white px-2.5 text-xs text-[#486782] hover:bg-[#eef3f6]"
+                            : "h-8 rounded-full border border-[#f0dfaf] bg-[#fff8e6] px-2.5 text-xs text-[#75520c] hover:bg-[#fbf0cf]"
+                        }
+                        onClick={() => onOpenOrderEdit(order)}
+                        type="button"
+                        variant="outline"
+                      >
+                        {editAction.tone === "direct" ? (
+                          <PencilLine className="size-3.5" />
+                        ) : (
+                          <Send className="size-3.5" />
+                        )}
+                        {editAction.label}
+                      </Button>
+                    ) : null}
+                    {canMarkOrderSettled(order) ? (
+                      <Button
+                        className="h-8 rounded-full bg-[#486782] px-2.5 text-xs text-white hover:bg-[#3e5f79]"
+                        data-testid={`wholesale-order-settle-${order.id}`}
+                        disabled={pendingKey === `order:settle:${order.id}`}
+                        onClick={() => onOpenOrderSettlement(order)}
+                        type="button"
+                      >
+                        {pendingKey === `order:settle:${order.id}` ? (
+                          <LoaderCircle className="size-3.5 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="size-3.5" />
+                        )}
+                        登记结汇
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
-                <div className="mt-2">
-                  <WholesaleStatusBadge
-                    tone={order.status === "settled" ? "success" : "warning"}
-                  >
-                    {WHOLESALE_ORDER_STATUS_LABELS[order.status]}
-                  </WholesaleStatusBadge>
-                </div>
-                {editAction ? (
-                  <Button
-                    className={
-                      editAction.tone === "direct"
-                        ? "mt-3 h-9 rounded-full border border-[#d8e2e8] bg-white px-3 text-xs text-[#486782] hover:bg-[#eef3f6]"
-                        : "mt-3 h-9 rounded-full border border-[#f0dfaf] bg-[#fff8e6] px-3 text-xs text-[#75520c] hover:bg-[#fbf0cf]"
-                    }
-                    onClick={() => onOpenOrderEdit(order)}
-                    type="button"
-                    variant="outline"
-                  >
-                    {editAction.tone === "direct" ? (
-                      <PencilLine className="size-3.5" />
-                    ) : (
-                      <Send className="size-3.5" />
-                    )}
-                    {editAction.label}
-                  </Button>
-                ) : null}
-                {canMarkOrderSettled(order) ? (
-                  <Button
-                    className="mt-3 h-9 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
-                    data-testid={`wholesale-order-settle-${order.id}`}
-                    disabled={pendingKey === `order:settle:${order.id}`}
-                    onClick={() => onOpenOrderSettlement(order)}
-                    type="button"
-                  >
-                    {pendingKey === `order:settle:${order.id}` ? (
-                      <LoaderCircle className="size-3.5 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="size-3.5" />
-                    )}
-                    登记结汇
-                  </Button>
-                ) : null}
               </WholesaleTd>
               <WholesaleTd className="min-w-[160px] whitespace-normal">
                 {getCustomerName(customersById, order.customer_id)}
@@ -278,10 +275,10 @@ function SettlementRecordsCell({
   }
 
   return (
-    <div className="grid gap-2">
+    <div className="grid max-h-24 gap-2 overflow-y-auto pr-1">
       {settlements.map((settlement) => (
         <div
-          className="rounded-[12px] bg-[#f7fafb] p-2 text-xs leading-5 text-[#4f606b]"
+          className="rounded-[10px] bg-[#f7fafb] p-2 text-xs leading-5 text-[#4f606b]"
           key={settlement.id}
         >
           <p className="font-semibold text-[#2f3f4a]">

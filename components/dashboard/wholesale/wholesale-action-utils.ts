@@ -142,6 +142,29 @@ export function toWholesaleActionErrorMessage(error: unknown) {
     return "请选择已通过你的批发注册链接注册的客户账号。";
   }
 
+  if (normalized.includes("wholesale_customer_other_name_required")) {
+    return "请填写要新增的客户其他名称。";
+  }
+
+  if (normalized.includes("wholesale_customer_name_required")) {
+    return "请填写客户唯一标识名称。";
+  }
+
+  if (
+    normalized.includes("wholesale_customer_unique_name_exists") ||
+    normalized.includes("wholesale_customers_unique_name_key")
+  ) {
+    return "这个客户名称已经存在，请换一个名称。";
+  }
+
+  if (normalized.includes("wholesale_customer_delete_has_orders")) {
+    return "这个客户已经有批发订单，不能删除。";
+  }
+
+  if (normalized.includes("wholesale_customer_not_found")) {
+    return "没有找到这个客户，请刷新后再试。";
+  }
+
   if (
     normalized.includes("_forbidden") ||
     normalized.includes("wholesale_customer_link_forbidden") ||

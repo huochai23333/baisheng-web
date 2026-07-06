@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
@@ -10,9 +10,9 @@ import {
   optionalString,
   positiveNumber,
   requiredString,
-  splitList,
   toWholesaleActionErrorMessage,
 } from "./wholesale-action-utils";
+import { createWholesaleCustomerActions } from "./wholesale-customer-actions";
 import { createWholesaleLogisticsStatus } from "./wholesale-logistics-mutations";
 
 type ActionFeedback = {
@@ -39,7 +39,7 @@ export function useWholesaleActions() {
   const [feedback, setFeedback] = useState<ActionFeedback>(null);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
 
-  const runAction = useCallback(
+  const runActionResult = useCallback(
     async (key: string, successMessage: string, action: () => Promise<void>) => {
       const supabase = getBrowserSupabaseClient();
 
@@ -48,7 +48,7 @@ export function useWholesaleActions() {
           tone: "error",
           message: "当前无法连接系统，请刷新页面后再试。",
         });
-        return;
+        return false;
       }
 
       setPendingKey(key);
@@ -58,11 +58,13 @@ export function useWholesaleActions() {
         await action();
         setFeedback({ tone: "success", message: successMessage });
         router.refresh();
+        return true;
       } catch (error) {
         setFeedback({
           tone: "error",
           message: toWholesaleActionErrorMessage(error),
         });
+        return false;
       } finally {
         setPendingKey(null);
       }
@@ -70,54 +72,16 @@ export function useWholesaleActions() {
     [router],
   );
 
-  const createCustomer = useCallback(
-    (formData: FormData) =>
-      runAction("customer:create", "批发客户已保存。", async () => {
-        const supabase = getBrowserSupabaseClient();
-        if (!supabase) throw new Error("client unavailable");
-
-        const payload = {
-          assigned_sales_user_id: optionalString(formData.get("assigned_sales_user_id")),
-          contact_details: optionalString(formData.get("contact_details")),
-          customer_kind: "sales_created",
-          notes: optionalString(formData.get("notes")),
-          other_names: splitList(formData.get("other_names")),
-          source: optionalString(formData.get("source")),
-          unique_name: requiredString(formData.get("unique_name")),
-        };
-
-        const { error } = await supabase.from("wholesale_customers").insert(payload);
-        if (error) throw error;
-      }),
-    [runAction],
+  const runAction = useCallback(
+    async (key: string, successMessage: string, action: () => Promise<void>) => {
+      await runActionResult(key, successMessage, action);
+    },
+    [runActionResult],
   );
 
-  const linkCustomerAccount = useCallback(
-    (formData: FormData) => {
-      const customerId = requiredString(formData.get("customer_id"));
-
-      return runAction(
-        `customer:link-account:${customerId}`,
-        "批发客户和注册账号已合并。",
-        async () => {
-          const supabase = getBrowserSupabaseClient();
-          if (!supabase) throw new Error("client unavailable");
-
-          const { error } = await supabase.rpc(
-            "link_wholesale_customer_registered_user",
-            {
-              p_customer_id: customerId,
-              p_registered_user_id: requiredString(
-                formData.get("registered_user_id"),
-              ),
-            },
-          );
-
-          if (error) throw error;
-        },
-      );
-    },
-    [runAction],
+  const customerActions = useMemo(
+    () => createWholesaleCustomerActions({ runAction, runActionResult }),
+    [runAction, runActionResult],
   );
 
   const createOrder = useCallback(
@@ -366,16 +330,15 @@ export function useWholesaleActions() {
   );
 
   return {
+    ...customerActions,
     approveOrderEditRequest,
     claim1688Order,
-    createCustomer,
     createLogisticsStatus,
     createOrder,
     createReferral,
     delete1688Order,
     feedback,
     import1688Rows,
-    linkCustomerAccount,
     markOrderSettled,
     pendingKey,
     rejectOrderEditRequest,

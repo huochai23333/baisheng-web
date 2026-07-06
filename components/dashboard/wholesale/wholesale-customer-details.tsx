@@ -1,9 +1,11 @@
 "use client";
 
-import { Link2 } from "lucide-react";
+import { Link2, PencilLine, Trash2 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 
+import { WholesaleCustomerOtherNames } from "./wholesale-customer-other-names";
 import { WholesaleDetailGrid } from "./wholesale-detail-grid";
 import {
   formatDate,
@@ -18,9 +20,13 @@ import {
 } from "./wholesale-ui";
 
 type WholesaleCustomerDetailsProps = {
+  canEdit: boolean;
   canLinkAccount: boolean;
   customer: WholesaleCustomer;
   linkedRegisteredUserIds: Set<string>;
+  onAddOtherName: (formData: FormData) => void | Promise<void>;
+  onDeleteCustomer: () => void;
+  onEditCustomer: () => void;
   onLinkRegisteredUser: (formData: FormData) => void | Promise<void>;
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
@@ -28,9 +34,13 @@ type WholesaleCustomerDetailsProps = {
 };
 
 export function WholesaleCustomerDetails({
+  canEdit,
   canLinkAccount,
   customer,
   linkedRegisteredUserIds,
+  onAddOtherName,
+  onDeleteCustomer,
+  onEditCustomer,
   onLinkRegisteredUser,
   pendingKey,
   profilesById,
@@ -44,13 +54,6 @@ export function WholesaleCustomerDetails({
   );
   const rows = [
     { label: "客户唯一名称", value: customer.unique_name },
-    {
-      label: "其他名称",
-      value:
-        customer.other_names.length > 0
-          ? customer.other_names.join("、")
-          : "未记录",
-    },
     { label: "联系方式", value: customer.contact_details ?? "未记录" },
     { label: "客户来源", value: customer.source ?? "未记录" },
     {
@@ -75,7 +78,35 @@ export function WholesaleCustomerDetails({
 
   return (
     <div className="space-y-5">
+      {canEdit ? (
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            className="h-9 rounded-full border border-[#d8e2e8] bg-white px-3 text-xs text-[#486782] hover:bg-[#eef3f6]"
+            onClick={onEditCustomer}
+            type="button"
+            variant="outline"
+          >
+            <PencilLine className="size-3.5" />
+            编辑客户
+          </Button>
+          <Button
+            className="h-9 rounded-full border border-[#f0caca] bg-white px-3 text-xs text-[#a33b3b] hover:bg-[#fff1f1]"
+            onClick={onDeleteCustomer}
+            type="button"
+            variant="outline"
+          >
+            <Trash2 className="size-3.5" />
+            删除客户
+          </Button>
+        </div>
+      ) : null}
       <WholesaleDetailGrid rows={rows} />
+      <WholesaleCustomerOtherNames
+        canEdit={canEdit}
+        customer={customer}
+        onAddOtherName={onAddOtherName}
+        pending={pendingKey === `customer:add-other-name:${customer.id}`}
+      />
       {customer.registered_user_id ? (
         <p className="rounded-[18px] border border-[#dfe8df] bg-[#f5fbf5] px-4 py-3 text-sm leading-6 text-[#42614b]">
           这个客户已经和注册账号合并，客户登录后会看到自己名下的批发订单、物流和佣金。

@@ -30,8 +30,9 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
   const canUseSalesTools =
     initialData.currentRole === "salesman" || initialData.currentRole === "finance";
   const canEdit = canAdmin || canUseSalesTools;
-  const canLinkCustomerAccount =
-    canAdmin || canUseSalesTools;
+  const canManageWholesaleCustomers =
+    canAdmin || initialData.currentRole === "salesman";
+  const canLinkCustomerAccount = canManageWholesaleCustomers;
 
   return (
     <div className="space-y-6">
@@ -96,11 +97,16 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
 
       {initialData.section === "customers" ? (
         <WholesaleCustomersSection
-          canEdit={canEdit}
+          canAssignSalesUser={canAdmin}
+          canEdit={canManageWholesaleCustomers}
           canLinkCustomerAccount={canLinkCustomerAccount}
+          currentUserId={initialData.currentUserId}
           customers={initialData.customers}
+          onAddCustomerOtherName={actions.addCustomerOtherName}
           onCreateCustomer={actions.createCustomer}
+          onDeleteCustomer={actions.deleteCustomer}
           onLinkCustomerAccount={actions.linkCustomerAccount}
+          onUpdateCustomer={actions.updateCustomer}
           pendingKey={actions.pendingKey}
           profilesById={profilesById}
           registeredAccounts={registeredAccounts}

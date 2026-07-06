@@ -14,11 +14,16 @@ import { WholesaleCustomerPeopleTab } from "./wholesale-people-tabs";
 import { WholesalePageShell } from "./wholesale-ui";
 
 type WholesaleCustomersSectionProps = {
+  canAssignSalesUser: boolean;
   canEdit: boolean;
   canLinkCustomerAccount: boolean;
+  currentUserId: string | null;
   customers: WholesaleCustomer[];
-  onCreateCustomer: (formData: FormData) => void | Promise<void>;
+  onAddCustomerOtherName: (formData: FormData) => void | Promise<void>;
+  onCreateCustomer: (formData: FormData) => boolean | Promise<boolean>;
+  onDeleteCustomer: (customerId: string) => boolean | Promise<boolean>;
   onLinkCustomerAccount: (formData: FormData) => void | Promise<void>;
+  onUpdateCustomer: (formData: FormData) => boolean | Promise<boolean>;
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
   registeredAccounts: WholesaleProfile[];
@@ -28,11 +33,16 @@ type WholesaleCustomersSectionProps = {
 const ALL = "all";
 
 export function WholesaleCustomersSection({
+  canAssignSalesUser,
   canEdit,
   canLinkCustomerAccount,
+  currentUserId,
   customers,
+  onAddCustomerOtherName,
   onCreateCustomer,
+  onDeleteCustomer,
   onLinkCustomerAccount,
+  onUpdateCustomer,
   pendingKey,
   profilesById,
   registeredAccounts,
@@ -141,13 +151,19 @@ export function WholesaleCustomersSection({
       />
 
       <WholesaleCustomerDialogs
+        canAssignSalesUser={canAssignSalesUser}
         canLinkCustomerAccount={canLinkCustomerAccount}
+        canEdit={canEdit}
         createDialogOpen={createDialogOpen}
+        currentUserId={currentUserId}
         linkedRegisteredUserIds={linkedRegisteredUserIds}
+        onAddCustomerOtherName={onAddCustomerOtherName}
         onCreateCustomer={onCreateCustomer}
         onCreateDialogOpenChange={setCreateDialogOpen}
+        onDeleteCustomer={onDeleteCustomer}
         onLinkCustomerAccount={onLinkCustomerAccount}
         onSelectedCustomerIdChange={setSelectedCustomerId}
+        onUpdateCustomer={onUpdateCustomer}
         pendingKey={pendingKey}
         profilesById={profilesById}
         registeredAccounts={registeredAccounts}
