@@ -12,12 +12,13 @@ import {
   formatEditableNumericValue,
 } from "@/components/dashboard/admin-orders/admin-orders-utils";
 import {
-  findTodayCnyExchangeRate,
+  findCnyExchangeRateByDate,
+  getBeijingDateString,
   type ExchangeRateRow,
 } from "@/lib/exchange-rates";
-import type { WholesaleOrder } from "@/lib/wholesale";
+import type { WholesaleOrder, WholesaleOrderSettlement } from "@/lib/wholesale";
 
-import { formatCurrency, formatNumber } from "./wholesale-display";
+import { formatCurrency, formatDate, formatRate } from "./wholesale-display";
 import { WholesaleSubmitButton } from "./wholesale-ui";
 
 type WholesaleOrderSettlementDialogProps = {
@@ -26,6 +27,7 @@ type WholesaleOrderSettlementDialogProps = {
   onSettleOrder: (formData: FormData) => void | Promise<void>;
   order: WholesaleOrder;
   pending: boolean;
+  settlements: WholesaleOrderSettlement[];
 };
 
 export function WholesaleOrderSettlementDialog({
@@ -34,32 +36,48 @@ export function WholesaleOrderSettlementDialog({
   onSettleOrder,
   order,
   pending,
+  settlements,
 }: WholesaleOrderSettlementDialogProps) {
-  const [manualRate, setManualRate] = useState("");
-  const todayRate = useMemo(
-    () => findTodayCnyExchangeRate(exchangeRates, order.customer_payment_currency),
-    [exchangeRates, order.customer_payment_currency],
+  const [settlementAmount, setSettlementAmount] = useState("");
+  const [settlementDate, setSettlementDate] = useState(getBeijingDateString());
+  const settledAmount = useMemo(
+    () =>
+      settlements.reduce(
+        (sum, settlement) => sum + Number(settlement.settlement_amount),
+        0,
+      ),
+    [settlements],
   );
-  const automaticRateValue = formatEditableNumericValue(
-    todayRate?.daily_exchange_rate,
+  const remainingAmount = Math.max(
+    Number(order.customer_payment_amount) - settledAmount,
+    0,
   );
-  const usesManualRate = !automaticRateValue;
-  const activeRateValue = usesManualRate ? manualRate : automaticRateValue;
+  const selectedRate = useMemo(
+    () =>
+      findCnyExchangeRateByDate(
+        exchangeRates,
+        order.customer_payment_currency,
+        settlementDate,
+      ),
+    [exchangeRates, order.customer_payment_currency, settlementDate],
+  );
+  const activeRateValue = formatEditableNumericValue(
+    selectedRate?.daily_exchange_rate,
+  );
   const rmbPreview = deriveRmbAmountValue(
-    order.customer_payment_amount,
+    Number(settlementAmount || 0),
     activeRateValue,
   );
 
   return (
     <DashboardDialog
       description={
-        usesManualRate
-          ? "今天还没有这个币种的汇率，请填写这笔订单实际使用的结汇汇率。"
-          : "系统会使用今天的汇率完成结汇，并计算人民币金额、毛利和提成。"
+        "登记每一次实际结汇的金额和日期。系统会使用所选日期的汇率，累计结汇金额达到订单金额后自动变为已结汇。"
       }
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
-          setManualRate("");
+          setSettlementAmount("");
+          setSettlementDate(getBeijingDateString());
         }
 
         onOpenChange(nextOpen);
@@ -72,7 +90,8 @@ export function WholesaleOrderSettlementDialog({
         onSubmit={(event) => {
           event.preventDefault();
           void onSettleOrder(new FormData(event.currentTarget));
-          setManualRate("");
+          setSettlementAmount("");
+          setSettlementDate(getBeijingDateString());
           onOpenChange(false);
         }}
       >
@@ -86,118 +105,59 @@ export function WholesaleOrderSettlementDialog({
           )}
         />
         <ReadOnlyRateField
-          label="客户支付币种"
-          value={order.customer_payment_currency}
+          label="剩余可结汇"
+          value={formatCurrency(remainingAmount, order.customer_payment_currency)}
         />
-        <DashboardFilterField label="结汇汇率">
+        <DashboardFilterField label="本次结汇金额">
           <input
             className={dashboardFilterInputClassName}
-            min={0.000001}
-            name={usesManualRate ? "manual_exchange_rate" : undefined}
-            onChange={(event) => setManualRate(event.target.value)}
-            readOnly={!usesManualRate}
-            required={usesManualRate}
-            step="0.000001"
-            type="number"
-            value={activeRateValue}
-          />
-          <p className="mt-2 text-xs leading-5 text-[#7b8790]">
-            {usesManualRate ? "填写本次实际使用的汇率。" : "已匹配今天的汇率。"}
-          </p>
-        </DashboardFilterField>
-        <ReadOnlyRateField
-          label="结汇后人民币金额"
-          value={rmbPreview ? formatCurrency(Number(rmbPreview)) : "填写汇率后显示"}
-        />
-        <div className="flex flex-wrap justify-end gap-3 md:col-span-2">
-          <WholesaleSubmitButton pending={pending}>确认结汇</WholesaleSubmitButton>
-        </div>
-      </form>
-    </DashboardDialog>
-  );
-}
-
-type WholesaleOrderRateDialogProps = {
-  onOpenChange: (open: boolean) => void;
-  onUpdateRate: (formData: FormData) => void | Promise<void>;
-  open: boolean;
-  orders: WholesaleOrder[];
-  pending: boolean;
-};
-
-export function WholesaleOrderRateDialog({
-  onOpenChange,
-  onUpdateRate,
-  open,
-  orders,
-  pending,
-}: WholesaleOrderRateDialogProps) {
-  const [rateValue, setRateValue] = useState("");
-  const firstOrder = orders[0] ?? null;
-  const isBulk = orders.length > 1;
-  const rmbPreview =
-    firstOrder && orders.length === 1
-      ? deriveRmbAmountValue(firstOrder.customer_payment_amount, rateValue)
-      : "";
-
-  return (
-    <DashboardDialog
-      description={
-        isBulk
-          ? `本次会把 ${orders.length} 笔订单改成同一个结汇汇率。`
-          : "修改后，订单人民币金额、毛利和提成会按新的汇率重新计算。"
-      }
-      onOpenChange={(nextOpen) => {
-        if (!nextOpen) {
-          setRateValue("");
-        }
-
-        onOpenChange(nextOpen);
-      }}
-      open={open}
-      title={isBulk ? "批量修改结汇汇率" : "修改结汇汇率"}
-    >
-      <form
-        className="grid gap-4 md:grid-cols-2"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void onUpdateRate(new FormData(event.currentTarget));
-          setRateValue("");
-          onOpenChange(false);
-        }}
-      >
-        {orders.map((order) => (
-          <input key={order.id} name="order_id" type="hidden" value={order.id} />
-        ))}
-        <ReadOnlyRateField label="订单" value={getOrderSummary(orders)} />
-        <ReadOnlyRateField label="支付币种" value={getCurrencySummary(orders)} />
-        <DashboardFilterField label="新的结汇汇率">
-          <input
-            className={dashboardFilterInputClassName}
-            min={0.000001}
-            name="settlement_exchange_rate"
-            onChange={(event) => setRateValue(event.target.value)}
+            max={remainingAmount}
+            min={0.01}
+            name="settlement_amount"
+            onChange={(event) => setSettlementAmount(event.target.value)}
+            placeholder="填写本次结汇金额"
             required
-            step="0.000001"
+            step="0.01"
             type="number"
-            value={rateValue}
+            value={settlementAmount}
           />
           <p className="mt-2 text-xs leading-5 text-[#7b8790]">
-            填写确认后的正确汇率。
+            金额使用订单客户支付币种，不能超过剩余可结汇金额。
+          </p>
+        </DashboardFilterField>
+        <DashboardFilterField label="结汇日期">
+          <input
+            className={dashboardFilterInputClassName}
+            name="settlement_date"
+            onChange={(event) => setSettlementDate(event.target.value)}
+            required
+            type="date"
+            value={settlementDate}
+          />
+          <p className="mt-2 text-xs leading-5 text-[#7b8790]">
+            保存时会使用这个日期的汇率。
           </p>
         </DashboardFilterField>
         <ReadOnlyRateField
-          label={isBulk ? "已选订单" : "修改后人民币金额"}
+          label="匹配汇率"
+          value={activeRateValue || "这个日期暂无汇率"}
+        />
+        <ReadOnlyRateField
+          label="本次人民币金额"
           value={
-            isBulk
-              ? `${formatNumber(orders.length)} 笔`
-              : rmbPreview
-                ? formatCurrency(Number(rmbPreview))
-                : "填写汇率后显示"
+            rmbPreview
+              ? formatCurrency(Number(rmbPreview))
+              : "填写金额且匹配到汇率后显示"
           }
         />
+        <div className="md:col-span-2">
+          <SettlementRecordList
+            currency={order.customer_payment_currency}
+            settlements={settlements}
+          />
+        </div>
         <div className="flex flex-wrap justify-end gap-3 md:col-span-2">
-          <WholesaleSubmitButton pending={pending}>保存汇率</WholesaleSubmitButton>
+          <WholesaleSubmitButton pending={pending}>保存结汇记录</WholesaleSubmitButton>
         </div>
       </form>
     </DashboardDialog>
@@ -214,27 +174,39 @@ function ReadOnlyRateField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function getOrderSummary(orders: WholesaleOrder[]) {
-  if (orders.length === 0) {
-    return "未选择订单";
+function SettlementRecordList({
+  currency,
+  settlements,
+}: {
+  currency: string;
+  settlements: WholesaleOrderSettlement[];
+}) {
+  if (settlements.length === 0) {
+    return (
+      <div className="rounded-[16px] border border-[#d9e2e8] bg-white px-4 py-3 text-sm leading-6 text-[#6d7881]">
+        暂无结汇记录。
+      </div>
+    );
   }
 
-  if (orders.length === 1) {
-    return orders[0].order_number;
-  }
-
-  const preview = orders
-    .slice(0, 3)
-    .map((order) => order.order_number)
-    .join("、");
-
-  return orders.length > 3 ? `${preview} 等 ${orders.length} 笔` : preview;
-}
-
-function getCurrencySummary(orders: WholesaleOrder[]) {
-  const currencies = Array.from(
-    new Set(orders.map((order) => order.customer_payment_currency)),
+  return (
+    <div className="rounded-[16px] border border-[#d9e2e8] bg-white p-3">
+      <p className="mb-2 text-xs font-semibold text-[#6d7881]">已登记记录</p>
+      <div className="grid gap-2">
+        {settlements.map((settlement) => (
+          <div
+            className="grid gap-1 rounded-[12px] bg-[#f7fafb] p-3 text-xs leading-5 text-[#4f606b] sm:grid-cols-4"
+            key={settlement.id}
+          >
+            <span>{formatDate(settlement.settled_on)}</span>
+            <span>
+              {formatCurrency(settlement.settlement_amount, currency)}
+            </span>
+            <span>汇率 {formatRate(settlement.settlement_exchange_rate)}</span>
+            <span>{formatCurrency(settlement.settlement_rmb_amount)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
-
-  return currencies.length > 0 ? currencies.join("、") : "未记录";
 }

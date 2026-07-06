@@ -7,6 +7,7 @@ import type {
   WholesaleOrderChangeLog,
   WholesaleOrderEditRequest,
   WholesaleOrder,
+  WholesaleOrderSettlement,
   WholesaleProfile,
   WholesaleReferral,
 } from "./wholesale";
@@ -21,6 +22,7 @@ type ScopeWholesaleRowsInput = {
   logisticsStatuses: WholesaleLogisticsStatus[];
   orderChangeLogs: WholesaleOrderChangeLog[];
   orderEditRequests: WholesaleOrderEditRequest[];
+  orderSettlements: WholesaleOrderSettlement[];
   orders: WholesaleOrder[];
   profiles: WholesaleProfile[];
   purchaseOrders: Wholesale1688Order[];
@@ -37,6 +39,7 @@ export function scopeWholesaleRows({
   logisticsStatuses,
   orderChangeLogs,
   orderEditRequests,
+  orderSettlements,
   orders,
   profiles,
   purchaseOrders,
@@ -102,6 +105,12 @@ export function scopeWholesaleRows({
     orderChangeLogs,
     orderIds,
   });
+  const scopedOrderSettlements = scopeWholesaleOrderSettlements({
+    currentRole,
+    currentUserId,
+    orderIds,
+    orderSettlements,
+  });
   const scopedProfiles = scopeWholesaleProfiles({
     currentRole,
     currentUserId,
@@ -123,6 +132,7 @@ export function scopeWholesaleRows({
     logisticsStatuses: scopedLogisticsStatuses,
     orderChangeLogs: scopedOrderChangeLogs,
     orderEditRequests: scopedOrderEditRequests,
+    orderSettlements: scopedOrderSettlements,
     orders: scopedOrders,
     profiles: scopedProfiles,
     purchaseOrders: scopedPurchaseOrders,
@@ -393,6 +403,32 @@ function scopeWholesaleOrderChangeLogs({
     (log) =>
       orderIds.has(log.order_id) ||
       log.actor_user_id === currentUserId,
+  );
+}
+
+function scopeWholesaleOrderSettlements({
+  currentRole,
+  currentUserId,
+  orderIds,
+  orderSettlements,
+}: {
+  currentRole: AppRole | null;
+  currentUserId: string | null;
+  orderIds: Set<string>;
+  orderSettlements: WholesaleOrderSettlement[];
+}) {
+  if (canReadFullWholesaleBackoffice(currentRole)) {
+    return orderSettlements;
+  }
+
+  if (!currentUserId) {
+    return [];
+  }
+
+  return orderSettlements.filter(
+    (settlement) =>
+      orderIds.has(settlement.order_id) ||
+      settlement.created_by_user_id === currentUserId,
   );
 }
 

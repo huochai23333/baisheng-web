@@ -171,7 +171,7 @@ export function buildWholesaleOrderAssessmentMessages({
       "客户": customerName,
       "毛利": roundMoney(order.gross_profit),
       "毛利率": formatPercentForPrompt(order.gross_margin),
-      "状态": order.status === "settled" ? "已结汇" : "未结汇",
+      "状态": getStatusLabel(order.status),
       "订单编号": order.order_number,
     };
   });
@@ -222,13 +222,17 @@ function buildOrderSummary({
   const totalPayment = sumOrders(orders, "customer_payment_rmb_amount");
   const totalProfit = sumOrders(orders, "gross_profit");
   const settledCount = orders.filter((order) => order.status === "settled").length;
-  const unsettledCount = orders.length - settledCount;
+  const partialSettledCount = orders.filter(
+    (order) => order.status === "partial_settled",
+  ).length;
+  const unsettledCount = orders.length - settledCount - partialSettledCount;
 
   return {
     "其他费用合计": roundMoney(sumOrders(orders, "other_fee")),
     "国际运费合计": roundMoney(sumOrders(orders, "international_shipping_fee")),
     "客户支付人民币合计": roundMoney(totalPayment),
     "已结汇订单": settledCount,
+    "部分结汇订单": partialSettledCount,
     "平均毛利率": formatPercentForPrompt(
       totalPayment > 0 ? totalProfit / totalPayment : null,
     ),
@@ -365,9 +369,26 @@ function formatDateRange(fromDate: string, toDate: string) {
 }
 
 function formatStatusFilter(status: string) {
-  if (status === "settled") return "已结汇";
-  if (status === "unsettled") return "未结汇";
+  if (
+    status === "settled" ||
+    status === "partial_settled" ||
+    status === "unsettled"
+  ) {
+    return getStatusLabel(status);
+  }
+
   return "全部状态";
+}
+
+function getStatusLabel(status: WholesaleOrder["status"]) {
+  switch (status) {
+    case "settled":
+      return "已结汇";
+    case "partial_settled":
+      return "部分结汇";
+    case "unsettled":
+      return "未结汇";
+  }
 }
 
 function formatCustomerFilter(
@@ -437,7 +458,11 @@ function normalizeIdFilter(value: unknown) {
 }
 
 function normalizeStatusFilter(value: unknown) {
-  return value === "settled" || value === "unsettled" ? value : ALL;
+  return value === "settled" ||
+    value === "partial_settled" ||
+    value === "unsettled"
+    ? value
+    : ALL;
 }
 
 function normalizeDateFilter(value: unknown) {

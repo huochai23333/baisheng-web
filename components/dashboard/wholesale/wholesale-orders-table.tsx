@@ -13,6 +13,7 @@ import type {
   WholesaleCustomer,
   WholesaleLogisticsOrder,
   WholesaleOrder,
+  WholesaleOrderSettlement,
   WholesaleProfile,
 } from "@/lib/wholesale";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
@@ -23,8 +24,8 @@ import {
   formatDateTime,
   formatNumber,
   formatOptionalCurrency,
-  formatOptionalNumber,
   formatPercent,
+  formatRate,
   getCustomerName,
   getProfileName,
   WHOLESALE_ORDER_STATUS_LABELS,
@@ -49,39 +50,35 @@ export type WholesaleOrderEditAction = {
 
 type WholesaleOrdersTableProps = {
   canMarkOrderSettled: (order: WholesaleOrder) => boolean;
-  canUpdateSettlementRate: (order: WholesaleOrder) => boolean;
   customersById: Map<string, WholesaleCustomer>;
   getOrderEditAction: (order: WholesaleOrder) => WholesaleOrderEditAction | null;
   logisticsOrdersByOrderId: Map<string, WholesaleLogisticsOrder[]>;
   logisticsStatusesByOrderId: Map<string, WholesaleLogisticsStatus[]>;
+  orderSettlementsByOrderId: Map<string, WholesaleOrderSettlement[]>;
   onOpenOrderEdit: (order: WholesaleOrder) => void;
   onOpenOrderSettlement: (order: WholesaleOrder) => void;
-  onToggleOrderSelection: (orderId: string, selected: boolean) => void;
   orders: WholesaleOrder[];
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
   purchaseOrdersByOrderId: Map<string, Wholesale1688Order[]>;
-  selectedOrderIds: Set<string>;
 };
 
 export function WholesaleOrdersTable({
   canMarkOrderSettled,
-  canUpdateSettlementRate,
   customersById,
   getOrderEditAction,
   logisticsOrdersByOrderId,
   logisticsStatusesByOrderId,
+  orderSettlementsByOrderId,
   onOpenOrderEdit,
   onOpenOrderSettlement,
-  onToggleOrderSelection,
   orders,
   pendingKey,
   profilesById,
   purchaseOrdersByOrderId,
-  selectedOrderIds,
 }: WholesaleOrdersTableProps) {
   return (
-    <WholesaleTable minWidth={3380}>
+    <WholesaleTable minWidth={3660}>
       <thead>
         <tr>
           <WholesaleTh className={wholesaleStickyFirstThClassName}>
@@ -96,7 +93,8 @@ export function WholesaleOrdersTable({
           <WholesaleTh>其他费用</WholesaleTh>
           <WholesaleTh>推荐佣金费用</WholesaleTh>
           <WholesaleTh>快递公司</WholesaleTh>
-          <WholesaleTh>结汇汇率</WholesaleTh>
+          <WholesaleTh>结汇进度</WholesaleTh>
+          <WholesaleTh>平均结汇汇率</WholesaleTh>
           <WholesaleTh>支付币种</WholesaleTh>
           <WholesaleTh>客户支付金额</WholesaleTh>
           <WholesaleTh>人民币金额</WholesaleTh>
@@ -106,7 +104,10 @@ export function WholesaleOrdersTable({
           <WholesaleTh>单位毛利</WholesaleTh>
           <WholesaleTh>订单计入月份</WholesaleTh>
           <WholesaleTh>下单时间</WholesaleTh>
-          <WholesaleTh>结汇时间</WholesaleTh>
+          <WholesaleTh>最近结汇时间</WholesaleTh>
+          <WholesaleTh className="min-w-[300px] whitespace-normal">
+            结汇记录
+          </WholesaleTh>
           <WholesaleTh className="min-w-[320px] whitespace-normal">
             关联 1688 采购订单
           </WholesaleTh>
@@ -119,24 +120,23 @@ export function WholesaleOrdersTable({
       <tbody>
         {orders.map((order) => {
           const editAction = getOrderEditAction(order);
-          const canEditRate = canUpdateSettlementRate(order);
+          const settlements = orderSettlementsByOrderId.get(order.id) ?? [];
+          const settledAmount = settlements.reduce(
+            (sum, settlement) => sum + Number(settlement.settlement_amount),
+            0,
+          );
+          const remainingAmount = Math.max(
+            Number(order.customer_payment_amount) - settledAmount,
+            0,
+          );
 
           return (
-            <tr className="group" key={order.id}>
+            <tr
+              className="group"
+              data-testid={`wholesale-order-row-${order.id}`}
+              key={order.id}
+            >
               <WholesaleTd className={wholesaleStickyFirstTdClassName}>
-                {canEditRate ? (
-                  <label className="mb-3 flex w-fit items-center gap-2 text-xs text-[#5f6f79]">
-                    <input
-                      checked={selectedOrderIds.has(order.id)}
-                      className="size-4 rounded border-[#c8d3da]"
-                      onChange={(event) =>
-                        onToggleOrderSelection(order.id, event.target.checked)
-                      }
-                      type="checkbox"
-                    />
-                    选择
-                  </label>
-                ) : null}
                 <div className="font-semibold [overflow-wrap:anywhere]">
                   {order.order_number}
                 </div>
@@ -169,6 +169,7 @@ export function WholesaleOrdersTable({
                 {canMarkOrderSettled(order) ? (
                   <Button
                     className="mt-3 h-9 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
+                    data-testid={`wholesale-order-settle-${order.id}`}
                     disabled={pendingKey === `order:settle:${order.id}`}
                     onClick={() => onOpenOrderSettlement(order)}
                     type="button"
@@ -178,7 +179,7 @@ export function WholesaleOrdersTable({
                     ) : (
                       <CheckCircle2 className="size-3.5" />
                     )}
-                    标记已结汇
+                    登记结汇
                   </Button>
                 ) : null}
               </WholesaleTd>
@@ -197,8 +198,21 @@ export function WholesaleOrdersTable({
               <WholesaleTd className="min-w-[140px] whitespace-normal">
                 {order.courier_company ?? "未记录"}
               </WholesaleTd>
+              <WholesaleTd className="min-w-[160px] whitespace-normal">
+                <div>
+                  <p>
+                    已结 {formatCurrency(settledAmount, order.customer_payment_currency)}
+                  </p>
+                  <p className="mt-1 text-xs text-[#7b8790]">
+                    剩余 {formatCurrency(remainingAmount, order.customer_payment_currency)}
+                  </p>
+                </div>
+              </WholesaleTd>
               <WholesaleTd>
-                {formatOptionalNumber(order.settlement_exchange_rate, "未结汇")}
+                {order.settlement_exchange_rate === null ||
+                order.settlement_exchange_rate === undefined
+                  ? "未结汇"
+                  : formatRate(order.settlement_exchange_rate)}
               </WholesaleTd>
               <WholesaleTd>{order.customer_payment_currency}</WholesaleTd>
               <WholesaleTd>
@@ -223,6 +237,12 @@ export function WholesaleOrdersTable({
               <WholesaleTd>
                 {order.settled_at ? formatDateTime(order.settled_at) : "未结汇"}
               </WholesaleTd>
+              <WholesaleTd className="min-w-[300px] whitespace-normal">
+                <SettlementRecordsCell
+                  currency={order.customer_payment_currency}
+                  settlements={settlements}
+                />
+              </WholesaleTd>
               <WholesaleTd className="min-w-[320px] whitespace-normal">
                 <LinkedPurchaseOrders
                   profilesById={profilesById}
@@ -243,5 +263,37 @@ export function WholesaleOrdersTable({
         })}
       </tbody>
     </WholesaleTable>
+  );
+}
+
+function SettlementRecordsCell({
+  currency,
+  settlements,
+}: {
+  currency: string;
+  settlements: WholesaleOrderSettlement[];
+}) {
+  if (settlements.length === 0) {
+    return <span className="text-[#7b8790]">暂无记录</span>;
+  }
+
+  return (
+    <div className="grid gap-2">
+      {settlements.map((settlement) => (
+        <div
+          className="rounded-[12px] bg-[#f7fafb] p-2 text-xs leading-5 text-[#4f606b]"
+          key={settlement.id}
+        >
+          <p className="font-semibold text-[#2f3f4a]">
+            {formatDate(settlement.settled_on)}
+          </p>
+          <p>
+            {formatCurrency(settlement.settlement_amount, currency)} / 汇率{" "}
+            {formatRate(settlement.settlement_exchange_rate)}
+          </p>
+          <p>{formatCurrency(settlement.settlement_rmb_amount)}</p>
+        </div>
+      ))}
+    </div>
   );
 }

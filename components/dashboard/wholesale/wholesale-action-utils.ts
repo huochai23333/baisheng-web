@@ -1,6 +1,5 @@
 export function getWholesaleOrderRpcPayload(formData: FormData) {
-  // Keep every order-writing RPC on the same parsed shape so calculations and
-  // audit logs always describe the fields the user actually edited.
+  // 订单写入接口共用同一组字段，避免页面和数据库看到的修改内容不一致。
   return {
     p_courier_company: optionalString(formData.get("courier_company")),
     p_customer_id: requiredString(formData.get("customer_id")),
@@ -25,13 +24,6 @@ export function getWholesaleOrderRpcPayload(formData: FormData) {
     p_sales_user_id: optionalString(formData.get("sales_user_id")),
     p_small_order_count: nonnegativeInteger(formData.get("small_order_count")),
   };
-}
-
-export function getWholesaleOrderIds(formData: FormData) {
-  return formData
-    .getAll("order_id")
-    .map((value) => (typeof value === "string" ? value.trim() : ""))
-    .filter(Boolean);
 }
 
 export function optionalString(value: FormDataEntryValue | null) {
@@ -101,20 +93,24 @@ export function toWholesaleActionErrorMessage(error: unknown) {
         : "";
   const normalized = rawMessage.toLowerCase();
 
-  if (normalized.includes("wholesale_order_settlement_rate_required")) {
-    return "今天还没有这个币种的每日汇率，请填写这笔订单实际使用的结汇汇率。";
+  if (normalized.includes("wholesale_order_settlement_rate_missing")) {
+    return "这个结汇日期没有对应汇率，请先到汇率设置中补充。";
   }
 
-  if (normalized.includes("wholesale_order_exchange_rate_invalid")) {
-    return "请填写大于 0 的结汇汇率。";
+  if (normalized.includes("wholesale_order_settlement_amount_exceeds")) {
+    return "本次结汇金额超过了这笔订单剩余可结汇金额。";
   }
 
-  if (normalized.includes("wholesale_order_exchange_rate_unsettled")) {
-    return "未结汇订单还没有可修改的结汇汇率。";
+  if (normalized.includes("wholesale_order_settlement_currency_locked")) {
+    return "这笔订单已经有结汇记录，不能再修改客户支付币种。";
   }
 
-  if (normalized.includes("wholesale_order_exchange_rate_empty_selection")) {
-    return "请先选择需要修改汇率的订单。";
+  if (normalized.includes("wholesale_order_settlement_amount_invalid")) {
+    return "请填写大于 0 的本次结汇金额。";
+  }
+
+  if (normalized.includes("wholesale_order_settlement_already_complete")) {
+    return "这笔订单已经全部结汇，不能继续新增结汇记录。";
   }
 
   if (normalized.includes("exchange rate is not ready")) {

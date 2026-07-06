@@ -545,6 +545,39 @@ export function findTodayCnyExchangeRate(
   ) ?? null;
 }
 
+export function findCnyExchangeRateByDate(
+  rows: ExchangeRateRow[],
+  baseCurrency: string,
+  rateDate: string,
+) {
+  const normalizedBaseCurrency = normalizeCurrencyCode(baseCurrency);
+
+  if (!rateDate) {
+    return null;
+  }
+
+  if (normalizedBaseCurrency === "CNY") {
+    return {
+      id: `cny-cny-${rateDate}`,
+      original_currency: "CNY",
+      target_currency: "CNY",
+      daily_exchange_rate: 1,
+      created_at: null,
+      rate_date: rateDate,
+      source: "system",
+      fetched_at: null,
+      provider_updated_at: null,
+    } satisfies ExchangeRateRow;
+  }
+
+  return sortExchangeRateRows(rows).find(
+    (row) =>
+      normalizeCurrencyCode(row.original_currency) === normalizedBaseCurrency &&
+      normalizeCurrencyCode(row.target_currency) === "CNY" &&
+      row.rate_date === rateDate,
+  ) ?? null;
+}
+
 export function findLatestCnyExchangeRate(
   rows: ExchangeRateRow[],
   baseCurrency: string,
@@ -628,7 +661,7 @@ async function toExchangeRateFunctionError(error: unknown) {
         return new Error(message);
       }
     } catch {
-      // Fall through to the original function client error.
+      // 解析失败时继续使用原始接口错误，避免吞掉真实失败原因。
     }
   }
 

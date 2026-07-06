@@ -6,9 +6,7 @@ import { useCallback, useState } from "react";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
 import {
-  getWholesaleOrderIds,
   getWholesaleOrderRpcPayload,
-  optionalPositiveNumber,
   optionalString,
   positiveNumber,
   requiredString,
@@ -154,20 +152,6 @@ export function useWholesaleActions() {
           });
 
           if (error) throw error;
-
-          if (formData.get("settlement_exchange_rate_changed") === "true") {
-            const { error: rateError } = await supabase.rpc(
-              "update_wholesale_order_settlement_exchange_rate",
-              {
-                p_order_id: orderId,
-                p_settlement_exchange_rate: positiveNumber(
-                  formData.get("settlement_exchange_rate"),
-                ),
-              },
-            );
-
-            if (rateError) throw rateError;
-          }
         },
       );
     },
@@ -202,57 +186,18 @@ export function useWholesaleActions() {
     (formData: FormData) => {
       const orderId = requiredString(formData.get("order_id"));
 
-      return runAction(`order:settle:${orderId}`, "订单已标记为已结汇。", async () => {
+      return runAction(`order:settle:${orderId}`, "结汇记录已保存。", async () => {
         const supabase = getBrowserSupabaseClient();
         if (!supabase) throw new Error("client unavailable");
 
-        const { error } = await supabase.rpc("mark_wholesale_order_settled", {
-          p_manual_exchange_rate: optionalPositiveNumber(
-            formData.get("manual_exchange_rate"),
-          ),
+        const { error } = await supabase.rpc("add_wholesale_order_settlement", {
           p_order_id: orderId,
+          p_settlement_amount: positiveNumber(formData.get("settlement_amount")),
+          p_settlement_date: requiredString(formData.get("settlement_date")),
         });
 
         if (error) throw error;
       });
-    },
-    [runAction],
-  );
-
-  const updateOrderSettlementRate = useCallback(
-    (formData: FormData) => {
-      const orderIds = getWholesaleOrderIds(formData);
-      const exchangeRate = positiveNumber(formData.get("settlement_exchange_rate"));
-
-      return runAction(
-        orderIds.length > 1
-          ? "order:rate:bulk"
-          : `order:rate:${orderIds[0] ?? "missing"}`,
-        orderIds.length > 1 ? "已批量修改结汇汇率。" : "结汇汇率已修改。",
-        async () => {
-          const supabase = getBrowserSupabaseClient();
-          if (!supabase) throw new Error("client unavailable");
-
-          const { error } =
-            orderIds.length > 1
-              ? await supabase.rpc(
-                  "bulk_update_wholesale_order_settlement_exchange_rate",
-                  {
-                    p_order_ids: orderIds,
-                    p_settlement_exchange_rate: exchangeRate,
-                  },
-                )
-              : await supabase.rpc(
-                  "update_wholesale_order_settlement_exchange_rate",
-                  {
-                    p_order_id: requiredString(formData.get("order_id")),
-                    p_settlement_exchange_rate: exchangeRate,
-                  },
-                );
-
-          if (error) throw error;
-        },
-      );
     },
     [runAction],
   );
@@ -437,6 +382,5 @@ export function useWholesaleActions() {
     requestOrderEdit,
     settleCommission,
     updateOrder,
-    updateOrderSettlementRate,
   };
 }

@@ -13,6 +13,7 @@ export const WHOLESALE_STATUS_LABELS = {
 } as const;
 
 export const WHOLESALE_ORDER_STATUS_LABELS = {
+  partial_settled: "部分结汇",
   settled: "已结汇",
   unsettled: "未结汇",
 } as const;
@@ -43,6 +44,15 @@ export function formatNumber(value: number | null | undefined) {
 
   return new Intl.NumberFormat("zh-CN", {
     maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+  }).format(Number.isFinite(amount) ? amount : 0);
+}
+
+export function formatRate(value: number | string | null | undefined) {
+  const amount = Number(value ?? 0);
+
+  return new Intl.NumberFormat("zh-CN", {
+    maximumFractionDigits: 6,
     minimumFractionDigits: 0,
   }).format(Number.isFinite(amount) ? amount : 0);
 }

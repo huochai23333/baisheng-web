@@ -23,6 +23,7 @@ import type {
   WholesaleOrderChangeLog,
   WholesaleOrderEditRequest,
   WholesaleOrder,
+  WholesaleOrderSettlement,
   WholesaleProfile,
 } from "@/lib/wholesale";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
@@ -42,10 +43,8 @@ import {
 import { WholesaleOrderAssessmentPanel } from "./wholesale-order-assessment-panel";
 import { WholesaleOrderFormDialog } from "./wholesale-order-form-dialog";
 import {
-  WholesaleOrderRateDialog,
   WholesaleOrderSettlementDialog,
 } from "./wholesale-order-rate-dialogs";
-import { WholesaleOrderRateSelectionBar } from "./wholesale-order-rate-selection";
 import {
   WholesaleOrdersTable,
   type WholesaleOrderEditAction,
@@ -56,7 +55,6 @@ import {
   WholesalePageShell,
   WholesaleStatGrid,
 } from "./wholesale-ui";
-import { useWholesaleOrderRateSelection } from "./use-wholesale-order-rate-selection";
 
 type WholesaleOrdersSectionProps = {
   canEdit: boolean;
@@ -73,10 +71,10 @@ type WholesaleOrdersSectionProps = {
   onRejectOrderEditRequest: (requestId: string) => void | Promise<void>;
   onRequestOrderEdit: (formData: FormData) => void | Promise<void>;
   onUpdateOrder: (formData: FormData) => void | Promise<void>;
-  onUpdateOrderSettlementRate: (formData: FormData) => void | Promise<void>;
   orderChangeLogs: WholesaleOrderChangeLog[];
   orderEditRequests: WholesaleOrderEditRequest[];
   orderEditWindowDays: number;
+  orderSettlements: WholesaleOrderSettlement[];
   orders: WholesaleOrder[];
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
@@ -101,10 +99,10 @@ export function WholesaleOrdersSection({
   onRejectOrderEditRequest,
   onRequestOrderEdit,
   onUpdateOrder,
-  onUpdateOrderSettlementRate,
   orderChangeLogs,
   orderEditRequests,
   orderEditWindowDays,
+  orderSettlements,
   orders,
   pendingKey,
   profilesById,
@@ -117,7 +115,6 @@ export function WholesaleOrdersSection({
   );
   const [selectedSettlementOrder, setSelectedSettlementOrder] =
     useState<WholesaleOrder | null>(null);
-  const [rateEditOrders, setRateEditOrders] = useState<WholesaleOrder[]>([]);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState(ALL);
   const [customerFilter, setCustomerFilter] = useState(ALL);
@@ -160,6 +157,17 @@ export function WholesaleOrdersSection({
 
     return grouped;
   }, [logisticsStatuses]);
+  const orderSettlementsByOrderId = useMemo(() => {
+    const grouped = new Map<string, WholesaleOrderSettlement[]>();
+
+    for (const settlement of orderSettlements) {
+      const rows = grouped.get(settlement.order_id) ?? [];
+      rows.push(settlement);
+      grouped.set(settlement.order_id, rows);
+    }
+
+    return grouped;
+  }, [orderSettlements]);
   const ordersById = useMemo(
     () => new Map(orders.map((order) => [order.id, order])),
     [orders],
@@ -265,7 +273,7 @@ export function WholesaleOrdersSection({
   );
   const canMarkOrderSettled = useCallback(
     (order: WholesaleOrder) =>
-      order.status === "unsettled" &&
+      order.status !== "settled" &&
       canCurrentUserManageWholesaleOrder({
         canEdit,
         canManageAllOrders,
@@ -275,24 +283,6 @@ export function WholesaleOrdersSection({
       }),
     [canEdit, canManageAllOrders, currentUserId, customersById],
   );
-  const canUpdateSettlementRate = useCallback(
-    (order: WholesaleOrder) =>
-      order.status === "settled" &&
-      canCurrentUserManageWholesaleOrder({
-        canEdit,
-        canManageAllOrders,
-        currentUserId,
-        customer: customersById.get(order.customer_id),
-        order,
-      }),
-    [canEdit, canManageAllOrders, currentUserId, customersById],
-  );
-  const {
-    clearSelectedOrders,
-    selectedOrderIds,
-    selectedRateOrders,
-    toggleOrderSelection,
-  } = useWholesaleOrderRateSelection({ canUpdateSettlementRate, orders });
   const getOrderEditAction = (
     order: WholesaleOrder,
   ): WholesaleOrderEditAction | null => {
@@ -340,7 +330,7 @@ export function WholesaleOrdersSection({
           </Button>
         ) : null
       }
-      description="集中管理批发客户订单、采购成本、运费、推荐佣金、毛利和订单月份。订单列表可横向滑动查看完整信息，订单编号会固定在左侧。"
+      description="集中管理批发客户订单、采购成本、运费、推荐佣金、结汇记录、毛利和订单月份。订单列表可横向滑动查看完整信息，订单编号会固定在左侧。"
       eyebrow="批发业务"
       title="批发订单"
     >
@@ -394,6 +384,7 @@ export function WholesaleOrdersSection({
             >
               <option value={ALL}>全部状态</option>
               <option value="unsettled">未结汇</option>
+              <option value="partial_settled">部分结汇</option>
               <option value="settled">已结汇</option>
             </select>
           </DashboardFilterField>
@@ -458,17 +449,6 @@ export function WholesaleOrdersSection({
           />
         </div>
 
-        <WholesaleOrderRateSelectionBar
-          onClearSelection={clearSelectedOrders}
-          onOpenBulkEdit={() => {
-            if (selectedRateOrders.length > 1) {
-              setRateEditOrders(selectedRateOrders);
-            }
-          }}
-          pending={pendingKey === "order:rate:bulk"}
-          selectedCount={selectedRateOrders.length}
-        />
-
         {filteredOrders.length === 0 ? (
           <WholesaleEmptyState
             description="没有匹配的批发订单。可以调整筛选条件，或新建一笔订单。"
@@ -478,19 +458,17 @@ export function WholesaleOrdersSection({
         ) : (
           <WholesaleOrdersTable
             canMarkOrderSettled={canMarkOrderSettled}
-            canUpdateSettlementRate={canUpdateSettlementRate}
             customersById={customersById}
             getOrderEditAction={getOrderEditAction}
             logisticsOrdersByOrderId={logisticsOrdersByOrderId}
             logisticsStatusesByOrderId={logisticsStatusesByOrderId}
+            orderSettlementsByOrderId={orderSettlementsByOrderId}
             onOpenOrderEdit={setSelectedEditOrder}
             onOpenOrderSettlement={setSelectedSettlementOrder}
-            onToggleOrderSelection={toggleOrderSelection}
             orders={filteredOrders}
             pendingKey={pendingKey}
             profilesById={profilesById}
             purchaseOrdersByOrderId={purchaseOrdersByOrderId}
-            selectedOrderIds={selectedOrderIds}
           />
         )}
       </DashboardListSection>
@@ -520,7 +498,6 @@ export function WholesaleOrdersSection({
       {selectedEditOrder ? (
         <WholesaleOrderEditDialog
           canManageAllOrders={canManageAllOrders}
-          canUpdateSettlementRate={canUpdateSettlementRate(selectedEditOrder)}
           customers={customers}
           editWindowDays={orderEditWindowDays}
           exchangeRates={exchangeRates}
@@ -533,13 +510,11 @@ export function WholesaleOrdersSection({
           }}
           onRequestOrderEdit={onRequestOrderEdit}
           onUpdateOrder={onUpdateOrder}
-          onUpdateOrderSettlementRate={onUpdateOrderSettlementRate}
           open
           order={selectedEditOrder}
           pending={
             pendingKey === `order:update:${selectedEditOrder.id}` ||
-            pendingKey === `order:edit-request:${selectedEditOrder.id}` ||
-            pendingKey === `order:rate:${selectedEditOrder.id}`
+            pendingKey === `order:edit-request:${selectedEditOrder.id}`
           }
           salesAccounts={salesAccounts}
         />
@@ -555,29 +530,10 @@ export function WholesaleOrdersSection({
           }}
           onSettleOrder={onMarkOrderSettled}
           order={selectedSettlementOrder}
+          settlements={orderSettlementsByOrderId.get(selectedSettlementOrder.id) ?? []}
           pending={pendingKey === `order:settle:${selectedSettlementOrder.id}`}
         />
       ) : null}
-
-      <WholesaleOrderRateDialog
-        onOpenChange={(open) => {
-          if (!open) {
-            if (rateEditOrders.length > 1) {
-              clearSelectedOrders();
-            }
-
-            setRateEditOrders([]);
-          }
-        }}
-        onUpdateRate={onUpdateOrderSettlementRate}
-        open={rateEditOrders.length > 0}
-        orders={rateEditOrders}
-        pending={
-          rateEditOrders.length > 1
-            ? pendingKey === "order:rate:bulk"
-            : pendingKey === `order:rate:${rateEditOrders[0]?.id ?? ""}`
-        }
-      />
     </WholesalePageShell>
   );
 }

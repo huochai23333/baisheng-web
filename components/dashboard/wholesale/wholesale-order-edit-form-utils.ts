@@ -1,17 +1,5 @@
 import type { WholesaleOrder } from "@/lib/wholesale";
 
-export function buildSettlementRateFormData(formData: FormData) {
-  const nextFormData = new FormData();
-
-  nextFormData.set("order_id", getTrimmedFormValue(formData, "order_id"));
-  nextFormData.set(
-    "settlement_exchange_rate",
-    getTrimmedFormValue(formData, "settlement_exchange_rate"),
-  );
-
-  return nextFormData;
-}
-
 export function getTrimmedFormValue(formData: FormData, name: string) {
   const value = formData.get(name);
 
@@ -22,7 +10,7 @@ export function hasWholesaleOrderFieldChanges(
   formData: FormData,
   order: WholesaleOrder,
 ) {
-  // 只判断普通订单字段，结汇汇率由单独的纠错 RPC 处理。
+  // 只判断订单基础字段；结汇金额和日期必须通过订单列表里的结汇记录单独登记。
   return (
     getTrimmedFormValue(formData, "customer_id") !== order.customer_id ||
     normalizeNullableText(getTrimmedFormValue(formData, "sales_user_id")) !==
@@ -63,14 +51,6 @@ export function hasWholesaleOrderFieldChanges(
       toMonthInputValue(order.order_month) ||
     normalizeNullableText(getTrimmedFormValue(formData, "notes")) !==
       normalizeNullableText(order.notes)
-  );
-}
-
-export function hasSettlementRateChange(formData: FormData, order: WholesaleOrder) {
-  return hasNumberChanged(
-    getTrimmedFormValue(formData, "settlement_exchange_rate"),
-    order.settlement_exchange_rate,
-    6,
   );
 }
 

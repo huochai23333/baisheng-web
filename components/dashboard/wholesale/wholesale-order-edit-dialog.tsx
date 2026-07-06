@@ -24,9 +24,7 @@ import {
 } from "./wholesale-order-form-options";
 import type { WholesaleOrderEditMode } from "./wholesale-order-edit-rules";
 import {
-  buildSettlementRateFormData,
   getTrimmedFormValue,
-  hasSettlementRateChange,
   hasWholesaleOrderFieldChanges,
   toMonthInputValue,
 } from "./wholesale-order-edit-form-utils";
@@ -38,7 +36,6 @@ import {
 
 type WholesaleOrderEditDialogProps = {
   canManageAllOrders: boolean;
-  canUpdateSettlementRate: boolean;
   editWindowDays: number;
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
@@ -46,7 +43,6 @@ type WholesaleOrderEditDialogProps = {
   onOpenChange: (open: boolean) => void;
   onRequestOrderEdit: (formData: FormData) => void | Promise<void>;
   onUpdateOrder: (formData: FormData) => void | Promise<void>;
-  onUpdateOrderSettlementRate: (formData: FormData) => void | Promise<void>;
   open: boolean;
   order: WholesaleOrder | null;
   pending: boolean;
@@ -55,7 +51,6 @@ type WholesaleOrderEditDialogProps = {
 
 export function WholesaleOrderEditDialog({
   canManageAllOrders,
-  canUpdateSettlementRate,
   editWindowDays,
   customers,
   exchangeRates,
@@ -63,7 +58,6 @@ export function WholesaleOrderEditDialog({
   onOpenChange,
   onRequestOrderEdit,
   onUpdateOrder,
-  onUpdateOrderSettlementRate,
   open,
   order,
   pending,
@@ -82,10 +76,9 @@ export function WholesaleOrderEditDialog({
   }
 
   const isRequestMode = mode === "request";
-  const canEditSettlementRate = canUpdateSettlementRate && order.status === "settled";
   const description = isRequestMode
-    ? `这笔订单已超过 ${editWindowDays} 天，普通内容提交后由管理员确认；已结汇订单的结汇汇率会直接保存。`
-    : "保存后会记录本次修改。已结汇订单的结汇汇率也在这里修改。";
+    ? `这笔订单已超过 ${editWindowDays} 天，修改提交后由管理员确认。`
+    : "保存后会记录本次修改。结汇请回到订单列表登记每一笔结汇记录。";
 
   return (
     <DashboardDialog
@@ -107,8 +100,6 @@ export function WholesaleOrderEditDialog({
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
           const hasOrderChanges = hasWholesaleOrderFieldChanges(formData, order);
-          const hasRateChange =
-            canEditSettlementRate && hasSettlementRateChange(formData, order);
 
           if (isRequestMode) {
             if (hasOrderChanges && !getTrimmedFormValue(formData, "request_note")) {
@@ -119,19 +110,9 @@ export function WholesaleOrderEditDialog({
             if (hasOrderChanges) {
               void onRequestOrderEdit(formData);
             }
-
-            if (hasRateChange) {
-              void onUpdateOrderSettlementRate(buildSettlementRateFormData(formData));
-            }
           } else {
             if (hasOrderChanges) {
-              if (hasRateChange) {
-                formData.set("settlement_exchange_rate_changed", "true");
-              }
-
               void onUpdateOrder(formData);
-            } else if (hasRateChange) {
-              void onUpdateOrderSettlementRate(buildSettlementRateFormData(formData));
             }
           }
 
@@ -247,24 +228,6 @@ export function WholesaleOrderEditDialog({
           step="0.01"
           type="number"
         />
-        {canEditSettlementRate ? (
-          <DashboardFilterField label="结汇汇率">
-            <input
-              className={dashboardFilterInputClassName}
-              defaultValue={formatEditableNumericValue(
-                order.settlement_exchange_rate,
-              )}
-              min={0.000001}
-              name="settlement_exchange_rate"
-              required
-              step="0.000001"
-              type="number"
-            />
-            <p className="mt-2 text-xs leading-5 text-[#7b8790]">
-              修改后会重新计算人民币金额、毛利和提成。
-            </p>
-          </DashboardFilterField>
-        ) : null}
         <WholesaleSelect
           defaultValue={order.payment_platform ?? ""}
           label="收款平台"

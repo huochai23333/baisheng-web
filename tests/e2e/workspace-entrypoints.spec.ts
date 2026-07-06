@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import {
   expectForbiddenPage,
@@ -172,8 +172,8 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByText("AI订单评估")).toBeVisible();
     await expect(assessmentButton).toBeVisible();
 
-    await orderedFromInput.fill("2099-01-01");
-    await orderedToInput.fill("2099-01-31");
+    await fillDateInput(orderedFromInput, "2099-01-01");
+    await fillDateInput(orderedToInput, "2099-01-31");
 
     await expect(orderedFromInput).toHaveValue("2099-01-01");
     await expect(orderedToInput).toHaveValue("2099-01-31");
@@ -368,8 +368,8 @@ test.describe("workspace entrypoint regression", () => {
     await expect(createdToInput).toBeVisible();
     await page.waitForTimeout(1000);
 
-    await createdFromInput.fill("2099-01-01");
-    await createdToInput.fill("2099-01-31");
+    await fillDateInput(createdFromInput, "2099-01-01");
+    await fillDateInput(createdToInput, "2099-01-31");
 
     await expect(createdFromInput).toHaveValue("2099-01-01");
     await expect(createdToInput).toHaveValue("2099-01-31");
@@ -398,6 +398,20 @@ async function mockClipboard(page: Page) {
       },
     });
   });
+}
+
+async function fillDateInput(locator: Locator, value: string) {
+  await locator.evaluate((element, nextValue) => {
+    const input = element as HTMLInputElement;
+    const valueSetter = Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    )?.set;
+
+    valueSetter?.call(input, nextValue);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, value);
 }
 
 async function expectNoDocumentHorizontalOverflow(page: Page) {

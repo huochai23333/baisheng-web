@@ -257,9 +257,8 @@ function getLogActionLabel(action: WholesaleOrderChangeLog["action"]) {
     case "approved_update":
       return "管理员通过申请";
     case "settlement_rate_batch_update":
-      return "批量改汇率";
     case "settlement_rate_update":
-      return "修改汇率";
+      return "结汇记录调整";
     case "direct_update":
       return "直接修改";
   }
@@ -281,8 +280,7 @@ function formatChangedFieldLabels(
 }
 
 function hasDisplayChange(left: unknown, right: unknown) {
-  // Normalize values for summary display only; the database stores full before
-  // and after snapshots for exact audit review.
+  // 这里只统一展示摘要，数据库仍保存完整的修改前后快照，方便后续精确核对。
   return normalizeSummaryValue(left) !== normalizeSummaryValue(right);
 }
 

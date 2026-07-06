@@ -8,7 +8,7 @@ import {
 } from "./commission-settings";
 import { getCurrentSessionContext } from "./current-session-context";
 import {
-  getLatestCnyExchangeRates,
+  getExchangeRates,
   type ExchangeRateRow,
 } from "./exchange-rates";
 import {
@@ -60,12 +60,24 @@ export type WholesaleOrder = {
   commission_rate: number;
   notes: string | null;
   order_month: string;
-  status: "unsettled" | "settled";
+  status: "unsettled" | "partial_settled" | "settled";
   ordered_at: string;
   settled_at: string | null;
   created_by_user_id: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type WholesaleOrderSettlement = {
+  id: string;
+  order_id: string;
+  settlement_amount: number;
+  settlement_exchange_rate: number;
+  settlement_rmb_amount: number;
+  settled_on: string;
+  settled_at: string;
+  created_by_user_id: string | null;
+  created_at: string;
 };
 
 export type WholesaleOrderEditRequestStatus =
@@ -187,6 +199,7 @@ export type WholesalePageData = {
   orderEditRequests: WholesaleOrderEditRequest[];
   orderEditSettings: WholesaleOrderEditSettings;
   orders: WholesaleOrder[];
+  orderSettlements: WholesaleOrderSettlement[];
   purchaseOrders: Wholesale1688Order[];
   logisticsOrders: WholesaleLogisticsOrder[];
   logisticsStatuses: WholesaleLogisticsStatus[];
@@ -219,6 +232,7 @@ export async function getWholesalePageData(
     referralsResult,
     orderEditRequestsResult,
     orderChangeLogsResult,
+    orderSettlementsResult,
     profilesResult,
     roleRowsResult,
     rolesResult,
@@ -278,6 +292,13 @@ export async function getWholesalePageData(
       QueryResult<WholesaleOrderChangeLog>
     >,
     supabase
+      .from("wholesale_order_settlements")
+      .select("*")
+      .order("settled_on", { ascending: false })
+      .order("created_at", { ascending: false }) as unknown as Promise<
+      QueryResult<WholesaleOrderSettlement>
+    >,
+    supabase
       .from("user_profiles")
       .select("user_id,name,email,phone,status,city")
       .order("created_at", { ascending: false }) as unknown as Promise<
@@ -292,7 +313,7 @@ export async function getWholesalePageData(
     supabase.rpc("list_wholesale_customer_link_candidates") as unknown as Promise<
       QueryResult<WholesaleProfile>
     >,
-    getLatestCnyExchangeRates(supabase).catch(() => []),
+    getExchangeRates(supabase).catch(() => []),
     getCommissionRuleSettings(supabase).catch(() => []),
     getWholesaleOrderEditSettings(supabase).catch(() => ({
       directEditWindowDays: 30,
@@ -332,6 +353,7 @@ export async function getWholesalePageData(
     orderChangeLogs: readRows(orderChangeLogsResult),
     orderEditRequests: readRows(orderEditRequestsResult),
     orders: readRows(ordersResult),
+    orderSettlements: readRows(orderSettlementsResult),
     purchaseOrders: readRows(purchaseOrdersResult),
     referrals: readRows(referralsResult),
     profiles: Array.from(profilesByUserId.values()),
@@ -348,6 +370,7 @@ export async function getWholesalePageData(
     orderEditRequests: scopedRows.orderEditRequests,
     orderEditSettings,
     orders: scopedRows.orders,
+    orderSettlements: scopedRows.orderSettlements,
     purchaseOrders: scopedRows.purchaseOrders,
     logisticsOrders: scopedRows.logisticsOrders,
     logisticsStatuses: scopedRows.logisticsStatuses,
