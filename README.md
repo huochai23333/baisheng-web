@@ -162,7 +162,7 @@ npm run supabase:admin -- summary
 - `/admin/wholesale/settings` 是批发业务设置，维护批发订单可直接修改天数、批发订单业务员提成和批发客户推荐佣金。
 - `/[role]/tourism/[section]` 承载当前旅游业务页面。
 - `/[role]/wholesale/[section]` 承载批发业务页面，使用独立批发模型，不复用旅游订单结构。
-- 越权访问直接展示访问错误页，不改写到其他角色工作台；访问错误页提供“返回我的首页”和“重新登录”，方便浏览器保留了其他账号会话时直接换号。
+- 越权访问直接展示访问错误页，不改写到其他角色工作台；访问错误页提供“返回我的首页”和“重新登录”。重新登录会先清理当前会话，再进入安全登录页，不把 `0.0.0.0` 这类监听地址显示给用户。
 - 左侧导航先按账号当前可见业务过滤，再展示当前角色在该业务下可用的模块。
 - 桌面端左侧业务分组会在进入对应页面时自动展开，当前所在业务也可以通过分组按钮手动收起或再次展开；展开和收起带平滑过渡，移动端顶部菜单下拉也带淡入下拉动画。
 - 当前阶段批发业务允许管理员、财务、业务员、以及拥有批发业务标记的客户访问；财务在批发业务中按业务员同类范围使用，不再访问旅游业务；地推、经理、运营、招聘员和只有旅游业务标记的客户只能访问旅游业务。
@@ -209,7 +209,7 @@ app/
 - `lib/workspace-route-segments.ts`：工作台角色路由段枚举。
 - `lib/workspace-business-access.ts`：当前账号可见业务读取、业务键规范化和导航过滤辅助。
 - `lib/auth-routing.ts`：角色与工作台 base path 映射。
-- `app/auth/sign-out/route.ts`：服务端退出登录入口，负责删除 Supabase 登录 Cookie 后回到登录页。
+- `app/auth/sign-out/route.ts`：服务端退出登录入口，负责删除 Supabase 登录 Cookie 后回到安全登录页；请求来源是 `0.0.0.0` 或未知域名时，使用项目配置的公开地址。
 - `lib/browser-auth-session.ts`：浏览器端退出登录和本地会话清理工具，退出后统一进入服务端退出登录入口。
 - `components/auth/forbidden-session-actions.tsx`：访问错误页的返回首页和重新登录按钮，重新登录会清理当前浏览器会话和服务端 Cookie 后进入登录页。
 - `lib/business-vip-management*.ts`：业务 VIP 的服务端边界；`queries` 读取旅游/批发 VIP 列表，`mutations` 调用旅游申请审批 RPC 和批发直接开通/续费 RPC，`normalizers` 统一整理 RPC 返回值，`errors` 把技术错误映射成页面提示。
@@ -433,7 +433,7 @@ Git 推送约定：
 Supabase Auth 建议：
 
 - Site URL：线上站点根地址，当前线上为 `https://account.pt5china.com`；默认值集中在 `lib/company-config.ts`。
-- `NEXT_PUBLIC_SITE_URL` 应与线上 Site URL 保持一致；邮箱确认路由只接受该域名、公司配置默认线上域名和本地开发域名作为回跳来源。
+- `NEXT_PUBLIC_SITE_URL` 应与线上 Site URL 保持一致；邮箱确认和退出登录路由只接受该域名、公司配置默认线上域名和本地开发域名作为回跳来源。
 - Redirect URLs：线上根地址、`/login`、`/auth/confirm`、`/forgot-password`，以及本地开发地址 `http://localhost:3000`、`http://localhost:3000/auth/confirm`、`http://localhost:3000/forgot-password`。
 - `/auth/confirm` 统一处理注册确认和密码重置确认：`type=email` 成功后进入 `next` 指向的登录页；`type=recovery` 成功后进入 `/forgot-password?type=recovery` 设置新密码。
 - Confirm sign up 邮件模板使用自有域名确认路由：`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`，不要直接使用 `{{ .ConfirmationURL }}`，避免注册确认邮件里的主链接显示为 Supabase 项目域名。
