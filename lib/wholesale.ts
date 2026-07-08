@@ -74,6 +74,7 @@ export type WholesaleOrderSettlement = {
   settlement_amount: number;
   settlement_exchange_rate: number;
   settlement_rmb_amount: number;
+  source_settlement_release_id: string | null;
   settled_on: string;
   settled_at: string;
   created_by_user_id: string | null;

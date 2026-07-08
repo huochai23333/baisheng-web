@@ -350,6 +350,7 @@
       "records": "Operation Records",
       "orderClaims": "Order Claims",
       "incentives": "Incentives",
+      "settlementReleases": "Settlement Releases",
       "logistics": "Logistics",
       "wholesaleOrders": "Wholesale Orders"
     },
@@ -623,6 +624,10 @@
       "orders": {
         "title": "Wholesale Orders",
         "description": "Manage wholesale customer orders, purchase cost, shipping, fees, gross profit, order month, and related 1688 purchase orders."
+      },
+      "settlement-releases": {
+        "title": "Settlement Releases",
+        "description": "Finance publishes received customer settlement payments, and sales staff claim them into matching wholesale orders."
       },
       "order-claims": {
         "title": "Order Claims",

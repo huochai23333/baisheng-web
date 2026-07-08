@@ -13,6 +13,7 @@ test.describe("finance business access", () => {
 
     for (const workspacePath of [
       "/finance/wholesale/orders",
+      "/finance/wholesale/settlement-releases",
       "/finance/wholesale/order-claims",
       "/finance/wholesale/logistics",
       "/finance/wholesale/customers",

@@ -62,6 +62,7 @@ const NAV_ICONS: Record<WorkspaceNavSegment, LucideIcon> = {
   referrals: GitBranchPlus,
   reviews: ShieldCheck,
   settings: Settings,
+  "settlement-releases": BadgeDollarSign,
   tasks: ClipboardList,
   team: UsersRound,
   vip: BadgeCheck,

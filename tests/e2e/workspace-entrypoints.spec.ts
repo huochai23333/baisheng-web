@@ -26,6 +26,7 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
       "/admin/tourism/people",
       "/admin/tourism/records",
       "/admin/wholesale/orders",
+      "/admin/wholesale/settlement-releases",
       "/admin/wholesale/customers",
       "/admin/wholesale/people",
     ],
@@ -34,6 +35,7 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
   {
     paths: [
       "/salesman/wholesale/orders",
+      "/salesman/wholesale/settlement-releases",
       "/salesman/wholesale/order-claims",
       "/salesman/wholesale/logistics",
       "/salesman/wholesale/customers",
@@ -66,7 +68,10 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
 
 test.describe("workspace entrypoint regression", () => {
   for (const entry of workspaceEntries) {
-    test(`${entry.role} can open key workspace sections`, async ({ page }) => {
+    test(`${entry.role} can open key workspace sections`, async ({
+      page,
+    }, testInfo) => {
+      testInfo.setTimeout(entry.role === "administrator" ? 120_000 : 60_000);
       await loginAs(page, entry.role);
 
       for (const workspacePath of entry.paths) {

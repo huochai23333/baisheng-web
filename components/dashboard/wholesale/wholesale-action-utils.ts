@@ -113,6 +113,38 @@ export function toWholesaleActionErrorMessage(error: unknown) {
     return "这笔订单已经全部结汇，不能继续新增结汇记录。";
   }
 
+  if (normalized.includes("wholesale_settlement_release_amount_invalid")) {
+    return "请填写大于 0 的结汇金额。";
+  }
+
+  if (normalized.includes("wholesale_settlement_release_customer_name_required")) {
+    return "请选择客户或填写客户名称。";
+  }
+
+  if (normalized.includes("wholesale_settlement_release_customer_not_found")) {
+    return "没有找到这个客户，请刷新后再试。";
+  }
+
+  if (normalized.includes("wholesale_settlement_release_currency_required")) {
+    return "请选择结汇币种。";
+  }
+
+  if (normalized.includes("wholesale_settlement_release_currency_mismatch")) {
+    return "这条收款的币种和所选订单不一致。";
+  }
+
+  if (normalized.includes("wholesale_settlement_release_customer_mismatch")) {
+    return "这条收款选择了指定客户，请匹配这个客户的订单。";
+  }
+
+  if (normalized.includes("wholesale_settlement_release_not_pending")) {
+    return "这条收款已经处理过，请刷新后查看最新状态。";
+  }
+
+  if (normalized.includes("wholesale_settlement_release_not_found")) {
+    return "没有找到这条结汇收款，请刷新后再试。";
+  }
+
   if (normalized.includes("exchange rate is not ready")) {
     return "这个币种的汇率还没有准备好，请先到汇率设置中补充。";
   }

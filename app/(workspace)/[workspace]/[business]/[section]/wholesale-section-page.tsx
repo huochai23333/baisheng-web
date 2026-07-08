@@ -6,6 +6,7 @@ import { getBusinessVipPageData } from "@/lib/business-vip-management";
 import { getBusinessSettingsPageData } from "@/lib/business-settings";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import { getWholesalePageData } from "@/lib/wholesale";
+import { getWholesaleSettlementReleasePageData } from "@/lib/wholesale-settlement-releases";
 import {
   isWorkspaceWholesaleSectionKey,
   type WorkspaceRouteConfig,
@@ -31,6 +32,13 @@ const BusinessSettingsClient = dynamic(
     import("@/components/dashboard/business-settings/business-settings-client").then(
       (mod) => mod.BusinessSettingsClient,
     ),
+);
+
+const WholesaleSettlementReleaseClient = dynamic(
+  () =>
+    import(
+      "@/components/dashboard/wholesale/wholesale-settlement-release-client"
+    ).then((mod) => mod.WholesaleSettlementReleaseClient),
 );
 
 export async function renderWholesaleSectionPage(
@@ -77,6 +85,16 @@ export async function renderWholesaleSectionPage(
         ]}
       >
         <BusinessSettingsClient initialData={initialData} />
+      </ScopedIntlProvider>
+    );
+  }
+
+  if (wholesaleSection === "settlement-releases") {
+    const initialData = await getWholesaleSettlementReleasePageData(supabase);
+
+    return (
+      <ScopedIntlProvider namespaces={["DashboardShared", "WholesaleBusiness"]}>
+        <WholesaleSettlementReleaseClient initialData={initialData} />
       </ScopedIntlProvider>
     );
   }

@@ -17,7 +17,7 @@ test.describe("wholesale order settlements", () => {
 
     const uniqueNote = `分批结汇测试 ${Date.now()}`;
     const currentMonth = getShanghaiDateInputValue().slice(0, 7);
-    const settlementDate = getShanghaiDateInputValue();
+    const settlementDate = "2026-07-06";
 
     await page.getByRole("button", { name: "新建订单" }).click();
 
@@ -49,13 +49,14 @@ test.describe("wholesale order settlements", () => {
 
     await recordSettlement(page, orderRow, "100", settlementDate);
     await expect(page.getByText("结汇记录已保存。")).toBeVisible();
-    await expect(orderRow).toContainText("部分结汇");
-    await expect(orderRow).toContainText("100.00");
+    await expect(orderRow).toContainText("已结 US$100.00");
+    await expect(orderRow).toContainText("剩余 US$200.00");
+    await expect(orderRow).toContainText("7.18");
 
     await recordSettlement(page, orderRow, "200", settlementDate);
     await expect(page.getByText("结汇记录已保存。")).toBeVisible();
-    await expect(orderRow).toContainText("已结汇");
-    await expect(orderRow).toContainText("300.00");
+    await expect(orderRow).toContainText("已结 US$300.00");
+    await expect(orderRow).toContainText("剩余 US$0.00");
   });
 
   test("wholesale order settlement page keeps desktop and mobile layout usable", async ({

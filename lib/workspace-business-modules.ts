@@ -9,6 +9,7 @@ export type WorkspaceBusinessKey = (typeof allWorkspaceBusinessKeys)[number];
 
 export const workspaceWholesaleSectionKeys = [
   "orders",
+  "settlement-releases",
   "order-claims",
   "logistics",
   "customers",
@@ -60,6 +61,7 @@ export type WorkspaceNavLabelKey =
   | "reviews"
   | "settings"
   | "incentives"
+  | "settlementReleases"
   | "orderClaims"
   | "logistics"
   | "wholesaleOrders";
@@ -181,6 +183,7 @@ const adminTourismNavItems = [
 
 const adminWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
+  ["settlement-releases", "settlementReleases"],
   ["order-claims", "orderClaims"],
   ["logistics", "logistics"],
   ["customers", "customers"],
@@ -207,6 +210,7 @@ const salesWholesaleNavItems = createWholesaleNavItems([
 // 业务员只管理自己的批发客户与订单，承接账号目录留给管理员查看。
 const salesmanWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
+  ["settlement-releases", "settlementReleases"],
   ["order-claims", "orderClaims"],
   ["logistics", "logistics"],
   ["customers", "customers"],
