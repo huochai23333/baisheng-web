@@ -35,15 +35,16 @@ export async function expectWorkspaceShell(page: Page) {
 }
 
 export async function expectForbiddenPage(page: Page) {
-  await expect(
-    page.getByRole("heading", { name: "当前账号无权访问这个页面" }),
-  ).toBeVisible();
+  // 未授权访问现在会先经过服务端退出入口，再回到登录页。
+  // 这里继续保留旧函数名，避免大量权限用例重复描述同一个回归断言。
+  await expect(page).toHaveURL(/\/login(?:[?#].*)?$/, { timeout: 30_000 });
+  await expect(page.locator('input[name="email"]')).toBeVisible();
 }
 
 export async function expectNotForbiddenPage(page: Page) {
-  await expect(
-    page.getByRole("heading", { name: "当前账号无权访问这个页面" }),
-  ).toHaveCount(0);
+  // 正常可访问的页面不应该被权限拦截踢回登录页。
+  await expect(page).not.toHaveURL(/\/login(?:[?#].*)?$/);
+  await expect(page.locator('input[name="email"]')).toHaveCount(0);
 }
 
 function escapeRegExp(value: string) {

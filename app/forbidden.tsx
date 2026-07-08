@@ -1,25 +1,9 @@
-import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
 
-import { ForbiddenSessionActions } from "@/components/auth/forbidden-session-actions";
+const SIGN_OUT_TO_LOGIN_PATH = "/auth/sign-out?next=%2Flogin";
 
-export default async function Forbidden() {
-  const t = await getTranslations("ForbiddenPage");
-
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(160deg,#f6f2ea_0%,#f3f7fa_48%,#edf2f6_100%)] px-6 py-16">
-      <section className="w-full max-w-xl rounded-[32px] border border-white/90 bg-white/90 p-8 shadow-[0_24px_80px_rgba(35,49,58,0.12)] sm:p-10">
-        <span className="inline-flex rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
-          {t("badge")}
-        </span>
-        <h1 className="mt-5 text-3xl font-bold tracking-tight text-[#23313a]">
-          {t("title")}
-        </h1>
-        <p className="mt-3 text-sm leading-7 text-[#69747d]">{t("description")}</p>
-        <ForbiddenSessionActions
-          homeLabel={t("primaryAction")}
-          reloginLabel={t("reloginAction")}
-        />
-      </section>
-    </main>
-  );
+export default function Forbidden() {
+  // 任何服务端权限拦截都直接清理当前登录状态，再进入登录页。
+  // 这样用户不会停在“无权访问”的中间页，也不会继续带着旧账号 Cookie 重试。
+  redirect(SIGN_OUT_TO_LOGIN_PATH);
 }

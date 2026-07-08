@@ -16,13 +16,6 @@
     "description": "The link may be outdated, or the page may have been moved or removed. Return to the main workspace entry and continue from there.",
     "primaryAction": "Back to Main Entry"
   },
-  "ForbiddenPage": {
-    "badge": "Access Error",
-    "title": "This account cannot access the current page",
-    "description": "This page is not available to the current account. You can return to your home page, or sign in again if you need to use a different account.",
-    "primaryAction": "Back to My Home",
-    "reloginAction": "Sign In Again"
-  },
   "LanguageToggle": {
     "zh": "中文",
     "en": "EN",
