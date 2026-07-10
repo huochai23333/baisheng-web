@@ -26,8 +26,13 @@ export function normalizeWholesale1688ApiPayload(value: unknown): IngestPayload 
   }
 
   const rowsInput = Array.isArray(value.rows) ? value.rows : [];
+
+  if (rowsInput.length > MAX_API_ROWS) {
+    // 接口应明确拒绝超量数据，不能静默截断后让用户误以为全部订单都已接收。
+    throw new Error("too_many_rows");
+  }
+
   const rows = rowsInput
-    .slice(0, MAX_API_ROWS)
     .map(normalizeWholesale1688Row)
     .filter((row): row is Wholesale1688IngestRow => Boolean(row));
 

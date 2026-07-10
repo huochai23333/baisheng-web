@@ -101,7 +101,12 @@ function WholesaleClaimTableRow({
           {purchaseOrder.external_order_number}
         </div>
         <div className="mt-2">
-          <ClaimBoardBadge row={row} />
+          <ClaimInlineSlot
+            canEdit={canEdit}
+            onOpenClaim={onOpenClaim}
+            pending={pendingKey}
+            row={row}
+          />
         </div>
         <div className="mt-2 text-xs leading-5 text-[#71808d]">
           {purchaseOrder.order_status ?? "未记录状态"}
@@ -160,16 +165,39 @@ function WholesaleClaimTableRow({
   );
 }
 
-function ClaimBoardBadge({ row }: { row: WholesaleClaimRow }) {
+function ClaimInlineSlot({
+  canEdit,
+  onOpenClaim,
+  pending,
+  row,
+}: {
+  canEdit: boolean;
+  onOpenClaim: (row: WholesaleClaimRow) => void;
+  pending: string | null;
+  row: WholesaleClaimRow;
+}) {
+  if (row.board === "hall") {
+    if (!canEdit) {
+      return <WholesaleStatusBadge tone="warning">等待认领</WholesaleStatusBadge>;
+    }
+
+    return (
+      <Button
+        className="h-8 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
+        disabled={pending === "1688:claim"}
+        onClick={() => onOpenClaim(row)}
+        type="button"
+      >
+        认领
+      </Button>
+    );
+  }
+
   if (row.board === "claimed") {
     return <WholesaleStatusBadge tone="success">已认领</WholesaleStatusBadge>;
   }
 
-  if (row.board === "assisted") {
-    return <WholesaleStatusBadge tone="warning">待分类</WholesaleStatusBadge>;
-  }
-
-  return <WholesaleStatusBadge tone="default">认领大厅</WholesaleStatusBadge>;
+  return <WholesaleStatusBadge tone="warning">待分类</WholesaleStatusBadge>;
 }
 
 function ClaimActions({
@@ -194,18 +222,18 @@ function ClaimActions({
           <CheckCircle2 className="mr-1 size-3.5" />
           {formatDateTime(row.purchaseOrder.claimed_at)}
         </WholesaleStatusBadge>
-      ) : canEdit ? (
+      ) : row.board === "assisted" && canEdit ? (
         <Button
           className="h-9 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
           disabled={pending === "1688:claim"}
           onClick={onOpenClaim}
           type="button"
         >
-          {row.board === "assisted" ? "确认归属" : "认领"}
+          确认归属
         </Button>
-      ) : (
+      ) : row.board === "assisted" ? (
         <WholesaleStatusBadge tone="warning">等待认领</WholesaleStatusBadge>
-      )}
+      ) : null}
       {canAdmin ? (
         <Button
           className="h-9 rounded-full bg-[#fbe6e6] px-3 text-xs font-semibold text-[#b13d3d] hover:bg-[#f7d4d4]"

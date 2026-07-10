@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent, ReactNode } from "react";
+import type { FormEvent } from "react";
 import { useState } from "react";
 
 import { Ban, CalendarClock, Check, LoaderCircle, Send, X } from "lucide-react";
@@ -8,16 +8,18 @@ import { useTranslations } from "next-intl";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { PageBanner, type NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
-import { Button } from "@/components/ui/button";
 import type {
   BusinessVipAdjustmentAction,
   BusinessVipRequest,
   BusinessVipReviewAction,
   BusinessVipRow,
 } from "@/lib/business-vip-management";
-import { cn } from "@/lib/utils";
 
 import { getBusinessVipDateTimeInputValue } from "./business-vip-display";
+import {
+  BusinessVipDialogActions as DialogActions,
+  BusinessVipNoteField,
+} from "./business-vip-dialog-fields";
 
 export type BusinessVipDialogState =
   | { kind: "request"; row: BusinessVipRow }
@@ -346,78 +348,5 @@ function BusinessVipAdjustmentDialog({
         />
       </form>
     </DashboardDialog>
-  );
-}
-
-function BusinessVipNoteField({
-  disabled,
-  label,
-  onChange,
-  placeholder,
-  value,
-}: {
-  disabled: boolean;
-  label: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-  value: string;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
-        {label}
-      </span>
-      <textarea
-        className="min-h-28 w-full resize-y rounded-[18px] border border-[#dfe5ea] bg-white px-4 py-3 text-sm leading-6 text-[#23313a] outline-none placeholder:text-[#8a949c] focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
-        disabled={disabled}
-        maxLength={500}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        value={value}
-      />
-    </label>
-  );
-}
-
-function DialogActions({
-  cancelLabel,
-  className,
-  cancelDisabled,
-  icon,
-  onCancel,
-  submitDisabled,
-  submitLabel,
-}: {
-  cancelLabel: string;
-  className?: string;
-  cancelDisabled: boolean;
-  icon: ReactNode;
-  onCancel: () => void;
-  submitDisabled: boolean;
-  submitLabel: string;
-}) {
-  return (
-    <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-      <Button
-        className="h-11 rounded-full border border-[#d9e0e5] bg-white px-5 text-[#486782] hover:bg-[#f3f6f8]"
-        disabled={cancelDisabled}
-        onClick={onCancel}
-        type="button"
-        variant="outline"
-      >
-        {cancelLabel}
-      </Button>
-      <Button
-        className={cn(
-          "h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]",
-          className,
-        )}
-        disabled={submitDisabled}
-        type="submit"
-      >
-        {icon}
-        {submitLabel}
-      </Button>
-    </div>
   );
 }

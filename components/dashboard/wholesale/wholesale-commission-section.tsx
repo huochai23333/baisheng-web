@@ -7,7 +7,6 @@ import { Calculator, RefreshCcw } from "lucide-react";
 import {
   DashboardFilterField,
   DashboardListSection,
-  DashboardTableFrame,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { useLocale } from "@/components/i18n/locale-provider";
@@ -27,25 +26,20 @@ import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuse
 
 import {
   formatCurrency,
-  formatDateTime,
-  formatPercent,
   getCustomerName,
   getProfileName,
-  WHOLESALE_STATUS_LABELS,
 } from "./wholesale-display";
 import {
   WholesaleEmptyState,
   WholesalePageShell,
   WholesaleStatGrid,
-  WholesaleStatusBadge,
-  WholesaleTd,
-  WholesaleTh,
 } from "./wholesale-ui";
 import {
   buildReferralCommissionRows,
 } from "./wholesale-referral-commission";
 import { formatWholesaleOrderCommissionDescription } from "./wholesale-commission-settings";
 import { WholesaleReferralCommissionSection } from "./wholesale-referral-commission-section";
+import { WholesaleCommissionRecords } from "./wholesale-commission-records";
 
 type WholesaleCommissionSectionProps = {
   canAdmin: boolean;
@@ -262,157 +256,15 @@ export function WholesaleCommissionSection({
             title="暂无匹配提成"
           />
         ) : (
-          <>
-            <div className="hidden md:block">
-              <DashboardTableFrame>
-            <table className="w-full min-w-[980px] table-fixed border-collapse text-left text-sm">
-              <colgroup>
-                <col className="w-[18%]" />
-                <col className="w-[16%]" />
-                <col className="w-[16%]" />
-                <col className="w-[14%]" />
-                <col className="w-[12%]" />
-                <col className="w-[12%]" />
-                <col className="w-[12%]" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <WholesaleTh className="whitespace-normal">订单编号</WholesaleTh>
-                  <WholesaleTh className="whitespace-normal">客户</WholesaleTh>
-                  <WholesaleTh className="whitespace-normal">业务员</WholesaleTh>
-                  <WholesaleTh className="whitespace-normal">订单金额</WholesaleTh>
-                  <WholesaleTh className="whitespace-normal">提成</WholesaleTh>
-                  <WholesaleTh className="whitespace-normal">状态</WholesaleTh>
-                  {canAdmin ? <WholesaleTh className="whitespace-normal">结算</WholesaleTh> : null}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCommissions.map((commission) => {
-                  const order = orderById.get(commission.order_id);
-
-                  return (
-                    <tr key={commission.id}>
-                      <WholesaleTd className="whitespace-normal">
-                        <p className="font-semibold">
-                          {order?.order_number ?? "未找到订单"}
-                        </p>
-                        <p className="mt-1 text-xs text-[#71808d]">
-                          {formatDateTime(commission.calculated_at)}
-                        </p>
-                      </WholesaleTd>
-                      <WholesaleTd className="whitespace-normal">
-                        {getCustomerName(customersById, commission.customer_id)}
-                      </WholesaleTd>
-                      <WholesaleTd className="whitespace-normal">
-                        {getProfileName(profilesById, commission.beneficiary_user_id)}
-                      </WholesaleTd>
-                      <WholesaleTd className="whitespace-normal">
-                        <p>{formatCurrency(commission.order_payment_rmb_amount)}</p>
-                        <p className="mt-1 text-xs text-[#71808d]">
-                          毛利 {formatCurrency(commission.gross_profit_rmb)}
-                        </p>
-                      </WholesaleTd>
-                      <WholesaleTd className="whitespace-normal">
-                        <p>{formatCurrency(commission.commission_amount_rmb)}</p>
-                        <p className="mt-1 text-xs text-[#71808d]">
-                          {formatPercent(commission.commission_rate)}
-                        </p>
-                      </WholesaleTd>
-                      <WholesaleTd className="whitespace-normal">
-                        <WholesaleStatusBadge
-                          tone={
-                            commission.status === "settled"
-                              ? "success"
-                              : commission.status === "cancelled"
-                                ? "danger"
-                                : "warning"
-                          }
-                        >
-                          {WHOLESALE_STATUS_LABELS[commission.status]}
-                        </WholesaleStatusBadge>
-                      </WholesaleTd>
-                      {canAdmin ? (
-                        <WholesaleTd className="whitespace-normal">
-                          <Button
-                            className="h-9 rounded-full bg-[#486782] px-3 text-xs font-semibold text-white hover:bg-[#3e5f79] disabled:opacity-60"
-                            disabled={
-                              commission.status !== "pending" ||
-                              pendingKey === "commission:settle"
-                            }
-                            onClick={() => onSettleCommission(commission.id)}
-                            type="button"
-                          >
-                            标记结算
-                          </Button>
-                        </WholesaleTd>
-                      ) : null}
-                    </tr>
-                  );
-                })}
-              </tbody>
-              </table>
-              </DashboardTableFrame>
-            </div>
-            <div className="grid gap-3 md:hidden">
-              {filteredCommissions.map((commission) => {
-                const order = orderById.get(commission.order_id);
-
-                return (
-                  <div
-                    className="rounded-[8px] border border-[#e4e8ec] bg-white p-4"
-                    key={commission.id}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="break-words font-semibold text-[#23313a]">
-                          {order?.order_number ?? "未找到订单"}
-                        </p>
-                        <p className="mt-1 break-words text-sm text-[#6f7b85]">
-                          {getCustomerName(customersById, commission.customer_id)}
-                        </p>
-                      </div>
-                      <WholesaleStatusBadge
-                        tone={
-                          commission.status === "settled"
-                            ? "success"
-                            : commission.status === "cancelled"
-                              ? "danger"
-                              : "warning"
-                        }
-                      >
-                        {WHOLESALE_STATUS_LABELS[commission.status]}
-                      </WholesaleStatusBadge>
-                    </div>
-                    <div className="mt-3 grid gap-2 text-sm text-[#5e6b75]">
-                      <p>
-                        业务员：
-                        {getProfileName(profilesById, commission.beneficiary_user_id)}
-                      </p>
-                      <p>订单金额：{formatCurrency(commission.order_payment_rmb_amount)}</p>
-                      <p>毛利：{formatCurrency(commission.gross_profit_rmb)}</p>
-                      <p>
-                        提成：{formatCurrency(commission.commission_amount_rmb)}
-                        （{formatPercent(commission.commission_rate)}）
-                      </p>
-                    </div>
-                    {canAdmin ? (
-                      <Button
-                        className="mt-4 h-9 rounded-full bg-[#486782] px-3 text-xs font-semibold text-white hover:bg-[#3e5f79] disabled:opacity-60"
-                        disabled={
-                          commission.status !== "pending" ||
-                          pendingKey === "commission:settle"
-                        }
-                        onClick={() => onSettleCommission(commission.id)}
-                        type="button"
-                      >
-                        标记结算
-                      </Button>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </div>
-          </>
+          <WholesaleCommissionRecords
+            canAdmin={canAdmin}
+            commissions={filteredCommissions}
+            customersById={customersById}
+            onSettleCommission={onSettleCommission}
+            orderById={orderById}
+            pendingKey={pendingKey}
+            profilesById={profilesById}
+          />
         )}
       </DashboardListSection>
     </WholesalePageShell>

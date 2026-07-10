@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import {
   expectForbiddenPage,
@@ -22,6 +22,11 @@ test.describe("workspace permission regression", () => {
     await page.goto("/admin/tourism/reviews");
 
     await expectForbiddenPage(page);
+
+    // 返回自己的首页时不应再次登录，用这个断言防止以后又把越权和退出登录混在一起。
+    await page.getByRole("link", { name: "返回我的首页" }).click();
+    await expect(page).toHaveURL(/\/salesman\/home(?:[?#].*)?$/);
+    await expectWorkspaceShell(page);
   });
 
   test("salesman cannot open administrator operation records", async ({ page }) => {

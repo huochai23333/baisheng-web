@@ -3,16 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useRouter } from "next/navigation";
-import { LoaderCircle, Trash2, Upload } from "lucide-react";
 
 import { useLocale } from "@/components/i18n/locale-provider";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import {
-  createPrivacyRequest,
-  deleteUserMediaAssets,
   getCurrentUserBundle,
   type CurrentUserBundle,
-  uploadUserMedia,
 } from "@/lib/user-self-service";
 
 import {
@@ -24,12 +20,18 @@ import {
   useWorkspaceRecoverCloudSync,
   useWorkspaceSyncEffect,
 } from "../workspace-session-provider";
-import { Button } from "../../ui/button";
+import { DashboardSharedMyMediaDialogActions } from "./dashboard-shared-my-media-dialog-actions";
 import { useDashboardSharedMyStateCopy } from "./dashboard-shared-my-state-copy";
-import { createDashboardSharedMyViewModel } from "./dashboard-shared-my-view-model";
+import {
+  createDashboardSharedMyViewModel,
+  getDashboardSharedMyDialogCopy,
+} from "./dashboard-shared-my-view-model";
 import { useDashboardAccountSwitcher } from "./use-dashboard-account-switcher";
 import { useDashboardPasswordReset } from "./use-dashboard-password-reset";
 import { useDashboardProfileDialog } from "./use-dashboard-profile-dialog";
+import { useDashboardSharedMyMediaActions } from "./use-dashboard-shared-my-media-actions";
+import { useDashboardSharedMyPrivacyActions } from "./use-dashboard-shared-my-privacy-actions";
+import { useDashboardInviteCode } from "./use-dashboard-invite-code";
 
 export function useDashboardSharedMyState(initialData: CurrentUserBundle | null = null) {
   const router = useRouter();
@@ -267,19 +269,7 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
     setPassportEditing(false);
   };
 
-  const copyInviteCode = async () => {
-    if (!profile?.referral_code) {
-      setPageNotice({ tone: "error", message: copy.missingInviteCode });
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(profile.referral_code);
-      setPageNotice({ tone: "success", message: copy.inviteCopied });
-    } catch {
-      setPageNotice({ tone: "error", message: copy.inviteCopyFailed });
-    }
-  };
+  const copyInviteCode = useDashboardInviteCode({ copy, profile, setPageNotice });
 
   const profileDialog = useDashboardProfileDialog({
     authUser,
@@ -293,206 +283,45 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
     supabase,
   });
 
-  const submitIdentity = async () => {
-    if (!supabase || !authUser) {
-      return;
-    }
+  const privacyActions = useDashboardSharedMyPrivacyActions({
+    authUser,
+    copy,
+    identityDraft,
+    passportDraft,
+    refreshBundle,
+    setBusyKey,
+    setDialogNotice,
+    setIdentityEditing,
+    setPassportEditing,
+    sharedCopy,
+    supabase,
+  });
 
-    setBusyKey("identity");
-    setDialogNotice(null);
+  const mediaActions = useDashboardSharedMyMediaActions({
+    authUser,
+    copy,
+    refreshBundle,
+    setBusyKey,
+    setDialogNotice,
+    sharedCopy,
+    supabase,
+  });
 
-    try {
-      await createPrivacyRequest(supabase, {
-        field: "id_card",
-        userId: authUser.id,
-        value: identityDraft,
-      });
+  const dialogCopy = getDashboardSharedMyDialogCopy(activeDialog, copy);
 
-      await refreshBundle({ dialogMessage: copy.identitySubmitted, quiet: true });
-      setIdentityEditing(false);
-    } catch (error) {
-      setDialogNotice({ tone: "error", message: toErrorMessage(error, sharedCopy) });
-    } finally {
-      setBusyKey(null);
-    }
-  };
-
-  const submitPassport = async () => {
-    if (!supabase || !authUser) {
-      return;
-    }
-
-    setBusyKey("passport");
-    setDialogNotice(null);
-
-    try {
-      await createPrivacyRequest(supabase, {
-        field: "passport",
-        userId: authUser.id,
-        value: passportDraft,
-      });
-
-      await refreshBundle({ dialogMessage: copy.passportSubmitted, quiet: true });
-      setPassportEditing(false);
-    } catch (error) {
-      setDialogNotice({ tone: "error", message: toErrorMessage(error, sharedCopy) });
-    } finally {
-      setBusyKey(null);
-    }
-  };
-
-  const uploadPhotos = async (files: File[]) => {
-    if (!supabase || !authUser) {
-      return;
-    }
-
-    setBusyKey("photos-upload");
-    setDialogNotice(null);
-
-    try {
-      await uploadUserMedia(supabase, { files, kind: "image", userId: authUser.id });
-      await refreshBundle({ dialogMessage: copy.photosUploaded, quiet: true });
-    } catch (error) {
-      setDialogNotice({ tone: "error", message: toErrorMessage(error, sharedCopy) });
-    } finally {
-      setBusyKey(null);
-    }
-  };
-
-  const uploadVideos = async (files: File[]) => {
-    if (!supabase || !authUser) {
-      return;
-    }
-
-    setBusyKey("videos-upload");
-    setDialogNotice(null);
-
-    try {
-      await uploadUserMedia(supabase, { files, kind: "video", userId: authUser.id });
-      await refreshBundle({ dialogMessage: copy.videosUploaded, quiet: true });
-    } catch (error) {
-      setDialogNotice({ tone: "error", message: toErrorMessage(error, sharedCopy) });
-    } finally {
-      setBusyKey(null);
-    }
-  };
-
-  const deletePhotoAssets = async (targets: CurrentUserBundle["mediaAssets"]) => {
-    if (!supabase) {
-      return;
-    }
-
-    setBusyKey("photos-delete");
-    setDialogNotice(null);
-
-    try {
-      await deleteUserMediaAssets(supabase, targets);
-      await refreshBundle({ dialogMessage: copy.photosDeleted, quiet: true });
-    } catch (error) {
-      setDialogNotice({ tone: "error", message: toErrorMessage(error, sharedCopy) });
-    } finally {
-      setBusyKey(null);
-    }
-  };
-
-  const deleteVideoAssets = async (targets: CurrentUserBundle["mediaAssets"]) => {
-    if (!supabase) {
-      return;
-    }
-
-    setBusyKey("videos-delete");
-    setDialogNotice(null);
-
-    try {
-      await deleteUserMediaAssets(supabase, targets);
-      await refreshBundle({ dialogMessage: copy.videosDeleted, quiet: true });
-    } catch (error) {
-      setDialogNotice({ tone: "error", message: toErrorMessage(error, sharedCopy) });
-    } finally {
-      setBusyKey(null);
-    }
-  };
-
-  const dialogTitle =
-    activeDialog === "identity"
-      ? copy.identityTitle
-      : activeDialog === "passport"
-        ? copy.passportTitle
-        : activeDialog === "photos"
-          ? copy.photosTitle
-          : activeDialog === "videos"
-            ? copy.videosTitle
-            : "";
-
-  const dialogDescription =
-    activeDialog === "identity"
-      ? copy.identityDescription
-      : activeDialog === "passport"
-        ? copy.passportDescription
-        : activeDialog === "photos"
-          ? copy.mediaDescription
-          : activeDialog === "videos"
-            ? copy.mediaDescription
-            : "";
-
-  const dialogActions =
-    activeDialog === "photos" ? (
-      <>
-        <Button
-          className="h-11 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
-          disabled={!photoAssets.length || busyKey !== null}
-          onClick={() => void deletePhotoAssets(photoAssets)}
-          variant="outline"
-        >
-          {busyKey === "photos-delete" ? (
-            <LoaderCircle className="size-4 animate-spin" />
-          ) : (
-            <Trash2 className="size-4" />
-          )}
-          {copy.deletePhotos}
-        </Button>
-        <Button
-          className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-          disabled={busyKey !== null}
-          onClick={() => photoInputRef.current?.click()}
-        >
-          {busyKey === "photos-upload" ? (
-            <LoaderCircle className="size-4 animate-spin" />
-          ) : (
-            <Upload className="size-4" />
-          )}
-          {copy.uploadPhotos}
-        </Button>
-      </>
-    ) : activeDialog === "videos" ? (
-      <>
-        <Button
-          className="h-11 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
-          disabled={!videoAssets.length || busyKey !== null}
-          onClick={() => void deleteVideoAssets(videoAssets)}
-          variant="outline"
-        >
-          {busyKey === "videos-delete" ? (
-            <LoaderCircle className="size-4 animate-spin" />
-          ) : (
-            <Trash2 className="size-4" />
-          )}
-          {copy.deleteVideos}
-        </Button>
-        <Button
-          className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-          disabled={busyKey !== null}
-          onClick={() => videoInputRef.current?.click()}
-        >
-          {busyKey === "videos-upload" ? (
-            <LoaderCircle className="size-4 animate-spin" />
-          ) : (
-            <Upload className="size-4" />
-          )}
-          {copy.uploadVideos}
-        </Button>
-      </>
-    ) : undefined;
+  const dialogActions = activeDialog === "photos" || activeDialog === "videos" ? (
+    <DashboardSharedMyMediaDialogActions
+      activeDialog={activeDialog}
+      busyKey={busyKey}
+      copy={copy}
+      deletePhotoAssets={mediaActions.deletePhotoAssets}
+      deleteVideoAssets={mediaActions.deleteVideoAssets}
+      photoAssets={photoAssets}
+      photoInputRef={photoInputRef}
+      videoAssets={videoAssets}
+      videoInputRef={videoInputRef}
+    />
+  ) : undefined;
 
   return {
     bundle,
@@ -529,16 +358,16 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
       activeDialog,
       assets,
       close: closeDialog,
-      deletePhotoAssets,
-      deleteVideoAssets,
-      description: dialogDescription,
+      deletePhotoAssets: mediaActions.deletePhotoAssets,
+      deleteVideoAssets: mediaActions.deleteVideoAssets,
+      description: dialogCopy.description,
       notice: dialogNotice,
       openDialog,
       photoAssets,
       photoStatus,
-      title: dialogTitle,
-      uploadPhotos,
-      uploadVideos,
+      title: dialogCopy.title,
+      uploadPhotos: mediaActions.uploadPhotos,
+      uploadVideos: mediaActions.uploadVideos,
       videoAssets,
       videoStatus,
     },
@@ -548,7 +377,7 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
       setDraft: setIdentityDraft,
       setEditing: setIdentityEditing,
       status: identityStatus,
-      submit: submitIdentity,
+      submit: privacyActions.submitIdentity,
       value: identityValue,
     },
     passport: {
@@ -557,7 +386,7 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
       setDraft: setPassportDraft,
       setEditing: setPassportEditing,
       status: passportStatus,
-      submit: submitPassport,
+      submit: privacyActions.submitPassport,
       value: passportValue,
     },
   };

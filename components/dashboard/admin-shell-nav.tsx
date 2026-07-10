@@ -2,32 +2,8 @@
 
 import { useMemo, useState } from "react";
 
-import Link from "next/link";
-import {
-  BadgeCheck,
-  BadgeDollarSign,
-  ChevronDown,
-  ClipboardCheck,
-  ClipboardClock,
-  ClipboardList,
-  GitBranchPlus,
-  Home,
-  LoaderCircle,
-  Megaphone,
-  MessageSquareWarning,
-  ReceiptText,
-  Settings,
-  ShieldCheck,
-  ShoppingCart,
-  Truck,
-  UserCog,
-  UserRound,
-  UsersRound,
-  WalletCards,
-  type LucideIcon,
-} from "lucide-react";
+import { ChevronDown, LoaderCircle } from "lucide-react";
 
-import type { WorkspaceNavSegment } from "@/lib/workspace-config";
 import { cn } from "@/lib/utils";
 
 import { useAdminShellNavigation } from "./use-admin-shell-navigation";
@@ -35,37 +11,17 @@ import type {
   AdminShellNavGroup,
   AdminShellNavLink,
 } from "./admin-shell-nav-types";
+import {
+  ADMIN_NAV_ICONS,
+  DesktopAdminNavLink,
+  MobileAdminNavLink,
+} from "./admin-shell-nav-links";
 
 type AdminShellNavProps = {
   emptyGroupsLabel: string;
   globalItems: readonly AdminShellNavLink[];
   groups: readonly AdminShellNavGroup[];
   mode: "desktop" | "mobile";
-};
-
-const NAV_ICONS: Record<WorkspaceNavSegment, LucideIcon> = {
-  accounts: UserCog,
-  announcements: Megaphone,
-  "company-expenses": ReceiptText,
-  commission: WalletCards,
-  customers: UsersRound,
-  feedback: MessageSquareWarning,
-  home: Home,
-  incentives: BadgeDollarSign,
-  logistics: Truck,
-  my: UserRound,
-  "order-claims": ClipboardCheck,
-  orders: ShoppingCart,
-  people: UsersRound,
-  records: ClipboardClock,
-  reimbursements: ReceiptText,
-  referrals: GitBranchPlus,
-  reviews: ShieldCheck,
-  settings: Settings,
-  "settlement-releases": BadgeDollarSign,
-  tasks: ClipboardList,
-  team: UsersRound,
-  vip: BadgeCheck,
 };
 
 // 左侧工作栏内容仍然需要能滚动，但视觉上不显示浏览器自带的滚动滑块。
@@ -121,7 +77,7 @@ export function AdminShellNav({
       return null;
     }
 
-    const ActiveIcon = NAV_ICONS[activeItem.icon];
+    const ActiveIcon = ADMIN_NAV_ICONS[activeItem.icon];
     const activeIsPending = resolvedPendingHref === activeItem.href;
     const activeLabel = activeItem.groupLabel
       ? `${activeItem.groupLabel} / ${activeItem.label}`
@@ -165,7 +121,7 @@ export function AdminShellNav({
         >
           <div className="grid gap-2">
             {globalItems.map((item) => (
-              <MobileNavLink
+              <MobileAdminNavLink
                 handleNavClick={handleNavClick}
                 isFocusable={mobileMenuOpen}
                 item={item}
@@ -183,7 +139,7 @@ export function AdminShellNav({
                     {group.label}
                   </p>
                   {group.items.map((item) => (
-                    <MobileNavLink
+                    <MobileAdminNavLink
                       handleNavClick={handleNavClick}
                       isFocusable={mobileMenuOpen}
                       item={item}
@@ -215,7 +171,7 @@ export function AdminShellNav({
       )}
     >
       {globalItems.map((item) => (
-        <DesktopNavLink
+        <DesktopAdminNavLink
           handleNavClick={handleNavClick}
           item={item}
           key={item.href}
@@ -293,7 +249,7 @@ export function AdminShellNav({
                   )}
                 >
                   {group.items.map((item) => (
-                    <DesktopNavLink
+                    <DesktopAdminNavLink
                       compact
                       handleNavClick={handleNavClick}
                       isFocusable={isOpen}
@@ -325,103 +281,4 @@ function getInitialOpenGroupKeys(
   }
 
   return openGroupKeys;
-}
-
-type NavLinkProps = {
-  handleNavClick: ReturnType<typeof useAdminShellNavigation>["handleNavClick"];
-  item: AdminShellNavLink;
-  pathname: string;
-  prefetchRoute: ReturnType<typeof useAdminShellNavigation>["prefetchRoute"];
-  resolvedPendingHref: string | null;
-};
-
-function DesktopNavLink({
-  compact = false,
-  handleNavClick,
-  isFocusable = true,
-  item,
-  pathname,
-  prefetchRoute,
-  resolvedPendingHref,
-}: NavLinkProps & { compact?: boolean; isFocusable?: boolean }) {
-  const Icon = NAV_ICONS[item.icon];
-  const isActive = pathname === item.href;
-  const isPending = resolvedPendingHref === item.href && !isActive;
-
-  return (
-    <Link
-      aria-busy={isPending || undefined}
-      aria-current={isActive ? "page" : undefined}
-      className={cn(
-        "mx-1 flex items-center gap-3 rounded-[18px] px-4 py-3 text-sm transition-all duration-200",
-        compact ? "py-2.5" : "",
-        isActive
-          ? "translate-x-1 bg-[#486782] text-white shadow-[0_12px_24px_rgba(72,103,130,0.24)]"
-          : isPending
-            ? "translate-x-1 bg-[#dbe6ee] text-[#36536a] shadow-[0_10px_20px_rgba(72,103,130,0.1)]"
-            : "text-[#415f76]/72 hover:bg-[#e5e3df] hover:text-[#314b61]",
-      )}
-      href={item.href}
-      onClick={(event) => handleNavClick(event, item.href)}
-      onFocus={() => prefetchRoute(item.href)}
-      onMouseEnter={() => prefetchRoute(item.href)}
-      prefetch
-      tabIndex={isFocusable ? undefined : -1}
-    >
-      {isPending ? (
-        <LoaderCircle className="size-[18px] shrink-0 animate-spin" />
-      ) : (
-        <Icon className="size-[18px] shrink-0" />
-      )}
-      <span className="min-w-0 truncate font-medium">{item.label}</span>
-    </Link>
-  );
-}
-
-function MobileNavLink({
-  handleNavClick,
-  isFocusable = true,
-  item,
-  pathname,
-  prefetchRoute,
-  resolvedPendingHref,
-  setMobileMenuOpen,
-}: NavLinkProps & {
-  isFocusable?: boolean;
-  setMobileMenuOpen: (value: boolean) => void;
-}) {
-  const Icon = NAV_ICONS[item.icon];
-  const isActive = pathname === item.href;
-  const isPending = resolvedPendingHref === item.href && !isActive;
-
-  return (
-    <Link
-      aria-busy={isPending || undefined}
-      aria-current={isActive ? "page" : undefined}
-      className={cn(
-        "flex min-h-11 min-w-0 items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm transition-colors",
-        isActive
-          ? "bg-[#486782] text-white shadow-[0_10px_20px_rgba(72,103,130,0.18)]"
-          : isPending
-            ? "bg-[#dbe6ee] text-[#36536a]"
-            : "text-[#486782] hover:bg-[#eef3f6]",
-      )}
-      href={item.href}
-      onClick={(event) => {
-        handleNavClick(event, item.href);
-        setMobileMenuOpen(false);
-      }}
-      onFocus={() => prefetchRoute(item.href)}
-      onMouseEnter={() => prefetchRoute(item.href)}
-      prefetch
-      tabIndex={isFocusable ? undefined : -1}
-    >
-      {isPending ? (
-        <LoaderCircle className="size-4 shrink-0 animate-spin" />
-      ) : (
-        <Icon className="size-4 shrink-0" />
-      )}
-      <span className="min-w-0 truncate font-medium">{item.label}</span>
-    </Link>
-  );
 }

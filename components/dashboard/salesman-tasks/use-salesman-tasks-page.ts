@@ -23,14 +23,6 @@ import {
 } from "@/lib/salesman-tasks";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import {
-  cancelTaskReviewSubmissionDraft,
-  createTaskReviewSubmissionDraft,
-  removeStoredTaskReviewSubmissionAssets,
-  submitTaskReview,
-  uploadTaskReviewSubmissionAssets,
-  validateTaskReviewSubmissionFiles,
-} from "@/lib/task-reviews";
-import {
   normalizeSearchText,
   type NoticeTone,
 } from "@/components/dashboard/dashboard-shared-ui";
@@ -38,6 +30,7 @@ import {
   toSalesmanTaskErrorMessage,
 } from "@/components/dashboard/tasks/tasks-display";
 import { useWorkspaceSyncEffect } from "@/components/dashboard/workspace-session-provider";
+import { useSalesmanTaskReviewDialog } from "./use-salesman-task-review-dialog";
 
 type PageFeedback = { tone: NoticeTone; message: string } | null;
 
@@ -71,12 +64,6 @@ export function useSalesmanTasksPage({
   const [page, setPage] = useState(initialView.page);
   const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
   const [attachmentBusyKey, setAttachmentBusyKey] = useState<string | null>(null);
-  const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
-  const [submitDialogTask, setSubmitDialogTask] = useState<SalesmanTaskRow | null>(null);
-  const [submitDialogNote, setSubmitDialogNote] = useState("");
-  const [submitDialogFiles, setSubmitDialogFiles] = useState<File[]>([]);
-  const [submitDialogFeedback, setSubmitDialogFeedback] = useState<PageFeedback>(null);
-  const [submitDialogPending, setSubmitDialogPending] = useState(false);
 
   const deferredSearchText = useDeferredValue(filters.searchText);
   const viewerId = initialData.viewerId;
@@ -280,35 +267,6 @@ export function useSalesmanTasksPage({
     goToPage(tasksPagination.page - 1);
   }, [goToPage, tasksPagination.hasPreviousPage, tasksPagination.page]);
 
-  const resetSubmitDialog = useCallback(() => {
-    setSubmitDialogOpen(false);
-    setSubmitDialogTask(null);
-    setSubmitDialogNote("");
-    setSubmitDialogFiles([]);
-    setSubmitDialogFeedback(null);
-    setSubmitDialogPending(false);
-  }, []);
-
-  const openSubmitDialog = useCallback((task: SalesmanTaskRow) => {
-    setSubmitDialogTask(task);
-    setSubmitDialogOpen(true);
-    setSubmitDialogNote("");
-    setSubmitDialogFiles([]);
-    setSubmitDialogFeedback(null);
-  }, []);
-
-  const handleSubmitDialogOpenChange = useCallback(
-    (open: boolean) => {
-      if (open) {
-        setSubmitDialogOpen(true);
-        return;
-      }
-
-      resetSubmitDialog();
-    },
-    [resetSubmitDialog],
-  );
-
   const handleAcceptTask = useCallback(
     async (taskId: string) => {
       if (!supabase || busyTaskId) {
@@ -337,103 +295,11 @@ export function useSalesmanTasksPage({
     [busyTaskId, refreshTaskBoard, sharedT, supabase, t],
   );
 
-  const handleSubmitReview = useCallback(async () => {
-    if (!supabase || !submitDialogTask || !viewerId || submitDialogPending) {
-      return;
-    }
-
-    try {
-      validateTaskReviewSubmissionFiles(submitDialogFiles, {
-        requireFiles: submitDialogTask.review_requires_attachment,
-      });
-
-      if (!submitDialogTask.review_requires_attachment && !submitDialogNote.trim()) {
-        throw new Error("task review submission note is required");
-      }
-    } catch (error) {
-      setSubmitDialogFeedback({
-        tone: "error",
-        message: toSalesmanTaskErrorMessage(error, sharedT),
-      });
-      return;
-    }
-
-    setSubmitDialogPending(true);
-    setSubmitDialogFeedback(null);
-    setPageFeedback(null);
-
-    let draftId: string | null = null;
-    let uploadedAssets: Array<{
-      bucket_name: string;
-      task_attachment_storage_path: string;
-    }> = [];
-
-    try {
-      const draft = await createTaskReviewSubmissionDraft(supabase, {
-        acceptanceId: submitDialogTask.id,
-        submissionNote: submitDialogNote,
-      });
-      draftId = draft.id;
-
-      const assets = await uploadTaskReviewSubmissionAssets(supabase, {
-        submissionId: draft.id,
-        uploadedByUserId: viewerId,
-        files: submitDialogFiles,
-        requireFiles: submitDialogTask.review_requires_attachment,
-      });
-
-      uploadedAssets = assets;
-
-      await submitTaskReview(supabase, {
-        acceptanceId: submitDialogTask.id,
-        submissionId: draft.id,
-      });
-
-      resetSubmitDialog();
-      setPageFeedback({
-        tone: "success",
-        message:
-          submitDialogTask.status === "rejected"
-            ? t("feedback.reviewResubmitted")
-            : t("feedback.reviewSubmitted"),
-      });
-      refreshTaskBoard();
-    } catch (error) {
-      if (uploadedAssets.length > 0) {
-        try {
-          await removeStoredTaskReviewSubmissionAssets(supabase, uploadedAssets);
-        } catch {
-          // Best effort rollback for uploaded objects.
-        }
-      }
-
-      if (draftId) {
-        try {
-          await cancelTaskReviewSubmissionDraft(supabase, draftId);
-        } catch {
-          // Best effort rollback for the draft row.
-        }
-      }
-
-      setSubmitDialogFeedback({
-        tone: "error",
-        message: toSalesmanTaskErrorMessage(error, sharedT),
-      });
-    } finally {
-      setSubmitDialogPending(false);
-    }
-  }, [
+  const reviewDialog = useSalesmanTaskReviewDialog({
     refreshTaskBoard,
-    resetSubmitDialog,
-    sharedT,
-    submitDialogFiles,
-    submitDialogNote,
-    submitDialogPending,
-    submitDialogTask,
-    supabase,
-    t,
+    setPageFeedback,
     viewerId,
-  ]);
+  });
 
   const handleOpenAttachment = useCallback(
     async (taskId: string, attachment: SalesmanTaskRow["attachments"][number]) => {
@@ -469,21 +335,21 @@ export function useSalesmanTasksPage({
     goToPreviousPage,
     handleAcceptTask,
     handleOpenAttachment,
-    handleSubmitDialogOpenChange,
-    handleSubmitReview,
+    handleSubmitDialogOpenChange: reviewDialog.onOpenChange,
+    handleSubmitReview: reviewDialog.submit,
     isRefreshing,
     pageFeedback,
-    setSubmitDialogFiles,
-    setSubmitDialogNote,
-    submitDialogFeedback,
-    submitDialogFiles,
-    submitDialogNote,
-    submitDialogOpen,
-    submitDialogPending,
-    submitDialogTask,
+    setSubmitDialogFiles: reviewDialog.setFiles,
+    setSubmitDialogNote: reviewDialog.setNote,
+    submitDialogFeedback: reviewDialog.feedback,
+    submitDialogFiles: reviewDialog.files,
+    submitDialogNote: reviewDialog.note,
+    submitDialogOpen: reviewDialog.open,
+    submitDialogPending: reviewDialog.pending,
+    submitDialogTask: reviewDialog.task,
     tasksPagination,
     updateFilter,
     viewerId,
-    openSubmitDialog,
+    openSubmitDialog: reviewDialog.openForTask,
   };
 }

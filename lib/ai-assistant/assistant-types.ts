@@ -23,6 +23,8 @@ export type AiAssistantChatResponse = {
 export type AiAssistantChatErrorCode =
   | "invalidInput"
   | "notSignedIn"
+  | "requestTooLarge"
+  | "tooManyRequests"
   | "serviceUnavailable";
 
 export type AiAssistantPromptContext = {

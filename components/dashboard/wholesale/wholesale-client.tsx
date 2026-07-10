@@ -1,6 +1,7 @@
 "use client";
 
 import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { Button } from "@/components/ui/button";
 import type { WholesalePageData } from "@/lib/wholesale";
 
 import { WholesaleClaimsSection } from "./wholesale-claims-section";
@@ -40,7 +41,7 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
         <PageBanner tone={actions.feedback.tone}>{actions.feedback.message}</PageBanner>
       ) : null}
 
-      {initialData.section === "orders" ? (
+      {initialData.section === "orders" && initialData.orderPage ? (
         <WholesaleOrdersSection
           canEdit={canEdit}
           canManageAllOrders={canAdmin}
@@ -48,24 +49,34 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
           customers={initialData.customers}
           customersById={customersById}
           exchangeRates={initialData.exchangeRates}
-          logisticsOrders={initialData.logisticsOrders}
-          logisticsStatuses={initialData.logisticsStatuses}
+          initialPage={initialData.orderPage}
           onApproveOrderEditRequest={actions.approveOrderEditRequest}
           onMarkOrderSettled={actions.markOrderSettled}
           onCreateOrder={actions.createOrder}
           onRejectOrderEditRequest={actions.rejectOrderEditRequest}
           onRequestOrderEdit={actions.requestOrderEdit}
           onUpdateOrder={actions.updateOrder}
-          orderChangeLogs={initialData.orderChangeLogs}
-          orderEditRequests={initialData.orderEditRequests}
           orderEditWindowDays={initialData.orderEditSettings.directEditWindowDays}
-          orderSettlements={initialData.orderSettlements}
-          orders={initialData.orders}
           pendingKey={actions.pendingKey}
           profilesById={profilesById}
-          purchaseOrders={initialData.purchaseOrders}
           salesAccounts={salesAccounts}
         />
+      ) : null}
+
+      {initialData.section === "orders" && !initialData.orderPage ? (
+        <div className="space-y-4">
+          <PageBanner tone="error">
+            {initialData.orderPageError ??
+              "批发订单暂时没有加载成功，请稍后重试。"}
+          </PageBanner>
+          <Button
+            className="rounded-full bg-[#486782] text-white hover:bg-[#3e5f79]"
+            onClick={() => window.location.reload()}
+            type="button"
+          >
+            重新加载
+          </Button>
+        </div>
       ) : null}
 
       {initialData.section === "order-claims" ? (

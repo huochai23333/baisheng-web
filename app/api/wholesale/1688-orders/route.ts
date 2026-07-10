@@ -1,27 +1,32 @@
 import { NextResponse } from "next/server";
 
-import { getAppRoleFromMetadataContainer } from "@/lib/auth-metadata";
+import {
+  acquireApiRequestQuota,
+  releaseApiRequestQuota,
+} from "@/lib/api-request-quota";
+import { getServerAuthContext } from "@/lib/server-auth";
+import {
+  readLimitedJsonBody,
+  RequestBodyTooLargeError,
+} from "@/lib/server-request-body";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import { normalizeWholesale1688ApiPayload } from "@/lib/wholesale-1688-ingest";
 import { getCurrentWorkspaceBusinessAccess } from "@/lib/workspace-business-access";
 
 const WHOLESALE_INGEST_ROLES = new Set(["administrator", "salesman", "promoter"]);
+const MAX_1688_BODY_BYTES = 5 * 1024 * 1024;
 
 export async function POST(request: Request) {
+  const { role, status, userId } = await getServerAuthContext();
   const supabase = await getServerSupabaseClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
 
-  if (userError || !user) {
+  if (!userId || status !== "active") {
     return NextResponse.json(
       { error: "请先登录后再接收采购订单。" },
       { status: 401 },
     );
   }
 
-  const role = getAppRoleFromMetadataContainer(user);
   const businessAccess = await getCurrentWorkspaceBusinessAccess(supabase);
 
   if (
@@ -35,8 +40,12 @@ export async function POST(request: Request) {
     );
   }
 
+  let leaseId: string | null = null;
+
   try {
-    const payload = normalizeWholesale1688ApiPayload(await request.json());
+    const payload = normalizeWholesale1688ApiPayload(
+      await readLimitedJsonBody(request, MAX_1688_BODY_BYTES),
+    );
 
     if (payload.rows.length === 0) {
       return NextResponse.json(
@@ -44,6 +53,20 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+
+    const quota = await acquireApiRequestQuota(supabase, "wholesale_1688");
+
+    if (!quota.allowed) {
+      return NextResponse.json(
+        { error: "接收操作有些频繁，请稍后再试。" },
+        {
+          headers: { "Retry-After": String(quota.retryAfterSeconds) },
+          status: 429,
+        },
+      );
+    }
+
+    leaseId = quota.leaseId;
 
     const { data: batch, error: batchError } = await supabase
       .from("wholesale_1688_import_batches")
@@ -81,10 +104,26 @@ export async function POST(request: Request) {
       message: "采购订单已接收。",
       receivedCount: payload.rows.length,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json(
+        { error: "一次接收的内容太大，请拆分后再试。" },
+        { status: 413 },
+      );
+    }
+
+    if (error instanceof Error && error.message === "too_many_rows") {
+      return NextResponse.json(
+        { error: "一次最多接收 500 行，请拆分后再试。" },
+        { status: 400 },
+      );
+    }
+
     return NextResponse.json(
-      { error: "采购订单没有接收成功，请检查内容后再试。" },
-      { status: 400 },
+      { error: "采购订单暂时没有接收成功，请稍后再试。" },
+      { status: 503 },
     );
+  } finally {
+    await releaseApiRequestQuota(supabase, leaseId);
   }
 }

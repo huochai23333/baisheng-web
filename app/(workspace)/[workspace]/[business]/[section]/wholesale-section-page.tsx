@@ -1,10 +1,11 @@
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 
 import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
 import { getBusinessVipPageData } from "@/lib/business-vip-management";
 import { getBusinessSettingsPageData } from "@/lib/business-settings";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
+import { redirectToWorkspaceAccessLimited } from "@/lib/server-auth";
 import { getWholesalePageData } from "@/lib/wholesale";
 import { getWholesaleSettlementReleasePageData } from "@/lib/wholesale-settlement-releases";
 import {
@@ -49,7 +50,7 @@ export async function renderWholesaleSectionPage(
 
   if (!wholesaleSection) {
     if (isWorkspaceWholesaleSectionKey(section)) {
-      forbidden();
+      redirectToWorkspaceAccessLimited();
     }
 
     notFound();

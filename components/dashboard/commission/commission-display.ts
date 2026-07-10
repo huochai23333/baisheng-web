@@ -10,7 +10,6 @@ import type { AppRole } from "@/lib/user-self-service";
 
 import {
   getRawErrorMessage,
-  toErrorMessage,
 } from "@/components/dashboard/dashboard-shared-ui";
 
 type TranslationValues = Record<string, string | number>;
@@ -170,7 +169,6 @@ export function toCommissionErrorMessage(
   scope: "admin" | "salesman",
 ) {
   const rawMessage = getRawErrorMessage(error);
-  const baseMessage = toErrorMessage(error);
 
   if (
     rawMessage.includes("current user cannot") ||
@@ -185,5 +183,5 @@ export function toCommissionErrorMessage(
       : t("shared.errors.noSalesmanAccess");
   }
 
-  return baseMessage;
+  return t("shared.errors.unknown");
 }

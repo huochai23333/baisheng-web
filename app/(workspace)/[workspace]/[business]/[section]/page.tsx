@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import dynamic from "next/dynamic";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { AdminSectionPlaceholder } from "@/components/dashboard/admin-section-placeholder";
@@ -30,6 +30,7 @@ import {
   parseSalesmanTasksSearchParams,
 } from "@/lib/salesman-tasks";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
+import { redirectToWorkspaceAccessLimited } from "@/lib/server-auth";
 import { getTeamManagementPageData } from "@/lib/team-management";
 import {
   getCurrentWorkspaceBusinessAccess,
@@ -175,7 +176,7 @@ export default async function WorkspaceSectionPage({
     await getCurrentWorkspaceBusinessAccess(accessSupabase);
 
   if (!workspaceBusinessAccessIncludes(workspaceBusinessAccess, business)) {
-    forbidden();
+    redirectToWorkspaceAccessLimited();
   }
 
   if (businessModule.pageEntry === "wholesale") {
@@ -191,7 +192,7 @@ export default async function WorkspaceSectionPage({
   }
 
   if (!isWorkspaceSectionEnabled(sectionKey, config)) {
-    forbidden();
+    redirectToWorkspaceAccessLimited();
   }
 
   if (section === "orders" && config.pageVariants.orders) {
@@ -313,4 +314,3 @@ export default async function WorkspaceSectionPage({
 
   return <ScopedIntlProvider namespaces={namespaces}>{content}</ScopedIntlProvider>;
 }
-

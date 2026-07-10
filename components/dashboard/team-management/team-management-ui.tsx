@@ -24,6 +24,7 @@ import {
   DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
 import {
+  createDashboardSharedCopy,
   formatDateTime,
   mapUserStatus,
 } from "@/components/dashboard/dashboard-shared-ui";
@@ -87,8 +88,9 @@ export function MemberCard({
   busy: boolean;
 }) {
   const t = useTranslations("TeamManagement");
+  const sharedT = useTranslations("DashboardShared");
   const { locale } = useLocale();
-  const status = mapUserStatus(member.status, locale);
+  const status = mapUserStatus(member.status, createDashboardSharedCopy(sharedT));
 
   return (
     <article className="rounded-[24px] border border-[#ebe7e1] bg-white p-5 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
@@ -151,8 +153,8 @@ export function CandidateCard({
   busy: boolean;
 }) {
   const t = useTranslations("TeamManagement");
-  const { locale } = useLocale();
-  const status = mapUserStatus(candidate.status, locale);
+  const sharedT = useTranslations("DashboardShared");
+  const status = mapUserStatus(candidate.status, createDashboardSharedCopy(sharedT));
 
   return (
     <article className="rounded-[22px] border border-[#ebe7e1] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
@@ -205,8 +207,9 @@ export function CandidateCard({
 
 export function ClientCard({ client }: { client: TeamClient }) {
   const t = useTranslations("TeamManagement");
+  const sharedT = useTranslations("DashboardShared");
   const { locale } = useLocale();
-  const status = mapUserStatus(client.status, locale);
+  const status = mapUserStatus(client.status, createDashboardSharedCopy(sharedT));
 
   return (
     <article className="rounded-[22px] border border-[#ebe7e1] bg-white p-5 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">

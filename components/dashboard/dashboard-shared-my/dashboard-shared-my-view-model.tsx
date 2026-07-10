@@ -9,6 +9,7 @@ import {
   mapUserStatus,
   normalizeOptionalString,
   PassportPreview,
+  type MediaAssetKey,
   type ReviewStatus,
   VideoPreview,
 } from "../dashboard-shared-ui";
@@ -17,6 +18,26 @@ import type {
   DashboardSharedCopy,
   DashboardSharedMyStateCopy,
 } from "./dashboard-shared-my-state-copy";
+
+// 弹窗标题和说明属于显示映射，放在 view-model 中便于页面状态 hook 保持精简。
+export function getDashboardSharedMyDialogCopy(
+  activeDialog: MediaAssetKey | null,
+  copy: DashboardSharedMyStateCopy,
+) {
+  if (activeDialog === "identity") {
+    return { description: copy.identityDescription, title: copy.identityTitle };
+  }
+  if (activeDialog === "passport") {
+    return { description: copy.passportDescription, title: copy.passportTitle };
+  }
+  if (activeDialog === "photos") {
+    return { description: copy.mediaDescription, title: copy.photosTitle };
+  }
+  if (activeDialog === "videos") {
+    return { description: copy.mediaDescription, title: copy.videosTitle };
+  }
+  return { description: "", title: "" };
+}
 
 export function createDashboardSharedMyViewModel({
   bundle,

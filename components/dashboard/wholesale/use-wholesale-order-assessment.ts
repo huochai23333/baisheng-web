@@ -42,7 +42,7 @@ export function useWholesaleOrderAssessment(
       });
 
       if (!response.ok) {
-        throw new Error("assessment_failed");
+        throw new Error(await readAssessmentErrorMessage(response));
       }
 
       if (!response.body) {
@@ -53,8 +53,12 @@ export function useWholesaleOrderAssessment(
       await readAssessmentStream(response.body, (chunk) => {
         setRawAssessment((current) => `${current}${chunk}`);
       });
-    } catch {
-      setErrorMessage("评估暂时没有生成成功，请稍后再试。");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error && error.message !== "assessment_failed"
+          ? error.message
+          : "评估暂时没有生成成功，请稍后再试。",
+      );
     } finally {
       setPending(false);
     }
@@ -67,6 +71,18 @@ export function useWholesaleOrderAssessment(
     hasStaleAssessment,
     pending,
   };
+}
+
+async function readAssessmentErrorMessage(response: Response) {
+  try {
+    const body = (await response.json()) as { message?: unknown };
+
+    return typeof body.message === "string" && body.message.trim()
+      ? body.message.trim()
+      : "assessment_failed";
+  } catch {
+    return "assessment_failed";
+  }
 }
 
 function sanitizeWholesaleAssessmentText(value: string) {

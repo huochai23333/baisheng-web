@@ -58,9 +58,11 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
   },
   {
     paths: [
-      "/finance/tourism/referrals",
-      "/finance/tourism/team",
-      "/finance/tourism/commission",
+      "/finance/company-expenses",
+      "/finance/wholesale/orders",
+      "/finance/wholesale/settlement-releases",
+      "/finance/wholesale/customers",
+      "/finance/wholesale/commission",
     ],
     role: "finance",
   },
@@ -270,7 +272,10 @@ test.describe("workspace entrypoint regression", () => {
 
     await page.goto("/admin/wholesale/orders");
     await expect(page.getByRole("heading", { name: "批发订单" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "修改订单" }).first()).toBeVisible();
+    await page.locator('[data-testid^="wholesale-order-card-"]').first().click();
+    await expect(
+      page.getByRole("dialog").getByRole("button", { name: /修改订单|申请修改/ }),
+    ).toBeVisible();
     await expectNoDocumentHorizontalOverflow(page);
   });
 
@@ -329,7 +334,7 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByText("1688-LOCAL-002")).toBeVisible();
 
     await page.getByRole("button", { name: /待分类/ }).click();
-    await page.getByRole("button", { name: "确认归属" }).click();
+    await page.getByRole("button", { name: "确认归属" }).first().click();
     await expect(
       page.getByText("请确认要关联的批发订单。"),
     ).toBeVisible();

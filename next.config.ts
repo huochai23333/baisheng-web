@@ -27,14 +27,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Apply baseline browser protections to every app and API response.
+        // 所有页面和接口都使用同一组基础浏览器安全响应头。
         headers: securityHeaders,
         source: "/:path*",
       },
     ];
-  },
-  experimental: {
-    authInterrupts: true,
   },
   images: {
     qualities: [70, 75, 78, 90],

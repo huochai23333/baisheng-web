@@ -1,0 +1,271 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import type {
+  Wholesale1688Order,
+  WholesaleLogisticsOrder,
+  WholesaleOrder,
+  WholesaleOrderChangeLog,
+  WholesaleOrderEditRequest,
+  WholesaleOrderSettlement,
+} from "./wholesale";
+import type { WholesaleLogisticsStatus } from "./wholesale-logistics-statuses";
+
+export type WholesaleOrderFilters = {
+  customerId: string;
+  orderedFromDate: string;
+  orderedToDate: string;
+  salesUserId: string;
+  searchText: string;
+  status: "all" | WholesaleOrder["status"];
+};
+
+export type WholesaleOrderCursor = {
+  id: string;
+  orderedAt: string;
+};
+
+export type WholesaleOrderPageWarning = {
+  area: "changes" | "logistics" | "purchases" | "settlements";
+  message: string;
+};
+
+export type WholesaleOrderPageSummary = {
+  averageMargin: number | null;
+  customerPaymentRmbAmount: number;
+  grossProfitAmount: number;
+  internationalShippingFeeAmount: number;
+  orderCount: number;
+  otherFeeAmount: number;
+  packingFeeAmount: number;
+  partialSettledCount: number;
+  productPurchaseAmount: number;
+  referralCommissionFeeAmount: number;
+  settledCount: number;
+  unsettledCount: number;
+};
+
+export type WholesaleOrderPage = {
+  logisticsOrders: WholesaleLogisticsOrder[];
+  logisticsStatuses: WholesaleLogisticsStatus[];
+  nextCursor: WholesaleOrderCursor | null;
+  orderChangeLogs: WholesaleOrderChangeLog[];
+  orderEditRequests: WholesaleOrderEditRequest[];
+  orders: WholesaleOrder[];
+  orderSettlements: WholesaleOrderSettlement[];
+  purchaseOrders: Wholesale1688Order[];
+  summary: WholesaleOrderPageSummary;
+  totalCount: number;
+  warnings: WholesaleOrderPageWarning[];
+};
+
+export const WHOLESALE_ORDER_PAGE_SIZE = 20;
+
+/**
+ * 核心订单、总数和汇总由一个 RPC 返回；关联记录只按这一批订单 ID 查询。
+ * 核心查询失败会直接抛错，关联查询失败则留下局部警告，避免伪装成“暂无记录”。
+ */
+export async function getWholesaleOrderPage(
+  supabase: SupabaseClient,
+  filters: WholesaleOrderFilters,
+  cursor: WholesaleOrderCursor | null = null,
+  limit = WHOLESALE_ORDER_PAGE_SIZE,
+): Promise<WholesaleOrderPage> {
+  const { data, error } = await supabase.rpc("get_wholesale_order_page", {
+    p_cursor: cursor,
+    p_filters: filters,
+    p_limit: limit,
+  });
+
+  if (error) {
+    throw new Error("批发订单暂时没有加载成功，请稍后重试。", {
+      cause: error,
+    });
+  }
+
+  const core = readRecord(data);
+  const orders = readArray(core?.orders) as WholesaleOrder[];
+
+  if (!core || !Array.isArray(core.orders)) {
+    throw new Error("批发订单暂时没有加载成功，请稍后重试。");
+  }
+
+  const orderIds = orders.map((order) => order.id);
+  const warnings: WholesaleOrderPageWarning[] = [];
+
+  if (orderIds.length === 0) {
+    return {
+      logisticsOrders: [],
+      logisticsStatuses: [],
+      nextCursor: readCursor(core.nextCursor),
+      orderChangeLogs: [],
+      orderEditRequests: [],
+      orders,
+      orderSettlements: [],
+      purchaseOrders: [],
+      summary: readSummary(core.summary),
+      totalCount: readNumber(core.totalCount),
+      warnings,
+    };
+  }
+
+  const [
+    settlementsResult,
+    purchaseOrdersResult,
+    logisticsOrdersResult,
+    logisticsStatusesResult,
+    editRequestsResult,
+    changeLogsResult,
+  ] = await Promise.all([
+    supabase
+      .from("wholesale_order_settlements")
+      .select("*")
+      .in("order_id", orderIds)
+      .order("settled_on", { ascending: false })
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("wholesale_1688_orders")
+      .select("*")
+      .in("wholesale_order_id", orderIds)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("wholesale_logistics_orders")
+      .select("*")
+      .in("wholesale_order_id", orderIds)
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("wholesale_logistics_statuses")
+      .select("*")
+      .in("wholesale_order_id", orderIds)
+      .order("updated_at", { ascending: false }),
+    supabase
+      .from("wholesale_order_edit_requests")
+      .select("*")
+      .in("order_id", orderIds)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("wholesale_order_change_logs")
+      .select("*")
+      .in("order_id", orderIds)
+      .order("created_at", { ascending: false }),
+  ]);
+
+  return {
+    logisticsOrders: readRelatedRows<WholesaleLogisticsOrder>(
+      logisticsOrdersResult,
+      warnings,
+      "logistics",
+      "部分关联物流暂时没有加载成功。",
+    ),
+    logisticsStatuses: readRelatedRows<WholesaleLogisticsStatus>(
+      logisticsStatusesResult,
+      warnings,
+      "logistics",
+      "部分物流状态暂时没有加载成功。",
+    ),
+    nextCursor: readCursor(core.nextCursor),
+    orderChangeLogs: readRelatedRows<WholesaleOrderChangeLog>(
+      changeLogsResult,
+      warnings,
+      "changes",
+      "部分订单修改记录暂时没有加载成功。",
+    ),
+    orderEditRequests: readRelatedRows<WholesaleOrderEditRequest>(
+      editRequestsResult,
+      warnings,
+      "changes",
+      "部分订单修改申请暂时没有加载成功。",
+    ),
+    orders,
+    orderSettlements: readRelatedRows<WholesaleOrderSettlement>(
+      settlementsResult,
+      warnings,
+      "settlements",
+      "部分结汇记录暂时没有加载成功。",
+    ),
+    purchaseOrders: readRelatedRows<Wholesale1688Order>(
+      purchaseOrdersResult,
+      warnings,
+      "purchases",
+      "部分关联采购订单暂时没有加载成功。",
+    ),
+    summary: readSummary(core.summary),
+    totalCount: readNumber(core.totalCount),
+    warnings: deduplicateWarnings(warnings),
+  };
+}
+
+type RelatedQueryResult = {
+  data: unknown[] | null;
+  error: { message?: string } | null;
+};
+
+function readRelatedRows<T>(
+  result: RelatedQueryResult,
+  warnings: WholesaleOrderPageWarning[],
+  area: WholesaleOrderPageWarning["area"],
+  message: string,
+) {
+  if (result.error) {
+    warnings.push({ area, message });
+    return [] as T[];
+  }
+
+  return (result.data ?? []) as T[];
+}
+
+function readSummary(value: unknown): WholesaleOrderPageSummary {
+  const summary = readRecord(value);
+
+  return {
+    averageMargin:
+      summary?.averageMargin === null || summary?.averageMargin === undefined
+        ? null
+        : readNumber(summary.averageMargin),
+    customerPaymentRmbAmount: readNumber(summary?.customerPaymentRmbAmount),
+    grossProfitAmount: readNumber(summary?.grossProfitAmount),
+    internationalShippingFeeAmount: readNumber(
+      summary?.internationalShippingFeeAmount,
+    ),
+    orderCount: readNumber(summary?.orderCount),
+    otherFeeAmount: readNumber(summary?.otherFeeAmount),
+    packingFeeAmount: readNumber(summary?.packingFeeAmount),
+    partialSettledCount: readNumber(summary?.partialSettledCount),
+    productPurchaseAmount: readNumber(summary?.productPurchaseAmount),
+    referralCommissionFeeAmount: readNumber(
+      summary?.referralCommissionFeeAmount,
+    ),
+    settledCount: readNumber(summary?.settledCount),
+    unsettledCount: readNumber(summary?.unsettledCount),
+  };
+}
+
+function readCursor(value: unknown): WholesaleOrderCursor | null {
+  const cursor = readRecord(value);
+
+  return cursor && typeof cursor.id === "string" && typeof cursor.orderedAt === "string"
+    ? { id: cursor.id, orderedAt: cursor.orderedAt }
+    : null;
+}
+
+function deduplicateWarnings(warnings: WholesaleOrderPageWarning[]) {
+  return Array.from(
+    new Map(
+      warnings.map((warning) => [`${warning.area}:${warning.message}`, warning]),
+    ).values(),
+  );
+}
+
+function readArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function readNumber(value: unknown) {
+  const number = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function readRecord(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null
+    ? (value as Record<string, unknown>)
+    : null;
+}

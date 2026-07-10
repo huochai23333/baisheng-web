@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import dynamic from "next/dynamic";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
@@ -11,6 +11,7 @@ import { getAdminSystemSettingsPageData } from "@/lib/admin-system-settings";
 import { getCompanyExpensesPageData } from "@/lib/company-expenses";
 import { getOperatorReimbursementsPageData } from "@/lib/operator-reimbursements";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
+import { redirectToWorkspaceAccessLimited } from "@/lib/server-auth";
 import { getAdminWorkspaceFeedbackPageData } from "@/lib/workspace-feedback";
 import {
   getWorkspaceConfigByRouteSegment,
@@ -117,7 +118,7 @@ export async function renderWorkspaceAccountsPage({
   const config = await getGlobalPageConfig(params);
 
   if (!config.pageVariants.accounts) {
-    forbidden();
+    redirectToWorkspaceAccessLimited();
   }
 
   const supabase = await getServerSupabaseClient();
@@ -138,7 +139,7 @@ export async function renderWorkspaceAnnouncementsPage({
   const config = await getGlobalPageConfig(params);
 
   if (!config.pageVariants.announcements) {
-    forbidden();
+    redirectToWorkspaceAccessLimited();
   }
 
   const supabase = await getServerSupabaseClient();
@@ -157,7 +158,7 @@ export async function renderWorkspaceCompanyExpensesPage({
   const config = await getGlobalPageConfig(params);
 
   if (!config.pageVariants.companyExpenses) {
-    forbidden();
+    redirectToWorkspaceAccessLimited();
   }
 
   const supabase = await getServerSupabaseClient();
@@ -176,7 +177,7 @@ export async function renderWorkspaceOperatorReimbursementsPage({
   const config = await getGlobalPageConfig(params);
 
   if (!config.pageVariants.operatorReimbursements) {
-    forbidden();
+    redirectToWorkspaceAccessLimited();
   }
 
   const supabase = await getServerSupabaseClient();
@@ -197,7 +198,7 @@ export async function renderWorkspaceFeedbackPage({
   const config = await getGlobalPageConfig(params);
 
   if (!config.pageVariants.feedback) {
-    forbidden();
+    redirectToWorkspaceAccessLimited();
   }
 
   const supabase = await getServerSupabaseClient();
@@ -216,7 +217,7 @@ export async function renderWorkspaceSettingsPage({
   const config = await getGlobalPageConfig(params);
 
   if (!config.pageVariants.settings) {
-    forbidden();
+    redirectToWorkspaceAccessLimited();
   }
 
   const supabase = await getServerSupabaseClient();

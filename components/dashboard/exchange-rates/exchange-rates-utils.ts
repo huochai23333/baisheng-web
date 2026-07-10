@@ -11,7 +11,6 @@ import {
 
 import {
   getRawErrorMessage,
-  toErrorMessage,
 } from "../dashboard-shared-ui";
 
 export type ExchangeRateFormState = {
@@ -33,6 +32,7 @@ export type ExchangeRateCopy = {
     duplicateKey: string;
     permission: string;
     positiveRate: string;
+    unknown: string;
   };
   summary: {
     noRecord: string;
@@ -57,6 +57,7 @@ export function createExchangeRateCopy(
       duplicateKey: t("errors.duplicateKey"),
       permission: t("errors.permission"),
       positiveRate: t("errors.positiveRate"),
+      unknown: t("errors.unknown"),
     },
     summary: {
       noRecord: t("summary.noRecord"),
@@ -157,7 +158,6 @@ export function toExchangeRateErrorMessage(
   copy: ExchangeRateCopy,
 ) {
   const rawMessage = getRawErrorMessage(error);
-  const message = toErrorMessage(error);
 
   if (rawMessage.includes("duplicate key")) {
     return copy.errors.duplicateKey;
@@ -171,7 +171,7 @@ export function toExchangeRateErrorMessage(
     return copy.errors.permission;
   }
 
-  return message;
+  return copy.errors.unknown;
 }
 
 export function isExchangeRatePermissionMessage(

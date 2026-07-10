@@ -16,6 +16,7 @@ import {
   DashboardTableFrame,
 } from "@/components/dashboard/dashboard-section-panel";
 import {
+  createDashboardSharedCopy,
   EmptyState,
   formatDateTime,
   mapUserStatus,
@@ -44,7 +45,9 @@ export function CommissionBeneficiarySummarySection({
   rows: BeneficiarySummaryRow[];
 }) {
   const t = useTranslations("Commission");
+  const sharedT = useTranslations("DashboardShared");
   const { locale } = useLocale();
+  const sharedCopy = createDashboardSharedCopy(sharedT);
 
   return (
     <DashboardListSection
@@ -76,7 +79,10 @@ export function CommissionBeneficiarySummarySection({
             </thead>
             <tbody className="divide-y divide-[#efebe5]">
               {rows.map((beneficiary) => {
-                const beneficiaryStatus = mapUserStatus(beneficiary.status, locale);
+                const beneficiaryStatus = mapUserStatus(
+                  beneficiary.status,
+                  sharedCopy,
+                );
 
                 return (
                   <tr
@@ -156,7 +162,9 @@ export function AdminCommissionTableSection({
   settlingCommissionId: string | null;
 }) {
   const t = useTranslations("Commission");
+  const sharedT = useTranslations("DashboardShared");
   const { locale } = useLocale();
+  const sharedCopy = createDashboardSharedCopy(sharedT);
 
   return (
     <DashboardListSection
@@ -204,7 +212,7 @@ export function AdminCommissionTableSection({
               {pagination.items.map((commission) => {
                 const beneficiaryStatus = mapUserStatus(
                   commission.beneficiary.status,
-                  locale,
+                  sharedCopy,
                 );
                 const isSettling = settlingCommissionId === commission.id;
 

@@ -4,7 +4,6 @@ import type { Locale } from "@/lib/locale";
 
 import {
   getRawErrorMessage,
-  toErrorMessage,
 } from "@/components/dashboard/dashboard-shared-ui";
 
 type TranslationValues = Record<string, string | number>;
@@ -268,7 +267,6 @@ export function validateTaskAssignmentDraft(
 
 export function toAdminTaskErrorMessage(error: unknown, t: TranslateFn) {
   const rawMessage = getRawErrorMessage(error);
-  const baseMessage = toErrorMessage(error);
 
   if (rawMessage.includes("task_main_task_name_not_blank")) {
     return t("errors.admin.taskNameBlank");
@@ -362,12 +360,11 @@ export function toAdminTaskErrorMessage(error: unknown, t: TranslateFn) {
     return t("errors.admin.storage");
   }
 
-  return baseMessage;
+  return t("errors.admin.unknown");
 }
 
 export function toSalesmanTaskErrorMessage(error: unknown, t: TranslateFn) {
   const rawMessage = getRawErrorMessage(error);
-  const baseMessage = toErrorMessage(error);
 
   if (rawMessage.includes("current user cannot accept this task")) {
     return t("errors.salesman.cannotAccept");
@@ -449,5 +446,5 @@ export function toSalesmanTaskErrorMessage(error: unknown, t: TranslateFn) {
     return t("errors.salesman.inactive");
   }
 
-  return baseMessage;
+  return t("errors.salesman.unknown");
 }

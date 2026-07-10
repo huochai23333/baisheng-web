@@ -10,34 +10,73 @@ import {
   AiAssistantServiceError,
   createDeepSeekAssistantTextStream,
 } from "@/lib/ai-assistant/deepseek-client";
+import {
+  acquireApiRequestQuota,
+  releaseApiRequestQuota,
+} from "@/lib/api-request-quota";
 import { getServerAuthContext } from "@/lib/server-auth";
+import {
+  readLimitedJsonBody,
+  RequestBodyTooLargeError,
+} from "@/lib/server-request-body";
+import { getServerSupabaseClient } from "@/lib/supabase-server";
 
 export const runtime = "nodejs";
 
 const ASSISTANT_TIMEOUT_MS = 20_000;
+const MAX_ASSISTANT_BODY_BYTES = 64 * 1024;
 const MAX_HISTORY_ITEMS = 6;
 const MAX_MESSAGE_LENGTH = 600;
 
 const STATUS_BY_ERROR_CODE = {
   invalidInput: 400,
   notSignedIn: 401,
+  requestTooLarge: 413,
+  tooManyRequests: 429,
   serviceUnavailable: 503,
 } as const satisfies Record<AiAssistantChatErrorCode, number>;
 
 export async function POST(request: Request) {
-  const { role, userId } = await getServerAuthContext();
+  const { role, status, userId } = await getServerAuthContext();
 
-  if (!userId) {
+  if (!userId || status !== "active") {
     return createErrorResponse("notSignedIn");
   }
 
   let payload: NormalizedAssistantPayload;
 
   try {
-    payload = normalizeRequestPayload(await request.json());
-  } catch {
+    payload = normalizeRequestPayload(
+      await readLimitedJsonBody(request, MAX_ASSISTANT_BODY_BYTES),
+    );
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return createErrorResponse("requestTooLarge");
+    }
+
     return createErrorResponse("invalidInput");
   }
+
+  const supabase = await getServerSupabaseClient();
+  let leaseId: string | null = null;
+
+  try {
+    const quota = await acquireApiRequestQuota(supabase, "ai");
+
+    if (!quota.allowed) {
+      return createErrorResponse("tooManyRequests", quota.retryAfterSeconds);
+    }
+
+    leaseId = quota.leaseId;
+  } catch {
+    return createErrorResponse("serviceUnavailable");
+  }
+
+  const releaseQuota = async () => {
+    const currentLeaseId = leaseId;
+    leaseId = null;
+    await releaseApiRequestQuota(supabase, currentLeaseId);
+  };
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), ASSISTANT_TIMEOUT_MS);
@@ -54,7 +93,10 @@ export async function POST(request: Request) {
     });
     const stream = await createDeepSeekAssistantTextStream({
       messages,
-      onSettled: () => clearTimeout(timeout),
+      onSettled: () => {
+        clearTimeout(timeout);
+        void releaseQuota();
+      },
       signal: controller.signal,
       userId,
     });
@@ -67,6 +109,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     clearTimeout(timeout);
+    await releaseQuota();
 
     if (error instanceof AiAssistantServiceError) {
       return createErrorResponse("serviceUnavailable");
@@ -130,12 +173,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function createErrorResponse(code: AiAssistantChatErrorCode) {
+function createErrorResponse(
+  code: AiAssistantChatErrorCode,
+  retryAfterSeconds?: number,
+) {
+  const headers = retryAfterSeconds
+    ? { "Retry-After": String(retryAfterSeconds) }
+    : undefined;
+
   return NextResponse.json(
     {
       error: code,
     },
     {
+      headers,
       status: STATUS_BY_ERROR_CODE[code],
     },
   );

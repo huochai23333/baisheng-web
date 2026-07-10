@@ -151,6 +151,7 @@ export function buildWholesaleOrderAssessmentMessages({
     orders,
   });
   const summary = buildOrderSummary({
+    fullSummary: data.orderPage?.summary ?? null,
     logisticsOrderCount: logisticsOrderCounts.total,
     orders,
     purchaseOrderCount: purchaseOrderCounts.total,
@@ -211,39 +212,66 @@ export function buildWholesaleOrderAssessmentMessages({
 }
 
 function buildOrderSummary({
+  fullSummary,
   logisticsOrderCount,
   orders,
   purchaseOrderCount,
 }: {
+  fullSummary: AssessmentData["orderPage"] extends infer Page
+    ? Page extends { summary: infer Summary }
+      ? Summary | null
+      : null
+    : null;
   logisticsOrderCount: number;
   orders: WholesaleOrder[];
   purchaseOrderCount: number;
 }) {
-  const totalPayment = sumOrders(orders, "customer_payment_rmb_amount");
-  const totalProfit = sumOrders(orders, "gross_profit");
-  const settledCount = orders.filter((order) => order.status === "settled").length;
-  const partialSettledCount = orders.filter(
-    (order) => order.status === "partial_settled",
-  ).length;
-  const unsettledCount = orders.length - settledCount - partialSettledCount;
+  const totalPayment =
+    fullSummary?.customerPaymentRmbAmount ??
+    sumOrders(orders, "customer_payment_rmb_amount");
+  const totalProfit =
+    fullSummary?.grossProfitAmount ?? sumOrders(orders, "gross_profit");
+  const settledCount =
+    fullSummary?.settledCount ??
+    orders.filter((order) => order.status === "settled").length;
+  const partialSettledCount =
+    fullSummary?.partialSettledCount ??
+    orders.filter((order) => order.status === "partial_settled").length;
+  const unsettledCount =
+    fullSummary?.unsettledCount ??
+    orders.length - settledCount - partialSettledCount;
 
   return {
-    "其他费用合计": roundMoney(sumOrders(orders, "other_fee")),
-    "国际运费合计": roundMoney(sumOrders(orders, "international_shipping_fee")),
+    "其他费用合计": roundMoney(
+      fullSummary?.otherFeeAmount ?? sumOrders(orders, "other_fee"),
+    ),
+    "国际运费合计": roundMoney(
+      fullSummary?.internationalShippingFeeAmount ??
+        sumOrders(orders, "international_shipping_fee"),
+    ),
     "客户支付人民币合计": roundMoney(totalPayment),
     "已结汇订单": settledCount,
     "部分结汇订单": partialSettledCount,
     "平均毛利率": formatPercentForPrompt(
-      totalPayment > 0 ? totalProfit / totalPayment : null,
+      fullSummary?.averageMargin ??
+        (totalPayment > 0 ? totalProfit / totalPayment : null),
     ),
     "总毛利": roundMoney(totalProfit),
-    "打包费合计": roundMoney(sumOrders(orders, "packing_fee")),
-    "推荐佣金费用合计": roundMoney(sumOrders(orders, "referral_commission_fee")),
+    "打包费合计": roundMoney(
+      fullSummary?.packingFeeAmount ?? sumOrders(orders, "packing_fee"),
+    ),
+    "推荐佣金费用合计": roundMoney(
+      fullSummary?.referralCommissionFeeAmount ??
+        sumOrders(orders, "referral_commission_fee"),
+    ),
     "未结汇订单": unsettledCount,
     "物流订单数量": logisticsOrderCount,
-    "订单数量": orders.length,
+    "订单数量": fullSummary?.orderCount ?? orders.length,
     "采购订单数量": purchaseOrderCount,
-    "产品采购金额合计": roundMoney(sumOrders(orders, "product_purchase_amount")),
+    "产品采购金额合计": roundMoney(
+      fullSummary?.productPurchaseAmount ??
+        sumOrders(orders, "product_purchase_amount"),
+    ),
   };
 }
 

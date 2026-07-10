@@ -15,7 +15,9 @@ export type AiAssistantUiMessage = AiAssistantChatMessage & {
 
 type AiAssistantChatCopy = {
   greeting: string;
+  requestTooLarge: string;
   serviceUnavailable: string;
+  tooManyRequests: string;
 };
 
 type UseAiAssistantChatOptions = {
@@ -98,7 +100,8 @@ export function useAiAssistantChat({
       });
 
       if (!response.ok) {
-        throw new Error("assistant unavailable");
+        const errorCode = await readAssistantErrorCode(response);
+        throw new AiAssistantRequestError(errorCode);
       }
 
       if (!response.body) {
@@ -154,16 +157,16 @@ export function useAiAssistantChat({
       if (!hasReply) {
         throw new Error("assistant unavailable");
       }
-    } catch {
+    } catch (error) {
       setMessages((current) =>
         current.filter((item) => item.id !== assistantMessageId),
       );
-      setErrorMessage(copy.serviceUnavailable);
+      setErrorMessage(getAssistantErrorMessage(error, copy));
     } finally {
       setPending(false);
     }
   }, [
-    copy.serviceUnavailable,
+    copy,
     input,
     locale,
     messages,
@@ -180,6 +183,38 @@ export function useAiAssistantChat({
     sendMessage,
     setInput,
   };
+}
+
+class AiAssistantRequestError extends Error {
+  constructor(public code: string | null) {
+    super(code ?? "assistant unavailable");
+  }
+}
+
+async function readAssistantErrorCode(response: Response) {
+  try {
+    const body = (await response.json()) as { error?: unknown };
+    return typeof body.error === "string" ? body.error : null;
+  } catch {
+    return null;
+  }
+}
+
+function getAssistantErrorMessage(
+  error: unknown,
+  copy: AiAssistantChatCopy,
+) {
+  if (error instanceof AiAssistantRequestError) {
+    if (error.code === "tooManyRequests") {
+      return copy.tooManyRequests;
+    }
+
+    if (error.code === "requestTooLarge") {
+      return copy.requestTooLarge;
+    }
+  }
+
+  return copy.serviceUnavailable;
 }
 
 function createMessageId(prefix: string) {

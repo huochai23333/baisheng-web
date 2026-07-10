@@ -2,61 +2,41 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-import {
-  Plus,
-  ReceiptText,
-  RefreshCcw,
-} from "lucide-react";
+import { LoaderCircle, Plus, ReceiptText } from "lucide-react";
 
-import {
-  DashboardFilterField,
-  DashboardListSection,
-  dashboardFilterInputClassName,
-} from "@/components/dashboard/dashboard-section-panel";
+import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
-import {
-  getBeijingDateString,
-  type ExchangeRateRow,
-} from "@/lib/exchange-rates";
-import { normalizeSearchText } from "@/lib/value-normalizers";
+import type { ExchangeRateRow } from "@/lib/exchange-rates";
 import type {
-  Wholesale1688Order,
   WholesaleCustomer,
-  WholesaleLogisticsOrder,
-  WholesaleOrderChangeLog,
-  WholesaleOrderEditRequest,
   WholesaleOrder,
-  WholesaleOrderSettlement,
   WholesaleProfile,
 } from "@/lib/wholesale";
-import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
+import type { WholesaleOrderPage } from "@/lib/wholesale-order-page";
 
-import {
-  formatCurrency,
-  formatPercent,
-  getCustomerName,
-  getProfileName,
-} from "./wholesale-display";
+import { useWholesaleOrderFilters } from "./use-wholesale-order-filters";
+import { useWholesaleOrderPage } from "./use-wholesale-order-page";
+import { WholesaleOrderAssessmentPanel } from "./wholesale-order-assessment-panel";
 import { WholesaleOrderChangeSections } from "./wholesale-order-change-sections";
 import { WholesaleOrderEditDialog } from "./wholesale-order-edit-dialog";
 import {
   canCurrentUserManageWholesaleOrder,
   getWholesaleOrderEditMode,
 } from "./wholesale-order-edit-rules";
-import { WholesaleOrderAssessmentPanel } from "./wholesale-order-assessment-panel";
+import { WholesaleOrderFiltersPanel } from "./wholesale-order-filters";
 import { WholesaleOrderFormDialog } from "./wholesale-order-form-dialog";
-import {
-  WholesaleOrderSettlementDialog,
-} from "./wholesale-order-rate-dialogs";
+import { WholesaleOrderSettlementDialog } from "./wholesale-order-rate-dialogs";
+import { WholesaleOrderSummary } from "./wholesale-order-summary";
+import { useWholesaleOrderViewData } from "./wholesale-order-view-data";
+import { WholesaleOrdersMobileList } from "./wholesale-orders-mobile-list";
 import {
   WholesaleOrdersTable,
   type WholesaleOrderEditAction,
 } from "./wholesale-orders-table";
-import type { WholesaleOrderAssessmentFilters } from "./use-wholesale-order-assessment";
 import {
   WholesaleEmptyState,
   WholesalePageShell,
-  WholesaleStatGrid,
 } from "./wholesale-ui";
 
 type WholesaleOrdersSectionProps = {
@@ -66,26 +46,18 @@ type WholesaleOrdersSectionProps = {
   customers: WholesaleCustomer[];
   customersById: Map<string, WholesaleCustomer>;
   exchangeRates: ExchangeRateRow[];
-  logisticsOrders: WholesaleLogisticsOrder[];
-  logisticsStatuses: WholesaleLogisticsStatus[];
-  onCreateOrder: (formData: FormData) => void | Promise<void>;
+  initialPage: WholesaleOrderPage;
   onApproveOrderEditRequest: (requestId: string) => void | Promise<void>;
+  onCreateOrder: (formData: FormData) => void | Promise<void>;
   onMarkOrderSettled: (formData: FormData) => void | Promise<void>;
   onRejectOrderEditRequest: (requestId: string) => void | Promise<void>;
   onRequestOrderEdit: (formData: FormData) => void | Promise<void>;
   onUpdateOrder: (formData: FormData) => void | Promise<void>;
-  orderChangeLogs: WholesaleOrderChangeLog[];
-  orderEditRequests: WholesaleOrderEditRequest[];
   orderEditWindowDays: number;
-  orderSettlements: WholesaleOrderSettlement[];
-  orders: WholesaleOrder[];
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
-  purchaseOrders: Wholesale1688Order[];
   salesAccounts: WholesaleProfile[];
 };
-
-const ALL = "all";
 
 export function WholesaleOrdersSection({
   canEdit,
@@ -94,189 +66,39 @@ export function WholesaleOrdersSection({
   customers,
   customersById,
   exchangeRates,
-  logisticsOrders,
-  logisticsStatuses,
+  initialPage,
   onApproveOrderEditRequest,
   onCreateOrder,
   onMarkOrderSettled,
   onRejectOrderEditRequest,
   onRequestOrderEdit,
   onUpdateOrder,
-  orderChangeLogs,
-  orderEditRequests,
   orderEditWindowDays,
-  orderSettlements,
-  orders,
   pendingKey,
   profilesById,
-  purchaseOrders,
   salesAccounts,
 }: WholesaleOrdersSectionProps) {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedEditOrder, setSelectedEditOrder] = useState<WholesaleOrder | null>(
-    null,
-  );
+  const [selectedEditOrder, setSelectedEditOrder] = useState<WholesaleOrder | null>(null);
   const [selectedSettlementOrder, setSelectedSettlementOrder] =
     useState<WholesaleOrder | null>(null);
-  const [searchText, setSearchText] = useState("");
-  const [statusFilter, setStatusFilter] = useState(ALL);
-  const [customerFilter, setCustomerFilter] = useState(ALL);
-  const [salesFilter, setSalesFilter] = useState(ALL);
-  const [orderedFromDate, setOrderedFromDate] = useState(
-    () => getCurrentMonthDateRange().from,
-  );
-  const [orderedToDate, setOrderedToDate] = useState(
-    () => getCurrentMonthDateRange().to,
-  );
-  const purchaseOrdersByOrderId = useMemo(() => {
-    const grouped = new Map<string, Wholesale1688Order[]>();
-
-    for (const purchaseOrder of purchaseOrders) {
-      if (!purchaseOrder.wholesale_order_id) continue;
-      const rows = grouped.get(purchaseOrder.wholesale_order_id) ?? [];
-      rows.push(purchaseOrder);
-      grouped.set(purchaseOrder.wholesale_order_id, rows);
-    }
-
-    return grouped;
-  }, [purchaseOrders]);
-  const logisticsOrdersByOrderId = useMemo(() => {
-    const grouped = new Map<string, WholesaleLogisticsOrder[]>();
-
-    for (const logisticsOrder of logisticsOrders) {
-      if (!logisticsOrder.wholesale_order_id) continue;
-      const rows = grouped.get(logisticsOrder.wholesale_order_id) ?? [];
-      rows.push(logisticsOrder);
-      grouped.set(logisticsOrder.wholesale_order_id, rows);
-    }
-
-    return grouped;
-  }, [logisticsOrders]);
-  const logisticsStatusesByOrderId = useMemo(() => {
-    const grouped = new Map<string, WholesaleLogisticsStatus[]>();
-
-    for (const logisticsStatus of logisticsStatuses) {
-      if (!logisticsStatus.wholesale_order_id) continue;
-      const rows = grouped.get(logisticsStatus.wholesale_order_id) ?? [];
-      rows.push(logisticsStatus);
-      grouped.set(logisticsStatus.wholesale_order_id, rows);
-    }
-
-    return grouped;
-  }, [logisticsStatuses]);
-  const orderSettlementsByOrderId = useMemo(() => {
-    const grouped = new Map<string, WholesaleOrderSettlement[]>();
-
-    for (const settlement of orderSettlements) {
-      const rows = grouped.get(settlement.order_id) ?? [];
-      rows.push(settlement);
-      grouped.set(settlement.order_id, rows);
-    }
-
-    return grouped;
-  }, [orderSettlements]);
-  const ordersById = useMemo(
-    () => new Map(orders.map((order) => [order.id, order])),
-    [orders],
-  );
-  const totalPayment = orders.reduce(
-    (sum, order) => sum + Number(order.customer_payment_rmb_amount ?? 0),
-    0,
-  );
-  const totalProfit = orders.reduce(
-    (sum, order) => sum + Number(order.gross_profit ?? 0),
-    0,
-  );
-  const averageMargin = totalPayment > 0 ? totalProfit / totalPayment : null;
-  const filteredOrders = useMemo(() => {
-    const searchValue = normalizeSearchText(searchText);
-    const orderedFromTime = getDateBoundaryTime(orderedFromDate, "start");
-    const orderedToTime = getDateBoundaryTime(orderedToDate, "end");
-
-    return orders.filter((order) => {
-      if (statusFilter !== ALL && order.status !== statusFilter) return false;
-      if (customerFilter !== ALL && order.customer_id !== customerFilter) return false;
-      if (salesFilter !== ALL && (order.sales_user_id ?? "") !== salesFilter) {
-        return false;
-      }
-      if (
-        !isDateWithinRange(order.ordered_at, orderedFromTime, orderedToTime)
-      ) {
-        return false;
-      }
-
-      if (!searchValue) return true;
-
-      const customerName = getCustomerName(customersById, order.customer_id);
-      const salesName = getProfileName(profilesById, order.sales_user_id);
-      const linkedPurchaseOrders = purchaseOrdersByOrderId.get(order.id) ?? [];
-      const linkedLogisticsOrders = logisticsOrdersByOrderId.get(order.id) ?? [];
-      const linkedLogisticsStatuses =
-        logisticsStatusesByOrderId.get(order.id) ?? [];
-
-      return [
-        order.order_number,
-        customerName,
-        salesName,
-        order.courier_company ?? "",
-        order.payment_platform ?? "",
-        order.notes ?? "",
-        ...linkedPurchaseOrders.flatMap((purchaseOrder) => [
-          purchaseOrder.external_order_number,
-          purchaseOrder.item_summary ?? "",
-          purchaseOrder.seller_name ?? "",
-        ]),
-        ...linkedLogisticsOrders.flatMap((logisticsOrder) => [
-          logisticsOrder.international_tracking_number,
-          logisticsOrder.destination_tracking_number ?? "",
-          logisticsOrder.freight_forwarder ?? "",
-          logisticsOrder.latest_status ?? "",
-        ]),
-        ...linkedLogisticsStatuses.flatMap((logisticsStatus) => [
-          logisticsStatus.tracking_number,
-          logisticsStatus.customer_name,
-          logisticsStatus.status_text,
-        ]),
-      ].some((value) => normalizeSearchText(value).includes(searchValue));
-    });
-  }, [
-    customerFilter,
-    customersById,
-    orderedFromDate,
-    orderedToDate,
-    orders,
-    profilesById,
-    purchaseOrdersByOrderId,
-    logisticsOrdersByOrderId,
-    logisticsStatusesByOrderId,
-    salesFilter,
-    searchText,
-    statusFilter,
-  ]);
-  const hasActiveFilters =
-    searchText ||
-    statusFilter !== ALL ||
-    customerFilter !== ALL ||
-    salesFilter !== ALL ||
-    orderedFromDate ||
-    orderedToDate;
-  const assessmentFilters = useMemo<WholesaleOrderAssessmentFilters>(
+  const filterState = useWholesaleOrderFilters();
+  const pageState = useWholesaleOrderPage({
+    filters: filterState.queryFilters,
+    initialPage,
+  });
+  const page = pageState.page;
+  const viewData = useWholesaleOrderViewData(page);
+  const assessmentFilters = useMemo(
     () => ({
-      customerId: customerFilter,
-      orderedFromDate,
-      orderedToDate,
-      salesUserId: salesFilter,
-      searchText,
-      status: statusFilter,
+      customerId: filterState.queryFilters.customerId,
+      orderedFromDate: filterState.queryFilters.orderedFromDate,
+      orderedToDate: filterState.queryFilters.orderedToDate,
+      salesUserId: filterState.queryFilters.salesUserId,
+      searchText: filterState.queryFilters.searchText,
+      status: filterState.queryFilters.status,
     }),
-    [
-      customerFilter,
-      orderedFromDate,
-      orderedToDate,
-      salesFilter,
-      searchText,
-      statusFilter,
-    ],
+    [filterState.queryFilters],
   );
   const canMarkOrderSettled = useCallback(
     (order: WholesaleOrder) =>
@@ -290,31 +112,43 @@ export function WholesaleOrdersSection({
       }),
     [canEdit, canManageAllOrders, currentUserId, customersById],
   );
-  const getOrderEditAction = (
-    order: WholesaleOrder,
-  ): WholesaleOrderEditAction | null => {
-    if (
-      !canCurrentUserManageWholesaleOrder({
-        canEdit,
+  const getOrderEditAction = useCallback(
+    (order: WholesaleOrder): WholesaleOrderEditAction | null => {
+      if (
+        !canCurrentUserManageWholesaleOrder({
+          canEdit,
+          canManageAllOrders,
+          currentUserId,
+          customer: customersById.get(order.customer_id),
+          order,
+        })
+      ) {
+        return null;
+      }
+
+      return getWholesaleOrderEditMode({
         canManageAllOrders,
-        currentUserId,
-        customer: customersById.get(order.customer_id),
+        editWindowDays: orderEditWindowDays,
         order,
-      })
-    ) {
-      return null;
-    }
-
-    const mode = getWholesaleOrderEditMode({
+      }) === "direct"
+        ? { label: "修改订单", tone: "direct" }
+        : { label: "申请修改", tone: "request" };
+    },
+    [
+      canEdit,
       canManageAllOrders,
-      editWindowDays: orderEditWindowDays,
-      order,
-    });
-
-    return mode === "direct"
-      ? { label: "修改订单", tone: "direct" }
-      : { label: "申请修改", tone: "request" };
-  };
+      currentUserId,
+      customersById,
+      orderEditWindowDays,
+    ],
+  );
+  const refreshAfter = useCallback(
+    async (action: () => void | Promise<void>) => {
+      await action();
+      await pageState.refreshFirstPage();
+    },
+    [pageState],
+  );
   const selectedEditMode = selectedEditOrder
     ? getWholesaleOrderEditMode({
         canManageAllOrders,
@@ -337,165 +171,143 @@ export function WholesaleOrdersSection({
           </Button>
         ) : null
       }
-      description="集中管理批发客户订单、采购成本、运费、推荐佣金、结汇记录、毛利和订单月份。订单列表可横向滑动查看完整信息，订单编号会固定在左侧。"
+      description="按条件分批查看批发订单。电脑端保留完整表格，手机端点击订单卡片查看费用、利润、结汇和关联记录。"
       eyebrow="批发业务"
       title="批发订单"
     >
-      <WholesaleStatGrid
-        stats={[
-          { label: "订单数量", value: `${orders.length}` },
-          { label: "客户支付人民币", value: formatCurrency(totalPayment) },
-          { label: "毛利合计", value: formatCurrency(totalProfit) },
-          { label: "平均毛利率", value: formatPercent(averageMargin) },
-        ]}
+      <WholesaleOrderFiltersPanel
+        customers={customers}
+        filters={filterState.filters}
+        hasActiveFilters={filterState.hasActiveFilters}
+        onClear={filterState.clearFilters}
+        onUpdate={filterState.updateFilter}
+        salesAccounts={salesAccounts}
       />
 
-      <DashboardListSection
-        actions={
+      {page ? <WholesaleOrderSummary summary={page.summary} /> : null}
+
+      {pageState.loadError ? (
+        <div className="space-y-3">
+          <PageBanner tone="error">{pageState.loadError}</PageBanner>
           <Button
-            className="rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
-            disabled={!hasActiveFilters}
-            onClick={() => {
-              setSearchText("");
-              setStatusFilter(ALL);
-              setCustomerFilter(ALL);
-              setSalesFilter(ALL);
-              setOrderedFromDate("");
-              setOrderedToDate("");
-            }}
+            className="rounded-full border border-[#d8dde2] bg-white text-[#486782]"
+            onClick={() => void pageState.refreshFirstPage()}
             type="button"
             variant="outline"
           >
-            <RefreshCcw className="size-4" />
-            清空筛选
+            重新加载
           </Button>
+        </div>
+      ) : null}
+
+      {page?.warnings.map((warning) => (
+        <PageBanner key={`${warning.area}:${warning.message}`} tone="info">
+          {warning.message}
+        </PageBanner>
+      ))}
+
+      <DashboardListSection
+        description={
+          page
+            ? `已显示 ${page.orders.length} / ${page.totalCount} 笔订单。`
+            : "正在按当前条件加载订单。"
         }
-        description={`共 ${orders.length} 笔订单，当前显示 ${filteredOrders.length} 笔。`}
         title="订单列表"
       >
-        <div className="mb-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <DashboardFilterField label="搜索订单">
-            <input
-              className={dashboardFilterInputClassName}
-              onChange={(event) => setSearchText(event.target.value)}
-              placeholder="订单编号、客户、业务员、快递或备注"
-              type="search"
-              value={searchText}
+        {page ? (
+          <div className="mb-5">
+            <WholesaleOrderAssessmentPanel
+              filters={assessmentFilters}
+              matchedOrderCount={page.totalCount}
             />
-          </DashboardFilterField>
-          <DashboardFilterField label="订单状态">
-            <select
-              className={dashboardFilterInputClassName}
-              onChange={(event) => setStatusFilter(event.target.value)}
-              value={statusFilter}
-            >
-              <option value={ALL}>全部状态</option>
-              <option value="unsettled">未结汇</option>
-              <option value="partial_settled">部分结汇</option>
-              <option value="settled">已结汇</option>
-            </select>
-          </DashboardFilterField>
-          <DashboardFilterField label="客户">
-            <select
-              className={dashboardFilterInputClassName}
-              onChange={(event) => setCustomerFilter(event.target.value)}
-              value={customerFilter}
-            >
-              <option value={ALL}>全部客户</option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.unique_name}
-                </option>
-              ))}
-            </select>
-          </DashboardFilterField>
-          <DashboardFilterField label="业务员">
-            <select
-              className={dashboardFilterInputClassName}
-              onChange={(event) => setSalesFilter(event.target.value)}
-              value={salesFilter}
-            >
-              <option value={ALL}>全部业务员</option>
-              {salesAccounts.map((profile) => (
-                <option key={profile.user_id} value={profile.user_id}>
-                  {profile.name || profile.email}
-                </option>
-              ))}
-            </select>
-          </DashboardFilterField>
-          <DashboardFilterField label="下单日期从">
-            <input
-              className={dashboardFilterInputClassName}
-              onChange={(event) => {
-                const nextDate = event.target.value;
-                setOrderedFromDate(nextDate);
+          </div>
+        ) : null}
 
-                if (orderedToDate && nextDate && orderedToDate < nextDate) {
-                  setOrderedToDate(nextDate);
-                }
-              }}
-              type="date"
-              value={orderedFromDate}
-            />
-          </DashboardFilterField>
-          <DashboardFilterField label="下单日期到">
-            <input
-              className={dashboardFilterInputClassName}
-              min={orderedFromDate || undefined}
-              onChange={(event) => setOrderedToDate(event.target.value)}
-              type="date"
-              value={orderedToDate}
-            />
-          </DashboardFilterField>
-        </div>
-
-        <div className="mb-5">
-          <WholesaleOrderAssessmentPanel
-            filters={assessmentFilters}
-            matchedOrderCount={filteredOrders.length}
-          />
-        </div>
-
-        {filteredOrders.length === 0 ? (
+        {pageState.loading ? (
+          <div className="flex min-h-40 items-center justify-center gap-2 text-sm text-[#71808d]">
+            <LoaderCircle className="size-4 animate-spin" />
+            正在加载订单…
+          </div>
+        ) : page && page.orders.length === 0 ? (
           <WholesaleEmptyState
             description="没有匹配的批发订单。可以调整筛选条件，或新建一笔订单。"
             icon={<ReceiptText className="size-5" />}
             title="暂无匹配订单"
           />
-        ) : (
-          <WholesaleOrdersTable
-            canMarkOrderSettled={canMarkOrderSettled}
-            customersById={customersById}
-            getOrderEditAction={getOrderEditAction}
-            logisticsOrdersByOrderId={logisticsOrdersByOrderId}
-            logisticsStatusesByOrderId={logisticsStatusesByOrderId}
-            orderSettlementsByOrderId={orderSettlementsByOrderId}
-            onOpenOrderEdit={setSelectedEditOrder}
-            onOpenOrderSettlement={setSelectedSettlementOrder}
-            orders={filteredOrders}
-            pendingKey={pendingKey}
-            profilesById={profilesById}
-            purchaseOrdersByOrderId={purchaseOrdersByOrderId}
-          />
-        )}
+        ) : page ? (
+          <>
+            <div className="hidden md:block">
+              <WholesaleOrdersTable
+                canMarkOrderSettled={canMarkOrderSettled}
+                customersById={customersById}
+                getOrderEditAction={getOrderEditAction}
+                logisticsOrdersByOrderId={viewData.logisticsOrdersByOrderId}
+                logisticsStatusesByOrderId={viewData.logisticsStatusesByOrderId}
+                orderSettlementsByOrderId={viewData.orderSettlementsByOrderId}
+                onOpenOrderEdit={setSelectedEditOrder}
+                onOpenOrderSettlement={setSelectedSettlementOrder}
+                orders={page.orders}
+                pendingKey={pendingKey}
+                profilesById={profilesById}
+                purchaseOrdersByOrderId={viewData.purchaseOrdersByOrderId}
+              />
+            </div>
+            <WholesaleOrdersMobileList
+              canMarkOrderSettled={canMarkOrderSettled}
+              customersById={customersById}
+              getOrderEditAction={getOrderEditAction}
+              logisticsOrdersByOrderId={viewData.logisticsOrdersByOrderId}
+              logisticsStatusesByOrderId={viewData.logisticsStatusesByOrderId}
+              onOpenOrderEdit={setSelectedEditOrder}
+              onOpenOrderSettlement={setSelectedSettlementOrder}
+              orders={page.orders}
+              orderSettlementsByOrderId={viewData.orderSettlementsByOrderId}
+              profilesById={profilesById}
+              purchaseOrdersByOrderId={viewData.purchaseOrdersByOrderId}
+            />
+          </>
+        ) : null}
+
+        {page?.nextCursor ? (
+          <div className="mt-5 flex justify-center">
+            <Button
+              className="min-h-11 rounded-full border border-[#d8dde2] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
+              disabled={pageState.loadingMore}
+              onClick={() => void pageState.loadMore()}
+              type="button"
+              variant="outline"
+            >
+              {pageState.loadingMore ? (
+                <LoaderCircle className="size-4 animate-spin" />
+              ) : null}
+              继续加载
+            </Button>
+          </div>
+        ) : null}
       </DashboardListSection>
 
-      <WholesaleOrderChangeSections
-        canReviewRequests={canManageAllOrders}
-        customersById={customersById}
-        logs={orderChangeLogs}
-        onApproveRequest={onApproveOrderEditRequest}
-        onRejectRequest={onRejectOrderEditRequest}
-        ordersById={ordersById}
-        pendingKey={pendingKey}
-        profilesById={profilesById}
-        requests={orderEditRequests}
-      />
+      {page ? (
+        <WholesaleOrderChangeSections
+          canReviewRequests={canManageAllOrders}
+          customersById={customersById}
+          logs={page.orderChangeLogs}
+          onApproveRequest={(requestId) =>
+            refreshAfter(() => onApproveOrderEditRequest(requestId))
+          }
+          onRejectRequest={(requestId) =>
+            refreshAfter(() => onRejectOrderEditRequest(requestId))
+          }
+          ordersById={viewData.ordersById}
+          pendingKey={pendingKey}
+          profilesById={profilesById}
+          requests={page.orderEditRequests}
+        />
+      ) : null}
 
       <WholesaleOrderFormDialog
         customers={customers}
         exchangeRates={exchangeRates}
-        onCreateOrder={onCreateOrder}
+        onCreateOrder={(formData) => refreshAfter(() => onCreateOrder(formData))}
         onOpenChange={setCreateDialogOpen}
         open={createDialogOpen}
         pending={pendingKey === "order:create"}
@@ -511,12 +323,14 @@ export function WholesaleOrdersSection({
           key={`${selectedEditOrder.id}-${selectedEditMode}`}
           mode={selectedEditMode}
           onOpenChange={(open) => {
-            if (!open) {
-              setSelectedEditOrder(null);
-            }
+            if (!open) setSelectedEditOrder(null);
           }}
-          onRequestOrderEdit={onRequestOrderEdit}
-          onUpdateOrder={onUpdateOrder}
+          onRequestOrderEdit={(formData) =>
+            refreshAfter(() => onRequestOrderEdit(formData))
+          }
+          onUpdateOrder={(formData) =>
+            refreshAfter(() => onUpdateOrder(formData))
+          }
           open
           order={selectedEditOrder}
           pending={
@@ -527,69 +341,22 @@ export function WholesaleOrdersSection({
         />
       ) : null}
 
-      {selectedSettlementOrder ? (
+      {selectedSettlementOrder && page ? (
         <WholesaleOrderSettlementDialog
           exchangeRates={exchangeRates}
           onOpenChange={(open) => {
-            if (!open) {
-              setSelectedSettlementOrder(null);
-            }
+            if (!open) setSelectedSettlementOrder(null);
           }}
-          onSettleOrder={onMarkOrderSettled}
+          onSettleOrder={(formData) =>
+            refreshAfter(() => onMarkOrderSettled(formData))
+          }
           order={selectedSettlementOrder}
-          settlements={orderSettlementsByOrderId.get(selectedSettlementOrder.id) ?? []}
+          settlements={
+            viewData.orderSettlementsByOrderId.get(selectedSettlementOrder.id) ?? []
+          }
           pending={pendingKey === `order:settle:${selectedSettlementOrder.id}`}
         />
       ) : null}
     </WholesalePageShell>
-  );
-}
-
-function getDateBoundaryTime(value: string, boundary: "start" | "end") {
-  if (!value) {
-    return null;
-  }
-
-  const suffix = boundary === "start" ? "T00:00:00" : "T23:59:59.999";
-  const time = new Date(`${value}${suffix}`).getTime();
-
-  return Number.isFinite(time) ? time : null;
-}
-
-function getCurrentMonthDateRange() {
-  const today = getBeijingDateString();
-  const year = Number(today.slice(0, 4));
-  const month = Number(today.slice(5, 7));
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const monthText = String(month).padStart(2, "0");
-
-  return {
-    from: `${year}-${monthText}-01`,
-    to: `${year}-${monthText}-${String(lastDay).padStart(2, "0")}`,
-  };
-}
-
-function isDateWithinRange(
-  value: string | null | undefined,
-  fromTime: number | null,
-  toTime: number | null,
-) {
-  if (fromTime === null && toTime === null) {
-    return true;
-  }
-
-  if (!value) {
-    return false;
-  }
-
-  const time = new Date(value).getTime();
-
-  if (!Number.isFinite(time)) {
-    return false;
-  }
-
-  return (
-    (fromTime === null || time >= fromTime) &&
-    (toTime === null || time <= toTime)
   );
 }

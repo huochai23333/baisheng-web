@@ -57,10 +57,12 @@ export function AiAssistantClient() {
       resetConfirmAction: t("resetConfirmAction"),
       resetConfirmCancel: t("resetConfirmCancel"),
       resetConfirmDescription: t("resetConfirmDescription"),
+      requestTooLarge: t("requestTooLarge"),
       send: t("send"),
       serviceUnavailable: t("serviceUnavailable"),
       thinking: t("thinking"),
       title: companyText.assistantName,
+      tooManyRequests: t("tooManyRequests"),
     }),
     [assistantLocale, companyText.assistantName, t],
   );

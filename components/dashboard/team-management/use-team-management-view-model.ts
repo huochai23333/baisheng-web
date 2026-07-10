@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
-import { useLocale } from "@/components/i18n/locale-provider";
 import {
   canViewTeamPanel,
   type TeamManagementPageData,
@@ -10,6 +10,7 @@ import {
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
 import { useWorkspaceSyncEffect } from "@/components/dashboard/workspace-session-provider";
+import { createDashboardSharedCopy } from "@/components/dashboard/dashboard-shared-ui";
 
 import {
   filterTeamCandidates,
@@ -30,7 +31,8 @@ export function useTeamManagementViewModel({
   initialData: TeamManagementPageData;
 }) {
   const supabase = getBrowserSupabaseClient();
-  const { locale } = useLocale();
+  const sharedT = useTranslations("DashboardShared");
+  const sharedCopy = useMemo(() => createDashboardSharedCopy(sharedT), [sharedT]);
 
   const initialDataKey = useMemo(
     () => getTeamManagementDataKey(initialData),
@@ -82,21 +84,21 @@ export function useTeamManagementViewModel({
   const canManageSelectedTeam = currentData.detail.team?.can_manage === true;
 
   const filteredMembers = useMemo(
-    () => filterTeamMembers(currentData.detail.members, memberSearchText, locale),
-    [currentData.detail.members, locale, memberSearchText],
+    () => filterTeamMembers(currentData.detail.members, memberSearchText, sharedCopy),
+    [currentData.detail.members, memberSearchText, sharedCopy],
   );
   const filteredClients = useMemo(
-    () => filterTeamClients(currentData.detail.clients, clientSearchText, locale),
-    [clientSearchText, currentData.detail.clients, locale],
+    () => filterTeamClients(currentData.detail.clients, clientSearchText, sharedCopy),
+    [clientSearchText, currentData.detail.clients, sharedCopy],
   );
   const filteredCandidates = useMemo(
     () =>
       filterTeamCandidates(
         currentData.candidateSalesmen,
         candidateSearchText,
-        locale,
+        sharedCopy,
       ),
-    [candidateSearchText, currentData.candidateSalesmen, locale],
+    [candidateSearchText, currentData.candidateSalesmen, sharedCopy],
   );
   const availableCandidateCount = useMemo(
     () =>

@@ -1,0 +1,151 @@
+"use client";
+
+import { useState } from "react";
+
+import type {
+  Wholesale1688Order,
+  WholesaleCustomer,
+  WholesaleLogisticsOrder,
+  WholesaleOrder,
+  WholesaleOrderSettlement,
+  WholesaleProfile,
+} from "@/lib/wholesale";
+import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
+
+import {
+  formatCurrency,
+  formatDateTime,
+  getCustomerName,
+  getProfileName,
+  WHOLESALE_ORDER_STATUS_LABELS,
+} from "./wholesale-display";
+import { WholesaleOrderDetailsDialog } from "./wholesale-order-details-dialog";
+import type { WholesaleOrderEditAction } from "./wholesale-orders-table";
+import { WholesaleStatusBadge } from "./wholesale-ui";
+
+type WholesaleOrdersMobileListProps = {
+  canMarkOrderSettled: (order: WholesaleOrder) => boolean;
+  customersById: Map<string, WholesaleCustomer>;
+  getOrderEditAction: (order: WholesaleOrder) => WholesaleOrderEditAction | null;
+  logisticsOrdersByOrderId: Map<string, WholesaleLogisticsOrder[]>;
+  logisticsStatusesByOrderId: Map<string, WholesaleLogisticsStatus[]>;
+  onOpenOrderEdit: (order: WholesaleOrder) => void;
+  onOpenOrderSettlement: (order: WholesaleOrder) => void;
+  orders: WholesaleOrder[];
+  orderSettlementsByOrderId: Map<string, WholesaleOrderSettlement[]>;
+  profilesById: Map<string, WholesaleProfile>;
+  purchaseOrdersByOrderId: Map<string, Wholesale1688Order[]>;
+};
+
+export function WholesaleOrdersMobileList({
+  canMarkOrderSettled,
+  customersById,
+  getOrderEditAction,
+  logisticsOrdersByOrderId,
+  logisticsStatusesByOrderId,
+  onOpenOrderEdit,
+  onOpenOrderSettlement,
+  orders,
+  orderSettlementsByOrderId,
+  profilesById,
+  purchaseOrdersByOrderId,
+}: WholesaleOrdersMobileListProps) {
+  const [selectedOrder, setSelectedOrder] = useState<WholesaleOrder | null>(null);
+
+  return (
+    <div className="grid gap-3 md:hidden">
+      {orders.map((order) => {
+        const settlements = orderSettlementsByOrderId.get(order.id) ?? [];
+        const settledAmount = settlements.reduce(
+          (sum, settlement) => sum + Number(settlement.settlement_amount),
+          0,
+        );
+
+        return (
+          <button
+            className="min-w-0 rounded-[22px] border border-[#e6e1d9] bg-white p-4 text-left shadow-sm transition active:scale-[0.99]"
+            data-testid={`wholesale-order-card-${order.id}`}
+            key={order.id}
+            onClick={() => setSelectedOrder(order)}
+            type="button"
+          >
+            <div className="flex min-w-0 items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="break-words font-semibold text-[#263640] [overflow-wrap:anywhere]">
+                  {order.order_number}
+                </p>
+                <p className="mt-1 truncate text-sm text-[#71808d]">
+                  {getCustomerName(customersById, order.customer_id)}
+                </p>
+              </div>
+              <WholesaleStatusBadge
+                tone={order.status === "settled" ? "success" : "warning"}
+              >
+                {WHOLESALE_ORDER_STATUS_LABELS[order.status]}
+              </WholesaleStatusBadge>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <MobileOrderValue
+                label="支付金额"
+                value={formatCurrency(
+                  order.customer_payment_amount,
+                  order.customer_payment_currency,
+                )}
+              />
+              <MobileOrderValue
+                label="结汇进度"
+                value={`${formatCurrency(settledAmount, order.customer_payment_currency)} / ${formatCurrency(order.customer_payment_amount, order.customer_payment_currency)}`}
+              />
+              <MobileOrderValue
+                label="业务员"
+                value={getProfileName(profilesById, order.sales_user_id)}
+              />
+              <MobileOrderValue
+                label="下单时间"
+                value={formatDateTime(order.ordered_at)}
+              />
+            </div>
+          </button>
+        );
+      })}
+
+      {selectedOrder ? (
+        <WholesaleOrderDetailsDialog
+          canMarkOrderSettled={canMarkOrderSettled(selectedOrder)}
+          customerName={getCustomerName(customersById, selectedOrder.customer_id)}
+          editAction={getOrderEditAction(selectedOrder)}
+          logisticsOrders={logisticsOrdersByOrderId.get(selectedOrder.id) ?? []}
+          logisticsStatuses={
+            logisticsStatusesByOrderId.get(selectedOrder.id) ?? []
+          }
+          onClose={() => setSelectedOrder(null)}
+          onOpenOrderEdit={() => {
+            setSelectedOrder(null);
+            onOpenOrderEdit(selectedOrder);
+          }}
+          onOpenOrderSettlement={() => {
+            setSelectedOrder(null);
+            onOpenOrderSettlement(selectedOrder);
+          }}
+          open
+          order={selectedOrder}
+          purchaseOrders={purchaseOrdersByOrderId.get(selectedOrder.id) ?? []}
+          salesName={getProfileName(profilesById, selectedOrder.sales_user_id)}
+          settlements={orderSettlementsByOrderId.get(selectedOrder.id) ?? []}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function MobileOrderValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-[14px] bg-[#f7f9fa] px-3 py-2">
+      <p className="text-xs text-[#7b8790]">{label}</p>
+      <p className="mt-1 break-words font-medium text-[#354650] [overflow-wrap:anywhere]">
+        {value}
+      </p>
+    </div>
+  );
+}

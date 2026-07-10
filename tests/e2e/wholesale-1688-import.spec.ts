@@ -10,6 +10,30 @@ import {
 } from "./helpers/auth";
 
 test.describe("wholesale 1688 import", () => {
+  test("hall claim button stays beside the order number", async ({ page }) => {
+    await loginAs(page, "administrator");
+    await page.goto("/admin/wholesale/order-claims");
+    await expectWorkspaceShell(page);
+    await expectNotForbiddenPage(page);
+
+    await page.getByRole("button", { name: /认领大厅/ }).click();
+
+    const hallClaimRow = page.getByRole("row").filter({
+      hasText: "1688-LOCAL-004",
+    });
+    const hallClaimOrderCell = hallClaimRow.getByRole("cell").first();
+
+    await expect(hallClaimOrderCell.getByText("认领大厅")).toHaveCount(0);
+    await expect(
+      hallClaimOrderCell.getByRole("button", { name: "认领" }),
+    ).toBeVisible();
+    await expect(
+      hallClaimRow.getByRole("cell").last().getByRole("button", {
+        name: "认领",
+      }),
+    ).toHaveCount(0);
+  });
+
   test("administrator can import a 1688 Excel order file", async ({
     page,
   }, testInfo) => {

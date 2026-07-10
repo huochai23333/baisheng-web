@@ -6,11 +6,12 @@ import type {
 import { normalizeSearchText } from "@/lib/value-normalizers";
 
 import { mapUserStatus } from "../dashboard-shared-ui";
+import type { DashboardSharedCopy } from "../dashboard-shared-copy";
 
 export function filterTeamMembers(
   members: TeamMember[],
   searchText: string,
-  locale: "zh" | "en",
+  sharedCopy: DashboardSharedCopy,
 ) {
   const normalizedSearchText = normalizeSearchText(searchText);
 
@@ -22,7 +23,7 @@ export function filterTeamMembers(
     [
       member.name,
       member.email,
-      mapUserStatus(member.status, locale).label,
+      mapUserStatus(member.status, sharedCopy).label,
       `${member.client_count}`,
     ]
       .filter(Boolean)
@@ -35,7 +36,7 @@ export function filterTeamMembers(
 export function filterTeamClients(
   clients: TeamClient[],
   searchText: string,
-  locale: "zh" | "en",
+  sharedCopy: DashboardSharedCopy,
 ) {
   const normalizedSearchText = normalizeSearchText(searchText);
 
@@ -48,7 +49,7 @@ export function filterTeamClients(
       client.name,
       client.email,
       client.referrer_name,
-      mapUserStatus(client.status, locale).label,
+      mapUserStatus(client.status, sharedCopy).label,
       client.vip_status ? "vip" : "",
     ]
       .filter(Boolean)
@@ -61,7 +62,7 @@ export function filterTeamClients(
 export function filterTeamCandidates(
   candidates: TeamSalesmanCandidate[],
   searchText: string,
-  locale: "zh" | "en",
+  sharedCopy: DashboardSharedCopy,
 ) {
   const normalizedSearchText = normalizeSearchText(searchText);
 
@@ -74,7 +75,7 @@ export function filterTeamCandidates(
       candidate.name,
       candidate.email,
       candidate.current_team_name,
-      mapUserStatus(candidate.status, locale).label,
+      mapUserStatus(candidate.status, sharedCopy).label,
     ]
       .filter(Boolean)
       .join(" ")

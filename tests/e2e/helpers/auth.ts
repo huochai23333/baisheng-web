@@ -35,10 +35,12 @@ export async function expectWorkspaceShell(page: Page) {
 }
 
 export async function expectForbiddenPage(page: Page) {
-  // 未授权访问现在会先经过服务端退出入口，再回到登录页。
-  // 这里继续保留旧函数名，避免大量权限用例重复描述同一个回归断言。
-  await expect(page).toHaveURL(/\/login(?:[?#].*)?$/, { timeout: 30_000 });
-  await expect(page.locator('input[name="email"]')).toBeVisible();
+  // 有效账号访问工作范围之外的页面时保留登录，只显示清楚的返回入口。
+  await expect(
+    page.getByRole("heading", { name: "这个页面不在你的工作范围内" }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "返回我的首页" })).toBeVisible();
+  await expect(page.locator('input[name="email"]')).toHaveCount(0);
 }
 
 export async function expectNotForbiddenPage(page: Page) {

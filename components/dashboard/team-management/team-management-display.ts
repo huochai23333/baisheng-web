@@ -8,7 +8,6 @@ import { isSalesStaffRole } from "@/lib/sales-staff-roles";
 
 import {
   getRawErrorMessage,
-  toErrorMessage,
 } from "@/components/dashboard/dashboard-shared-ui";
 
 type TranslationValues = Record<string, string | number>;
@@ -103,7 +102,6 @@ export function toTeamManagementErrorMessage(
   t: TeamTranslateFn,
 ) {
   const rawMessage = getRawErrorMessage(error);
-  const baseMessage = toErrorMessage(error);
 
   if (
     rawMessage.includes("team profile save did not return team id") ||
@@ -148,5 +146,5 @@ export function toTeamManagementErrorMessage(
     return t("errors.teamNotFound");
   }
 
-  return baseMessage;
+  return t("errors.unknown");
 }

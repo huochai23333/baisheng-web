@@ -17,7 +17,7 @@ test.describe("wholesale order settlements", () => {
 
     const uniqueNote = `分批结汇测试 ${Date.now()}`;
     const currentMonth = getShanghaiDateInputValue().slice(0, 7);
-    const settlementDate = "2026-07-06";
+    const settlementDate = getShanghaiDateInputValue();
 
     await page.getByRole("button", { name: "新建订单" }).click();
 
@@ -71,14 +71,29 @@ test.describe("wholesale order settlements", () => {
     await expectCompactSettlementOrderControls(page);
     await expectNoSettlementStatusInOrderNumberCell(page);
     await expectCompactLocalSeededOrderRows(page);
+    await page.getByLabel("搜索订单").fill("1688-LOCAL-001");
+    await expect(
+      page.locator('[data-testid^="wholesale-order-row-"]').filter({
+        hasText: "WH-LOCAL-202607-001",
+      }),
+    ).toBeVisible();
     await expectLinkedPurchaseOrderDetailsDialog(page);
+    await page.getByLabel("搜索订单").fill("WF-LOCAL-001");
+    await expect(page.getByRole("button", { name: "WF-LOCAL-001" })).toBeVisible();
     await expectLinkedLogisticsDetailsDialog(page);
     await expectNoDocumentHorizontalOverflow(page);
 
     await page.setViewportSize({ height: 844, width: 390 });
     await page.goto("/admin/wholesale/orders");
     await expect(page.getByRole("heading", { name: "批发订单" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "登记结汇" }).first()).toBeVisible();
+    await page
+      .locator('[data-testid^="wholesale-order-card-"]')
+      .filter({ hasText: "未结汇" })
+      .first()
+      .click();
+    await expect(
+      page.getByRole("dialog").getByRole("button", { name: "登记结汇" }),
+    ).toBeVisible();
     await expectNoDocumentHorizontalOverflow(page);
   });
 });
@@ -155,11 +170,12 @@ async function expectLinkedLogisticsDetailsDialog(page: Page) {
 }
 
 async function expectLocalSeededWholesaleOrders(page: Page) {
+  await expect(page.locator('[data-testid^="wholesale-order-row-"]')).toHaveCount(20);
   await expect(
     page
       .locator('[data-testid^="wholesale-order-row-"]')
       .filter({ hasText: "WH-LOCAL-" }),
-  ).toHaveCount(100);
+  ).not.toHaveCount(0);
 }
 
 function getShanghaiDateInputValue() {

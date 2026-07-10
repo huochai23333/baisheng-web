@@ -8,6 +8,7 @@ import {
 } from "./commission-settings";
 import { getCurrentSessionContext } from "./current-session-context";
 import {
+  getBeijingDateString,
   getExchangeRates,
   type ExchangeRateRow,
 } from "./exchange-rates";
@@ -16,6 +17,11 @@ import {
   type WholesaleLogisticsStatus,
 } from "./wholesale-logistics-statuses";
 import { scopeWholesaleRows } from "./wholesale-scope";
+import {
+  getWholesaleOrderPage,
+  type WholesaleOrderFilters,
+  type WholesaleOrderPage,
+} from "./wholesale-order-page";
 import {
   getWholesaleOrderEditSettings,
   type WholesaleOrderEditSettings,
@@ -199,6 +205,8 @@ export type WholesalePageData = {
   orderChangeLogs: WholesaleOrderChangeLog[];
   orderEditRequests: WholesaleOrderEditRequest[];
   orderEditSettings: WholesaleOrderEditSettings;
+  orderPage: WholesaleOrderPage | null;
+  orderPageError: string | null;
   orders: WholesaleOrder[];
   orderSettlements: WholesaleOrderSettlement[];
   purchaseOrders: Wholesale1688Order[];
@@ -218,174 +226,380 @@ type QueryResult<T> = {
 export async function getWholesalePageData(
   supabase: SupabaseClient,
   section: WorkspaceWholesaleSectionKey,
+  options?: {
+    orderFilters?: WholesaleOrderFilters;
+    orderLimit?: number;
+  },
 ): Promise<WholesalePageData> {
   const sessionContext = await getCurrentSessionContext(supabase);
   const currentRole = sessionContext.role;
   const currentUserId = sessionContext.user?.id ?? null;
-
-  const [
-    customersResult,
-    ordersResult,
-    purchaseOrdersResult,
-    logisticsOrdersResult,
-    logisticsStatusesResult,
-    commissionsResult,
-    referralsResult,
-    orderEditRequestsResult,
-    orderChangeLogsResult,
-    orderSettlementsResult,
-    profilesResult,
-    roleRowsResult,
-    rolesResult,
-    linkCandidateProfilesResult,
-    exchangeRates,
-    commissionRuleSettings,
-    orderEditSettings,
-  ] = await Promise.all([
-    supabase
-      .from("wholesale_customers")
-      .select("*")
-      .order("created_at", { ascending: false }) as unknown as Promise<
-      QueryResult<WholesaleCustomer>
-    >,
-    supabase
-      .from("wholesale_orders")
-      .select("*")
-      .order("order_month", { ascending: false })
-      .order("ordered_at", { ascending: false }) as unknown as Promise<
-      QueryResult<WholesaleOrder>
-    >,
-    supabase
-      .from("wholesale_1688_orders")
-      .select("*")
-      .order("created_at", { ascending: false }) as unknown as Promise<
-      QueryResult<Wholesale1688Order>
-    >,
-    supabase
-      .from("wholesale_logistics_orders")
-      .select("*")
-      .order("updated_at", { ascending: false }) as unknown as Promise<
-      QueryResult<WholesaleLogisticsOrder>
-    >,
-    getWholesaleLogisticsStatuses(supabase),
-    supabase
-      .from("wholesale_commissions")
-      .select("*")
-      .order("calculated_at", { ascending: false }) as unknown as Promise<
-      QueryResult<WholesaleCommission>
-    >,
-    supabase
-      .from("wholesale_referrals")
-      .select("*")
-      .order("created_at", { ascending: false }) as unknown as Promise<
-      QueryResult<WholesaleReferral>
-    >,
-    supabase
-      .from("wholesale_order_edit_requests")
-      .select("*")
-      .order("created_at", { ascending: false }) as unknown as Promise<
-      QueryResult<WholesaleOrderEditRequest>
-    >,
-    supabase
-      .from("wholesale_order_change_logs")
-      .select("*")
-      .order("created_at", { ascending: false }) as unknown as Promise<
-      QueryResult<WholesaleOrderChangeLog>
-    >,
-    supabase
-      .from("wholesale_order_settlements")
-      .select("*")
-      .order("settled_on", { ascending: false })
-      .order("created_at", { ascending: false }) as unknown as Promise<
-      QueryResult<WholesaleOrderSettlement>
-    >,
-    supabase
-      .from("user_profiles")
-      .select("user_id,name,email,phone,status,city")
-      .order("created_at", { ascending: false }) as unknown as Promise<
-      QueryResult<Omit<WholesaleProfile, "role">>
-    >,
-    supabase.from("user_roles_data").select("user_id,role_id") as unknown as Promise<
-      QueryResult<{ user_id: string; role_id: string }>
-    >,
-    supabase.from("user_roles").select("id,role") as unknown as Promise<
-      QueryResult<{ id: string; role: AppRole }>
-    >,
-    supabase.rpc("list_wholesale_customer_link_candidates") as unknown as Promise<
-      QueryResult<WholesaleProfile>
-    >,
-    getExchangeRates(supabase).catch(() => []),
-    getCommissionRuleSettings(supabase).catch(() => []),
-    getWholesaleOrderEditSettings(supabase).catch(() => ({
-      directEditWindowDays: 30,
-      updatedAt: null,
-      updatedByUserId: null,
-    })),
-  ]);
-
-  const rolesById = new Map(
-    readRows(rolesResult).map((roleRow) => [roleRow.id, roleRow.role]),
-  );
-  const roleByUserId = new Map(
-    readRows(roleRowsResult).map((roleRow) => [
-      roleRow.user_id,
-      rolesById.get(roleRow.role_id) ?? null,
-    ]),
-  );
-  const visibleProfiles = readRows(profilesResult).map((profile) => ({
-    ...profile,
-    role: roleByUserId.get(profile.user_id) ?? null,
-  }));
-  const profilesByUserId = new Map(
-    visibleProfiles.map((profile) => [profile.user_id, profile]),
-  );
-
-  for (const profile of readRows(linkCandidateProfilesResult)) {
-    profilesByUserId.set(profile.user_id, profile);
-  }
-
-  const scopedRows = scopeWholesaleRows({
-    commissions: readRows(commissionsResult),
+  const baseData = createEmptyWholesalePageData({
     currentRole,
     currentUserId,
-    customers: readRows(customersResult),
-    logisticsOrders: readRows(logisticsOrdersResult),
-    logisticsStatuses: readRows(logisticsStatusesResult),
-    orderChangeLogs: readRows(orderChangeLogsResult),
-    orderEditRequests: readRows(orderEditRequestsResult),
-    orders: readRows(ordersResult),
-    orderSettlements: readRows(orderSettlementsResult),
-    purchaseOrders: readRows(purchaseOrdersResult),
-    referrals: readRows(referralsResult),
-    profiles: Array.from(profilesByUserId.values()),
-    registeredCandidates: readRows(linkCandidateProfilesResult),
+    section,
+  });
+
+  if (section === "orders") {
+    const filters = options?.orderFilters ?? getInitialWholesaleOrderFilters();
+    const [customers, profiles, exchangeRates, orderEditSettings, orderPageResult] =
+      await Promise.all([
+        getWholesaleCustomers(supabase),
+        getWholesaleProfiles(supabase, false),
+        getExchangeRates(supabase),
+        getWholesaleOrderEditSettings(supabase),
+        getWholesaleOrderPage(supabase, filters, null, options?.orderLimit)
+          .then((page) => ({ error: null, page }))
+          .catch((error: unknown) => ({
+            error:
+              error instanceof Error
+                ? error.message
+                : "批发订单暂时没有加载成功，请稍后重试。",
+            page: null,
+          })),
+      ]);
+
+    const orderPage = orderPageResult.page;
+
+    return {
+      ...baseData,
+      customers,
+      exchangeRates,
+      logisticsOrders: orderPage?.logisticsOrders ?? [],
+      logisticsStatuses: orderPage?.logisticsStatuses ?? [],
+      orderChangeLogs: orderPage?.orderChangeLogs ?? [],
+      orderEditRequests: orderPage?.orderEditRequests ?? [],
+      orderEditSettings,
+      orderPage,
+      orderPageError: orderPageResult.error,
+      orders: orderPage?.orders ?? [],
+      orderSettlements: orderPage?.orderSettlements ?? [],
+      profiles,
+      purchaseOrders: orderPage?.purchaseOrders ?? [],
+    };
+  }
+
+  const rows = await getWholesaleSectionRows(supabase, section);
+  const scopedRows = scopeWholesaleRows({
+    ...rows,
+    currentRole,
+    currentUserId,
   });
 
   return {
+    ...baseData,
+    commissionRuleSettings: rows.commissionRuleSettings,
+    exchangeRates: rows.exchangeRates,
+    orderEditSettings: rows.orderEditSettings,
+    ...scopedRows,
+  };
+}
+
+type WholesaleSectionRows = {
+  commissionRuleSettings: CommissionRuleSetting[];
+  commissions: WholesaleCommission[];
+  customers: WholesaleCustomer[];
+  exchangeRates: ExchangeRateRow[];
+  logisticsOrders: WholesaleLogisticsOrder[];
+  logisticsStatuses: WholesaleLogisticsStatus[];
+  orderChangeLogs: WholesaleOrderChangeLog[];
+  orderEditRequests: WholesaleOrderEditRequest[];
+  orderEditSettings: WholesaleOrderEditSettings;
+  orderSettlements: WholesaleOrderSettlement[];
+  orders: WholesaleOrder[];
+  profiles: WholesaleProfile[];
+  purchaseOrders: Wholesale1688Order[];
+  referrals: WholesaleReferral[];
+  registeredCandidates: WholesaleProfile[];
+};
+
+async function getWholesaleSectionRows(
+  supabase: SupabaseClient,
+  section: WorkspaceWholesaleSectionKey,
+): Promise<WholesaleSectionRows> {
+  const rows = createEmptyWholesaleSectionRows();
+
+  if (section === "order-claims") {
+    const [customers, orders, purchaseOrders, profileResult] = await Promise.all([
+      getWholesaleCustomers(supabase),
+      getAllWholesaleOrders(supabase),
+      queryRows<Wholesale1688Order>(
+        supabase
+          .from("wholesale_1688_orders")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        "1688 采购订单",
+      ),
+      getWholesaleProfilesWithCandidates(supabase, false),
+    ]);
+
+    return { ...rows, customers, orders, purchaseOrders, ...profileResult };
+  }
+
+  if (section === "logistics") {
+    const [customers, orders, logisticsOrders, logisticsStatuses] =
+      await Promise.all([
+        getWholesaleCustomers(supabase),
+        getAllWholesaleOrders(supabase),
+        queryRows<WholesaleLogisticsOrder>(
+          supabase
+            .from("wholesale_logistics_orders")
+            .select("*")
+            .order("updated_at", { ascending: false }),
+          "批发物流记录",
+        ),
+        queryRows<WholesaleLogisticsStatus>(
+          getWholesaleLogisticsStatuses(supabase),
+          "物流状态",
+        ),
+      ]);
+
+    return { ...rows, customers, logisticsOrders, logisticsStatuses, orders };
+  }
+
+  if (section === "customers") {
+    const [customers, profileResult] = await Promise.all([
+      getWholesaleCustomers(supabase),
+      getWholesaleProfilesWithCandidates(supabase, true),
+    ]);
+
+    return { ...rows, customers, ...profileResult };
+  }
+
+  if (section === "people") {
+    return { ...rows, profiles: await getWholesaleProfiles(supabase, false) };
+  }
+
+  if (section === "referrals") {
+    const [customers, referrals] = await Promise.all([
+      getWholesaleCustomers(supabase),
+      queryRows<WholesaleReferral>(
+        supabase
+          .from("wholesale_referrals")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        "批发推荐关系",
+      ),
+    ]);
+
+    return { ...rows, customers, referrals };
+  }
+
+  if (section === "commission" || section === "incentives") {
+    const [
+      customers,
+      orders,
+      logisticsOrders,
+      logisticsStatuses,
+      commissions,
+      referrals,
+      profiles,
+      exchangeRates,
+      commissionRuleSettings,
+    ] = await Promise.all([
+      getWholesaleCustomers(supabase),
+      getAllWholesaleOrders(supabase),
+      queryRows<WholesaleLogisticsOrder>(
+        supabase
+          .from("wholesale_logistics_orders")
+          .select("*")
+          .order("updated_at", { ascending: false }),
+        "批发物流记录",
+      ),
+      queryRows<WholesaleLogisticsStatus>(
+        getWholesaleLogisticsStatuses(supabase),
+        "物流状态",
+      ),
+      queryRows<WholesaleCommission>(
+        supabase
+          .from("wholesale_commissions")
+          .select("*")
+          .order("calculated_at", { ascending: false }),
+        "批发提成",
+      ),
+      queryRows<WholesaleReferral>(
+        supabase
+          .from("wholesale_referrals")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        "批发推荐关系",
+      ),
+      getWholesaleProfiles(supabase, false),
+      getExchangeRates(supabase),
+      getCommissionRuleSettings(supabase),
+    ]);
+
+    return {
+      ...rows,
+      commissionRuleSettings,
+      commissions,
+      customers,
+      exchangeRates,
+      logisticsOrders,
+      logisticsStatuses,
+      orders,
+      profiles,
+      referrals,
+    };
+  }
+
+  return rows;
+}
+
+function createEmptyWholesalePageData({
+  currentRole,
+  currentUserId,
+  section,
+}: {
+  currentRole: AppRole | null;
+  currentUserId: string | null;
+  section: WorkspaceWholesaleSectionKey;
+}): WholesalePageData {
+  return {
+    ...createEmptyWholesaleSectionRows(),
     currentRole,
     currentUserId,
-    commissionRuleSettings,
-    customers: scopedRows.customers,
-    exchangeRates,
-    orderChangeLogs: scopedRows.orderChangeLogs,
-    orderEditRequests: scopedRows.orderEditRequests,
-    orderEditSettings,
-    orders: scopedRows.orders,
-    orderSettlements: scopedRows.orderSettlements,
-    purchaseOrders: scopedRows.purchaseOrders,
-    logisticsOrders: scopedRows.logisticsOrders,
-    logisticsStatuses: scopedRows.logisticsStatuses,
-    commissions: scopedRows.commissions,
-    referrals: scopedRows.referrals,
-    profiles: scopedRows.profiles,
+    orderPage: null,
+    orderPageError: null,
     section,
   };
 }
 
-function readRows<T>(result: QueryResult<T>) {
+function createEmptyWholesaleSectionRows(): WholesaleSectionRows {
+  return {
+    commissionRuleSettings: [],
+    commissions: [],
+    customers: [],
+    exchangeRates: [],
+    logisticsOrders: [],
+    logisticsStatuses: [],
+    orderChangeLogs: [],
+    orderEditRequests: [],
+    orderEditSettings: {
+      directEditWindowDays: 30,
+      updatedAt: null,
+      updatedByUserId: null,
+    },
+    orderSettlements: [],
+    orders: [],
+    profiles: [],
+    purchaseOrders: [],
+    referrals: [],
+    registeredCandidates: [],
+  };
+}
+
+async function getWholesaleCustomers(supabase: SupabaseClient) {
+  return queryRows<WholesaleCustomer>(
+    supabase
+      .from("wholesale_customers")
+      .select("*")
+      .order("created_at", { ascending: false }),
+    "批发客户",
+  );
+}
+
+async function getAllWholesaleOrders(supabase: SupabaseClient) {
+  return queryRows<WholesaleOrder>(
+    supabase
+      .from("wholesale_orders")
+      .select("*")
+      .order("ordered_at", { ascending: false })
+      .order("id", { ascending: false }),
+    "批发订单",
+  );
+}
+
+async function getWholesaleProfiles(
+  supabase: SupabaseClient,
+  includeLinkCandidates: boolean,
+) {
+  const result = await getWholesaleProfilesWithCandidates(
+    supabase,
+    includeLinkCandidates,
+  );
+  return result.profiles;
+}
+
+async function getWholesaleProfilesWithCandidates(
+  supabase: SupabaseClient,
+  includeLinkCandidates: boolean,
+) {
+  const [profiles, roleRows, roles, registeredCandidates] = await Promise.all([
+    queryRows<Omit<WholesaleProfile, "role">>(
+      supabase
+        .from("user_profiles")
+        .select("user_id,name,email,phone,status,city")
+        .order("created_at", { ascending: false }),
+      "账号资料",
+    ),
+    queryRows<{ user_id: string; role_id: string }>(
+      supabase.from("user_roles_data").select("user_id,role_id"),
+      "账号身份关联",
+    ),
+    queryRows<{ id: string; role: AppRole }>(
+      supabase.from("user_roles").select("id,role"),
+      "账号身份",
+    ),
+    includeLinkCandidates
+      ? queryRows<WholesaleProfile>(
+          supabase.rpc("list_wholesale_customer_link_candidates"),
+          "可关联客户账号",
+        )
+      : Promise.resolve([]),
+  ]);
+  const rolesById = new Map(roles.map((roleRow) => [roleRow.id, roleRow.role]));
+  const roleByUserId = new Map(
+    roleRows.map((roleRow) => [
+      roleRow.user_id,
+      rolesById.get(roleRow.role_id) ?? null,
+    ]),
+  );
+  const profilesByUserId = new Map(
+    profiles.map((profile) => [
+      profile.user_id,
+      { ...profile, role: roleByUserId.get(profile.user_id) ?? null },
+    ]),
+  );
+
+  for (const candidate of registeredCandidates) {
+    profilesByUserId.set(candidate.user_id, candidate);
+  }
+
+  return {
+    profiles: Array.from(profilesByUserId.values()),
+    registeredCandidates,
+  };
+}
+
+async function queryRows<T>(
+  query: PromiseLike<QueryResult<T>>,
+  label: string,
+): Promise<T[]> {
+  const result = await query;
+
   if (result.error) {
-    return [];
+    throw new Error(`${label}暂时没有加载成功，请稍后重试。`, {
+      cause: result.error,
+    });
   }
 
   return result.data ?? [];
+}
+
+function getInitialWholesaleOrderFilters(): WholesaleOrderFilters {
+  const today = getBeijingDateString();
+  const year = Number(today.slice(0, 4));
+  const month = Number(today.slice(5, 7));
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const monthText = String(month).padStart(2, "0");
+
+  return {
+    customerId: "",
+    orderedFromDate: `${year}-${monthText}-01`,
+    orderedToDate: `${year}-${monthText}-${String(lastDay).padStart(2, "0")}`,
+    salesUserId: "",
+    searchText: "",
+    status: "all",
+  };
 }

@@ -308,6 +308,8 @@
       "inputLabel": "问题内容",
       "send": "发送",
       "thinking": "正在回复",
+      "requestTooLarge": "这次发送的内容太多，请精简后再试。",
+      "tooManyRequests": "操作有些频繁，请稍后再问。",
       "serviceUnavailable": "助手暂时没有回复成功，请稍后再试。",
       "feedbackAction": "提交反馈",
       "feedbackErrorDescription": "如果这个问题一直没有解决，可以把刚才的情况提交给管理员查看。",
@@ -2064,7 +2066,8 @@
     "errors": {
       "duplicateKey": "该汇率记录已存在，请检查后重试。",
       "positiveRate": "汇率值必须大于 0。",
-      "permission": "当前账号没有查看或操作汇率数据的权限。"
+      "permission": "当前账号没有查看或操作汇率数据的权限。",
+      "unknown": "汇率暂时没有保存成功，请稍后再试。"
     }
   },
   "Referrals": {
@@ -2427,7 +2430,8 @@
       },
       "errors": {
         "noAdminAccess": "当前账号无法查看全量佣金看板。",
-        "noSalesmanAccess": "当前账号无法查看个人佣金记录。"
+        "noSalesmanAccess": "当前账号无法查看个人佣金记录。",
+        "unknown": "佣金操作暂时没有成功，请稍后再试。"
       }
     },
     "salesman": {
@@ -2528,7 +2532,8 @@
           "attachmentTooLarge": "存在超出限制的附件：图片需小于 5 MB，视频需小于 30 MB，其他文件不能超过 20 MB。",
           "attachmentTotalTooLarge": "附件总大小超出限制，请控制在 100 MB 以内。",
           "attachmentTypeNotAllowed": "存在不支持的附件类型，请上传常见文档、图片、音视频或压缩文件。",
-          "storage": "任务附件处理失败，请稍后重试。"
+          "storage": "任务附件处理失败，请稍后重试。",
+          "unknown": "任务暂时没有保存成功，请稍后再试。"
         },
         "salesman": {
           "cannotAccept": "当前还不能接取这项任务。",
@@ -2549,7 +2554,8 @@
           "reviewAttachmentTooLarge": "存在超出限制的提交文件：图片需小于 5 MB，视频需小于 30 MB，其他文件不能超过 20 MB。",
           "reviewAttachmentTotalTooLarge": "提交文件总大小超出限制，请控制在 100 MB 以内。",
           "reviewAttachmentTypeNotAllowed": "存在不支持的提交文件类型，请上传常见文档、图片、音视频或压缩文件。",
-          "inactive": "当前账号尚未启用，暂时不能处理任务。"
+          "inactive": "当前账号尚未启用，暂时不能处理任务。",
+          "unknown": "任务进度暂时没有保存成功，请稍后再试。"
         }
       }
     },
@@ -3418,7 +3424,8 @@
       "cannotManageTeam": "当前账号暂时不能管理团队资料。",
       "cannotManageMembers": "当前账号暂时不能调整团队成员。",
       "cannotDeleteTeam": "当前账号暂时不能删除团队。",
-      "teamNotFound": "目标团队不存在，可能已被其他人修改。"
+      "teamNotFound": "目标团队不存在，可能已被其他人修改。",
+      "unknown": "团队资料暂时没有保存成功，请稍后再试。"
     }
   },
   "DashboardPagination": {
