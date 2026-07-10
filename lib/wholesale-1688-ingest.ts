@@ -76,6 +76,7 @@ export function normalizeWholesale1688Row(
       "product_name",
       "商品",
       "商品名称",
+      "货品标题",
       "标题",
     ]),
     order_status: pickString(value, [
@@ -91,6 +92,7 @@ export function normalizeWholesale1688Row(
         "paid_amount",
         "采购金额",
         "实付款",
+        "实付款(元)",
         "金额",
       ]),
     ),
@@ -102,6 +104,8 @@ export function normalizeWholesale1688Row(
         "下单时间",
         "创建时间",
         "付款时间",
+        "订单创建时间",
+        "订单付款时间",
       ]),
     ),
     quantity: parseNumber(
@@ -120,6 +124,7 @@ export function normalizeWholesale1688Row(
       "收款人名字",
       "收件人",
       "收件人名字",
+      "收货人姓名",
       "客户名",
       "客户名称",
     ]),
@@ -130,6 +135,8 @@ export function normalizeWholesale1688Row(
       "shop_name",
       "供应商",
       "卖家",
+      "卖家公司名",
+      "卖家会员名",
       "店铺",
     ]),
     wholesale_order_id: pickString(value, [
@@ -142,13 +149,22 @@ export function normalizeWholesale1688Row(
 
 export function parseWholesale1688Csv(text: string): Wholesale1688IngestRow[] {
   const rows = parseCsvRows(text);
+
+  return normalizeWholesale1688TableRows(rows);
+}
+
+export function normalizeWholesale1688TableRows(
+  rows: unknown[][],
+): Wholesale1688IngestRow[] {
   const [headerRow, ...bodyRows] = rows;
 
   if (!headerRow || bodyRows.length === 0) {
     return [];
   }
 
-  const headers = headerRow.map(normalizeHeader);
+  const headers = Array.from({ length: headerRow.length }, (_, index) =>
+    normalizeHeader(String(headerRow[index] ?? "")),
+  );
 
   const parsedRows: Wholesale1688IngestRow[] = [];
 
@@ -215,8 +231,35 @@ function parseDate(value: unknown) {
     return null;
   }
 
+  const excelDateNumber =
+    typeof value === "number" ? value : parseExcelSerialDateText(value);
+
+  if (excelDateNumber && excelDateNumber > 20_000 && excelDateNumber < 100_000) {
+    return parseExcelSerialDate(excelDateNumber);
+  }
+
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
+function parseExcelSerialDate(value: number) {
+  // Excel 会把日期存成从 1900 年开始累计的天数，1688 导出的表格常见这种格式。
+  // 25569 是 1970-01-01 在 Excel 日期里的序号，用它换算成浏览器能理解的时间戳。
+  const parsed = new Date((value - 25_569) * 86_400_000);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
+function parseExcelSerialDateText(value: string) {
+  const text = value.trim();
+
+  if (!/^\d{4,5}(?:\.\d+)?$/.test(text)) {
+    return null;
+  }
+
+  const parsed = Number(text);
+
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function stringOrNull(value: unknown) {

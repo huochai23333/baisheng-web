@@ -103,11 +103,11 @@ export function WholesaleClaimsSection({
             type="button"
           >
             <Upload className="size-4" />
-            上传 1688 CSV
+            上传 1688 文件
           </Button>
         ) : null
       }
-      description="1688 采购订单按已认领、待分类和认领大厅分开处理。CSV 会先按收款人名字辅助归类，确认客户和批发订单后才算完成认领。"
+      description="1688 采购订单按已认领、待分类和认领大厅分开处理。上传订单表格后，系统会先按收货人名字辅助归类，确认客户和批发订单后才算完成认领。"
       eyebrow="批发业务"
       title="订单认领"
     >
@@ -132,7 +132,7 @@ export function WholesaleClaimsSection({
             <input
               className={dashboardFilterInputClassName}
               onChange={(event) => setSearchText(event.target.value)}
-              placeholder="1688 订单号、收款人、商品、客户、业务员"
+              placeholder="1688 订单号、收货人、商品、客户、业务员"
               type="search"
               value={searchText}
             />
@@ -199,7 +199,7 @@ export function WholesaleClaimsSection({
 
 function getEmptyDescription(board: WholesaleClaimBoardKey) {
   if (board === "assisted") {
-    return "CSV 上传后，如果系统能按收款人名字匹配到客户，会先出现在这里。";
+    return "订单表格上传后，如果系统能按收货人名字匹配到客户，会先出现在这里。";
   }
 
   if (board === "hall") {

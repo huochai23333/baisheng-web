@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 import { FileSpreadsheet } from "lucide-react";
 
@@ -9,6 +9,7 @@ import { DashboardFilterField } from "@/components/dashboard/dashboard-section-p
 import { Button } from "@/components/ui/button";
 import type { Wholesale1688IngestRow } from "@/lib/wholesale-1688-ingest";
 import { parseWholesale1688Csv } from "@/lib/wholesale-1688-ingest";
+import { parseWholesale1688Xlsx } from "@/lib/wholesale-1688-xlsx";
 import type {
   WholesaleCustomer,
   WholesaleOrder,
@@ -28,6 +29,7 @@ export function Wholesale1688UploadDialog({
   open: boolean;
   pending: boolean;
 }) {
+  const fileInputId = useId();
   const [fileName, setFileName] = useState("");
   const [parsedRows, setParsedRows] = useState<Wholesale1688IngestRow[]>([]);
   const [parseError, setParseError] = useState<string | null>(null);
@@ -35,38 +37,58 @@ export function Wholesale1688UploadDialog({
 
   return (
     <DashboardDialog
-      description="选择文件后先读取内容，确认无误再接收进入认领列表。系统会按收款人名字先帮你分到待分类。"
+      description="选择从 1688 导出的订单表格，确认无误后再接收进入认领列表。系统会按收货人名字先帮你分到待分类。"
       onOpenChange={onOpenChange}
       open={open}
-      title="上传 1688 CSV"
+      title="上传 1688 订单"
     >
       <div className="space-y-4">
-        <DashboardFilterField label="选择文件">
+        <DashboardFilterField label="订单文件">
           <input
-            accept=".csv,text/csv"
-            className="block w-full rounded-[18px] border border-[#dfe5ea] bg-white px-3 py-2 text-sm text-[#23313a] file:mr-4 file:rounded-full file:border-0 file:bg-[#486782] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
+            accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            className="sr-only"
+            id={fileInputId}
             onChange={(event) => {
               const file = event.currentTarget.files?.[0];
               if (!file) return;
               setFileName(file.name);
               setParseError(null);
-              file
-                .text()
-                .then((text) => setParsedRows(parseWholesale1688Csv(text)))
+              setParsedRows([]);
+              parseWholesale1688File(file)
+                .then((rows) => {
+                  setParsedRows(rows);
+                  setParseError(
+                    rows.length === 0
+                      ? "没有读取到采购订单，请确认选择的是从 1688 导出的订单表格。"
+                      : null,
+                  );
+                })
                 .catch(() => {
                   setParsedRows([]);
-                  setParseError("文件没有读取成功，请重新选择。");
+                  setParseError("订单表格没有读取成功，请重新选择。");
                 });
             }}
             type="file"
           />
+          <div className="flex min-h-[52px] items-center gap-3 rounded-[18px] border border-[#dfe5ea] bg-white px-3 py-2">
+            <label
+              className="inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-[#486782] px-4 text-sm font-semibold whitespace-nowrap text-white hover:bg-[#3e5f79]"
+              htmlFor={fileInputId}
+            >
+              <FileSpreadsheet className="size-4" />
+              选择文件
+            </label>
+            <span className="min-w-0 flex-1 truncate text-sm text-[#23313a]">
+              {fileName || "未选择订单表格"}
+            </span>
+          </div>
         </DashboardFilterField>
         {parseError ? (
           <p className="text-sm text-[#b13d3d]">{parseError}</p>
         ) : parsedRows.length > 0 ? (
           <p className="text-sm leading-6 text-[#61717e]">
             已读取 {parsedRows.length} 条采购订单，其中 {rowsWithRecipient}{" "}
-            条带有收款人名字。确认后会先进入待分类或认领大厅。
+            条带有收货人名字。确认后会先进入待分类或认领大厅。
           </p>
         ) : null}
         <div className="flex justify-end">
@@ -86,6 +108,20 @@ export function Wholesale1688UploadDialog({
       </div>
     </DashboardDialog>
   );
+}
+
+async function parseWholesale1688File(file: File) {
+  const lowerFileName = file.name.toLowerCase();
+
+  if (lowerFileName.endsWith(".xlsx")) {
+    return parseWholesale1688Xlsx(await file.arrayBuffer());
+  }
+
+  if (lowerFileName.endsWith(".csv")) {
+    return parseWholesale1688Csv(await file.text());
+  }
+
+  throw new Error("unsupported_file");
 }
 
 export function WholesaleClaimDialog({
@@ -173,7 +209,7 @@ function WholesaleClaimDialogForm({
       />
       {claimTarget.purchaseOrder.assisted_customer_id ? (
         <div className="rounded-[18px] bg-[#f6f8f9] px-4 py-3 text-sm leading-6 text-[#61717e]">
-          系统根据收款人名字“{claimTarget.recipientName}”匹配到客户“
+          系统根据收货人名字“{claimTarget.recipientName}”匹配到客户“
           {claimTarget.assistedCustomerName}”，请确认要关联的批发订单。
         </div>
       ) : null}

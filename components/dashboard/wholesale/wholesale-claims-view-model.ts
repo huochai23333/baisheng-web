@@ -28,7 +28,7 @@ export const WHOLESALE_CLAIM_BOARDS: Array<{
   {
     key: "assisted",
     label: "待分类",
-    description: "已按收款人名字匹配到客户，等待确认批发订单。",
+    description: "已按收货人名字匹配到客户，等待确认批发订单。",
   },
   {
     key: "hall",

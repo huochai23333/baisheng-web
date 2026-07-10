@@ -19,6 +19,9 @@ import {
   wholesaleStickyFirstThClassName,
 } from "./wholesale-ui";
 
+const wholesaleClaimStickyFirstThClassName = `${wholesaleStickyFirstThClassName} min-w-[220px] whitespace-nowrap`;
+const wholesaleClaimStickyFirstTdClassName = `${wholesaleStickyFirstTdClassName} min-w-[220px] whitespace-nowrap`;
+
 export function WholesaleClaimsTable({
   canAdmin,
   canEdit,
@@ -38,10 +41,10 @@ export function WholesaleClaimsTable({
     <WholesaleTable minWidth={2040}>
       <thead>
         <tr>
-          <WholesaleTh className={wholesaleStickyFirstThClassName}>
+          <WholesaleTh className={wholesaleClaimStickyFirstThClassName}>
             1688 订单号
           </WholesaleTh>
-          <WholesaleTh>收款人名字</WholesaleTh>
+          <WholesaleTh>收货人名字</WholesaleTh>
           <WholesaleTh>辅助归类</WholesaleTh>
           <WholesaleTh>业务员</WholesaleTh>
           <WholesaleTh>客户</WholesaleTh>
@@ -93,8 +96,8 @@ function WholesaleClaimTableRow({
 
   return (
     <tr className="group">
-      <WholesaleTd className={wholesaleStickyFirstTdClassName}>
-        <div className="font-semibold [overflow-wrap:anywhere]">
+      <WholesaleTd className={wholesaleClaimStickyFirstTdClassName}>
+        <div className="font-semibold whitespace-nowrap">
           {purchaseOrder.external_order_number}
         </div>
         <div className="mt-2">
@@ -114,7 +117,7 @@ function WholesaleClaimTableRow({
               {row.assistedCustomerName}
             </div>
             <div className="mt-1 text-xs leading-5 text-[#71808d]">
-              按收款人名字匹配
+              按收货人名字匹配
             </div>
           </div>
         ) : (
