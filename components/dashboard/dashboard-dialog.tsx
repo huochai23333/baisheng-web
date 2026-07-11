@@ -8,6 +8,8 @@ import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
+import { MOTION_DURATION, MOTION_EASING } from "@/lib/motion-tokens";
+
 type DashboardDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -166,10 +168,13 @@ export function DashboardDialog({
     return null;
   }
 
-  const overlayTransition = { duration: 0.18, ease: "easeOut" as const };
+  const overlayTransition = {
+    duration: MOTION_DURATION.feedback,
+    ease: MOTION_EASING.exit,
+  };
   const dialogTransition = {
-    duration: 0.24,
-    ease: [0.22, 1, 0.36, 1] as const,
+    duration: MOTION_DURATION.overlay,
+    ease: MOTION_EASING.enter,
   };
 
   return createPortal(
@@ -195,6 +200,7 @@ export function DashboardDialog({
             aria-labelledby={titleId}
             aria-modal="true"
             className="relative z-10 flex max-h-[calc(100dvh-2rem)] min-w-0 w-full max-w-4xl flex-col overflow-hidden rounded-[30px] border border-white/85 bg-[#fbfaf8] shadow-[0_20px_60px_rgba(35,49,58,0.18)]"
+            data-motion-dialog="true"
             exit={{ opacity: 0, scale: 0.985, y: 16 }}
             initial={{ opacity: 0, scale: 0.985, y: 20 }}
             ref={dialogRef}

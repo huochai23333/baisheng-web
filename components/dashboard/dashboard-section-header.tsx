@@ -61,7 +61,7 @@ export function DashboardSectionHeader({
   return (
     <section
       className={cn(
-        "rounded-[24px] border border-white/90 bg-[#f4f3f1]/92 p-5 shadow-[0_18px_45px_rgba(96,113,128,0.08)] sm:rounded-[28px] sm:p-6 xl:p-8",
+        "motion-surface-enter rounded-[24px] border border-white/90 bg-[#f4f3f1]/92 p-5 shadow-[0_18px_45px_rgba(96,113,128,0.08)] sm:rounded-[28px] sm:p-6 xl:p-8",
         className,
       )}
     >

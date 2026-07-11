@@ -22,7 +22,7 @@ export function DashboardMetricCard({
   return (
     <div
       className={cn(
-        "h-full min-w-0 rounded-[20px] border px-3 py-3 shadow-[0_10px_24px_rgba(96,113,128,0.06)] sm:rounded-[24px] sm:px-5 sm:py-4",
+        "motion-surface-enter h-full min-w-0 rounded-[20px] border px-3 py-3 shadow-[0_10px_24px_rgba(96,113,128,0.06)] sm:rounded-[24px] sm:px-5 sm:py-4",
         accent === "blue" && "border-[#d9e3eb] bg-[#f4f8fb]",
         accent === "green" && "border-[#dce8df] bg-[#f2f7f3]",
         accent === "gold" && "border-[#eadfbf] bg-[#fbf5e8]",

@@ -25,6 +25,9 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   testDir: "./tests/e2e",
   timeout: 60_000,
+  // 回归用例共用本地种子账号和 Supabase 数据。并发文件会互相覆盖筛选、额度和业务记录，
+  // 还会让单个 Next dev server 同时承受多次登录与整页查询，因此固定串行才能得到可信结果。
+  workers: 1,
   use: {
     baseURL,
     screenshot: "only-on-failure",

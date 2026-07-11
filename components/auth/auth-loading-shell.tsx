@@ -32,10 +32,10 @@ export function AuthLoadingShell({ variant }: AuthLoadingShellProps) {
           <SkeletonField />
           <SkeletonField />
           <div className="flex items-start gap-3 pt-1">
-            <div className="mt-0.5 size-5 rounded-md bg-[#d7e2ea]/80" />
+            <div className="motion-skeleton mt-0.5 size-5 rounded-md bg-[#d7e2ea]/80" />
             <div className="flex-1 space-y-2">
-              <div className="h-3 w-[88%] rounded-full bg-[#d7e2ea]/80" />
-              <div className="h-3 w-[54%] rounded-full bg-[#d7e2ea]/60" />
+              <div className="motion-skeleton h-3 w-[88%] rounded-full bg-[#d7e2ea]/80" />
+              <div className="motion-skeleton h-3 w-[54%] rounded-full bg-[#d7e2ea]/60" />
             </div>
           </div>
         </>
@@ -46,16 +46,16 @@ export function AuthLoadingShell({ variant }: AuthLoadingShellProps) {
           {variant === "login" ? (
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="size-5 rounded-md bg-[#d7e2ea]/80" />
-                <div className="h-3 w-28 rounded-full bg-[#d7e2ea]/60" />
+                <div className="motion-skeleton size-5 rounded-md bg-[#d7e2ea]/80" />
+                <div className="motion-skeleton h-3 w-28 rounded-full bg-[#d7e2ea]/60" />
               </div>
-              <div className="h-3 w-20 rounded-full bg-[#d7e2ea]/60" />
+              <div className="motion-skeleton h-3 w-20 rounded-full bg-[#d7e2ea]/60" />
             </div>
           ) : null}
         </>
       )}
 
-      <div className="h-[56px] rounded-full bg-[#486782]/14 shadow-[0_10px_30px_rgba(72,103,130,0.08)]" />
+      <div className="motion-skeleton h-[56px] rounded-full bg-[#486782]/14 shadow-[0_10px_30px_rgba(72,103,130,0.08)]" />
     </div>
   );
 }
@@ -63,8 +63,8 @@ export function AuthLoadingShell({ variant }: AuthLoadingShellProps) {
 function SkeletonField() {
   return (
     <div className="space-y-2">
-      <div className="h-3 w-20 rounded-full bg-[#d7e2ea]/80" />
-      <div className="h-[52px] rounded-[22px] border border-[#e3e7eb] bg-[#f2efeb]/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.86)]" />
+      <div className="motion-skeleton h-3 w-20 rounded-full bg-[#d7e2ea]/80" />
+      <div className="motion-skeleton h-[52px] rounded-[22px] border border-[#e3e7eb] bg-[#f2efeb]/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.86)]" />
     </div>
   );
 }

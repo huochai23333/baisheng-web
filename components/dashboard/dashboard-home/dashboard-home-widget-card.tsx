@@ -127,7 +127,8 @@ export function DashboardHomeWidgetCard({
           (deleting || entering || resizing) &&
           "border-[#bfd2e1] bg-white/88 shadow-[0_22px_52px_rgba(72,103,130,0.12)]",
         deleting && "dashboard-home-widget-exit pointer-events-none",
-        dragging && "opacity-60 ring-4 ring-[#bfd2e1]/45",
+        dragging &&
+          "scale-[1.01] opacity-72 shadow-[0_28px_62px_rgba(72,103,130,0.18)] ring-4 ring-[#bfd2e1]/45",
         entering && "dashboard-home-widget-enter",
         resizing && "dashboard-home-widget-resizing",
       )}

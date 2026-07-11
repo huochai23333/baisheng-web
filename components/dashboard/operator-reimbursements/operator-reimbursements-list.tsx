@@ -4,6 +4,11 @@ import type { ReactNode } from "react";
 
 import { CalendarDays, LoaderCircle, ReceiptText, Trash2 } from "lucide-react";
 
+import {
+  MotionList,
+  MotionListItem,
+  PresenceSwap,
+} from "@/components/motion/motion-primitives";
 import { Button } from "@/components/ui/button";
 import type {
   OperatorReimbursementRow,
@@ -48,26 +53,31 @@ export function OperatorReimbursementsListSection({
 }: OperatorReimbursementsListSectionProps) {
   return (
     <DashboardListSection title={copy.recordsTitle}>
-      {reimbursements.length === 0 ? (
-        <EmptyState
-          description={copy.emptyDescription}
-          icon={<ReceiptText className="size-6" />}
-          title={copy.emptyTitle}
-        />
-      ) : (
-        <div className="grid gap-4">
-          {reimbursements.map((reimbursement) => (
-            <OperatorReimbursementCard
-              copy={copy}
-              key={reimbursement.id}
-              locale={locale}
-              onDelete={onDelete}
-              pendingAction={pendingAction}
-              reimbursement={reimbursement}
-            />
-          ))}
-        </div>
-      )}
+      <PresenceSwap
+        presenceKey={reimbursements.length === 0 ? "empty" : "reimbursements"}
+      >
+        {reimbursements.length === 0 ? (
+          <EmptyState
+            description={copy.emptyDescription}
+            icon={<ReceiptText className="size-6" />}
+            title={copy.emptyTitle}
+          />
+        ) : (
+          <MotionList className="grid gap-4">
+            {reimbursements.map((reimbursement, index) => (
+              <MotionListItem index={index} key={reimbursement.id}>
+                <OperatorReimbursementCard
+                  copy={copy}
+                  locale={locale}
+                  onDelete={onDelete}
+                  pendingAction={pendingAction}
+                  reimbursement={reimbursement}
+                />
+              </MotionListItem>
+            ))}
+          </MotionList>
+        )}
+      </PresenceSwap>
     </DashboardListSection>
   );
 }

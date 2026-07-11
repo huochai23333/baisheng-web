@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 
 import { useRouter } from "next/navigation";
 import { Languages, LoaderCircle } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { getDocumentLanguage, LOCALE_COOKIE_NAME, type Locale } from "@/lib/locale";
@@ -94,17 +95,27 @@ export function LanguageToggle() {
         </button>
       </div>
 
-      {isSwitching ? (
-        <div className="fixed inset-0 z-50 flex cursor-wait items-start justify-end bg-transparent p-4 sm:p-6">
-          <div
+      <AnimatePresence>
+        {isSwitching ? (
+        <motion.div
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 flex cursor-wait items-start justify-end bg-transparent p-4 sm:p-6"
+          exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }}
+        >
+          <motion.div
+            animate={{ opacity: 1, y: 0 }}
             className="inline-flex h-10 items-center gap-2 rounded-full border border-[#d7dde3] bg-white/94 px-4 text-sm font-semibold text-[#486782] shadow-[0_16px_36px_rgba(72,86,98,0.18)] backdrop-blur"
+            exit={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -6 }}
             role="status"
           >
             <LoaderCircle className="size-4 animate-spin" />
             {t("switching")}
-          </div>
-        </div>
-      ) : null}
+          </motion.div>
+        </motion.div>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

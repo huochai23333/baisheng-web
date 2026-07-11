@@ -44,7 +44,8 @@ export function LoadingState() {
 
   return (
     <div className="mx-auto flex min-h-[60vh] w-full max-w-[1320px] items-center justify-center">
-      <div className="rounded-[28px] border border-white/85 bg-white/70 px-6 py-5 text-sm text-[#60707d] shadow-[0_18px_45px_rgba(96,113,128,0.06)]">
+      <div className="motion-surface-enter flex items-center gap-3 rounded-[28px] border border-white/85 bg-white/70 px-6 py-5 text-sm text-[#60707d] shadow-[0_18px_45px_rgba(96,113,128,0.06)]">
+        <LoaderCircle className="size-4 animate-spin text-[#486782]" />
         {t("loading")}
       </div>
     </div>
@@ -61,7 +62,7 @@ export function PageBanner({
   return (
     <div
       className={cn(
-        "rounded-[24px] border px-5 py-4 text-sm leading-7",
+        "motion-surface-enter rounded-[24px] border px-5 py-4 text-sm leading-7",
         tone === "error" && "border-[#f1d1d1] bg-[#fff2f2] text-[#9f3535]",
         tone === "success" && "border-[#d6e8d8] bg-[#f1f8f2] text-[#42624b]",
         tone === "info" && "border-[#d7e2ea] bg-[#f3f7fa] text-[#49657d]",
@@ -151,7 +152,7 @@ export function InputCard({
   const t = useTranslations("DashboardShared");
 
   return (
-    <div className="rounded-[24px] border border-[#ece8e1] bg-white p-6 shadow-[0_10px_24px_rgba(96,113,128,0.06)]">
+    <div className="motion-surface-enter rounded-[24px] border border-[#ece8e1] bg-white p-6 shadow-[0_10px_24px_rgba(96,113,128,0.06)]">
       <div className="flex items-center gap-3 text-[#486782]">
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#eef3f6]">
           {icon}
@@ -200,7 +201,7 @@ export function StatusNotice({
   return (
     <div
       className={cn(
-        "rounded-[22px] border px-5 py-4",
+        "motion-surface-enter rounded-[22px] border px-5 py-4",
         approved
           ? "border-[#d9e8dc] bg-[#edf5ef] text-[#355443]"
           : "border-[#f0dfaf] bg-[#fbf3dd] text-[#75520c]",
@@ -228,7 +229,7 @@ export function StatusNotice({
 
 export function ValueCard({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-[24px] border border-[#ece8e1] bg-white p-6 shadow-[0_10px_24px_rgba(96,113,128,0.06)]">
+    <div className="motion-surface-enter rounded-[24px] border border-[#ece8e1] bg-white p-6 shadow-[0_10px_24px_rgba(96,113,128,0.06)]">
       <div className="flex items-center gap-3 text-[#486782]">
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#eef3f6]">{icon}</div>
         <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase">{label}</p>
@@ -240,7 +241,7 @@ export function ValueCard({ icon, label, value }: { icon: ReactNode; label: stri
 
 export function EmptyState({ icon, title, description }: { icon: ReactNode; title: string; description: string }) {
   return (
-    <div className="flex min-h-[280px] flex-col items-center justify-center rounded-[24px] border border-dashed border-[#d9d5cf] bg-white/72 px-6 py-10 text-center">
+    <div className="motion-surface-enter flex min-h-[280px] flex-col items-center justify-center rounded-[24px] border border-dashed border-[#d9d5cf] bg-white/72 px-6 py-10 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#eef3f6] text-[#486782]">{icon}</div>
       <p className="mt-5 text-lg font-semibold text-[#2b3942]">{title}</p>
       <p className="mt-2 max-w-md text-sm leading-7 text-[#7b858d]">{description}</p>

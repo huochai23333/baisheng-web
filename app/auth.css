@@ -14,6 +14,7 @@
 @source "../components/brand";
 @source "../components/i18n";
 @source "../components/legal";
+@source "../components/motion";
 
 @layer utilities {
   .auth-grid-dots {

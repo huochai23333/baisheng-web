@@ -26,6 +26,11 @@ import {
   DashboardListSection,
 } from "@/components/dashboard/dashboard-section-panel";
 import { EmptyState, PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import {
+  MotionList,
+  MotionListItem,
+  PresenceSwap,
+} from "@/components/motion/motion-primitives";
 
 import { getTaskTargetRoleLabel } from "@/components/dashboard/tasks/tasks-display";
 
@@ -204,34 +209,37 @@ export function AdminTasksListSection({
       description={t("list.description", { count: filteredCount })}
       title={t("list.title")}
     >
-      {filteredCount === 0 ? (
-        <EmptyState
-          description={t("states.emptyDescription")}
-          icon={<ClipboardList className="size-6" />}
-          title={t("states.emptyTitle")}
-        />
-      ) : (
-        <>
-          {submissionMediaState.errorMessage ? (
-            <PageBanner tone="error">{submissionMediaState.errorMessage}</PageBanner>
-          ) : null}
+      <PresenceSwap presenceKey={filteredCount === 0 ? "empty" : "task-list"}>
+        {filteredCount === 0 ? (
+          <EmptyState
+            description={t("states.emptyDescription")}
+            icon={<ClipboardList className="size-6" />}
+            title={t("states.emptyTitle")}
+          />
+        ) : (
+          <>
+            {submissionMediaState.errorMessage ? (
+              <PageBanner tone="error">{submissionMediaState.errorMessage}</PageBanner>
+            ) : null}
 
-          <div className="grid grid-cols-1 gap-5 2xl:grid-cols-2">
-            {tasksPagination.items.map((task) => (
-              <TaskCard
-                deleteBusy={deletePendingTaskId === task.id}
-                key={task.id}
-                onDelete={() => onDeleteTask(task)}
-                onEdit={() => onEditTask(task)}
-                onReassign={() => onReassignTask(task)}
-                onViewDetails={() => setDetailsTask(task)}
-                reassignBusy={assignmentPendingTaskId === task.id}
-                task={task}
-              />
-            ))}
-          </div>
-        </>
-      )}
+            <MotionList className="grid grid-cols-1 gap-5 2xl:grid-cols-2">
+              {tasksPagination.items.map((task, index) => (
+                <MotionListItem index={index} key={task.id}>
+                  <TaskCard
+                    deleteBusy={deletePendingTaskId === task.id}
+                    onDelete={() => onDeleteTask(task)}
+                    onEdit={() => onEditTask(task)}
+                    onReassign={() => onReassignTask(task)}
+                    onViewDetails={() => setDetailsTask(task)}
+                    reassignBusy={assignmentPendingTaskId === task.id}
+                    task={task}
+                  />
+                </MotionListItem>
+              ))}
+            </MotionList>
+          </>
+        )}
+      </PresenceSwap>
 
       <DashboardPaginationControls
         endIndex={tasksPagination.endIndex}

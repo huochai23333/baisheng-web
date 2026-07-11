@@ -177,7 +177,7 @@ export function DashboardSharedMyDialogs({
                             </div>
                           }
                           imageClassName="h-full w-full object-cover"
-                          loadingFallback={<div className="h-full w-full animate-pulse bg-[#e7e3dd]" />}
+                          loadingFallback={<div className="motion-skeleton h-full w-full bg-[#e7e3dd]" />}
                         />
                       </div>
                       <div className="mt-3 space-y-3 px-1">
@@ -239,7 +239,7 @@ export function DashboardSharedMyDialogs({
                               {copy.previewUnavailable}
                             </div>
                           }
-                          loadingFallback={<div className="h-full w-full animate-pulse bg-white/8" />}
+                          loadingFallback={<div className="motion-skeleton h-full w-full bg-white/8" />}
                           preload="metadata"
                           videoClassName="aspect-video w-full bg-[#172029] object-cover"
                         />

@@ -6,7 +6,6 @@ import type { ReactNode } from "react";
 import {
   Building2,
   ChevronDown,
-  ChevronRight,
   Folder,
   FolderOpen,
   Search,
@@ -20,6 +19,11 @@ import {
   type DashboardSharedCopy,
 } from "@/components/dashboard/dashboard-shared-ui";
 import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
+import {
+  MotionCollapse,
+  MotionList,
+  MotionListItem,
+} from "@/components/motion/motion-primitives";
 import type { ReferralTreeEdge } from "@/lib/referrals";
 
 import {
@@ -84,24 +88,25 @@ export function ReferralTreePanel({
           />
         ) : (
           <div className="min-w-0 sm:min-w-[640px]">
-            <div className="grid gap-4 sm:gap-6">
-              {treeDisplay.rootIds.map((rootId) => (
-                <ReferralTreeNode
-                  copy={copy}
-                  currentViewerId={currentViewerId}
-                  forceExpanded={searchText.trim().length > 0}
-                  graph={graph}
-                  incomingEdge={null}
-                  isRoot
-                  key={rootId}
-                  locale={locale}
-                  matchingNodeIds={treeDisplay.matchingNodeIds}
-                  nodeId={rootId}
-                  sharedCopy={sharedCopy}
-                  visibleNodeIds={treeDisplay.visibleNodeIds}
-                />
+            <MotionList className="grid gap-4 sm:gap-6">
+              {treeDisplay.rootIds.map((rootId, index) => (
+                <MotionListItem index={index} key={rootId}>
+                  <ReferralTreeNode
+                    copy={copy}
+                    currentViewerId={currentViewerId}
+                    forceExpanded={searchText.trim().length > 0}
+                    graph={graph}
+                    incomingEdge={null}
+                    isRoot
+                    locale={locale}
+                    matchingNodeIds={treeDisplay.matchingNodeIds}
+                    nodeId={rootId}
+                    sharedCopy={sharedCopy}
+                    visibleNodeIds={treeDisplay.visibleNodeIds}
+                  />
+                </MotionListItem>
               ))}
-            </div>
+            </MotionList>
           </div>
         )}
       </div>
@@ -185,11 +190,11 @@ function ReferralTreeNode({
         >
           <div className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#eef3f6] text-[#486782]">
             {hasChildren ? (
-              isOpen ? (
-                <ChevronDown className="size-4" />
-              ) : (
-                <ChevronRight className="size-4" />
-              )
+              <ChevronDown
+                className={`size-4 transition-transform duration-200 ${
+                  isOpen ? "rotate-0" : "-rotate-90"
+                }`}
+              />
             ) : isCompanyNode ? (
               <Building2 className="size-4" />
             ) : (
@@ -249,27 +254,31 @@ function ReferralTreeNode({
         </button>
       </div>
 
-      {hasChildren && isOpen ? (
+      <MotionCollapse open={hasChildren && isOpen}>
         <div className="relative ml-4 mt-3 border-l border-dashed border-[#d7d3cb] pl-4 sm:ml-6 sm:mt-4 sm:pl-6">
-          <div className="grid gap-3 sm:gap-4">
-            {childEdges.map((childEdge) => (
-              <ReferralTreeNode
-                copy={copy}
-                currentViewerId={currentViewerId}
-                forceExpanded={forceExpanded}
-                graph={graph}
-                incomingEdge={childEdge}
+          <MotionList className="grid gap-3 sm:gap-4">
+            {childEdges.map((childEdge, index) => (
+              <MotionListItem
+                index={index}
                 key={`${childEdge.referrer_user_id}-${childEdge.new_user_id}`}
-                locale={locale}
-                matchingNodeIds={matchingNodeIds}
-                nodeId={childEdge.new_user_id}
-                sharedCopy={sharedCopy}
-                visibleNodeIds={visibleNodeIds}
-              />
+              >
+                <ReferralTreeNode
+                  copy={copy}
+                  currentViewerId={currentViewerId}
+                  forceExpanded={forceExpanded}
+                  graph={graph}
+                  incomingEdge={childEdge}
+                  locale={locale}
+                  matchingNodeIds={matchingNodeIds}
+                  nodeId={childEdge.new_user_id}
+                  sharedCopy={sharedCopy}
+                  visibleNodeIds={visibleNodeIds}
+                />
+              </MotionListItem>
             ))}
-          </div>
+          </MotionList>
         </div>
-      ) : null}
+      </MotionCollapse>
     </div>
   );
 }

@@ -12,7 +12,12 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
+import {
+  MotionList,
+  MotionListItem,
+} from "@/components/motion/motion-primitives";
 import { Button } from "@/components/ui/button";
+import { MOTION_DURATION, MOTION_EASING } from "@/lib/motion-tokens";
 import { cn } from "@/lib/utils";
 
 import type { AiAssistantOpenFeedback } from "./ai-assistant-feedback-bridge";
@@ -80,7 +85,10 @@ export function AiAssistantPanel({
       className="fixed bottom-[5.5rem] right-3 z-40 flex h-[min(640px,calc(100dvh-7rem))] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-[26px] border border-white/85 bg-[#fbfaf8] shadow-[0_22px_56px_rgba(35,49,58,0.2)] sm:bottom-24 sm:right-6"
       exit={{ opacity: 0, scale: 0.98, y: 18 }}
       initial={{ opacity: 0, scale: 0.96, y: 24 }}
-      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+      transition={{
+        duration: MOTION_DURATION.overlay,
+        ease: MOTION_EASING.enter,
+      }}
     >
       <div className="flex items-center justify-between gap-3 border-b border-[#ebe7e1] px-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
@@ -121,7 +129,10 @@ export function AiAssistantPanel({
             className="border-b border-[#ebe7e1] bg-[#f6f4f0] px-4 py-3"
             exit={{ opacity: 0, y: -8 }}
             initial={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.16, ease: "easeOut" }}
+            transition={{
+              duration: MOTION_DURATION.feedback,
+              ease: MOTION_EASING.enter,
+            }}
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm leading-6 text-[#60707d]">
@@ -152,37 +163,45 @@ export function AiAssistantPanel({
         ) : null}
       </AnimatePresence>
 
-      <div className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4">
+      <MotionList className="flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-4">
         {messages
           .filter((message) => message.content.length > 0)
-          .map((message) => (
-            <AssistantMessageBubble key={message.id} message={message} />
+          .map((message, index) => (
+            <MotionListItem index={index} key={message.id}>
+              <AssistantMessageBubble message={message} />
+            </MotionListItem>
           ))}
 
         {pending ? (
-          <div className="flex justify-start">
-            <div className="flex max-w-[84%] items-center gap-2 rounded-[20px] border border-[#e7e2db] bg-white px-4 py-3 text-sm text-[#66727d] shadow-[0_8px_18px_rgba(96,113,128,0.06)]">
-              <LoaderCircle className="size-4 animate-spin" />
-              {copy.thinking}
+          <MotionListItem key="assistant-thinking">
+            <div className="flex justify-start">
+              <div className="flex max-w-[84%] items-center gap-2 rounded-[20px] border border-[#e7e2db] bg-white px-4 py-3 text-sm text-[#66727d] shadow-[0_8px_18px_rgba(96,113,128,0.06)]">
+                <LoaderCircle className="size-4 animate-spin" />
+                {copy.thinking}
+              </div>
             </div>
-          </div>
+          </MotionListItem>
         ) : null}
 
         {errorMessage ? (
-          <div className="rounded-[18px] border border-[#f1d1d1] bg-[#fff2f2] px-4 py-3 text-sm leading-6 text-[#9f3535]">
-            {errorMessage}
-          </div>
+          <MotionListItem key="assistant-error">
+            <div className="rounded-[18px] border border-[#f1d1d1] bg-[#fff2f2] px-4 py-3 text-sm leading-6 text-[#9f3535]">
+              {errorMessage}
+            </div>
+          </MotionListItem>
         ) : null}
 
-        <AiAssistantFeedbackEntry
-          copy={copy.feedbackEntry}
-          errorMessage={errorMessage}
-          messages={messages}
-          onOpenFeedback={onOpenFeedback}
-        />
+        <MotionListItem key="assistant-feedback-entry">
+          <AiAssistantFeedbackEntry
+            copy={copy.feedbackEntry}
+            errorMessage={errorMessage}
+            messages={messages}
+            onOpenFeedback={onOpenFeedback}
+          />
+        </MotionListItem>
 
         <div ref={messageEndRef} />
-      </div>
+      </MotionList>
 
       <form
         className="border-t border-[#ebe7e1] bg-white/72 p-3"

@@ -2,12 +2,15 @@ import Link from "next/link";
 
 import { getTranslations } from "next-intl/server";
 
+import { PageReveal } from "@/components/motion/page-reveal";
+
 export default async function NotFound() {
   const t = await getTranslations("NotFoundPage");
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(160deg,#f6f2ea_0%,#f3f7fa_48%,#edf2f6_100%)] px-6 py-16">
-      <section className="w-full max-w-xl rounded-[32px] border border-white/90 bg-white/90 p-8 shadow-[0_24px_80px_rgba(35,49,58,0.12)] sm:p-10">
+    <PageReveal className="min-h-screen">
+      <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(160deg,#f6f2ea_0%,#f3f7fa_48%,#edf2f6_100%)] px-6 py-16">
+        <section className="w-full max-w-xl rounded-[32px] border border-white/90 bg-white/90 p-8 shadow-[0_24px_80px_rgba(35,49,58,0.12)] sm:p-10">
         <span className="inline-flex rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
           {t("badge")}
         </span>
@@ -23,7 +26,8 @@ export default async function NotFound() {
             {t("primaryAction")}
           </Link>
         </div>
-      </section>
-    </main>
+        </section>
+      </main>
+    </PageReveal>
   );
 }

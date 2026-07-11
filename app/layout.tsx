@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
 import "./root.css";
 
+import { MotionSystemProvider } from "@/components/motion/motion-system-provider";
 import { getCompanyText } from "@/lib/company-config";
 import { getDocumentLanguage, normalizeLocale } from "@/lib/locale";
 
@@ -36,7 +37,7 @@ export default async function RootLayout({
       className="h-full antialiased"
     >
       <body className="min-h-full flex flex-col">
-        {children}
+        <MotionSystemProvider>{children}</MotionSystemProvider>
       </body>
     </html>
   );

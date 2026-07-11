@@ -13,14 +13,20 @@ import {
   Settings,
   ShieldCheck,
 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
 import { useLocale } from "@/components/i18n/locale-provider";
+import {
+  MotionList,
+  MotionListItem,
+} from "@/components/motion/motion-primitives";
 import { Button } from "@/components/ui/button";
 import type { AnnouncementRow } from "@/lib/announcements";
 import { signOutCurrentBrowserSession } from "@/lib/browser-auth-session";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useStaleFocusRecovery } from "@/lib/use-stale-focus-recovery";
+import { MOTION_DURATION, MOTION_EASING } from "@/lib/motion-tokens";
 import type { WorkspaceAnnouncementsState } from "@/lib/workspace-announcements";
 
 import { DashboardDialog } from "./dashboard-dialog";
@@ -153,6 +159,7 @@ export function WorkspaceHeaderActions({
           aria-expanded={accountMenuOpen}
           aria-label={t("accountMenu.open")}
           className="inline-flex items-center gap-3 rounded-full bg-[#f1efeb] p-1.5 transition-colors hover:bg-[#e8e5e0] sm:pr-3"
+          data-testid="workspace-account-menu-trigger"
           onClick={() => {
             setAccountMenuOpen((current) => !current);
           }}
@@ -164,11 +171,26 @@ export function WorkspaceHeaderActions({
           <span className="hidden text-sm font-medium text-[#486782] sm:inline">
             {accountLabel}
           </span>
-          <ChevronDown className="hidden size-4 text-[#6b7b87] sm:block" />
+          <ChevronDown
+            className={`hidden size-4 text-[#6b7b87] transition-transform duration-200 sm:block ${
+              accountMenuOpen ? "rotate-180" : "rotate-0"
+            }`}
+          />
         </button>
 
-        {accountMenuOpen ? (
-          <div className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[240px] overflow-hidden rounded-[22px] border border-[#e5e1da] bg-white shadow-[0_24px_52px_rgba(72,86,98,0.18)]">
+        <AnimatePresence>
+          {accountMenuOpen ? (
+          <motion.div
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[240px] origin-top-right overflow-hidden rounded-[22px] border border-[#e5e1da] bg-white shadow-[0_24px_52px_rgba(72,86,98,0.18)]"
+            data-testid="workspace-account-menu"
+            exit={{ opacity: 0, scale: 0.985, y: -6 }}
+            initial={{ opacity: 0, scale: 0.985, y: -6 }}
+            transition={{
+              duration: MOTION_DURATION.standard,
+              ease: MOTION_EASING.enter,
+            }}
+          >
             <div className="border-b border-[#eee9e1] px-4 py-3">
               <p className="truncate text-sm font-semibold text-[#2d3a44]">
                 {accountLabel}
@@ -216,8 +238,9 @@ export function WorkspaceHeaderActions({
                 {t("logout")}
               </button>
             </div>
-          </div>
-        ) : null}
+          </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
 
       <DashboardDialog
@@ -248,7 +271,7 @@ export function WorkspaceHeaderActions({
             : t("announcements.recentTitle")
         }
       >
-        <div className="space-y-4">
+        <MotionList className="space-y-4">
           {announcements.errorMessage ? (
             <PageBanner tone="error">{announcements.errorMessage}</PageBanner>
           ) : null}
@@ -258,15 +281,16 @@ export function WorkspaceHeaderActions({
               {t("announcements.empty")}
             </div>
           ) : (
-            announcements.displayedAnnouncements.map((announcement) => (
-              <WorkspaceAnnouncementCard
-                announcement={announcement}
-                key={announcement.id}
-                locale={locale}
-              />
+            announcements.displayedAnnouncements.map((announcement, index) => (
+              <MotionListItem index={index} key={announcement.id}>
+                <WorkspaceAnnouncementCard
+                  announcement={announcement}
+                  locale={locale}
+                />
+              </MotionListItem>
             ))
           )}
-        </div>
+        </MotionList>
       </DashboardDialog>
     </>
   );

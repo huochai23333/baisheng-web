@@ -2,6 +2,8 @@
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 
+import { MOTION_DURATION, MOTION_EASING_CSS } from "@/lib/motion-tokens";
+
 type LayoutRect = {
   height: number;
   left: number;
@@ -61,8 +63,10 @@ export function useDashboardHomeWidgetLayoutAnimation({
         },
       ],
       {
-        duration: resizing ? 240 : 190,
-        easing: "cubic-bezier(0.2, 0.9, 0.2, 1)",
+        duration:
+          (resizing ? MOTION_DURATION.overlay : MOTION_DURATION.standard) *
+          1000,
+        easing: MOTION_EASING_CSS.enter,
       },
     );
 

@@ -119,11 +119,20 @@ export function AiAssistantClient() {
             type="button"
             whileTap={{ scale: 0.94 }}
           >
-            {open ? (
-              <Bot className="size-6" />
-            ) : (
-              <MessageCircle className="size-6" />
-            )}
+            <AnimatePresence initial={false} mode="wait">
+              <motion.span
+                animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                exit={{ opacity: 0, rotate: open ? -12 : 12, scale: 0.86 }}
+                initial={{ opacity: 0, rotate: open ? 12 : -12, scale: 0.86 }}
+                key={open ? "assistant-open" : "assistant-closed"}
+              >
+                {open ? (
+                  <Bot className="size-6" />
+                ) : (
+                  <MessageCircle className="size-6" />
+                )}
+              </motion.span>
+            </AnimatePresence>
           </motion.button>
         </>
       )}

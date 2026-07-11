@@ -1,8 +1,10 @@
 "use client";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { CheckCircle2, LoaderCircle, PencilLine, Send } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { MOTION_DURATION, MOTION_EASING, getMotionStaggerDelay } from "@/lib/motion-tokens";
 import type {
   Wholesale1688Order,
   WholesaleCustomer,
@@ -185,7 +187,8 @@ export function WholesaleOrdersTable({
         </tr>
       </thead>
       <tbody>
-        {orders.map((order) => {
+        <AnimatePresence initial={false}>
+        {orders.map((order, index) => {
           const editAction = getOrderEditAction(order);
           const settlements = orderSettlementsByOrderId.get(order.id) ?? [];
           const settledAmount = settlements.reduce(
@@ -197,10 +200,19 @@ export function WholesaleOrdersTable({
             0,
           );
           return (
-            <tr
+            <motion.tr
+              animate={{ opacity: 1, y: 0 }}
               className="group"
               data-testid={`wholesale-order-row-${order.id}`}
+              exit={{ opacity: 0, y: -4 }}
+              initial={{ opacity: 0, y: 8 }}
               key={order.id}
+              layout="position"
+              transition={{
+                delay: getMotionStaggerDelay(index),
+                duration: MOTION_DURATION.standard,
+                ease: MOTION_EASING.enter,
+              }}
             >
               <WholesaleTd
                 className={`${wholesaleStickyFirstTdClassName} min-w-[230px] px-4 py-3`}
@@ -377,9 +389,10 @@ export function WholesaleOrdersTable({
               <WholesaleTd className="min-w-[240px] whitespace-normal">
                 {order.notes ?? t("fallbacks.notRecorded")}
               </WholesaleTd>
-            </tr>
+            </motion.tr>
           );
         })}
+        </AnimatePresence>
       </tbody>
     </WholesaleTable>
   );

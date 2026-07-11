@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import "./root.css";
 
+import { MotionSystemProvider } from "@/components/motion/motion-system-provider";
+import { PageReveal } from "@/components/motion/page-reveal";
 import {
   DEFAULT_LOCALE,
   getDocumentLanguage,
@@ -67,8 +69,10 @@ export default function GlobalError({ error, reset }: GlobalErrorPageProps) {
   return (
     <html lang={getDocumentLanguage(locale)}>
       <body className="min-h-screen bg-[linear-gradient(160deg,#f6f2ea_0%,#f3f7fa_48%,#edf2f6_100%)]">
-        <main className="flex min-h-screen items-center justify-center px-6 py-16">
-          <section className="w-full max-w-xl rounded-[32px] border border-white/90 bg-white/92 p-8 shadow-[0_24px_80px_rgba(35,49,58,0.12)] sm:p-10">
+        <MotionSystemProvider>
+          <PageReveal className="min-h-screen">
+            <main className="flex min-h-screen items-center justify-center px-6 py-16">
+              <section className="w-full max-w-xl rounded-[32px] border border-white/90 bg-white/92 p-8 shadow-[0_24px_80px_rgba(35,49,58,0.12)] sm:p-10">
             <span className="inline-flex rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
               {copy.badge}
             </span>
@@ -94,8 +98,10 @@ export default function GlobalError({ error, reset }: GlobalErrorPageProps) {
                 {copy.reload}
               </button>
             </div>
-          </section>
-        </main>
+              </section>
+            </main>
+          </PageReveal>
+        </MotionSystemProvider>
       </body>
     </html>
   );

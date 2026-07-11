@@ -7,6 +7,11 @@ import {
   Star,
 } from "lucide-react";
 
+import {
+  MotionList,
+  MotionListItem,
+  PresenceSwap,
+} from "@/components/motion/motion-primitives";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -185,29 +190,38 @@ export function HomeTodosSection({
           frame === "plain" && "min-h-0 flex-1 overflow-y-auto pr-1",
         )}
       >
-        {todoState.filteredTodos.length === 0 ? (
-          <EmptyState
-            description={emptyCopy.description}
-            icon={<ListTodo className="size-6" />}
-            title={emptyCopy.title}
-          />
-        ) : (
-          <div className="space-y-3">
-            {todoState.filteredTodos.map((todo) => (
-              <TodoItem
-                copy={copy}
-                key={todo.id}
-                locale={locale}
-                onDelete={() => void todoState.handleDelete(todo)}
-                onEdit={() => todoState.openEditDialog(todo)}
-                onToggleComplete={() => todoState.handleToggleComplete(todo)}
-                onToggleImportant={() => todoState.handleToggleImportant(todo)}
-                pendingAction={todoState.pendingAction}
-                todo={todo}
-              />
-            ))}
-          </div>
-        )}
+        <PresenceSwap
+          presenceKey={
+            todoState.filteredTodos.length === 0
+              ? `empty:${todoState.filter}`
+              : `list:${todoState.filter}`
+          }
+        >
+          {todoState.filteredTodos.length === 0 ? (
+            <EmptyState
+              description={emptyCopy.description}
+              icon={<ListTodo className="size-6" />}
+              title={emptyCopy.title}
+            />
+          ) : (
+            <MotionList className="space-y-3">
+              {todoState.filteredTodos.map((todo, index) => (
+                <MotionListItem index={index} key={todo.id}>
+                  <TodoItem
+                    copy={copy}
+                    locale={locale}
+                    onDelete={() => void todoState.handleDelete(todo)}
+                    onEdit={() => todoState.openEditDialog(todo)}
+                    onToggleComplete={() => todoState.handleToggleComplete(todo)}
+                    onToggleImportant={() => todoState.handleToggleImportant(todo)}
+                    pendingAction={todoState.pendingAction}
+                    todo={todo}
+                  />
+                </MotionListItem>
+              ))}
+            </MotionList>
+          )}
+        </PresenceSwap>
       </div>
 
       <HomeTodoDialog

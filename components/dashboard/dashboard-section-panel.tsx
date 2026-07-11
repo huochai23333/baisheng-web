@@ -53,7 +53,7 @@ export function DashboardSectionPanel({
   return (
     <section
       className={cn(
-        "rounded-[24px] border border-white/85 bg-white/72 p-4 shadow-[0_18px_45px_rgba(96,113,128,0.06)] sm:rounded-[28px] sm:p-6 xl:p-8",
+        "motion-surface-enter rounded-[24px] border border-white/85 bg-white/72 p-4 shadow-[0_18px_45px_rgba(96,113,128,0.06)] sm:rounded-[28px] sm:p-6 xl:p-8",
         className,
       )}
     >
@@ -73,9 +73,9 @@ export function DashboardFilterPanel({
     <div
       className={cn(
         variant === "inset" &&
-          "rounded-[20px] border border-[#ebe7e1] bg-[#fbfaf8] p-3 shadow-[0_10px_24px_rgba(96,113,128,0.04)] sm:rounded-[24px] sm:p-4",
+          "motion-surface-enter rounded-[20px] border border-[#ebe7e1] bg-[#fbfaf8] p-3 shadow-[0_10px_24px_rgba(96,113,128,0.04)] sm:rounded-[24px] sm:p-4",
         variant === "standalone" &&
-          "rounded-[24px] border border-white/85 bg-white/72 p-4 shadow-[0_18px_45px_rgba(96,113,128,0.06)] sm:rounded-[28px] sm:p-6",
+          "motion-surface-enter rounded-[24px] border border-white/85 bg-white/72 p-4 shadow-[0_18px_45px_rgba(96,113,128,0.06)] sm:rounded-[28px] sm:p-6",
         className,
       )}
     >
@@ -147,7 +147,12 @@ export function DashboardListSection({
           title={title}
         />
       ) : null}
-      <div className={cn(hasHeader ? "mt-4 sm:mt-6" : "", bodyClassName)}>{children}</div>
+      <div
+        className={cn(hasHeader ? "mt-4 sm:mt-6" : "", bodyClassName)}
+        data-motion-collection="true"
+      >
+        {children}
+      </div>
     </DashboardSectionPanel>
   );
 }
@@ -161,11 +166,16 @@ export function DashboardTableFrame({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-[20px] border border-[#ebe7e1] bg-white shadow-[0_10px_24px_rgba(96,113,128,0.06)] sm:rounded-[24px]",
+        "motion-surface-enter overflow-hidden rounded-[20px] border border-[#ebe7e1] bg-white shadow-[0_10px_24px_rgba(96,113,128,0.06)] sm:rounded-[24px]",
         className,
       )}
     >
-      <div className={cn("overflow-x-auto", innerClassName)}>{children}</div>
+      <div
+        className={cn("overflow-x-auto", innerClassName)}
+        data-motion-collection="true"
+      >
+        {children}
+      </div>
       {footer ? <div className="px-4 pb-4 sm:px-5 sm:pb-5">{footer}</div> : null}
     </div>
   );
