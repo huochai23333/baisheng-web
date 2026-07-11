@@ -15,7 +15,6 @@ import {
 import { getAdminCommissionPageData } from "@/lib/admin-commission";
 import { getAdminTaskMediaLibraryData } from "@/lib/admin-task-media-library";
 import { getAdminTaskReviewBoardData } from "@/lib/admin-task-reviews";
-import { getAdminReviewsPageData } from "@/lib/admin-reviews";
 import { getAdminPeoplePageData } from "@/lib/admin-people";
 import { getClientBusinessCandidates } from "@/lib/client-business-access";
 import { getAdminOperationRecordsPageData } from "@/lib/admin-operation-records";
@@ -90,12 +89,6 @@ const SalesmanPeopleClient = dynamic(() =>
 const AdminOperationRecordsClient = dynamic(() =>
   import("@/components/dashboard/admin-operation-records/admin-operation-records-client").then(
     (mod) => mod.AdminOperationRecordsClient,
-  ),
-);
-
-const AdminReviewsClient = dynamic(() =>
-  import("@/components/dashboard/admin-reviews/admin-reviews-client").then(
-    (mod) => mod.AdminReviewsClient,
   ),
 );
 
@@ -238,10 +231,6 @@ export default async function WorkspaceSectionPage({
         />
       );
     }
-  } else if (section === "reviews" && config.pageVariants.reviews) {
-    const supabase = await getServerSupabaseClient();
-    const initialData = await getAdminReviewsPageData(supabase);
-    content = <AdminReviewsClient initialData={initialData} />;
   } else if (section === "customers" && config.pageVariants.customers) {
     const supabase = await getServerSupabaseClient();
     if (config.pageVariants.customers === "admin") {

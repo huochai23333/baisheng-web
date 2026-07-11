@@ -22,8 +22,6 @@ export function isWorkspaceSectionEnabled(
       return config.pageVariants.records === true;
     case "referrals":
       return config.pageVariants.referrals === true;
-    case "reviews":
-      return config.pageVariants.reviews === true;
     case "settings":
       return config.pageVariants.settings === true;
     case "tasks":
@@ -89,10 +87,6 @@ export function getSectionNamespaces(
     if (config.pageVariants.tasks === "staff") {
       namespaces.push("DashboardPagination", "Tasks.salesman", "Tasks.shared");
     }
-  }
-
-  if (section === "reviews" && config.pageVariants.reviews) {
-    namespaces.push("Reviews", "ReviewsUI", "DashboardShared", "Tasks.shared");
   }
 
   if (section === "people" && config.pageVariants.people) {

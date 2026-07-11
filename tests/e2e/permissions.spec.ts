@@ -19,7 +19,7 @@ test.describe("workspace permission regression", () => {
   test("salesman cannot open administrator review queues", async ({ page }) => {
     await loginAs(page, "salesman");
 
-    await page.goto("/admin/tourism/reviews");
+    await page.goto("/admin/reviews");
 
     await expectForbiddenPage(page);
 
@@ -27,6 +27,17 @@ test.describe("workspace permission regression", () => {
     await page.getByRole("link", { name: "返回我的首页" }).click();
     await expect(page).toHaveURL(/\/salesman\/home(?:[?#].*)?$/);
     await expectWorkspaceShell(page);
+  });
+
+  test("retired tourism review route does not open the global review center", async ({
+    page,
+  }) => {
+    await loginAs(page, "administrator");
+
+    await page.goto("/admin/tourism/reviews");
+
+    await expectForbiddenPage(page);
+    await expect(page).not.toHaveURL(/\/admin\/reviews(?:[?#].*)?$/);
   });
 
   test("salesman cannot open administrator operation records", async ({ page }) => {

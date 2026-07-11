@@ -45,6 +45,7 @@ export type WorkspacePageVariants = WorkspaceBusinessPageVariants & {
   companyExpenses?: true;
   feedback?: true;
   operatorReimbursements?: true;
+  reviews?: true;
   settings?: true;
 };
 
@@ -65,6 +66,7 @@ const homeNavItems = [
 
 const adminGlobalNavItems = [
   { segment: "home", labelKey: "home" },
+  { segment: "reviews", labelKey: "reviews" },
   { segment: "accounts", labelKey: "accounts" },
   { segment: "announcements", labelKey: "announcements" },
   { segment: "company-expenses", labelKey: "companyExpenses" },
@@ -100,6 +102,7 @@ function createWorkspaceRouteConfig({
     | "companyExpenses"
     | "feedback"
     | "operatorReimbursements"
+    | "reviews"
     | "settings"
   >;
   initials: string;
@@ -130,6 +133,7 @@ const WORKSPACE_ROUTE_CONFIG_BY_SEGMENT = {
       announcements: true,
       companyExpenses: true,
       feedback: true,
+      reviews: true,
       settings: true,
     },
     initials: "AD",
@@ -209,6 +213,7 @@ const workspaceGlobalNavSegmentSet = new Set<string>([
   "home",
   "my",
   "reimbursements",
+  "reviews",
   "settings",
 ]);
 

@@ -86,14 +86,6 @@ export async function generateWorkspaceSectionMetadata({
     };
   }
 
-  if (section === "reviews" && config.pageVariants.reviews) {
-    const t = await getTranslations("Reviews.metadata");
-
-    return {
-      title: t("title"),
-    };
-  }
-
   if (section === "people" && config.pageVariants.people) {
     const t = await getTranslations(
       config.pageVariants.people === "admin"

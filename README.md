@@ -1,6 +1,6 @@
-# 柏盛管理系统 Web 前端
+# 柏盛系统 Web 前端
 
-柏盛管理系统 Web 端基于 `Next.js 16 App Router`、`React 19`、`TypeScript`、`Tailwind CSS 4`、`Supabase` 和 `next-intl` 构建。
+柏盛系统 Web 端基于 `Next.js 16 App Router`、`React 19`、`TypeScript`、`Tailwind CSS 4`、`Supabase` 和 `next-intl` 构建。
 
 项目目录：`/home/huochai/project/system/baisheng-web`
 
@@ -146,7 +146,7 @@ npm run supabase:admin -- summary
 
 | 角色 | 默认入口 | 当前模块 |
 | --- | --- | --- |
-| `administrator` | `/admin/home` | 全局首页、账号管理、公告管理、公司费用、反馈管理、汇率设置；旅游业务下的订单、客户管理、推荐树、团队、人员管理、VIP管理、操作记录、佣金、任务、审核和业务设置；批发业务下的批发订单、结汇发布、订单认领、物流、客户管理、人员管理、VIP管理、推荐树、佣金、提成和业务设置 |
+| `administrator` | `/admin/home` | 全局首页、审核中心、账号管理、公告管理、公司费用、反馈管理、汇率设置；旅游业务下的订单、客户管理、推荐树、团队、人员管理、VIP管理、操作记录、佣金、任务和业务设置；批发业务下的批发订单、结汇发布、订单认领、物流、客户管理、人员管理、VIP管理、推荐树、佣金、提成和业务设置 |
 | `salesman` | `/salesman/home` | 全局首页；固定仅可见批发业务，显示批发订单、结汇发布、订单认领、物流、客户管理、VIP管理、推荐树、佣金和提成 |
 | `promoter` | `/promoter/home` | 全局首页；固定仅可见旅游业务，显示旅游订单、客户管理、VIP管理、推荐树、团队、佣金和任务 |
 | `client` | `/client/home` | 全局首页；自助注册只获得所选旅游或批发业务，管理员可在对应业务客户管理中追加另一业务；客户按已有业务权限查看订单、物流、推荐树和佣金 |
@@ -159,7 +159,7 @@ npm run supabase:admin -- summary
 
 - `/[role]` 自动重定向到 `/[role]/home`。
 - `/[role]/home` 和 `/[role]/my` 是全局页面，不归属于单个业务。
-- `/admin/accounts`、`/admin/announcements`、`/admin/company-expenses` 和 `/admin/feedback` 是管理员全局管理页面，不归属于旅游业务或批发业务。
+- `/admin/reviews`、`/admin/accounts`、`/admin/announcements`、`/admin/company-expenses` 和 `/admin/feedback` 是管理员全局管理页面，不归属于旅游业务或批发业务；审核中心在全局导航中紧跟首页。
 - `/finance/company-expenses` 是财务全局公司费用页面，不归属于旅游业务或批发业务。
 - `/operator/reimbursements` 是运营全局报销记录页面，不归属于旅游业务或批发业务。
 - `/admin/settings` 是管理员全局汇率设置页面，不归属于旅游业务或批发业务。
@@ -293,7 +293,7 @@ baisheng-web/
 - `business-settings/`：业务内设置页，旅游业务注册服务费、服务价格、服务折扣和服务相关佣金区块，批发业务注册批发订单修改规则、批发订单业务员提成和批发客户推荐佣金区块。
 - `admin-tasks/`：管理员当前任务板、任务审核、任务媒体库、任务创建、编辑、详情、改派和删除。
 - `salesman-tasks/`：内部成员任务接收、提交审核和成果附件。
-- `admin-reviews/`：资料修改、隐私审核、媒体审核和智能初审展示；任务审核放在管理员任务板内切换。
+- `admin-reviews/`：全局审核中心使用的资料修改、隐私审核、媒体审核和智能初审展示；任务审核仍放在管理员任务板内切换。
 - `commission/`：普通佣金、任务佣金和结算操作。
 - `referrals/`：旅游业务推荐树和关系展示；批发业务推荐树由 `components/dashboard/wholesale/` 下的独立批发模块展示。
 - `wholesale/`：批发业务模块，包含批发订单、分批结汇记录、结汇发布、1688 订单认领、物流、客户管理、批发推荐树、客户推荐佣金和业务员提成；管理员额外可查看批发人员管理，不复用 `admin-orders/`；批发 VIP 使用独立客户权益模型，不复用旅游 VIP 表。

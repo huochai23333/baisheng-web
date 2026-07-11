@@ -32,6 +32,7 @@ export type WorkspaceGlobalNavSegment =
   | "home"
   | "my"
   | "reimbursements"
+  | "reviews"
   | "settings";
 
 export type WorkspaceNavSegment =
@@ -82,7 +83,6 @@ export type WorkspaceBusinessPageVariants = {
   people?: WorkspacePeoplePageMode;
   records?: true;
   referrals?: true;
-  reviews?: true;
   settings?: true;
   tasks?: WorkspaceTasksPageMode;
   team?: true;
@@ -177,7 +177,6 @@ const adminTourismNavItems = [
   { segment: "records", labelKey: "records" },
   { segment: "commission", labelKey: "commission" },
   { segment: "tasks", labelKey: "tasks" },
-  { segment: "reviews", labelKey: "reviews" },
   { segment: "settings", labelKey: "businessSettings" },
 ] as const satisfies readonly WorkspaceNavItem[];
 
@@ -269,7 +268,6 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
         people: "admin",
         records: true,
         referrals: true,
-        reviews: true,
         settings: true,
         tasks: "admin",
         team: true,
