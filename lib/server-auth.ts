@@ -6,7 +6,8 @@ import {
   getDefaultSignedInPathForRole,
   type AppRole,
 } from "./auth-routing";
-import { normalizeAppRole, normalizeUserStatus, type UserStatus } from "./auth-metadata";
+import type { UserStatus } from "./auth-metadata";
+import { getCurrentAppAccessContext } from "./current-app-access-context";
 import { getServerSupabaseClient } from "./supabase-server";
 
 type ServerAuthContext = {
@@ -47,20 +48,13 @@ export async function getServerAuthContext(): Promise<ServerAuthContext> {
     };
   }
 
-  // 角色和状态从数据库 RPC 读取；这里有错误就向上抛出，避免退回客户端元数据放行。
-  const { data, error } = await supabase.rpc("get_current_app_access_context");
-
-  if (error) {
-    throw error;
-  }
-
-  const value = Array.isArray(data) ? data[0] : data;
-  const accessContext = readRecord(value);
+  // 角色和状态统一从数据库读取，入口跳转和工作台权限校验因此使用同一份可信结果。
+  const accessContext = await getCurrentAppAccessContext(supabase);
 
   return {
     hasAuthCookie: true,
-    role: normalizeAppRole(accessContext?.role),
-    status: normalizeUserStatus(accessContext?.status),
+    role: accessContext.role,
+    status: accessContext.status,
     userId: user.id,
   };
 }
@@ -84,6 +78,7 @@ export async function redirectAuthenticatedUserToWorkspace() {
     redirect("/auth/sign-out?next=%2Flogin");
   }
 
+  assertWorkspaceRole(role);
   redirect(getDefaultSignedInPathForRole(role));
 }
 
@@ -98,6 +93,8 @@ export async function requireWorkspaceAccess(expectedBasePath: string) {
     redirect("/auth/sign-out?next=%2Flogin");
   }
 
+  assertWorkspaceRole(role);
+
   if (!canAccessWorkspaceBasePath(role, expectedBasePath)) {
     redirectToWorkspaceAccessLimited();
   }
@@ -108,8 +105,11 @@ export function redirectToWorkspaceAccessLimited(): never {
   redirect("/access-limited");
 }
 
-function readRecord(value: unknown): Record<string, unknown> | null {
-  return typeof value === "object" && value !== null
-    ? (value as Record<string, unknown>)
-    : null;
+export function assertWorkspaceRole(
+  role: AppRole | null,
+): asserts role is AppRole {
+  if (!role) {
+    // 账号缺少角色属于配置异常，不能再把它当成客户账号，否则会形成错误跳转和权限提示循环。
+    throw new Error("The signed-in account does not have a valid workspace role.");
+  }
 }

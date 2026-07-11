@@ -5,7 +5,7 @@ import { getLocale } from "next-intl/server";
 
 import { getDefaultSignedInPathForRole } from "@/lib/auth-routing";
 import { normalizeLocale } from "@/lib/locale";
-import { getServerAuthContext } from "@/lib/server-auth";
+import { assertWorkspaceRole, getServerAuthContext } from "@/lib/server-auth";
 
 const SIGN_OUT_TO_LOGIN_PATH = "/auth/sign-out?next=%2Flogin";
 
@@ -23,6 +23,9 @@ export default async function AccessLimitedPage() {
   if (!userId || status !== "active") {
     redirect(SIGN_OUT_TO_LOGIN_PATH);
   }
+
+  // 返回入口只能使用数据库确认过的角色；角色缺失时进入统一错误界面，不能误导到客户首页。
+  assertWorkspaceRole(role);
 
   const locale = normalizeLocale(localeValue);
   const copy =

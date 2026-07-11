@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { getAppRoleFromMetadataContainer } from "./auth-metadata";
+import { getCurrentAppAccessContext } from "./current-app-access-context";
 import {
   getDefaultSignedInPathForRole,
   getWorkspaceBasePath,
@@ -63,7 +63,6 @@ export async function updateSession(request: NextRequest) {
     error,
   } = await supabase.auth.getUser();
   const userId = error ? null : (user?.id ?? null);
-  const role = error ? null : getAppRoleFromMetadataContainer(user);
 
   if (currentBasePath) {
     if (!userId) {
@@ -74,10 +73,34 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (AUTH_ENTRY_PATHS.has(pathname) && userId) {
+    let accessContext;
+
+    try {
+      // 部署后恢复旧会话时也必须查询数据库，不能使用可能过期的 Auth 元数据决定工作台。
+      accessContext = await getCurrentAppAccessContext(supabase);
+    } catch {
+      // 让认证页面继续由服务端读取同一上下文并进入现有友好错误页，禁止猜测为客户角色。
+      return supabaseResponse;
+    }
+
+    if (accessContext.status !== "active") {
+      return createRedirectResponse(
+        request,
+        supabaseResponse,
+        "/auth/sign-out",
+        { search: "?next=%2Flogin" },
+      );
+    }
+
+    if (!accessContext.role) {
+      // 缺少有效角色时交给认证页面显示错误，不能再默认跳转到 /client/home。
+      return supabaseResponse;
+    }
+
     return createRedirectResponse(
       request,
       supabaseResponse,
-      getDefaultSignedInPathForRole(role),
+      getDefaultSignedInPathForRole(accessContext.role),
       {
         clearSearch: true,
       },
@@ -97,12 +120,15 @@ function createRedirectResponse(
   destinationPath: string,
   options?: {
     clearSearch?: boolean;
+    search?: string;
   },
 ) {
   const redirectUrl = request.nextUrl.clone();
   redirectUrl.pathname = destinationPath;
 
-  if (options?.clearSearch) {
+  if (options?.search !== undefined) {
+    redirectUrl.search = options.search;
+  } else if (options?.clearSearch) {
     redirectUrl.search = "";
   }
 

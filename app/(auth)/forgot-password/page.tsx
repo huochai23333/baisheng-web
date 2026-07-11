@@ -6,6 +6,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
 import { getAuthShellCopy } from "@/lib/auth-shell-content";
+import { redirectAuthenticatedUserToWorkspace } from "@/lib/server-auth";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("ForgotPasswordPage");
@@ -16,7 +17,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ForgotPasswordPage() {
-  const [t, authShellCopy] = await Promise.all([
+  const [, t, authShellCopy] = await Promise.all([
+    // 入口代理查询暂时失败时由页面再次确认，保证已登录账号不会停留在认证页面或使用旧角色跳转。
+    redirectAuthenticatedUserToWorkspace(),
     getTranslations("ForgotPasswordPage"),
     getAuthShellCopy(),
   ]);

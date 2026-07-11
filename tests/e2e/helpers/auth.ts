@@ -14,6 +14,15 @@ export async function loginAs(
 ): Promise<RegressionAccount> {
   const account = getRegressionAccount(role);
 
+  await loginWithAccount(page, account);
+
+  return account;
+}
+
+export async function loginWithAccount(
+  page: Page,
+  account: RegressionAccount,
+) {
   // 大多数既有回归断言使用中文文案，因此测试必须明确选择中文，
   // 不能再依赖测试浏览器自身的 Accept-Language。
   await setTestLocale(page, "zh");
@@ -28,8 +37,6 @@ export async function loginAs(
   );
   await expectWorkspaceShell(page);
   await dismissWorkspaceAnnouncements(page);
-
-  return account;
 }
 
 export async function setTestLocale(page: Page, locale: "en" | "zh") {

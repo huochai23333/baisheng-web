@@ -81,6 +81,47 @@ export function getRegressionAccount(role: RegressionRole): RegressionAccount {
   return account;
 }
 
+export function getStaleRoleRegressionAccount(): RegressionAccount | null {
+  return getSpecialLocalAccount("local.stale-role-client@", "client");
+}
+
+export function getInactiveRegressionAccount(): RegressionAccount | null {
+  return getSpecialLocalAccount("local.inactive-client@", "client");
+}
+
+function getSpecialLocalAccount(
+  emailPrefix: string,
+  role: RegressionRole,
+): RegressionAccount | null {
+  if (!shouldPreferLocalSupabaseAccounts()) {
+    return null;
+  }
+
+  const localSeedPath = findLocalSeedPath();
+
+  if (!localSeedPath) {
+    return null;
+  }
+
+  const text = fs.readFileSync(localSeedPath, "utf8");
+  const email = Array.from(text.matchAll(EMAIL_PATTERN), (match) => match[0]).find(
+    (value) => value.toLowerCase().startsWith(emailPrefix),
+  );
+  const password = text.match(/crypt\('([^']+)'/)?.[1];
+
+  if (!email || !password) {
+    return null;
+  }
+
+  // 专用账号只存在于本地 Docker，生产和云端回归不会读取本地测试凭据。
+  return {
+    email,
+    password,
+    role,
+    workspacePath: ROLE_WORKSPACE_PATH[role],
+  };
+}
+
 function loadRegressionAccounts() {
   if (cachedAccounts) {
     return cachedAccounts;
