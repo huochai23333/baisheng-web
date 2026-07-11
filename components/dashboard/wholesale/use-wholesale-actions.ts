@@ -5,6 +5,11 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { getBrowserSupabaseClient } from "@/lib/supabase";
+import {
+  deleteWholesaleOrderListAttachment,
+  uploadWholesaleOrderListFiles,
+  type WholesaleOrderListAttachment,
+} from "@/lib/wholesale-order-list-attachments";
 
 import {
   getWholesaleOrderRpcPayload,
@@ -194,6 +199,51 @@ export function useWholesaleActions() {
     [runAction],
   );
 
+  const uploadOrderListAttachments = useCallback(
+    ({
+      existingAttachments,
+      files,
+      orderId,
+      uploadedByUserId,
+    }: {
+      existingAttachments: WholesaleOrderListAttachment[];
+      files: File[];
+      orderId: string;
+      uploadedByUserId: string;
+    }) =>
+      runActionResult(
+        `order-list:upload:${orderId}`,
+        "Order List 附件已上传。",
+        async () => {
+          const supabase = getBrowserSupabaseClient();
+          if (!supabase) throw new Error("client unavailable");
+
+          await uploadWholesaleOrderListFiles(supabase, {
+            existingAttachments,
+            files,
+            orderId,
+            uploadedByUserId,
+          });
+        },
+      ),
+    [runActionResult],
+  );
+
+  const deleteOrderListAttachment = useCallback(
+    (attachment: WholesaleOrderListAttachment) =>
+      runActionResult(
+        `order-list:delete:${attachment.id}`,
+        "Order List 附件已删除。",
+        async () => {
+          const supabase = getBrowserSupabaseClient();
+          if (!supabase) throw new Error("client unavailable");
+
+          await deleteWholesaleOrderListAttachment(supabase, attachment);
+        },
+      ),
+    [runActionResult],
+  );
+
   const approveOrderEditRequest = useCallback(
     (requestId: string) =>
       runAction(
@@ -373,6 +423,7 @@ export function useWholesaleActions() {
     createOrder,
     createReferral,
     delete1688Order,
+    deleteOrderListAttachment,
     feedback,
     import1688Rows,
     markOrderSettled,
@@ -381,5 +432,6 @@ export function useWholesaleActions() {
     requestOrderEdit,
     settleCommission,
     updateOrder,
+    uploadOrderListAttachments,
   };
 }

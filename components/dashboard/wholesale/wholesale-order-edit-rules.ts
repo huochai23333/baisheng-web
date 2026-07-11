@@ -1,4 +1,7 @@
-import type { WholesaleCustomer, WholesaleOrder } from "@/lib/wholesale";
+import type {
+  WholesaleCustomer,
+  WholesaleOrderListItem,
+} from "@/lib/wholesale";
 
 export type WholesaleOrderEditMode = "direct" | "request";
 
@@ -9,7 +12,7 @@ export function getWholesaleOrderEditMode({
 }: {
   canManageAllOrders: boolean;
   editWindowDays: number;
-  order: WholesaleOrder;
+  order: WholesaleOrderListItem;
 }): WholesaleOrderEditMode {
   if (canManageAllOrders) {
     return "direct";
@@ -46,7 +49,7 @@ export function canCurrentUserManageWholesaleOrder({
   canManageAllOrders: boolean;
   currentUserId: string | null;
   customer: WholesaleCustomer | undefined;
-  order: WholesaleOrder;
+  order: WholesaleOrderListItem;
 }) {
   if (!canEdit) {
     return false;

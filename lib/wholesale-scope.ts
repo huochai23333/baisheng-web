@@ -12,6 +12,19 @@ import type {
   WholesaleReferral,
 } from "./wholesale";
 import type { WholesaleLogisticsStatus } from "./wholesale-logistics-statuses";
+import {
+  scopeWholesaleCommissions,
+  scopeWholesaleOrderChangeLogs,
+  scopeWholesaleOrderEditRequests,
+  scopeWholesaleOrderSettlements,
+  scopeWholesaleProfiles,
+  scopeWholesaleReferrals,
+} from "./wholesale-scope-related";
+import {
+  canReadFullWholesaleBackoffice,
+  canReadFullWholesaleDirectory,
+  canUseWholesaleSalesScope,
+} from "./wholesale-scope-role-rules";
 
 type ScopeWholesaleRowsInput = {
   commissions: WholesaleCommission[];
@@ -166,6 +179,15 @@ function scopeWholesaleLogisticsStatuses({
     return [];
   }
 
+  if (currentRole === "client") {
+    // 客户物流状态必须明确关联到自己可见的批发订单，不能只靠客户名称或创建人兜底。
+    return logisticsStatuses.filter(
+      (status) =>
+        status.wholesale_order_id !== null &&
+        orderIds.has(status.wholesale_order_id),
+    );
+  }
+
   return logisticsStatuses.filter(
     (status) =>
       (status.customer_id ? customerIds.has(status.customer_id) : false) ||
@@ -226,6 +248,10 @@ function scopeWholesaleOrders({
 
   if (!currentUserId) {
     return [];
+  }
+
+  if (currentRole === "client") {
+    return orders.filter((order) => customerIds.has(order.customer_id));
   }
 
   return orders.filter(
@@ -294,6 +320,15 @@ function scopeWholesaleLogisticsOrders({
     return [];
   }
 
+  if (currentRole === "client") {
+    // 客户只能查看已经绑定到自己批发订单的物流费用记录。
+    return logisticsOrders.filter(
+      (order) =>
+        order.wholesale_order_id !== null &&
+        orderIds.has(order.wholesale_order_id),
+    );
+  }
+
   return logisticsOrders.filter(
     (order) =>
       (order.customer_id ? customerIds.has(order.customer_id) : false) ||
@@ -302,236 +337,4 @@ function scopeWholesaleLogisticsOrders({
         : false) ||
       order.created_by_user_id === currentUserId,
   );
-}
-
-function scopeWholesaleCommissions({
-  currentRole,
-  currentUserId,
-  commissions,
-  customerIds,
-  orderIds,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  commissions: WholesaleCommission[];
-  customerIds: Set<string>;
-  orderIds: Set<string>;
-}) {
-  if (canReadFullWholesaleBackoffice(currentRole)) {
-    return commissions;
-  }
-
-  if (!currentUserId) {
-    return [];
-  }
-
-  return commissions.filter(
-    (commission) =>
-      (commission.customer_id
-        ? customerIds.has(commission.customer_id)
-        : false) ||
-      orderIds.has(commission.order_id) ||
-      commission.beneficiary_user_id === currentUserId ||
-      commission.settled_by_user_id === currentUserId,
-  );
-}
-
-function scopeWholesaleReferrals({
-  currentRole,
-  currentUserId,
-  customerIds,
-  referrals,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  customerIds: Set<string>;
-  referrals: WholesaleReferral[];
-}) {
-  if (canReadFullWholesaleDirectory(currentRole)) {
-    return referrals;
-  }
-
-  if (!currentUserId) {
-    return [];
-  }
-
-  return referrals.filter(
-    (referral) =>
-      referral.created_by_user_id === currentUserId ||
-      (customerIds.has(referral.referrer_customer_id) &&
-        customerIds.has(referral.referred_customer_id)),
-  );
-}
-
-function scopeWholesaleOrderEditRequests({
-  currentRole,
-  currentUserId,
-  orderEditRequests,
-  orderIds,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  orderEditRequests: WholesaleOrderEditRequest[];
-  orderIds: Set<string>;
-}) {
-  if (canReadFullWholesaleBackoffice(currentRole)) {
-    return orderEditRequests;
-  }
-
-  if (!currentUserId) {
-    return [];
-  }
-
-  return orderEditRequests.filter(
-    (request) =>
-      orderIds.has(request.order_id) ||
-      request.requested_by_user_id === currentUserId ||
-      request.reviewer_user_id === currentUserId,
-  );
-}
-
-function scopeWholesaleOrderChangeLogs({
-  currentRole,
-  currentUserId,
-  orderChangeLogs,
-  orderIds,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  orderChangeLogs: WholesaleOrderChangeLog[];
-  orderIds: Set<string>;
-}) {
-  if (canReadFullWholesaleBackoffice(currentRole)) {
-    return orderChangeLogs;
-  }
-
-  if (!currentUserId) {
-    return [];
-  }
-
-  return orderChangeLogs.filter(
-    (log) => orderIds.has(log.order_id) || log.actor_user_id === currentUserId,
-  );
-}
-
-function scopeWholesaleOrderSettlements({
-  currentRole,
-  currentUserId,
-  orderIds,
-  orderSettlements,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  orderIds: Set<string>;
-  orderSettlements: WholesaleOrderSettlement[];
-}) {
-  if (canReadFullWholesaleBackoffice(currentRole)) {
-    return orderSettlements;
-  }
-
-  if (!currentUserId) {
-    return [];
-  }
-
-  return orderSettlements.filter(
-    (settlement) =>
-      orderIds.has(settlement.order_id) ||
-      settlement.created_by_user_id === currentUserId,
-  );
-}
-
-function scopeWholesaleProfiles({
-  currentRole,
-  currentUserId,
-  customers,
-  logisticsOrders,
-  logisticsStatuses,
-  orderChangeLogs,
-  orderEditRequests,
-  orders,
-  profiles,
-  purchaseOrders,
-  registeredCandidates,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  customers: WholesaleCustomer[];
-  logisticsOrders: WholesaleLogisticsOrder[];
-  logisticsStatuses: WholesaleLogisticsStatus[];
-  orderChangeLogs: WholesaleOrderChangeLog[];
-  orderEditRequests: WholesaleOrderEditRequest[];
-  orders: WholesaleOrder[];
-  profiles: WholesaleProfile[];
-  purchaseOrders: Wholesale1688Order[];
-  registeredCandidates: WholesaleProfile[];
-}) {
-  if (canReadFullWholesaleDirectory(currentRole)) {
-    return profiles;
-  }
-
-  const visibleProfileIds = new Set<string>();
-
-  addOptionalId(visibleProfileIds, currentUserId);
-
-  for (const customer of customers) {
-    addOptionalId(visibleProfileIds, customer.assigned_sales_user_id);
-    addOptionalId(visibleProfileIds, customer.created_by_user_id);
-    addOptionalId(visibleProfileIds, customer.registered_user_id);
-  }
-
-  for (const order of orders) {
-    addOptionalId(visibleProfileIds, order.sales_user_id);
-    addOptionalId(visibleProfileIds, order.created_by_user_id);
-  }
-
-  for (const order of purchaseOrders) {
-    addOptionalId(visibleProfileIds, order.claimed_by_user_id);
-    addOptionalId(visibleProfileIds, order.imported_by_user_id);
-  }
-
-  for (const order of logisticsOrders) {
-    addOptionalId(visibleProfileIds, order.created_by_user_id);
-  }
-
-  for (const status of logisticsStatuses) {
-    addOptionalId(visibleProfileIds, status.created_by_user_id);
-  }
-
-  for (const request of orderEditRequests) {
-    addOptionalId(visibleProfileIds, request.requested_by_user_id);
-    addOptionalId(visibleProfileIds, request.reviewer_user_id);
-  }
-
-  for (const log of orderChangeLogs) {
-    addOptionalId(visibleProfileIds, log.actor_user_id);
-  }
-
-  for (const profile of registeredCandidates) {
-    addOptionalId(visibleProfileIds, profile.user_id);
-  }
-
-  return profiles.filter((profile) => visibleProfileIds.has(profile.user_id));
-}
-
-function addOptionalId(ids: Set<string>, value: string | null | undefined) {
-  if (value) {
-    ids.add(value);
-  }
-}
-
-function canReadFullWholesaleDirectory(role: AppRole | null) {
-  return (
-    role === "administrator" ||
-    role === "manager" ||
-    role === "operator" ||
-    role === "recruiter"
-  );
-}
-
-function canReadFullWholesaleBackoffice(role: AppRole | null) {
-  return role === "administrator" || role === "manager" || role === "operator";
-}
-
-function canUseWholesaleSalesScope(role: AppRole | null) {
-  return role === "salesman" || role === "finance";
 }

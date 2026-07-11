@@ -788,6 +788,22 @@
       "assessment": {
         "pending": "正在评估",
         "generate": "生成当前范围评估"
+      },
+      "orderList": {
+        "title": "Order List 附件",
+        "empty": "暂无 Order List 附件。",
+        "manage": "管理附件",
+        "dialogDescription": "可上传 CSV、XLS 或 XLSX 表格，客户可以在自己的订单中下载查看。",
+        "choose": "选择表格",
+        "help": "每个文件不超过 20 MB；每笔订单最多 10 个，合计不超过 100 MB。",
+        "selected": "已选择 {count} 个表格。",
+        "upload": "上传附件",
+        "uploaded": "已上传附件",
+        "noneUploaded": "这笔订单还没有 Order List 附件。",
+        "delete": "删除",
+        "confirmDelete": "确认删除“{name}”吗？",
+        "downloadFailed": "附件暂时无法下载，请稍后重试。",
+        "connectionFailed": "当前无法连接系统，请刷新页面后再试。"
       }
     },
     "logisticsUi": {

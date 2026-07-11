@@ -72,6 +72,35 @@ test.describe("wholesale order pagination", () => {
     await expectNoDocumentHorizontalOverflow(page);
   });
 
+  test("finance and scoped sales staff can manage Order List attachments", async ({
+    browser,
+  }) => {
+    const roleCases = [
+      { role: "finance" as const, url: "/finance/wholesale/orders" },
+      { role: "salesman" as const, url: "/salesman/wholesale/orders" },
+    ];
+
+    for (const roleCase of roleCases) {
+      const context = await browser.newContext({
+        viewport: { height: 900, width: 1440 },
+      });
+      const page = await context.newPage();
+
+      try {
+        await loginAs(page, roleCase.role);
+        await page.goto(roleCase.url);
+        await page.getByLabel("搜索订单").fill("WH-LOCAL-202607-002");
+        const row = page.locator(
+          '[data-testid="wholesale-order-row-c2000000-0000-4000-8000-000000000002"]',
+        );
+        await expect(row).toBeVisible();
+        await expect(row.getByRole("button", { name: "管理附件" })).toBeVisible();
+      } finally {
+        await context.close();
+      }
+    }
+  });
+
   test("shows core failures and keeps related-record failures local", async ({
     page,
   }) => {
@@ -103,6 +132,168 @@ test.describe("wholesale order pagination", () => {
       page.getByText("批发订单暂时没有加载成功，请稍后重试。"),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "重新加载" })).toBeVisible();
+  });
+
+  test("keeps client order fields private and shares Order List attachments", async ({
+    browser,
+  }) => {
+    // 这个用例会依次完成管理员上传、客户下载、桌面与手机检查以及管理员清理，
+    // 两个账号的完整流程在较慢的开发环境中可能超过全局 60 秒，因此单独放宽时间。
+    test.setTimeout(120_000);
+
+    const uploadKey = Date.now();
+    const fileName = `client-order-list-${uploadKey}.csv`;
+    const secondFileName = `client-order-list-${uploadKey}.xlsx`;
+    const adminContext = await browser.newContext({
+      viewport: { height: 900, width: 1440 },
+    });
+    const clientContext = await browser.newContext({
+      viewport: { height: 900, width: 1440 },
+    });
+    const adminPage = await adminContext.newPage();
+    const clientPage = await clientContext.newPage();
+
+    try {
+      await loginAs(adminPage, "administrator");
+      await adminPage.goto("/admin/wholesale/orders");
+      await adminPage.getByLabel("搜索订单").fill("WH-LOCAL-202607-002");
+
+      const adminRow = adminPage.locator(
+        '[data-testid="wholesale-order-row-c2000000-0000-4000-8000-000000000002"]',
+      );
+      await expect(adminRow).toBeVisible();
+      await adminRow.getByRole("button", { name: "管理附件" }).click();
+
+      const attachmentDialog = adminPage.getByRole("dialog", {
+        name: /Order List 附件/,
+      });
+      await attachmentDialog.locator('input[type="file"]').setInputFiles([
+        {
+          buffer: Buffer.from("sku,quantity\nLOCAL-001,2\n", "utf8"),
+          mimeType: "text/csv",
+          name: fileName,
+        },
+        {
+          buffer: Buffer.from("local xlsx test payload", "utf8"),
+          mimeType:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          name: secondFileName,
+        },
+      ]);
+      await attachmentDialog.getByRole("button", { name: "上传附件" }).click();
+      await expect(adminPage.getByText("Order List 附件已上传。")).toBeVisible();
+      await expect(attachmentDialog).toBeHidden();
+      await expect(adminRow.getByRole("button", { name: fileName })).toBeVisible();
+      await expect(adminRow.getByRole("button", { name: secondFileName })).toBeVisible();
+      await adminRow.getByRole("button", { name: "管理附件" }).click();
+      await expect(attachmentDialog.getByText(fileName)).toBeVisible();
+      await expect(attachmentDialog.getByText(secondFileName)).toBeVisible();
+
+      await loginAs(clientPage, "client");
+      await clientPage.goto("/client/wholesale/orders");
+
+      const rpcResponsePromise = clientPage.waitForResponse(
+        (response) =>
+          response.url().includes("/rest/v1/rpc/get_wholesale_order_page") &&
+          response.request().method() === "POST",
+      );
+      await clientPage.getByLabel("搜索订单").fill("WH-LOCAL-202607-002");
+      const rpcPayload = (await (await rpcResponsePromise).json()) as {
+        canViewInternalFields: boolean;
+        orders: Array<Record<string, unknown>>;
+      };
+
+      expect(rpcPayload.canViewInternalFields).toBe(false);
+      expect(rpcPayload.orders).toHaveLength(1);
+      for (const field of [
+        "payment_platform",
+        "order_month",
+        "referral_commission_fee",
+        "product_purchase_amount",
+        "international_shipping_fee",
+        "other_fee",
+      ]) {
+        expect(rpcPayload.orders[0]).not.toHaveProperty(field);
+      }
+
+      for (const label of [
+        "收款平台",
+        "订单计入月份",
+        "推荐佣金费用",
+        "产品采购金额",
+        "国际运费",
+        "其他费用",
+      ]) {
+        await expect(
+          clientPage.getByRole("columnheader", { name: label }),
+        ).toHaveCount(0);
+      }
+
+      const clientRow = clientPage.locator(
+        '[data-testid="wholesale-order-row-c2000000-0000-4000-8000-000000000002"]',
+      );
+      await expect(clientRow.getByRole("button", { name: fileName })).toBeVisible();
+      await expect(clientRow.getByRole("button", { name: secondFileName })).toBeVisible();
+      await expect(clientRow.getByRole("button", { name: "管理附件" })).toHaveCount(0);
+
+      const downloadPromise = clientPage.waitForEvent("download");
+      await clientRow.getByRole("button", { name: fileName }).click();
+      const download = await downloadPromise;
+      expect(download.suggestedFilename()).toBe(fileName);
+
+      // 采购列位于桌面宽表的横向滚动区域中；直接触发原生点击可以跳过
+      // Playwright 对横向滚动动画稳定性的等待，随后仍用弹窗断言验证结果。
+      await clientRow
+        .getByRole("button", { name: "1688-CLIENT-LOCAL-001" })
+        .evaluate((button: HTMLButtonElement) => button.click());
+      const purchaseDialog = clientPage.getByRole("dialog", {
+        name: "1688 订单详情",
+      });
+      await expect(purchaseDialog).toBeVisible();
+      await expect(purchaseDialog.getByText("采购金额", { exact: true })).toHaveCount(0);
+      await purchaseDialog.getByRole("button", { name: "关闭" }).click();
+
+      await clientPage.goto("/client/wholesale/logistics");
+      await expect(clientPage.getByText("INTL-TRACK-LOCAL-001").first()).toBeVisible();
+      await expect(clientPage.getByText("CLIENT-UNLINKED-LOGISTICS-ORDER")).toHaveCount(0);
+      await expect(clientPage.getByText("CLIENT-UNLINKED-LOGISTICS-STATUS")).toHaveCount(0);
+
+      await clientPage.setViewportSize({ height: 844, width: 390 });
+      await clientPage.goto("/client/wholesale/orders");
+      await clientPage.getByLabel("搜索订单").fill("WH-LOCAL-202607-002");
+      await clientPage
+        .locator('[data-testid="wholesale-order-card-c2000000-0000-4000-8000-000000000002"]')
+        .click();
+      const mobileDialog = clientPage.getByRole("dialog", {
+        name: "订单 WH-LOCAL-202607-002",
+      });
+      await expect(mobileDialog.getByRole("button", { name: fileName })).toBeVisible();
+      await expect(mobileDialog.getByRole("button", { name: secondFileName })).toBeVisible();
+      await expect(mobileDialog.getByText("收款平台", { exact: true })).toHaveCount(0);
+      await expect(mobileDialog.getByText("产品采购金额", { exact: true })).toHaveCount(0);
+      await expectNoDocumentHorizontalOverflow(clientPage);
+
+      await adminPage.bringToFront();
+      adminPage.once("dialog", (dialog) => dialog.accept());
+      await attachmentDialog
+        .locator(`[data-attachment-name="${fileName}"]`)
+        .getByRole("button", { name: "删除" })
+        .click();
+      await expect(adminPage.getByText("Order List 附件已删除。")).toBeVisible();
+      await expect(attachmentDialog.getByText(fileName)).toHaveCount(0);
+      adminPage.once("dialog", (dialog) => dialog.accept());
+      const secondDeleteButton = attachmentDialog
+        .locator(`[data-attachment-name="${secondFileName}"]`)
+        .getByRole("button", { name: "删除" });
+      await expect(secondDeleteButton).toBeEnabled();
+      // 第一次删除会让弹窗列表重新排版；直接触发第二个按钮，避免测试框架
+      // 在列表动画结束前反复等待元素位置稳定。
+      await secondDeleteButton.evaluate((button: HTMLButtonElement) => button.click());
+      await expect(attachmentDialog.getByText(secondFileName)).toHaveCount(0);
+    } finally {
+      await adminContext.close();
+      await clientContext.close();
+    }
   });
 });
 

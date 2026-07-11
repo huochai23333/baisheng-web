@@ -100,6 +100,11 @@ export async function POST(request: Request) {
       // 评估最多取 100 笔作为客户和订单样例；总数及金额汇总仍由 RPC 对完整范围计算。
       orderLimit: 100,
     });
+    if (!data.orderPage?.canViewInternalFields) {
+      clearTimeout(timeout);
+      await releaseQuota();
+      return createErrorResponse("当前账号不能使用订单评估。", 403);
+    }
     const orders = filterWholesaleOrdersForAssessment(data, filters);
     const messages = buildWholesaleOrderAssessmentMessages({
       data,

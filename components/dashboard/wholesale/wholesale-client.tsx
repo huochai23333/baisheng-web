@@ -48,6 +48,7 @@ export function WholesaleClient({
         <WholesaleOrdersSection
           canEdit={canEdit}
           canManageAllOrders={canAdmin}
+          currentRole={initialData.currentRole}
           currentUserId={initialData.currentUserId}
           customers={initialData.customers}
           customersById={customersById}
@@ -56,9 +57,11 @@ export function WholesaleClient({
           onApproveOrderEditRequest={actions.approveOrderEditRequest}
           onMarkOrderSettled={actions.markOrderSettled}
           onCreateOrder={actions.createOrder}
+          onDeleteOrderListAttachment={actions.deleteOrderListAttachment}
           onRejectOrderEditRequest={actions.rejectOrderEditRequest}
           onRequestOrderEdit={actions.requestOrderEdit}
           onUpdateOrder={actions.updateOrder}
+          onUploadOrderListAttachments={actions.uploadOrderListAttachments}
           orderEditWindowDays={
             initialData.orderEditSettings.directEditWindowDays
           }

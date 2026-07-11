@@ -7,10 +7,11 @@ import type {
   Wholesale1688Order,
   WholesaleCustomer,
   WholesaleLogisticsOrder,
-  WholesaleOrder,
+  WholesaleOrderListItem,
   WholesaleOrderSettlement,
   WholesaleProfile,
 } from "@/lib/wholesale";
+import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-attachments";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
 import {
   formatCurrency,
@@ -27,6 +28,8 @@ import {
   LinkedLogisticsOrders,
   LinkedPurchaseOrders,
 } from "./wholesale-order-linked-records";
+import { WholesaleOrderListAttachments } from "./wholesale-order-list-attachments";
+import { WholesaleOrderSettlementRecordsCell } from "./wholesale-order-settlement-records-cell";
 import {
   WholesaleTable,
   WholesaleTd,
@@ -39,30 +42,45 @@ export type WholesaleOrderEditAction = {
   tone: "direct" | "request";
 };
 type WholesaleOrdersTableProps = {
-  canMarkOrderSettled: (order: WholesaleOrder) => boolean;
+  canMarkOrderSettled: (order: WholesaleOrderListItem) => boolean;
+  canManageOrderListAttachments: (order: WholesaleOrderListItem) => boolean;
+  canViewInternalFields: boolean;
   customersById: Map<string, WholesaleCustomer>;
   getOrderEditAction: (
-    order: WholesaleOrder,
+    order: WholesaleOrderListItem,
   ) => WholesaleOrderEditAction | null;
   logisticsOrdersByOrderId: Map<string, WholesaleLogisticsOrder[]>;
   logisticsStatusesByOrderId: Map<string, WholesaleLogisticsStatus[]>;
   orderSettlementsByOrderId: Map<string, WholesaleOrderSettlement[]>;
-  onOpenOrderEdit: (order: WholesaleOrder) => void;
-  onOpenOrderSettlement: (order: WholesaleOrder) => void;
-  orders: WholesaleOrder[];
+  onDeleteOrderListAttachment: (
+    attachment: WholesaleOrderListAttachment,
+  ) => void | Promise<void>;
+  onOpenOrderEdit: (order: WholesaleOrderListItem) => void;
+  onOpenOrderSettlement: (order: WholesaleOrderListItem) => void;
+  onUploadOrderListAttachments: (
+    order: WholesaleOrderListItem,
+    files: File[],
+  ) => Promise<boolean>;
+  orderListAttachmentsByOrderId: Map<string, WholesaleOrderListAttachment[]>;
+  orders: WholesaleOrderListItem[];
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
   purchaseOrdersByOrderId: Map<string, Wholesale1688Order[]>;
 };
 export function WholesaleOrdersTable({
   canMarkOrderSettled,
+  canManageOrderListAttachments,
+  canViewInternalFields,
   customersById,
   getOrderEditAction,
   logisticsOrdersByOrderId,
   logisticsStatusesByOrderId,
+  onDeleteOrderListAttachment,
   orderSettlementsByOrderId,
   onOpenOrderEdit,
   onOpenOrderSettlement,
+  onUploadOrderListAttachments,
+  orderListAttachmentsByOrderId,
   orders,
   pendingKey,
   profilesById,
@@ -70,7 +88,7 @@ export function WholesaleOrdersTable({
 }: WholesaleOrdersTableProps) {
   const t = useTranslations("WholesaleBusiness.ordersUi");
   return (
-    <WholesaleTable minWidth={3660}>
+    <WholesaleTable minWidth={canViewInternalFields ? 3860 : 2780}>
       <thead>
         <tr>
           <WholesaleTh className={wholesaleStickyFirstThClassName}>
@@ -85,21 +103,27 @@ export function WholesaleOrdersTable({
           <WholesaleTh>
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text004" />
           </WholesaleTh>
-          <WholesaleTh>
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text005" />
-          </WholesaleTh>
+          {canViewInternalFields ? (
+            <WholesaleTh>
+              <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text005" />
+            </WholesaleTh>
+          ) : null}
           <WholesaleTh>
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text006" />
           </WholesaleTh>
-          <WholesaleTh>
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text007" />
-          </WholesaleTh>
-          <WholesaleTh>
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text008" />
-          </WholesaleTh>
-          <WholesaleTh>
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text009" />
-          </WholesaleTh>
+          {canViewInternalFields ? (
+            <>
+              <WholesaleTh>
+                <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text007" />
+              </WholesaleTh>
+              <WholesaleTh>
+                <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text008" />
+              </WholesaleTh>
+              <WholesaleTh>
+                <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text009" />
+              </WholesaleTh>
+            </>
+          ) : null}
           <WholesaleTh>
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text010" />
           </WholesaleTh>
@@ -118,9 +142,11 @@ export function WholesaleOrdersTable({
           <WholesaleTh>
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text015" />
           </WholesaleTh>
-          <WholesaleTh>
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text016" />
-          </WholesaleTh>
+          {canViewInternalFields ? (
+            <WholesaleTh>
+              <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text016" />
+            </WholesaleTh>
+          ) : null}
           <WholesaleTh>
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text017" />
           </WholesaleTh>
@@ -130,9 +156,11 @@ export function WholesaleOrdersTable({
           <WholesaleTh>
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text019" />
           </WholesaleTh>
-          <WholesaleTh>
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text020" />
-          </WholesaleTh>
+          {canViewInternalFields ? (
+            <WholesaleTh>
+              <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text020" />
+            </WholesaleTh>
+          ) : null}
           <WholesaleTh>
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text021" />
           </WholesaleTh>
@@ -147,6 +175,9 @@ export function WholesaleOrdersTable({
           </WholesaleTh>
           <WholesaleTh className="min-w-[320px] whitespace-normal">
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text025" />
+          </WholesaleTh>
+          <WholesaleTh className="min-w-[260px] whitespace-normal">
+            {t("orderList.title")}
           </WholesaleTh>
           <WholesaleTh className="min-w-[240px] whitespace-normal">
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text026" />
@@ -224,17 +255,23 @@ export function WholesaleOrdersTable({
                 {getProfileName(profilesById, order.sales_user_id)}
               </WholesaleTd>
               <WholesaleTd>{formatNumber(order.small_order_count)}</WholesaleTd>
-              <WholesaleTd>
-                {formatCurrency(order.product_purchase_amount)}
-              </WholesaleTd>
+              {canViewInternalFields ? (
+                <WholesaleTd>
+                  {formatCurrency(order.product_purchase_amount)}
+                </WholesaleTd>
+              ) : null}
               <WholesaleTd>{formatCurrency(order.packing_fee)}</WholesaleTd>
-              <WholesaleTd>
-                {formatCurrency(order.international_shipping_fee)}
-              </WholesaleTd>
-              <WholesaleTd>{formatCurrency(order.other_fee)}</WholesaleTd>
-              <WholesaleTd>
-                {formatCurrency(order.referral_commission_fee)}
-              </WholesaleTd>
+              {canViewInternalFields ? (
+                <>
+                  <WholesaleTd>
+                    {formatCurrency(order.international_shipping_fee)}
+                  </WholesaleTd>
+                  <WholesaleTd>{formatCurrency(order.other_fee)}</WholesaleTd>
+                  <WholesaleTd>
+                    {formatCurrency(order.referral_commission_fee)}
+                  </WholesaleTd>
+                </>
+              ) : null}
               <WholesaleTd className="min-w-[140px] whitespace-normal">
                 {order.courier_company ?? t("fallbacks.notRecorded")}
               </WholesaleTd>
@@ -275,9 +312,11 @@ export function WholesaleOrdersTable({
                   t("fallbacks.afterSettlement"),
                 )}
               </WholesaleTd>
-              <WholesaleTd className="min-w-[140px] whitespace-normal">
-                {order.payment_platform ?? t("fallbacks.notRecorded")}
-              </WholesaleTd>
+              {canViewInternalFields ? (
+                <WholesaleTd className="min-w-[140px] whitespace-normal">
+                  {order.payment_platform ?? t("fallbacks.notRecorded")}
+                </WholesaleTd>
+              ) : null}
               <WholesaleTd>
                 {formatOptionalCurrency(
                   order.gross_profit,
@@ -293,7 +332,9 @@ export function WholesaleOrdersTable({
                   t("fallbacks.afterSettlement"),
                 )}
               </WholesaleTd>
-              <WholesaleTd>{formatDate(order.order_month)}</WholesaleTd>
+              {canViewInternalFields ? (
+                <WholesaleTd>{formatDate(order.order_month)}</WholesaleTd>
+              ) : null}
               <WholesaleTd>{formatDateTime(order.ordered_at)}</WholesaleTd>
               <WholesaleTd>
                 {order.settled_at
@@ -301,13 +342,14 @@ export function WholesaleOrdersTable({
                   : t("fallbacks.unsettled")}
               </WholesaleTd>
               <WholesaleTd className="min-w-[300px] whitespace-normal">
-                <SettlementRecordsCell
+                <WholesaleOrderSettlementRecordsCell
                   currency={order.customer_payment_currency}
                   settlements={settlements}
                 />
               </WholesaleTd>
               <WholesaleTd className="min-w-[320px] whitespace-normal">
                 <LinkedPurchaseOrders
+                  canViewInternalFields={canViewInternalFields}
                   profilesById={profilesById}
                   purchaseOrders={purchaseOrdersByOrderId.get(order.id) ?? []}
                 />
@@ -320,6 +362,18 @@ export function WholesaleOrdersTable({
                   }
                 />
               </WholesaleTd>
+              <WholesaleTd className="min-w-[260px] whitespace-normal">
+                <WholesaleOrderListAttachments
+                  attachments={orderListAttachmentsByOrderId.get(order.id) ?? []}
+                  canManage={canManageOrderListAttachments(order)}
+                  compact
+                  onDelete={onDeleteOrderListAttachment}
+                  onUpload={(files) => onUploadOrderListAttachments(order, files)}
+                  orderId={order.id}
+                  orderNumber={order.order_number}
+                  pendingKey={pendingKey}
+                />
+              </WholesaleTd>
               <WholesaleTd className="min-w-[240px] whitespace-normal">
                 {order.notes ?? t("fallbacks.notRecorded")}
               </WholesaleTd>
@@ -328,40 +382,5 @@ export function WholesaleOrdersTable({
         })}
       </tbody>
     </WholesaleTable>
-  );
-}
-function SettlementRecordsCell({
-  currency,
-  settlements,
-}: {
-  currency: string;
-  settlements: WholesaleOrderSettlement[];
-}) {
-  if (settlements.length === 0) {
-    return (
-      <span className="text-[#7b8790]">
-        <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text030" />
-      </span>
-    );
-  }
-  return (
-    <div className="grid max-h-24 gap-2 overflow-y-auto pr-1">
-      {settlements.map((settlement) => (
-        <div
-          className="rounded-[10px] bg-[#f7fafb] p-2 text-xs leading-5 text-[#4f606b]"
-          key={settlement.id}
-        >
-          <p className="font-semibold text-[#2f3f4a]">
-            {formatDate(settlement.settled_on)}
-          </p>
-          <p>
-            {formatCurrency(settlement.settlement_amount, currency)}
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text031" />{" "}
-            {formatRate(settlement.settlement_exchange_rate)}
-          </p>
-          <p>{formatCurrency(settlement.settlement_rmb_amount)}</p>
-        </div>
-      ))}
-    </div>
   );
 }

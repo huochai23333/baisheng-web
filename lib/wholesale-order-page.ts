@@ -4,11 +4,13 @@ import type {
   Wholesale1688Order,
   WholesaleLogisticsOrder,
   WholesaleOrder,
+  WholesaleOrderListItem,
   WholesaleOrderChangeLog,
   WholesaleOrderEditRequest,
   WholesaleOrderSettlement,
 } from "./wholesale";
 import type { WholesaleLogisticsStatus } from "./wholesale-logistics-statuses";
+import type { WholesaleOrderListAttachment } from "./wholesale-order-list-attachments";
 
 export type WholesaleOrderFilters = {
   customerId: string;
@@ -25,7 +27,7 @@ export type WholesaleOrderCursor = {
 };
 
 export type WholesaleOrderPageWarning = {
-  area: "changes" | "logistics" | "purchases" | "settlements";
+  area: "attachments" | "changes" | "logistics" | "purchases" | "settlements";
   message: string;
 };
 
@@ -33,24 +35,26 @@ export type WholesaleOrderPageSummary = {
   averageMargin: number | null;
   customerPaymentRmbAmount: number;
   grossProfitAmount: number;
-  internationalShippingFeeAmount: number;
+  internationalShippingFeeAmount?: number;
   orderCount: number;
-  otherFeeAmount: number;
+  otherFeeAmount?: number;
   packingFeeAmount: number;
   partialSettledCount: number;
-  productPurchaseAmount: number;
-  referralCommissionFeeAmount: number;
+  productPurchaseAmount?: number;
+  referralCommissionFeeAmount?: number;
   settledCount: number;
   unsettledCount: number;
 };
 
 export type WholesaleOrderPage = {
+  canViewInternalFields: boolean;
   logisticsOrders: WholesaleLogisticsOrder[];
   logisticsStatuses: WholesaleLogisticsStatus[];
   nextCursor: WholesaleOrderCursor | null;
   orderChangeLogs: WholesaleOrderChangeLog[];
   orderEditRequests: WholesaleOrderEditRequest[];
-  orders: WholesaleOrder[];
+  orderListAttachments: WholesaleOrderListAttachment[];
+  orders: WholesaleOrderListItem[];
   orderSettlements: WholesaleOrderSettlement[];
   purchaseOrders: Wholesale1688Order[];
   summary: WholesaleOrderPageSummary;
@@ -83,7 +87,8 @@ export async function getWholesaleOrderPage(
   }
 
   const core = readRecord(data);
-  const orders = readArray(core?.orders) as WholesaleOrder[];
+  const canViewInternalFields = core?.canViewInternalFields === true;
+  const orders = readArray(core?.orders) as WholesaleOrderListItem[];
 
   if (!core || !Array.isArray(core.orders)) {
     throw new Error("批发订单暂时没有加载成功，请稍后重试。");
@@ -94,11 +99,13 @@ export async function getWholesaleOrderPage(
 
   if (orderIds.length === 0) {
     return {
+      canViewInternalFields,
       logisticsOrders: [],
       logisticsStatuses: [],
       nextCursor: readCursor(core.nextCursor),
       orderChangeLogs: [],
       orderEditRequests: [],
+      orderListAttachments: [],
       orders,
       orderSettlements: [],
       purchaseOrders: [],
@@ -108,6 +115,9 @@ export async function getWholesaleOrderPage(
     };
   }
 
+  const purchaseOrderColumns = canViewInternalFields
+    ? "*"
+    : "id,batch_id,external_order_number,seller_name,item_summary,quantity,order_status,purchased_at,recipient_name,assisted_customer_id,assisted_at,customer_id,wholesale_order_id,claimed_by_user_id,claimed_at,imported_by_user_id,created_at";
   const [
     settlementsResult,
     purchaseOrdersResult,
@@ -115,6 +125,7 @@ export async function getWholesaleOrderPage(
     logisticsStatusesResult,
     editRequestsResult,
     changeLogsResult,
+    attachmentsResult,
   ] = await Promise.all([
     supabase
       .from("wholesale_order_settlements")
@@ -124,7 +135,7 @@ export async function getWholesaleOrderPage(
       .order("created_at", { ascending: false }),
     supabase
       .from("wholesale_1688_orders")
-      .select("*")
+      .select(purchaseOrderColumns)
       .in("wholesale_order_id", orderIds)
       .order("created_at", { ascending: false }),
     supabase
@@ -137,19 +148,29 @@ export async function getWholesaleOrderPage(
       .select("*")
       .in("wholesale_order_id", orderIds)
       .order("updated_at", { ascending: false }),
+    canViewInternalFields
+      ? supabase
+          .from("wholesale_order_edit_requests")
+          .select("*")
+          .in("order_id", orderIds)
+          .order("created_at", { ascending: false })
+      : emptyRelatedQuery(),
+    canViewInternalFields
+      ? supabase
+          .from("wholesale_order_change_logs")
+          .select("*")
+          .in("order_id", orderIds)
+          .order("created_at", { ascending: false })
+      : emptyRelatedQuery(),
     supabase
-      .from("wholesale_order_edit_requests")
+      .from("wholesale_order_list_attachments")
       .select("*")
       .in("order_id", orderIds)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("wholesale_order_change_logs")
-      .select("*")
-      .in("order_id", orderIds)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: true }),
   ]);
 
   return {
+    canViewInternalFields,
     logisticsOrders: readRelatedRows<WholesaleLogisticsOrder>(
       logisticsOrdersResult,
       warnings,
@@ -175,6 +196,12 @@ export async function getWholesaleOrderPage(
       "changes",
       "部分订单修改申请暂时没有加载成功。",
     ),
+    orderListAttachments: readRelatedRows<WholesaleOrderListAttachment>(
+      attachmentsResult,
+      warnings,
+      "attachments",
+      "部分 Order List 附件暂时没有加载成功。",
+    ),
     orders,
     orderSettlements: readRelatedRows<WholesaleOrderSettlement>(
       settlementsResult,
@@ -198,6 +225,10 @@ type RelatedQueryResult = {
   data: unknown[] | null;
   error: { message?: string } | null;
 };
+
+function emptyRelatedQuery(): Promise<RelatedQueryResult> {
+  return Promise.resolve({ data: [], error: null });
+}
 
 function readRelatedRows<T>(
   result: RelatedQueryResult,
@@ -223,17 +254,29 @@ function readSummary(value: unknown): WholesaleOrderPageSummary {
         : readNumber(summary.averageMargin),
     customerPaymentRmbAmount: readNumber(summary?.customerPaymentRmbAmount),
     grossProfitAmount: readNumber(summary?.grossProfitAmount),
-    internationalShippingFeeAmount: readNumber(
-      summary?.internationalShippingFeeAmount,
-    ),
     orderCount: readNumber(summary?.orderCount),
-    otherFeeAmount: readNumber(summary?.otherFeeAmount),
     packingFeeAmount: readNumber(summary?.packingFeeAmount),
     partialSettledCount: readNumber(summary?.partialSettledCount),
-    productPurchaseAmount: readNumber(summary?.productPurchaseAmount),
-    referralCommissionFeeAmount: readNumber(
-      summary?.referralCommissionFeeAmount,
-    ),
+    ...(summary?.internationalShippingFeeAmount === undefined
+      ? {}
+      : {
+          internationalShippingFeeAmount: readNumber(
+            summary.internationalShippingFeeAmount,
+          ),
+        }),
+    ...(summary?.otherFeeAmount === undefined
+      ? {}
+      : { otherFeeAmount: readNumber(summary.otherFeeAmount) }),
+    ...(summary?.productPurchaseAmount === undefined
+      ? {}
+      : { productPurchaseAmount: readNumber(summary.productPurchaseAmount) }),
+    ...(summary?.referralCommissionFeeAmount === undefined
+      ? {}
+      : {
+          referralCommissionFeeAmount: readNumber(
+            summary.referralCommissionFeeAmount,
+          ),
+        }),
     settledCount: readNumber(summary?.settledCount),
     unsettledCount: readNumber(summary?.unsettledCount),
   };

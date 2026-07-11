@@ -101,12 +101,28 @@ export function useWholesaleOrderPage({
     }
   }, [filters, loadingMore, page]);
 
+  const removeOrderListAttachment = useCallback((attachmentId: string) => {
+    // 附件删除成功后只更新当前页面中的附件数组，不清空订单表。
+    // 这样管理弹窗会保持打开，内部人员可以连续删除多份附件。
+    setPage((current) =>
+      current
+        ? {
+            ...current,
+            orderListAttachments: current.orderListAttachments.filter(
+              (attachment) => attachment.id !== attachmentId,
+            ),
+          }
+        : current,
+    );
+  }, []);
+
   return {
     loadError,
     loading,
     loadingMore,
     loadMore,
     page,
+    removeOrderListAttachment,
     refreshFirstPage: loadFirstPage,
   };
 }
@@ -126,6 +142,10 @@ function mergeWholesaleOrderPages(
     orderEditRequests: mergeRows(
       current.orderEditRequests,
       next.orderEditRequests,
+    ),
+    orderListAttachments: mergeRows(
+      current.orderListAttachments,
+      next.orderListAttachments,
     ),
     orders: mergeRows(current.orders, next.orders),
     orderSettlements: mergeRows(

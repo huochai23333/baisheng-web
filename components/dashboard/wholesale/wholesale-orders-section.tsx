@@ -6,15 +6,13 @@ import { LoaderCircle, Plus, ReceiptText } from "lucide-react";
 import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
-import type { ExchangeRateRow } from "@/lib/exchange-rates";
+import { hasWholesaleOrderInternalFields } from "@/lib/wholesale";
 import type {
-  WholesaleCustomer,
-  WholesaleOrder,
-  WholesaleProfile,
+  WholesaleOrderListItem,
 } from "@/lib/wholesale";
-import type { WholesaleOrderPage } from "@/lib/wholesale-order-page";
 import { useWholesaleOrderFilters } from "./use-wholesale-order-filters";
 import { useWholesaleOrderPage } from "./use-wholesale-order-page";
+import { useWholesaleOrderListHandlers } from "./use-wholesale-order-list-handlers";
 import { WholesaleOrderAssessmentPanel } from "./wholesale-order-assessment-panel";
 import { WholesaleOrderChangeSections } from "./wholesale-order-change-sections";
 import { WholesaleOrderEditDialog } from "./wholesale-order-edit-dialog";
@@ -32,29 +30,12 @@ import {
   WholesaleOrdersTable,
   type WholesaleOrderEditAction,
 } from "./wholesale-orders-table";
+import type { WholesaleOrdersSectionProps } from "./wholesale-orders-section-types";
 import { WholesaleEmptyState, WholesalePageShell } from "./wholesale-ui";
-type WholesaleOrdersSectionProps = {
-  canEdit: boolean;
-  canManageAllOrders: boolean;
-  currentUserId: string | null;
-  customers: WholesaleCustomer[];
-  customersById: Map<string, WholesaleCustomer>;
-  exchangeRates: ExchangeRateRow[];
-  initialPage: WholesaleOrderPage;
-  onApproveOrderEditRequest: (requestId: string) => void | Promise<void>;
-  onCreateOrder: (formData: FormData) => void | Promise<void>;
-  onMarkOrderSettled: (formData: FormData) => void | Promise<void>;
-  onRejectOrderEditRequest: (requestId: string) => void | Promise<void>;
-  onRequestOrderEdit: (formData: FormData) => void | Promise<void>;
-  onUpdateOrder: (formData: FormData) => void | Promise<void>;
-  orderEditWindowDays: number;
-  pendingKey: string | null;
-  profilesById: Map<string, WholesaleProfile>;
-  salesAccounts: WholesaleProfile[];
-};
 export function WholesaleOrdersSection({
   canEdit,
   canManageAllOrders,
+  currentRole,
   currentUserId,
   customers,
   customersById,
@@ -62,10 +43,12 @@ export function WholesaleOrdersSection({
   initialPage,
   onApproveOrderEditRequest,
   onCreateOrder,
+  onDeleteOrderListAttachment,
   onMarkOrderSettled,
   onRejectOrderEditRequest,
   onRequestOrderEdit,
   onUpdateOrder,
+  onUploadOrderListAttachments,
   orderEditWindowDays,
   pendingKey,
   profilesById,
@@ -77,9 +60,9 @@ export function WholesaleOrdersSection({
   const t = useTranslations("WholesaleBusiness.ordersUi");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedEditOrder, setSelectedEditOrder] =
-    useState<WholesaleOrder | null>(null);
+    useState<WholesaleOrderListItem | null>(null);
   const [selectedSettlementOrder, setSelectedSettlementOrder] =
-    useState<WholesaleOrder | null>(null);
+    useState<WholesaleOrderListItem | null>(null);
   const filterState = useWholesaleOrderFilters();
   const pageState = useWholesaleOrderPage({
     filters: filterState.queryFilters,
@@ -99,7 +82,7 @@ export function WholesaleOrdersSection({
     [filterState.queryFilters],
   );
   const canMarkOrderSettled = useCallback(
-    (order: WholesaleOrder) =>
+    (order: WholesaleOrderListItem) =>
       order.status !== "settled" &&
       canCurrentUserManageWholesaleOrder({
         canEdit,
@@ -111,8 +94,9 @@ export function WholesaleOrdersSection({
     [canEdit, canManageAllOrders, currentUserId, customersById],
   );
   const getOrderEditAction = useCallback(
-    (order: WholesaleOrder): WholesaleOrderEditAction | null => {
+    (order: WholesaleOrderListItem): WholesaleOrderEditAction | null => {
       if (
+        !hasWholesaleOrderInternalFields(order) ||
         !canCurrentUserManageWholesaleOrder({
           canEdit,
           canManageAllOrders,
@@ -141,12 +125,25 @@ export function WholesaleOrdersSection({
     ],
   );
   const refreshAfter = useCallback(
-    async (action: () => void | Promise<void>) => {
-      await action();
+    async <Result,>(action: () => Result | Promise<Result>) => {
+      const result = await action();
       await pageState.refreshFirstPage();
+      return result;
     },
     [pageState],
   );
+  const orderListHandlers = useWholesaleOrderListHandlers({
+    attachmentsByOrderId: viewData.orderListAttachmentsByOrderId,
+    canEdit,
+    canManageAllOrders,
+    currentRole,
+    currentUserId,
+    customersById,
+    onDelete: onDeleteOrderListAttachment,
+    onDeleted: pageState.removeOrderListAttachment,
+    onUpload: onUploadOrderListAttachments,
+    refreshAfter,
+  });
   const selectedEditMode = selectedEditOrder
     ? getWholesaleOrderEditMode({
         canManageAllOrders,
@@ -216,10 +213,12 @@ export function WholesaleOrdersSection({
       >
         {page ? (
           <div className="mb-5">
-            <WholesaleOrderAssessmentPanel
-              filters={assessmentFilters}
-              matchedOrderCount={page.totalCount}
-            />
+            {page.canViewInternalFields ? (
+              <WholesaleOrderAssessmentPanel
+                filters={assessmentFilters}
+                matchedOrderCount={page.totalCount}
+              />
+            ) : null}
           </div>
         ) : null}
 
@@ -239,6 +238,10 @@ export function WholesaleOrdersSection({
             <div className="hidden md:block">
               <WholesaleOrdersTable
                 canMarkOrderSettled={canMarkOrderSettled}
+                canManageOrderListAttachments={
+                  orderListHandlers.canManageOrderListAttachments
+                }
+                canViewInternalFields={page.canViewInternalFields}
                 customersById={customersById}
                 getOrderEditAction={getOrderEditAction}
                 logisticsOrdersByOrderId={viewData.logisticsOrdersByOrderId}
@@ -246,7 +249,16 @@ export function WholesaleOrdersSection({
                 orderSettlementsByOrderId={viewData.orderSettlementsByOrderId}
                 onOpenOrderEdit={setSelectedEditOrder}
                 onOpenOrderSettlement={setSelectedSettlementOrder}
+                onDeleteOrderListAttachment={
+                  orderListHandlers.deleteOrderListAttachment
+                }
+                onUploadOrderListAttachments={
+                  orderListHandlers.uploadOrderListAttachments
+                }
                 orders={page.orders}
+                orderListAttachmentsByOrderId={
+                  viewData.orderListAttachmentsByOrderId
+                }
                 pendingKey={pendingKey}
                 profilesById={profilesById}
                 purchaseOrdersByOrderId={viewData.purchaseOrdersByOrderId}
@@ -254,16 +266,30 @@ export function WholesaleOrdersSection({
             </div>
             <WholesaleOrdersMobileList
               canMarkOrderSettled={canMarkOrderSettled}
+              canManageOrderListAttachments={
+                orderListHandlers.canManageOrderListAttachments
+              }
+              canViewInternalFields={page.canViewInternalFields}
               customersById={customersById}
               getOrderEditAction={getOrderEditAction}
               logisticsOrdersByOrderId={viewData.logisticsOrdersByOrderId}
               logisticsStatusesByOrderId={viewData.logisticsStatusesByOrderId}
               onOpenOrderEdit={setSelectedEditOrder}
               onOpenOrderSettlement={setSelectedSettlementOrder}
+              onDeleteOrderListAttachment={
+                orderListHandlers.deleteOrderListAttachment
+              }
+              onUploadOrderListAttachments={
+                orderListHandlers.uploadOrderListAttachments
+              }
               orders={page.orders}
+              orderListAttachmentsByOrderId={
+                viewData.orderListAttachmentsByOrderId
+              }
               orderSettlementsByOrderId={viewData.orderSettlementsByOrderId}
               profilesById={profilesById}
               purchaseOrdersByOrderId={viewData.purchaseOrdersByOrderId}
+              pendingKey={pendingKey}
             />
           </>
         ) : null}
@@ -286,7 +312,7 @@ export function WholesaleOrdersSection({
         ) : null}
       </DashboardListSection>
 
-      {page ? (
+      {page?.canViewInternalFields ? (
         <WholesaleOrderChangeSections
           canReviewRequests={canManageAllOrders}
           customersById={customersById}
@@ -316,7 +342,7 @@ export function WholesaleOrdersSection({
         salesAccounts={salesAccounts}
       />
 
-      {selectedEditOrder ? (
+      {selectedEditOrder && hasWholesaleOrderInternalFields(selectedEditOrder) ? (
         <WholesaleOrderEditDialog
           canManageAllOrders={canManageAllOrders}
           customers={customers}

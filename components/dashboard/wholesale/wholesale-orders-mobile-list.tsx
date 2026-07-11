@@ -5,10 +5,11 @@ import type {
   Wholesale1688Order,
   WholesaleCustomer,
   WholesaleLogisticsOrder,
-  WholesaleOrder,
+  WholesaleOrderListItem,
   WholesaleOrderSettlement,
   WholesaleProfile,
 } from "@/lib/wholesale";
+import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-attachments";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
 import {
   formatCurrency,
@@ -20,38 +21,55 @@ import { WholesaleOrderDetailsDialog } from "./wholesale-order-details-dialog";
 import type { WholesaleOrderEditAction } from "./wholesale-orders-table";
 import { WholesaleStatusBadge } from "./wholesale-ui";
 type WholesaleOrdersMobileListProps = {
-  canMarkOrderSettled: (order: WholesaleOrder) => boolean;
+  canMarkOrderSettled: (order: WholesaleOrderListItem) => boolean;
+  canManageOrderListAttachments: (order: WholesaleOrderListItem) => boolean;
+  canViewInternalFields: boolean;
   customersById: Map<string, WholesaleCustomer>;
   getOrderEditAction: (
-    order: WholesaleOrder,
+    order: WholesaleOrderListItem,
   ) => WholesaleOrderEditAction | null;
   logisticsOrdersByOrderId: Map<string, WholesaleLogisticsOrder[]>;
   logisticsStatusesByOrderId: Map<string, WholesaleLogisticsStatus[]>;
-  onOpenOrderEdit: (order: WholesaleOrder) => void;
-  onOpenOrderSettlement: (order: WholesaleOrder) => void;
-  orders: WholesaleOrder[];
+  onDeleteOrderListAttachment: (
+    attachment: WholesaleOrderListAttachment,
+  ) => void | Promise<void>;
+  onOpenOrderEdit: (order: WholesaleOrderListItem) => void;
+  onOpenOrderSettlement: (order: WholesaleOrderListItem) => void;
+  onUploadOrderListAttachments: (
+    order: WholesaleOrderListItem,
+    files: File[],
+  ) => Promise<boolean>;
+  orderListAttachmentsByOrderId: Map<string, WholesaleOrderListAttachment[]>;
+  orders: WholesaleOrderListItem[];
   orderSettlementsByOrderId: Map<string, WholesaleOrderSettlement[]>;
   profilesById: Map<string, WholesaleProfile>;
   purchaseOrdersByOrderId: Map<string, Wholesale1688Order[]>;
+  pendingKey: string | null;
 };
 export function WholesaleOrdersMobileList({
   canMarkOrderSettled,
+  canManageOrderListAttachments,
+  canViewInternalFields,
   customersById,
   getOrderEditAction,
   logisticsOrdersByOrderId,
   logisticsStatusesByOrderId,
+  onDeleteOrderListAttachment,
   onOpenOrderEdit,
   onOpenOrderSettlement,
+  onUploadOrderListAttachments,
+  orderListAttachmentsByOrderId,
   orders,
   orderSettlementsByOrderId,
   profilesById,
   purchaseOrdersByOrderId,
+  pendingKey,
 }: WholesaleOrdersMobileListProps) {
   const uiText = useTranslations(
     "UiText.components_dashboard_wholesale_wholesale_orders_mobile_list",
   );
   const t = useTranslations("WholesaleBusiness.ordersUi");
-  const [selectedOrder, setSelectedOrder] = useState<WholesaleOrder | null>(
+  const [selectedOrder, setSelectedOrder] = useState<WholesaleOrderListItem | null>(
     null,
   );
   return (
@@ -114,6 +132,10 @@ export function WholesaleOrdersMobileList({
       {selectedOrder ? (
         <WholesaleOrderDetailsDialog
           canMarkOrderSettled={canMarkOrderSettled(selectedOrder)}
+          canManageOrderListAttachments={
+            canManageOrderListAttachments(selectedOrder)
+          }
+          canViewInternalFields={canViewInternalFields}
           customerName={getCustomerName(
             customersById,
             selectedOrder.customer_id,
@@ -124,6 +146,7 @@ export function WholesaleOrdersMobileList({
             logisticsStatusesByOrderId.get(selectedOrder.id) ?? []
           }
           onClose={() => setSelectedOrder(null)}
+          onDeleteOrderListAttachment={onDeleteOrderListAttachment}
           onOpenOrderEdit={() => {
             setSelectedOrder(null);
             onOpenOrderEdit(selectedOrder);
@@ -132,8 +155,15 @@ export function WholesaleOrdersMobileList({
             setSelectedOrder(null);
             onOpenOrderSettlement(selectedOrder);
           }}
+          onUploadOrderListAttachments={(files) =>
+            onUploadOrderListAttachments(selectedOrder, files)
+          }
           open
           order={selectedOrder}
+          orderListAttachments={
+            orderListAttachmentsByOrderId.get(selectedOrder.id) ?? []
+          }
+          pendingKey={pendingKey}
           purchaseOrders={purchaseOrdersByOrderId.get(selectedOrder.id) ?? []}
           salesName={getProfileName(profilesById, selectedOrder.sales_user_id)}
           settlements={orderSettlementsByOrderId.get(selectedOrder.id) ?? []}

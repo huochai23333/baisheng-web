@@ -788,6 +788,22 @@
       "assessment": {
         "pending": "Assessing",
         "generate": "Assess Current Results"
+      },
+      "orderList": {
+        "title": "Order List Attachments",
+        "empty": "No Order List attachments yet.",
+        "manage": "Manage Attachments",
+        "dialogDescription": "Upload CSV, XLS, or XLSX files. Customers can download them from their own orders.",
+        "choose": "Choose Spreadsheets",
+        "help": "Each file can be up to 20 MB. Each order can keep up to 10 files and 100 MB in total.",
+        "selected": "{count} spreadsheets selected.",
+        "upload": "Upload Attachments",
+        "uploaded": "Uploaded Attachments",
+        "noneUploaded": "This order has no Order List attachments yet.",
+        "delete": "Delete",
+        "confirmDelete": "Delete “{name}”?",
+        "downloadFailed": "This attachment cannot be downloaded right now. Please try again later.",
+        "connectionFailed": "The system cannot be reached right now. Refresh the page and try again."
       }
     },
     "logisticsUi": {

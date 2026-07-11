@@ -12,7 +12,7 @@ import { DashboardListSection } from "@/components/dashboard/dashboard-section-p
 import { Button } from "@/components/ui/button";
 import type {
   WholesaleCustomer,
-  WholesaleOrder,
+  WholesaleOrderListItem,
   WholesaleOrderChangeLog,
   WholesaleOrderEditRequest,
   WholesaleProfile,
@@ -35,7 +35,7 @@ type WholesaleOrderChangeSectionsProps = {
   logs: WholesaleOrderChangeLog[];
   onApproveRequest: (requestId: string) => void | Promise<void>;
   onRejectRequest: (requestId: string) => void | Promise<void>;
-  ordersById: Map<string, WholesaleOrder>;
+  ordersById: Map<string, WholesaleOrderListItem>;
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
   requests: WholesaleOrderEditRequest[];

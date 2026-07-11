@@ -16,14 +16,17 @@ import {
   getBeijingDateString,
   type ExchangeRateRow,
 } from "@/lib/exchange-rates";
-import type { WholesaleOrder, WholesaleOrderSettlement } from "@/lib/wholesale";
+import type {
+  WholesaleOrderListItem,
+  WholesaleOrderSettlement,
+} from "@/lib/wholesale";
 import { formatCurrency, formatDate, formatRate } from "./wholesale-display";
 import { WholesaleSubmitButton } from "./wholesale-ui";
 type WholesaleOrderSettlementDialogProps = {
   exchangeRates: ExchangeRateRow[];
   onOpenChange: (open: boolean) => void;
   onSettleOrder: (formData: FormData) => void | Promise<void>;
-  order: WholesaleOrder;
+  order: WholesaleOrderListItem;
   pending: boolean;
   settlements: WholesaleOrderSettlement[];
 };

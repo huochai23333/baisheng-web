@@ -36,9 +36,11 @@ type LinkedLogisticsRecord =
       type: "order";
     };
 export function LinkedPurchaseOrders({
+  canViewInternalFields,
   profilesById,
   purchaseOrders,
 }: {
+  canViewInternalFields: boolean;
   profilesById: Map<string, WholesaleProfile>;
   purchaseOrders: Wholesale1688Order[];
 }) {
@@ -85,6 +87,7 @@ export function LinkedPurchaseOrders({
             rows={getLinkedPurchaseOrderDetailRows(
               selectedPurchaseOrder,
               profilesById,
+              canViewInternalFields,
             )}
           />
         ) : null}
@@ -236,13 +239,21 @@ function getLinkedLogisticsDetailRows(
 function getLinkedPurchaseOrderDetailRows(
   purchaseOrder: Wholesale1688Order,
   profilesById: Map<string, WholesaleProfile>,
+  canViewInternalFields: boolean,
 ): WholesaleDetailGridRow[] {
   return [
     { label: "1688 订单号", value: purchaseOrder.external_order_number },
     { label: "供应商", value: purchaseOrder.seller_name ?? "未记录" },
     { label: "商品", value: purchaseOrder.item_summary ?? "未记录" },
     { label: "数量", value: formatNumber(purchaseOrder.quantity) },
-    { label: "采购金额", value: formatCurrency(purchaseOrder.purchase_amount) },
+    ...(canViewInternalFields
+      ? [
+          {
+            label: "采购金额",
+            value: formatCurrency(purchaseOrder.purchase_amount),
+          },
+        ]
+      : []),
     { label: "订单状态", value: purchaseOrder.order_status ?? "未记录" },
     { label: "采购时间", value: formatDateTime(purchaseOrder.purchased_at) },
     { label: "收件人", value: purchaseOrder.recipient_name ?? "未记录" },

@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import type {
   Wholesale1688Order,
   WholesaleLogisticsOrder,
-  WholesaleOrder,
+  WholesaleOrderListItem,
   WholesaleOrderSettlement,
 } from "@/lib/wholesale";
+import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-attachments";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
 import {
   formatCurrency,
@@ -23,32 +24,47 @@ import {
 } from "./wholesale-display";
 import { WholesaleDetailGrid } from "./wholesale-detail-grid";
 import type { WholesaleOrderEditAction } from "./wholesale-orders-table";
+import { WholesaleOrderListAttachments } from "./wholesale-order-list-attachments";
 type WholesaleOrderDetailsDialogProps = {
   canMarkOrderSettled: boolean;
+  canManageOrderListAttachments: boolean;
+  canViewInternalFields: boolean;
   customerName: string;
   editAction: WholesaleOrderEditAction | null;
   logisticsOrders: WholesaleLogisticsOrder[];
   logisticsStatuses: WholesaleLogisticsStatus[];
   onClose: () => void;
+  onDeleteOrderListAttachment: (
+    attachment: WholesaleOrderListAttachment,
+  ) => void | Promise<void>;
   onOpenOrderEdit: () => void;
   onOpenOrderSettlement: () => void;
+  onUploadOrderListAttachments: (files: File[]) => Promise<boolean>;
   open: boolean;
-  order: WholesaleOrder;
+  order: WholesaleOrderListItem;
+  orderListAttachments: WholesaleOrderListAttachment[];
+  pendingKey: string | null;
   purchaseOrders: Wholesale1688Order[];
   salesName: string;
   settlements: WholesaleOrderSettlement[];
 };
 export function WholesaleOrderDetailsDialog({
   canMarkOrderSettled,
+  canManageOrderListAttachments,
+  canViewInternalFields,
   customerName,
   editAction,
   logisticsOrders,
   logisticsStatuses,
   onClose,
+  onDeleteOrderListAttachment,
   onOpenOrderEdit,
   onOpenOrderSettlement,
+  onUploadOrderListAttachments,
   open,
   order,
+  orderListAttachments,
+  pendingKey,
   purchaseOrders,
   salesName,
   settlements,
@@ -56,6 +72,7 @@ export function WholesaleOrderDetailsDialog({
   const uiText = useTranslations(
     "UiText.components_dashboard_wholesale_wholesale_order_details_dialog",
   );
+  const orderListText = useTranslations("WholesaleBusiness.ordersUi.orderList");
   const settledAmount = settlements.reduce(
     (sum, settlement) => sum + Number(settlement.settlement_amount),
     0,
@@ -118,7 +135,14 @@ export function WholesaleOrderDetailsDialog({
                   order.customer_payment_currency,
                 ),
               },
-              { label: "收款平台", value: order.payment_platform ?? "未记录" },
+              ...(canViewInternalFields
+                ? [
+                    {
+                      label: "收款平台",
+                      value: order.payment_platform ?? "未记录",
+                    },
+                  ]
+                : []),
             ]}
           />
         </DetailGroup>
@@ -130,20 +154,31 @@ export function WholesaleOrderDetailsDialog({
                 label: "小单数量",
                 value: formatNumber(order.small_order_count),
               },
-              {
-                label: "产品采购金额",
-                value: formatCurrency(order.product_purchase_amount),
-              },
+              ...(canViewInternalFields
+                ? [
+                    {
+                      label: "产品采购金额",
+                      value: formatCurrency(order.product_purchase_amount),
+                    },
+                  ]
+                : []),
               { label: "打包费", value: formatCurrency(order.packing_fee) },
-              {
-                label: "国际运费",
-                value: formatCurrency(order.international_shipping_fee),
-              },
-              { label: "其他费用", value: formatCurrency(order.other_fee) },
-              {
-                label: "推荐佣金费用",
-                value: formatCurrency(order.referral_commission_fee),
-              },
+              ...(canViewInternalFields
+                ? [
+                    {
+                      label: "国际运费",
+                      value: formatCurrency(order.international_shipping_fee),
+                    },
+                    {
+                      label: "其他费用",
+                      value: formatCurrency(order.other_fee),
+                    },
+                    {
+                      label: "推荐佣金费用",
+                      value: formatCurrency(order.referral_commission_fee),
+                    },
+                  ]
+                : []),
               {
                 label: "毛利",
                 value: formatOptionalCurrency(order.gross_profit),
@@ -214,6 +249,18 @@ export function WholesaleOrderDetailsDialog({
               ]}
             />
           </div>
+        </DetailGroup>
+
+        <DetailGroup title={orderListText("title")}>
+          <WholesaleOrderListAttachments
+            attachments={orderListAttachments}
+            canManage={canManageOrderListAttachments}
+            onDelete={onDeleteOrderListAttachment}
+            onUpload={onUploadOrderListAttachments}
+            orderId={order.id}
+            orderNumber={order.order_number}
+            pendingKey={pendingKey}
+          />
         </DetailGroup>
 
         <DetailGroup title={uiText("attribute008")}>

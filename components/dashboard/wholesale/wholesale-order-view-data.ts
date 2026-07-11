@@ -20,6 +20,10 @@ export function useWholesaleOrderViewData(page: WholesaleOrderPage | null) {
         page?.logisticsStatuses ?? [],
         (row) => row.wholesale_order_id,
       ),
+      orderListAttachmentsByOrderId: groupByOrderId(
+        page?.orderListAttachments ?? [],
+        (row) => row.order_id,
+      ),
       ordersById: new Map(orders.map((order) => [order.id, order])),
       orderSettlementsByOrderId: groupByOrderId(
         page?.orderSettlements ?? [],

@@ -154,7 +154,9 @@ async function expectLinkedPurchaseOrderDetailsDialog(page: Page) {
   await expect(purchaseDialog.getByText("Yiwu Sample Supplier")).toBeVisible();
   await expect(purchaseDialog.getByText("Travel accessories batch A")).toBeVisible();
   await expect(purchaseDialog.getByText("1688-LOCAL-001")).toBeVisible();
-  await purchaseDialog.getByLabel("Close dialog").click();
+  await purchaseDialog
+    .getByRole("button", { name: /关闭弹窗|Close dialog/ })
+    .click();
   await expect(purchaseDialog).toHaveCount(0);
 }
 
@@ -165,7 +167,9 @@ async function expectLinkedLogisticsDetailsDialog(page: Page) {
   await expect(logisticsDialog).toBeVisible();
   await expect(logisticsDialog.getByText("INTL-TRACK-LOCAL-001")).toBeVisible();
   await expect(logisticsDialog.getByText("Arrived at destination sorting center")).toBeVisible();
-  await logisticsDialog.getByLabel("Close dialog").click();
+  await logisticsDialog
+    .getByRole("button", { name: /关闭弹窗|Close dialog/ })
+    .click();
   await expect(logisticsDialog).toHaveCount(0);
 }
 
