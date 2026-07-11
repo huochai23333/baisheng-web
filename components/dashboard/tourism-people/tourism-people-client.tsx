@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
 import { RefreshCcw, Search, UserCheck, UsersRound } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import {
@@ -17,15 +17,14 @@ import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 import type { AdminPeoplePageData, AdminPersonRow } from "@/lib/admin-people";
 import type { Locale } from "@/lib/locale";
-import { normalizeSearchText } from "@/lib/value-normalizers";
 import { cn } from "@/lib/utils";
+import { normalizeSearchText } from "@/lib/value-normalizers";
 
 import {
   formatTourismPeopleDate,
   getTourismPersonContact,
   getTourismPersonName,
   isTourismPromoter,
-  TOURISM_STATUS_LABELS,
 } from "./tourism-people-display";
 import { TourismPeopleTable } from "./tourism-people-table";
 
@@ -36,6 +35,7 @@ export function TourismPeopleClient({
 }: {
   initialData: AdminPeoplePageData;
 }) {
+  const t = useTranslations("TourismPeople.people");
   const { locale } = useLocale();
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState(ALL);
@@ -52,13 +52,8 @@ export function TourismPeopleClient({
     const searchValue = normalizeSearchText(searchText);
 
     return promoters.filter((person) => {
-      if (statusFilter !== ALL && person.status !== statusFilter) {
-        return false;
-      }
-
-      if (!searchValue) {
-        return true;
-      }
+      if (statusFilter !== ALL && person.status !== statusFilter) return false;
+      if (!searchValue) return true;
 
       return [
         person.name ?? "",
@@ -72,7 +67,7 @@ export function TourismPeopleClient({
       ].some((value) => normalizeSearchText(value).includes(searchValue));
     });
   }, [promoters, searchText, statusFilter]);
-  const hasFilters = searchText || statusFilter !== ALL;
+  const hasFilters = Boolean(searchText || statusFilter !== ALL);
   const activeCount = promoters.filter(
     (person) => person.status === "active",
   ).length;
@@ -81,13 +76,13 @@ export function TourismPeopleClient({
     return (
       <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
         <DashboardListSection
-          description="只有正常启用的管理员账号可以查看旅游人员。"
-          title="没有旅游人员管理权限"
+          description={t("noPermissionDescription")}
+          title={t("noPermissionTitle")}
         >
           <EmptyState
-            description="请使用正常启用的管理员账号查看旅游人员。"
+            description={t("noPermissionDescription")}
             icon={<UsersRound className="size-5" />}
-            title="暂无权限"
+            title={t("emptyPermissionTitle")}
           />
         </DashboardListSection>
       </section>
@@ -97,26 +92,26 @@ export function TourismPeopleClient({
   return (
     <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
       <DashboardSectionHeader
-        badge="旅游业务"
+        badge={t("badge")}
         badgeIcon={<UsersRound className="size-4" />}
-        description="这里查看旅游业务人员。登录账号的身份、状态和城市调整统一在全局账号管理中处理。"
+        description={t("headerDescription")}
         metrics={[
           {
             accent: "blue",
             icon: <UsersRound className="size-5" />,
-            label: "地推账户",
+            label: t("metricTotal"),
             value: promoters.length,
           },
           {
             accent: "blue",
             icon: <UserCheck className="size-5" />,
-            label: "当前正常",
+            label: t("metricActive"),
             value: activeCount,
           },
         ]}
         metricsClassName="grid-cols-1 sm:grid-cols-2"
         metricsPlacement="below"
-        title="旅游人员管理"
+        title={t("headerTitle")}
       />
 
       <DashboardListSection
@@ -132,35 +127,38 @@ export function TourismPeopleClient({
             variant="outline"
           >
             <RefreshCcw className="size-4" />
-            清空筛选
+            {t("resetFilters")}
           </Button>
         }
-        description={`共 ${promoters.length} 人，当前显示 ${filteredPeople.length} 人。`}
-        title="地推账户"
+        description={t("listDescription", {
+          total: promoters.length,
+          visible: filteredPeople.length,
+        })}
+        title={t("listTitle")}
       >
         <DashboardFilterPanel gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-          <DashboardFilterField label="搜索人员">
+          <DashboardFilterField label={t("searchLabel")}>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
               <input
                 className={cn(dashboardFilterInputClassName, "pl-10")}
                 onChange={(event) => setSearchText(event.target.value)}
-                placeholder="姓名、手机号、邮箱、城市或推荐码"
+                placeholder={t("searchPlaceholder")}
                 type="search"
                 value={searchText}
               />
             </div>
           </DashboardFilterField>
-          <DashboardFilterField label="账号状态">
+          <DashboardFilterField label={t("statusLabel")}>
             <select
               className={dashboardFilterInputClassName}
               onChange={(event) => setStatusFilter(event.target.value)}
               value={statusFilter}
             >
-              <option value={ALL}>全部状态</option>
-              <option value="active">正常</option>
-              <option value="inactive">未启用</option>
-              <option value="suspended">已停用</option>
+              <option value={ALL}>{t("allStatuses")}</option>
+              <option value="active">{t("statuses.active")}</option>
+              <option value="inactive">{t("statuses.inactive")}</option>
+              <option value="suspended">{t("statuses.suspended")}</option>
             </select>
           </DashboardFilterField>
         </DashboardFilterPanel>
@@ -180,7 +178,11 @@ export function TourismPeopleClient({
           if (!open) setSelectedPerson(null);
         }}
         open={Boolean(selectedPerson)}
-        title={selectedPerson ? getTourismPersonName(selectedPerson) : "人员详情"}
+        title={
+          selectedPerson
+            ? getTourismPersonName(selectedPerson, t("fallbacks.unnamed"))
+            : t("detailsTitle")
+        }
       >
         {selectedPerson ? (
           <TourismPersonDetails locale={locale} person={selectedPerson} />
@@ -197,30 +199,54 @@ export function TourismPersonDetails({
   locale: Locale;
   person: AdminPersonRow;
 }) {
+  const t = useTranslations("TourismPeople.people");
+  const pendingFallback = t("fallbacks.pending");
   const rows = [
-    { label: "联系方式", value: getTourismPersonContact(person) },
-    { label: "账号状态", value: TOURISM_STATUS_LABELS[person.status] },
-    { label: "城市", value: person.city ?? "待补充" },
-    { label: "邀请码", value: person.referral_code ?? "待补充" },
     {
-      label: "推荐人",
-      value: person.referrer_name ?? person.referrer_email ?? "无",
+      label: t("details.contact"),
+      value: getTourismPersonContact(person, t("fallbacks.noContact")),
     },
     {
-      label: "团队",
-      value: person.team_name ?? "未加入团队",
+      label: t("details.status"),
+      value: t(`statuses.${person.status}`),
+    },
+    { label: t("details.city"), value: person.city ?? pendingFallback },
+    {
+      label: t("details.referralCode"),
+      value: person.referral_code ?? pendingFallback,
     },
     {
-      label: "直接推荐",
-      value: `${person.direct_referral_count} 人`,
+      label: t("details.referrer"),
+      value:
+        person.referrer_name ??
+        person.referrer_email ??
+        t("fallbacks.noReferrer"),
     },
     {
-      label: "注册时间",
-      value: formatTourismPeopleDate(person.created_at, locale),
+      label: t("details.team"),
+      value: person.team_name ?? t("fallbacks.noTeam"),
     },
     {
-      label: "最近调整",
-      value: formatTourismPeopleDate(person.latest_change_at, locale),
+      label: t("details.directReferrals"),
+      value: t("details.directReferralsValue", {
+        count: person.direct_referral_count,
+      }),
+    },
+    {
+      label: t("details.createdAt"),
+      value: formatTourismPeopleDate(
+        person.created_at,
+        locale,
+        pendingFallback,
+      ),
+    },
+    {
+      label: t("details.latestChange"),
+      value: formatTourismPeopleDate(
+        person.latest_change_at,
+        locale,
+        pendingFallback,
+      ),
     },
   ];
 

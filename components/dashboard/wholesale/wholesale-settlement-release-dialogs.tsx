@@ -1,7 +1,7 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import {
   DashboardFilterField,
@@ -14,7 +14,6 @@ import type {
 } from "@/lib/wholesale";
 import type { WholesaleSettlementRelease } from "@/lib/wholesale-settlement-releases";
 import { getBeijingDateString } from "@/lib/exchange-rates";
-
 import {
   formatSettlementReleaseSummary,
   getWholesaleOrderRemainingAmount,
@@ -25,7 +24,6 @@ import {
   WholesaleSubmitButton,
   WholesaleTextarea,
 } from "./wholesale-ui";
-
 type CreateDialogProps = {
   currencyOptions: string[];
   customers: WholesaleCustomer[];
@@ -33,7 +31,6 @@ type CreateDialogProps = {
   onOpenChange: (open: boolean) => void;
   pending: boolean;
 };
-
 export function WholesaleSettlementReleaseCreateDialog({
   currencyOptions,
   customers,
@@ -41,26 +38,28 @@ export function WholesaleSettlementReleaseCreateDialog({
   onOpenChange,
   pending,
 }: CreateDialogProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_settlement_release_dialogs",
+  );
   const [selectedCustomerId, setSelectedCustomerId] = useState("");
   const [manualCustomerName, setManualCustomerName] = useState("");
   const selectedCustomer = useMemo(
-    () => customers.find((customer) => customer.id === selectedCustomerId) ?? null,
+    () =>
+      customers.find((customer) => customer.id === selectedCustomerId) ?? null,
     [customers, selectedCustomerId],
   );
-
   return (
     <DashboardDialog
-      description="发布今天或指定日期收到的客户结汇款，业务员认领后会匹配到一笔批发订单。"
+      description={uiText("attribute001")}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
           setSelectedCustomerId("");
           setManualCustomerName("");
         }
-
         onOpenChange(nextOpen);
       }}
       open
-      title="发布结汇收款"
+      title={uiText("attribute002")}
     >
       <form
         className="grid gap-4 md:grid-cols-2"
@@ -71,7 +70,7 @@ export function WholesaleSettlementReleaseCreateDialog({
         }}
       >
         <WholesaleSelect
-          label="选择客户"
+          label={uiText("attribute003")}
           name="customer_id"
           onChange={(event) => {
             setSelectedCustomerId(event.target.value);
@@ -81,7 +80,9 @@ export function WholesaleSettlementReleaseCreateDialog({
           }}
           value={selectedCustomerId}
         >
-          <option value="">先填写客户名</option>
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_dialogs.text001" />
+          </option>
           {customers.map((customer) => (
             <option key={customer.id} value={customer.id}>
               {customer.unique_name}
@@ -89,27 +90,27 @@ export function WholesaleSettlementReleaseCreateDialog({
           ))}
         </WholesaleSelect>
 
-        <DashboardFilterField label="客户名称">
+        <DashboardFilterField label={uiText("attribute004")}>
           <input
             className={dashboardFilterInputClassName}
             disabled={Boolean(selectedCustomer)}
             name="customer_name"
             onChange={(event) => setManualCustomerName(event.target.value)}
-            placeholder="填写客户名称"
+            placeholder={uiText("attribute005")}
             required={!selectedCustomer}
             value={selectedCustomer?.unique_name ?? manualCustomerName}
           />
           <p className="mt-2 text-xs leading-5 text-[#7b8790]">
-            选定现有客户后会自动带出名称；暂时找不到时可以先手填。
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_dialogs.text002" />
           </p>
         </DashboardFilterField>
 
-        <DashboardFilterField label="结汇金额">
+        <DashboardFilterField label={uiText("attribute006")}>
           <input
             className={dashboardFilterInputClassName}
             min={0.01}
             name="release_amount"
-            placeholder="填写收到金额"
+            placeholder={uiText("attribute007")}
             required
             step="0.01"
             type="number"
@@ -118,7 +119,7 @@ export function WholesaleSettlementReleaseCreateDialog({
 
         <WholesaleSelect
           defaultValue={currencyOptions[0] ?? "USD"}
-          label="币种"
+          label={uiText("attribute008")}
           name="release_currency"
           required
         >
@@ -129,7 +130,7 @@ export function WholesaleSettlementReleaseCreateDialog({
           ))}
         </WholesaleSelect>
 
-        <DashboardFilterField label="收款日期">
+        <DashboardFilterField label={uiText("attribute009")}>
           <input
             className={dashboardFilterInputClassName}
             defaultValue={getBeijingDateString()}
@@ -141,20 +142,21 @@ export function WholesaleSettlementReleaseCreateDialog({
 
         <div className="md:col-span-2">
           <WholesaleTextarea
-            label="备注"
+            label={uiText("attribute010")}
             name="note"
-            placeholder="可填写付款截图编号、对账说明或其他备注"
+            placeholder={uiText("attribute011")}
           />
         </div>
 
         <div className="flex justify-end md:col-span-2">
-          <WholesaleSubmitButton pending={pending}>发布收款</WholesaleSubmitButton>
+          <WholesaleSubmitButton pending={pending}>
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_dialogs.text003" />
+          </WholesaleSubmitButton>
         </div>
       </form>
     </DashboardDialog>
   );
 }
-
 type ClaimDialogProps = {
   customersById: Map<string, WholesaleCustomer>;
   onClaimRelease: (formData: FormData) => void | Promise<void>;
@@ -164,7 +166,6 @@ type ClaimDialogProps = {
   pending: boolean;
   release: WholesaleSettlementRelease;
 };
-
 export function WholesaleSettlementReleaseClaimDialog({
   customersById,
   onClaimRelease,
@@ -174,6 +175,9 @@ export function WholesaleSettlementReleaseClaimDialog({
   pending,
   release,
 }: ClaimDialogProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_settlement_release_dialogs",
+  );
   const baseCandidates = useMemo(
     () =>
       orders.filter((order) => {
@@ -185,9 +189,9 @@ export function WholesaleSettlementReleaseClaimDialog({
         if (release.customer_id && order.customer_id !== release.customer_id) {
           return false;
         }
-
         return (
-          getWholesaleOrderRemainingAmount(order, orderSettlementsByOrderId) + 0.005 >=
+          getWholesaleOrderRemainingAmount(order, orderSettlementsByOrderId) +
+            0.005 >=
           Number(release.release_amount)
         );
       }),
@@ -196,13 +200,12 @@ export function WholesaleSettlementReleaseClaimDialog({
   const [hasSelectableOrder, setHasSelectableOrder] = useState(
     baseCandidates.length > 0,
   );
-
   return (
     <DashboardDialog
-      description="选择一笔批发订单后，这条收款会按收款日期登记为订单结汇记录。"
+      description={uiText("attribute012")}
       onOpenChange={onOpenChange}
       open
-      title="认领结汇收款"
+      title={uiText("attribute013")}
     >
       <form
         className="grid gap-4"
@@ -213,7 +216,10 @@ export function WholesaleSettlementReleaseClaimDialog({
         }}
       >
         <input name="release_id" type="hidden" value={release.id} />
-        <ReadOnlyField label="收款信息" value={formatSettlementReleaseSummary(release)} />
+        <ReadOnlyField
+          label={uiText("attribute014")}
+          value={formatSettlementReleaseSummary(release)}
+        />
         <WholesaleSettlementReleaseOrderPicker
           baseCandidates={baseCandidates}
           customersById={customersById}
@@ -224,14 +230,13 @@ export function WholesaleSettlementReleaseClaimDialog({
 
         <div className="flex justify-end">
           <WholesaleSubmitButton pending={pending || !hasSelectableOrder}>
-            确认匹配
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_dialogs.text004" />
           </WholesaleSubmitButton>
         </div>
       </form>
     </DashboardDialog>
   );
 }
-
 function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <DashboardFilterField label={label}>

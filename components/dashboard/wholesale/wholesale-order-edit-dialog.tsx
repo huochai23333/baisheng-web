@@ -1,7 +1,7 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import {
   DashboardFilterField,
@@ -17,7 +17,6 @@ import type {
   WholesaleOrder,
   WholesaleProfile,
 } from "@/lib/wholesale";
-
 import {
   dedupeWholesaleCurrencyOptions,
   WHOLESALE_PAYMENT_PLATFORM_OPTIONS,
@@ -33,7 +32,6 @@ import {
   WholesaleSelect,
   WholesaleSubmitButton,
 } from "./wholesale-ui";
-
 type WholesaleOrderEditDialogProps = {
   canManageAllOrders: boolean;
   editWindowDays: number;
@@ -48,7 +46,6 @@ type WholesaleOrderEditDialogProps = {
   pending: boolean;
   salesAccounts: WholesaleProfile[];
 };
-
 export function WholesaleOrderEditDialog({
   canManageAllOrders,
   editWindowDays,
@@ -63,6 +60,9 @@ export function WholesaleOrderEditDialog({
   pending,
   salesAccounts,
 }: WholesaleOrderEditDialogProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_order_edit_dialog",
+  );
   const [requestNoteError, setRequestNoteError] = useState("");
   const currencyOptions = useWholesaleCurrencyOptions(exchangeRates, order);
   const defaultCurrency =
@@ -70,16 +70,13 @@ export function WholesaleOrderEditDialog({
     currencyOptions.find((option) => option.currency === "USD")?.currency ??
     currencyOptions[0]?.currency ??
     "CNY";
-
   if (!order) {
     return null;
   }
-
   const isRequestMode = mode === "request";
   const description = isRequestMode
     ? `这笔订单已超过 ${editWindowDays} 天，修改提交后由管理员确认。`
     : "保存后会记录本次修改。结汇请回到订单列表登记每一笔结汇记录。";
-
   return (
     <DashboardDialog
       description={description}
@@ -87,7 +84,6 @@ export function WholesaleOrderEditDialog({
         if (!nextOpen) {
           setRequestNoteError("");
         }
-
         onOpenChange(nextOpen);
       }}
       open={open}
@@ -99,14 +95,18 @@ export function WholesaleOrderEditDialog({
         onSubmit={(event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
-          const hasOrderChanges = hasWholesaleOrderFieldChanges(formData, order);
-
+          const hasOrderChanges = hasWholesaleOrderFieldChanges(
+            formData,
+            order,
+          );
           if (isRequestMode) {
-            if (hasOrderChanges && !getTrimmedFormValue(formData, "request_note")) {
+            if (
+              hasOrderChanges &&
+              !getTrimmedFormValue(formData, "request_note")
+            ) {
               setRequestNoteError("请填写申请说明，方便管理员处理。");
               return;
             }
-
             if (hasOrderChanges) {
               void onRequestOrderEdit(formData);
             }
@@ -115,7 +115,6 @@ export function WholesaleOrderEditDialog({
               void onUpdateOrder(formData);
             }
           }
-
           setRequestNoteError("");
           onOpenChange(false);
         }}
@@ -135,11 +134,13 @@ export function WholesaleOrderEditDialog({
         <WholesaleSelect
           defaultValue={order.customer_id}
           disabled={!canManageAllOrders}
-          label="客户名"
+          label={uiText("attribute001")}
           name="customer_id"
           required
         >
-          <option value="">选择客户</option>
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text001" />
+          </option>
           {customers.map((customer) => (
             <option key={customer.id} value={customer.id}>
               {customer.unique_name}
@@ -149,10 +150,12 @@ export function WholesaleOrderEditDialog({
         <WholesaleSelect
           defaultValue={order.sales_user_id ?? ""}
           disabled={!canManageAllOrders}
-          label="关联业务员"
+          label={uiText("attribute002")}
           name="sales_user_id"
         >
-          <option value="">暂不分配</option>
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text002" />
+          </option>
           {salesAccounts.map((profile) => (
             <option key={profile.user_id} value={profile.user_id}>
               {profile.name || profile.email}
@@ -161,15 +164,17 @@ export function WholesaleOrderEditDialog({
         </WholesaleSelect>
         <WholesaleField
           defaultValue={order.small_order_count}
-          label="小单数量"
+          label={uiText("attribute003")}
           min={0}
           name="small_order_count"
           required
           type="number"
         />
         <WholesaleField
-          defaultValue={formatEditableNumericValue(order.product_purchase_amount)}
-          label="产品采购金额"
+          defaultValue={formatEditableNumericValue(
+            order.product_purchase_amount,
+          )}
+          label={uiText("attribute004")}
           min={0}
           name="product_purchase_amount"
           required
@@ -177,8 +182,10 @@ export function WholesaleOrderEditDialog({
           type="number"
         />
         <WholesaleField
-          defaultValue={formatEditableNumericValue(order.international_shipping_fee)}
-          label="国际运费"
+          defaultValue={formatEditableNumericValue(
+            order.international_shipping_fee,
+          )}
+          label={uiText("attribute005")}
           min={0}
           name="international_shipping_fee"
           required
@@ -187,15 +194,17 @@ export function WholesaleOrderEditDialog({
         />
         <WholesaleField
           defaultValue={formatEditableNumericValue(order.other_fee)}
-          label="其他费用"
+          label={uiText("attribute006")}
           min={0}
           name="other_fee"
           step="0.01"
           type="number"
         />
         <WholesaleField
-          defaultValue={formatEditableNumericValue(order.referral_commission_fee)}
-          label="推荐佣金费用"
+          defaultValue={formatEditableNumericValue(
+            order.referral_commission_fee,
+          )}
+          label={uiText("attribute007")}
           min={0}
           name="referral_commission_fee"
           step="0.01"
@@ -203,16 +212,18 @@ export function WholesaleOrderEditDialog({
         />
         <WholesaleField
           defaultValue={order.courier_company ?? ""}
-          label="快递公司"
+          label={uiText("attribute008")}
           name="courier_company"
         />
         <WholesaleSelect
           defaultValue={defaultCurrency}
-          label="客户支付币种"
+          label={uiText("attribute009")}
           name="customer_payment_currency"
           required
         >
-          <option value="">选择币种</option>
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text003" />
+          </option>
           {currencyOptions.map((option) => (
             <option key={option.currency} value={option.currency}>
               {option.currency}
@@ -220,8 +231,10 @@ export function WholesaleOrderEditDialog({
           ))}
         </WholesaleSelect>
         <WholesaleField
-          defaultValue={formatEditableNumericValue(order.customer_payment_amount)}
-          label="客户支付金额"
+          defaultValue={formatEditableNumericValue(
+            order.customer_payment_amount,
+          )}
+          label={uiText("attribute010")}
           min={0}
           name="customer_payment_amount"
           required
@@ -230,10 +243,12 @@ export function WholesaleOrderEditDialog({
         />
         <WholesaleSelect
           defaultValue={order.payment_platform ?? ""}
-          label="收款平台"
+          label={uiText("attribute011")}
           name="payment_platform"
         >
-          <option value="">选择收款平台</option>
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text004" />
+          </option>
           {WHOLESALE_PAYMENT_PLATFORM_OPTIONS.map((platform) => (
             <option key={platform} value={platform}>
               {platform}
@@ -242,13 +257,13 @@ export function WholesaleOrderEditDialog({
         </WholesaleSelect>
         <WholesaleField
           defaultValue={toMonthInputValue(order.order_month)}
-          label="订单计入月份"
+          label={uiText("attribute012")}
           name="order_month"
           required
           type="month"
         />
         <div className="md:col-span-2 xl:col-span-4">
-          <DashboardFilterField label="备注">
+          <DashboardFilterField label={uiText("attribute013")}>
             <textarea
               className={`${dashboardFilterInputClassName} h-auto min-h-24 py-3 sm:h-auto`}
               defaultValue={order.notes ?? ""}
@@ -258,11 +273,11 @@ export function WholesaleOrderEditDialog({
         </div>
         {isRequestMode ? (
           <div className="md:col-span-2 xl:col-span-4">
-            <DashboardFilterField label="申请说明">
+            <DashboardFilterField label={uiText("attribute014")}>
               <textarea
                 className={`${dashboardFilterInputClassName} h-auto min-h-24 py-3 sm:h-auto`}
                 name="request_note"
-                placeholder="简单说明为什么需要修改，方便管理员处理。"
+                placeholder={uiText("attribute015")}
               />
               {requestNoteError ? (
                 <p className="mt-2 text-sm leading-6 text-[#b13d3d]">
@@ -281,7 +296,6 @@ export function WholesaleOrderEditDialog({
     </DashboardDialog>
   );
 }
-
 function useWholesaleCurrencyOptions(
   exchangeRates: ExchangeRateRow[],
   order: WholesaleOrder | null,
@@ -305,7 +319,6 @@ function useWholesaleCurrencyOptions(
     const hasOrderCurrency =
       !orderCurrency ||
       nextOptions.some((option) => option.currency === orderCurrency);
-
     if (!hasOrderCurrency && orderCurrency) {
       nextOptions.push({
         currency: orderCurrency,
@@ -315,7 +328,6 @@ function useWholesaleCurrencyOptions(
         transactionRate: "",
       });
     }
-
     return nextOptions;
   }, [exchangeRates, order]);
 }

@@ -37,7 +37,9 @@ export type AdminPeopleRole = (typeof ADMIN_PEOPLE_ROLE_OPTIONS)[number];
 export type AdminPeopleStatus = (typeof ADMIN_PEOPLE_STATUS_OPTIONS)[number];
 export type CustomerTypeMark = "retail";
 
-export const CUSTOMER_TYPE_MARK_OPTIONS = ["retail"] as const satisfies readonly CustomerTypeMark[];
+export const CUSTOMER_TYPE_MARK_OPTIONS = [
+  "retail",
+] as const satisfies readonly CustomerTypeMark[];
 
 export type AdminPersonRow = {
   user_id: string;

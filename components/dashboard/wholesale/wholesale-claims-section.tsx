@@ -1,9 +1,8 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-
 import { FileSpreadsheet, RefreshCcw, Upload } from "lucide-react";
-
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -16,7 +15,6 @@ import type {
   WholesaleOrder,
   WholesaleProfile,
 } from "@/lib/wholesale";
-
 import {
   Wholesale1688UploadDialog,
   WholesaleClaimDialog,
@@ -31,11 +29,7 @@ import {
   type WholesaleClaimRow,
 } from "./wholesale-claims-view-model";
 import type { useWholesaleActions } from "./use-wholesale-actions";
-import {
-  WholesaleEmptyState,
-  WholesalePageShell,
-} from "./wholesale-ui";
-
+import { WholesaleEmptyState, WholesalePageShell } from "./wholesale-ui";
 type WholesaleClaimsSectionProps = {
   canAdmin: boolean;
   canEdit: boolean;
@@ -50,7 +44,6 @@ type WholesaleClaimsSectionProps = {
     "claim1688Order" | "delete1688Order" | "import1688Rows"
   >;
 };
-
 export function WholesaleClaimsSection({
   actions,
   canAdmin,
@@ -62,10 +55,15 @@ export function WholesaleClaimsSection({
   profilesById,
   purchaseOrders,
 }: WholesaleClaimsSectionProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_claims_section",
+  );
   const [activeBoard, setActiveBoard] =
     useState<WholesaleClaimBoardKey>("assisted");
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [claimTarget, setClaimTarget] = useState<WholesaleClaimRow | null>(null);
+  const [claimTarget, setClaimTarget] = useState<WholesaleClaimRow | null>(
+    null,
+  );
   const [searchText, setSearchText] = useState("");
   const ordersById = useMemo(
     () => new Map(orders.map((order) => [order.id, order])),
@@ -92,7 +90,6 @@ export function WholesaleClaimsSection({
   const activeBoardMeta =
     WHOLESALE_CLAIM_BOARDS.find((board) => board.key === activeBoard) ??
     WHOLESALE_CLAIM_BOARDS[0];
-
   return (
     <WholesalePageShell
       actions={
@@ -103,13 +100,13 @@ export function WholesaleClaimsSection({
             type="button"
           >
             <Upload className="size-4" />
-            上传 1688 文件
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_section.text001" />
           </Button>
         ) : null
       }
-      description="1688 采购订单按已认领、待分类和认领大厅分开处理。上传订单表格后，系统会先按收货人名字辅助归类，确认客户和批发订单后才算完成认领。"
-      eyebrow="批发业务"
-      title="订单认领"
+      description={uiText("attribute001")}
+      eyebrow={uiText("attribute002")}
+      title={uiText("attribute003")}
     >
       <DashboardListSection
         actions={
@@ -121,18 +118,18 @@ export function WholesaleClaimsSection({
             variant="outline"
           >
             <RefreshCcw className="size-4" />
-            清空搜索
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_section.text002" />
           </Button>
         }
         description={`当前在${activeBoardMeta.label}中显示 ${filteredRows.length} 条采购订单。${activeBoardMeta.description}`}
-        title="采购订单认领"
+        title={uiText("attribute004")}
       >
         <div className="mb-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <DashboardFilterField label="搜索采购订单">
+          <DashboardFilterField label={uiText("attribute005")}>
             <input
               className={dashboardFilterInputClassName}
               onChange={(event) => setSearchText(event.target.value)}
-              placeholder="1688 订单号、收货人、商品、客户、业务员"
+              placeholder={uiText("attribute006")}
               type="search"
               value={searchText}
             />
@@ -151,7 +148,8 @@ export function WholesaleClaimsSection({
               >
                 <span className="block">{board.label}</span>
                 <span className="mt-1 block text-xs opacity-80">
-                  {boardCounts[board.key]} 条
+                  {boardCounts[board.key]}
+                  <UiMessage id="components_dashboard_wholesale_wholesale_claims_section.text003" />
                 </span>
               </button>
             ))}
@@ -162,7 +160,7 @@ export function WholesaleClaimsSection({
           <WholesaleEmptyState
             description={getEmptyDescription(activeBoard)}
             icon={<FileSpreadsheet className="size-5" />}
-            title="暂无采购订单"
+            title={uiText("attribute007")}
           />
         ) : (
           <WholesaleClaimsTable
@@ -196,15 +194,12 @@ export function WholesaleClaimsSection({
     </WholesalePageShell>
   );
 }
-
 function getEmptyDescription(board: WholesaleClaimBoardKey) {
   if (board === "assisted") {
     return "订单表格上传后，如果系统能按收货人名字匹配到客户，会先出现在这里。";
   }
-
   if (board === "hall") {
     return "没有辅助匹配到客户的采购订单会进入认领大厅。";
   }
-
   return "确认客户和批发订单后，采购订单会进入已认领。";
 }

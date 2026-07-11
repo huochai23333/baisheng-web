@@ -1,11 +1,10 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { AlertTriangle, LoaderCircle, Trash2 } from "lucide-react";
-
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { Button } from "@/components/ui/button";
 import type { WholesaleCustomer } from "@/lib/wholesale";
-
 type WholesaleCustomerDeleteDialogProps = {
   customer: WholesaleCustomer | null;
   onDeleteCustomer: (customerId: string) => boolean | Promise<boolean>;
@@ -13,7 +12,6 @@ type WholesaleCustomerDeleteDialogProps = {
   open: boolean;
   pending: boolean;
 };
-
 export function WholesaleCustomerDeleteDialog({
   customer,
   onDeleteCustomer,
@@ -21,12 +19,15 @@ export function WholesaleCustomerDeleteDialog({
   open,
   pending,
 }: WholesaleCustomerDeleteDialogProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_customer_delete_dialog",
+  );
   return (
     <DashboardDialog
-      description="删除后，这个客户会从客户管理中移除；已有订单的客户不能删除。"
+      description={uiText("attribute001")}
       onOpenChange={onOpenChange}
       open={open}
-      title="删除批发客户"
+      title={uiText("attribute002")}
     >
       {customer ? (
         <div className="space-y-5">
@@ -34,10 +35,11 @@ export function WholesaleCustomerDeleteDialog({
             <AlertTriangle className="mt-0.5 size-5 shrink-0" />
             <div className="min-w-0">
               <p className="break-words text-sm font-semibold">
-                确认删除“{customer.unique_name}”？
+                <UiMessage id="components_dashboard_wholesale_wholesale_customer_delete_dialog.text001" />
+                {customer.unique_name}”？
               </p>
               <p className="mt-2 break-words text-sm leading-6">
-                如果这个客户已经有批发订单，系统会保留客户，避免订单资料丢失。
+                <UiMessage id="components_dashboard_wholesale_wholesale_customer_delete_dialog.text002" />
               </p>
             </div>
           </div>
@@ -49,14 +51,13 @@ export function WholesaleCustomerDeleteDialog({
               type="button"
               variant="outline"
             >
-              先不删除
+              <UiMessage id="components_dashboard_wholesale_wholesale_customer_delete_dialog.text003" />
             </Button>
             <Button
               className="h-10 rounded-full bg-[#b13d3d] px-4 text-white hover:bg-[#963333]"
               disabled={pending}
               onClick={async () => {
                 const deleted = await onDeleteCustomer(customer.id);
-
                 if (deleted) {
                   onOpenChange(false);
                 }
@@ -68,7 +69,7 @@ export function WholesaleCustomerDeleteDialog({
               ) : (
                 <Trash2 className="size-4" />
               )}
-              确认删除
+              <UiMessage id="components_dashboard_wholesale_wholesale_customer_delete_dialog.text004" />
             </Button>
           </div>
         </div>

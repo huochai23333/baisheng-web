@@ -1,9 +1,8 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
-
 import { LoaderCircle, Plus, ReceiptText } from "lucide-react";
-
 import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,6 @@ import type {
   WholesaleProfile,
 } from "@/lib/wholesale";
 import type { WholesaleOrderPage } from "@/lib/wholesale-order-page";
-
 import { useWholesaleOrderFilters } from "./use-wholesale-order-filters";
 import { useWholesaleOrderPage } from "./use-wholesale-order-page";
 import { WholesaleOrderAssessmentPanel } from "./wholesale-order-assessment-panel";
@@ -34,11 +32,7 @@ import {
   WholesaleOrdersTable,
   type WholesaleOrderEditAction,
 } from "./wholesale-orders-table";
-import {
-  WholesaleEmptyState,
-  WholesalePageShell,
-} from "./wholesale-ui";
-
+import { WholesaleEmptyState, WholesalePageShell } from "./wholesale-ui";
 type WholesaleOrdersSectionProps = {
   canEdit: boolean;
   canManageAllOrders: boolean;
@@ -58,7 +52,6 @@ type WholesaleOrdersSectionProps = {
   profilesById: Map<string, WholesaleProfile>;
   salesAccounts: WholesaleProfile[];
 };
-
 export function WholesaleOrdersSection({
   canEdit,
   canManageAllOrders,
@@ -78,8 +71,13 @@ export function WholesaleOrdersSection({
   profilesById,
   salesAccounts,
 }: WholesaleOrdersSectionProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_orders_section",
+  );
+  const t = useTranslations("WholesaleBusiness.ordersUi");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedEditOrder, setSelectedEditOrder] = useState<WholesaleOrder | null>(null);
+  const [selectedEditOrder, setSelectedEditOrder] =
+    useState<WholesaleOrder | null>(null);
   const [selectedSettlementOrder, setSelectedSettlementOrder] =
     useState<WholesaleOrder | null>(null);
   const filterState = useWholesaleOrderFilters();
@@ -125,14 +123,13 @@ export function WholesaleOrdersSection({
       ) {
         return null;
       }
-
       return getWholesaleOrderEditMode({
         canManageAllOrders,
         editWindowDays: orderEditWindowDays,
         order,
       }) === "direct"
-        ? { label: "修改订单", tone: "direct" }
-        : { label: "申请修改", tone: "request" };
+        ? { label: t("actions.edit"), tone: "direct" }
+        : { label: t("actions.requestEdit"), tone: "request" };
     },
     [
       canEdit,
@@ -140,6 +137,7 @@ export function WholesaleOrdersSection({
       currentUserId,
       customersById,
       orderEditWindowDays,
+      t,
     ],
   );
   const refreshAfter = useCallback(
@@ -156,7 +154,6 @@ export function WholesaleOrdersSection({
         order: selectedEditOrder,
       })
     : "direct";
-
   return (
     <WholesalePageShell
       actions={
@@ -167,13 +164,13 @@ export function WholesaleOrdersSection({
             type="button"
           >
             <Plus className="size-4" />
-            新建订单
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_section.text001" />
           </Button>
         ) : null
       }
-      description="按条件分批查看批发订单。电脑端保留完整表格，手机端点击订单卡片查看费用、利润、结汇和关联记录。"
-      eyebrow="批发业务"
-      title="批发订单"
+      description={uiText("attribute001")}
+      eyebrow={uiText("attribute002")}
+      title={uiText("attribute003")}
     >
       <WholesaleOrderFiltersPanel
         customers={customers}
@@ -195,7 +192,7 @@ export function WholesaleOrdersSection({
             type="button"
             variant="outline"
           >
-            重新加载
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_section.text002" />
           </Button>
         </div>
       ) : null}
@@ -209,10 +206,13 @@ export function WholesaleOrdersSection({
       <DashboardListSection
         description={
           page
-            ? `已显示 ${page.orders.length} / ${page.totalCount} 笔订单。`
-            : "正在按当前条件加载订单。"
+            ? t("listCount", {
+                shown: page.orders.length,
+                total: page.totalCount,
+              })
+            : t("loadingList")
         }
-        title="订单列表"
+        title={uiText("attribute004")}
       >
         {page ? (
           <div className="mb-5">
@@ -226,13 +226,13 @@ export function WholesaleOrdersSection({
         {pageState.loading ? (
           <div className="flex min-h-40 items-center justify-center gap-2 text-sm text-[#71808d]">
             <LoaderCircle className="size-4 animate-spin" />
-            正在加载订单…
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_section.text003" />
           </div>
         ) : page && page.orders.length === 0 ? (
           <WholesaleEmptyState
-            description="没有匹配的批发订单。可以调整筛选条件，或新建一笔订单。"
+            description={uiText("attribute005")}
             icon={<ReceiptText className="size-5" />}
-            title="暂无匹配订单"
+            title={uiText("attribute006")}
           />
         ) : page ? (
           <>
@@ -280,7 +280,7 @@ export function WholesaleOrdersSection({
               {pageState.loadingMore ? (
                 <LoaderCircle className="size-4 animate-spin" />
               ) : null}
-              继续加载
+              <UiMessage id="components_dashboard_wholesale_wholesale_orders_section.text004" />
             </Button>
           </div>
         ) : null}
@@ -307,7 +307,9 @@ export function WholesaleOrdersSection({
       <WholesaleOrderFormDialog
         customers={customers}
         exchangeRates={exchangeRates}
-        onCreateOrder={(formData) => refreshAfter(() => onCreateOrder(formData))}
+        onCreateOrder={(formData) =>
+          refreshAfter(() => onCreateOrder(formData))
+        }
         onOpenChange={setCreateDialogOpen}
         open={createDialogOpen}
         pending={pendingKey === "order:create"}
@@ -352,7 +354,9 @@ export function WholesaleOrdersSection({
           }
           order={selectedSettlementOrder}
           settlements={
-            viewData.orderSettlementsByOrderId.get(selectedSettlementOrder.id) ?? []
+            viewData.orderSettlementsByOrderId.get(
+              selectedSettlementOrder.id,
+            ) ?? []
           }
           pending={pendingKey === `order:settle:${selectedSettlementOrder.id}`}
         />

@@ -9,6 +9,7 @@ import { LanguageToggle } from "@/components/i18n/language-toggle";
 import { LegalFooterLinks } from "@/components/legal/legal-footer-links";
 import type { AuthShellCopy } from "@/lib/auth-shell-content";
 import { cn } from "@/lib/utils";
+import { UiMessage } from "@/components/i18n/ui-message";
 
 const AUTH_SHELL_IMAGE_BLUR_DATA_URL =
   "data:image/jpeg;base64,/9j/2wBDABIMDRANCxIQDhAUExIVGywdGxgYGzYnKSAsQDlEQz85Pj1HUGZXR0thTT0+WXlaYWltcnNyRVV9hnxvhWZwcm7/2wBDARMUFBsXGzQdHTRuST5Jbm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm7/wAARCAAeABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAQBBQYD/8QAHRAAAgIDAQEBAAAAAAAAAAAAAAECAwQREiEiMf/EABgBAAMBAQAAAAAAAAAAAAAAAAEEBQID/8QAGhEAAwEBAQEAAAAAAAAAAAAAAAEhAgMSEf/aAAwDAQACEQMRAD8Asaqxmv58IUoKHWwhNT/GSVlp/UNujKjtAcneo+MCgusFHzpnMXMndRzv0YryLKlsosayWPfynsYys+cXpIDxYds7lLSed1LbYGeeXNsDXlg9ZP/Z";
@@ -56,7 +57,9 @@ export function AuthShell({
                 alt=""
                 className={cn(
                   "object-cover object-center",
-                  isRegister ? "opacity-[0.82] saturate-[1.02]" : "opacity-[0.9] saturate-[1.08]",
+                  isRegister
+                    ? "opacity-[0.82] saturate-[1.02]"
+                    : "opacity-[0.9] saturate-[1.08]",
                 )}
                 fill
                 blurDataURL={AUTH_SHELL_IMAGE_BLUR_DATA_URL}
@@ -115,11 +118,17 @@ export function AuthShell({
               </div>
 
               <div className="flex max-w-full flex-wrap items-center gap-4 font-label text-[11px] tracking-[0.18em] text-[#97a0a8] uppercase">
-                <span>Precision</span>
+                <span>
+                  <UiMessage id="shared.precision" />
+                </span>
                 <span className="h-px w-8 bg-[#d7dadc]" />
-                <span>Elegance</span>
+                <span>
+                  <UiMessage id="shared.elegance" />
+                </span>
                 <span className="h-px w-8 bg-[#d7dadc]" />
-                <span>Humanity</span>
+                <span>
+                  <UiMessage id="shared.humanity" />
+                </span>
               </div>
             </div>
           </aside>

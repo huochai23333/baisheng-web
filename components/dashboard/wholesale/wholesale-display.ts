@@ -1,7 +1,4 @@
-import type {
-  WholesaleCustomer,
-  WholesaleProfile,
-} from "@/lib/wholesale";
+import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import type { WholesaleLogisticsStatusKind } from "@/lib/wholesale-logistics-statuses";
 
 export const WHOLESALE_STATUS_LABELS = {
@@ -28,7 +25,10 @@ export const WHOLESALE_LOGISTICS_STATUS_LABELS: Record<
   stopped: "已停止",
 };
 
-export function formatCurrency(value: number | null | undefined, currency = "CNY") {
+export function formatCurrency(
+  value: number | null | undefined,
+  currency = "CNY",
+) {
   const amount = Number(value ?? 0);
 
   return new Intl.NumberFormat("zh-CN", {
@@ -74,9 +74,12 @@ export function formatOptionalNumber(
   return value === null || value === undefined ? fallback : formatNumber(value);
 }
 
-export function formatPercent(value: number | null | undefined) {
+export function formatPercent(
+  value: number | null | undefined,
+  fallback = "未产生",
+) {
   if (value === null || value === undefined) {
-    return "未产生";
+    return fallback;
   }
 
   return `${(value * 100).toFixed(2)}%`;
@@ -100,18 +103,22 @@ export function formatDate(value: string | null | undefined) {
   }).format(date);
 }
 
-export function formatDateTime(value: string | null | undefined) {
+export function formatDateTime(
+  value: string | null | undefined,
+  fallback = "未记录",
+  locale = "zh-CN",
+) {
   if (!value) {
-    return "未记录";
+    return fallback;
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "未记录";
+    return fallback;
   }
 
-  return new Intl.DateTimeFormat("zh-CN", {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",

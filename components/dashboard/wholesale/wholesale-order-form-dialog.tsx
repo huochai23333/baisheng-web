@@ -1,16 +1,11 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
-
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { buildOrderCurrencyOptions } from "@/components/dashboard/admin-orders/admin-orders-utils";
 import type { ExchangeRateRow } from "@/lib/exchange-rates";
-
-import type {
-  WholesaleCustomer,
-  WholesaleProfile,
-} from "@/lib/wholesale";
-
+import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import {
   WholesaleField,
   WholesaleSelect,
@@ -21,7 +16,6 @@ import {
   dedupeWholesaleCurrencyOptions,
   WHOLESALE_PAYMENT_PLATFORM_OPTIONS,
 } from "./wholesale-order-form-options";
-
 type WholesaleOrderFormDialogProps = {
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
@@ -31,7 +25,6 @@ type WholesaleOrderFormDialogProps = {
   pending: boolean;
   salesAccounts: WholesaleProfile[];
 };
-
 export function WholesaleOrderFormDialog({
   customers,
   exchangeRates,
@@ -41,11 +34,13 @@ export function WholesaleOrderFormDialog({
   pending,
   salesAccounts,
 }: WholesaleOrderFormDialogProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_order_form_dialog",
+  );
   const currencyOptions = useMemo(() => {
     const options = dedupeWholesaleCurrencyOptions(
       buildOrderCurrencyOptions(exchangeRates),
     );
-
     return options.some((option) => option.currency === "CNY")
       ? options
       : [
@@ -61,15 +56,14 @@ export function WholesaleOrderFormDialog({
     currencyOptions.find((option) => option.currency === "USD")?.currency ??
     currencyOptions[0]?.currency ??
     "CNY";
-
   return (
     <DashboardDialog
-      description="订单编号会自动生成。录入阶段只记录客户支付和成本，结汇时再确认汇率并计算人民币金额、毛利和提成。"
+      description={uiText("attribute001")}
       onOpenChange={(nextOpen) => {
         onOpenChange(nextOpen);
       }}
       open={open}
-      title="新建批发订单"
+      title={uiText("attribute002")}
     >
       <form
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
@@ -80,16 +74,24 @@ export function WholesaleOrderFormDialog({
           onOpenChange(false);
         }}
       >
-        <WholesaleSelect label="客户名" name="customer_id" required>
-          <option value="">选择客户</option>
+        <WholesaleSelect
+          label={uiText("attribute003")}
+          name="customer_id"
+          required
+        >
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_form_dialog.text001" />
+          </option>
           {customers.map((customer) => (
             <option key={customer.id} value={customer.id}>
               {customer.unique_name}
             </option>
           ))}
         </WholesaleSelect>
-        <WholesaleSelect label="关联业务员" name="sales_user_id">
-          <option value="">暂不分配</option>
+        <WholesaleSelect label={uiText("attribute004")} name="sales_user_id">
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_form_dialog.text002" />
+          </option>
           {salesAccounts.map((profile) => (
             <option key={profile.user_id} value={profile.user_id}>
               {profile.name || profile.email}
@@ -97,14 +99,14 @@ export function WholesaleOrderFormDialog({
           ))}
         </WholesaleSelect>
         <WholesaleField
-          label="小单数量"
+          label={uiText("attribute005")}
           min={0}
           name="small_order_count"
           required
           type="number"
         />
         <WholesaleField
-          label="产品采购金额"
+          label={uiText("attribute006")}
           min={0}
           name="product_purchase_amount"
           required
@@ -112,7 +114,7 @@ export function WholesaleOrderFormDialog({
           type="number"
         />
         <WholesaleField
-          label="国际运费"
+          label={uiText("attribute007")}
           min={0}
           name="international_shipping_fee"
           required
@@ -120,27 +122,29 @@ export function WholesaleOrderFormDialog({
           type="number"
         />
         <WholesaleField
-          label="其他费用"
+          label={uiText("attribute008")}
           min={0}
           name="other_fee"
           step="0.01"
           type="number"
         />
         <WholesaleField
-          label="推荐佣金费用"
+          label={uiText("attribute009")}
           min={0}
           name="referral_commission_fee"
           step="0.01"
           type="number"
         />
-        <WholesaleField label="快递公司" name="courier_company" />
+        <WholesaleField label={uiText("attribute010")} name="courier_company" />
         <WholesaleSelect
-          label="客户支付币种"
+          label={uiText("attribute011")}
           name="customer_payment_currency"
           required
           defaultValue={defaultCurrency}
         >
-          <option value="">选择币种</option>
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_form_dialog.text003" />
+          </option>
           {currencyOptions.map((option) => (
             <option key={option.currency} value={option.currency}>
               {option.currency}
@@ -148,27 +152,36 @@ export function WholesaleOrderFormDialog({
           ))}
         </WholesaleSelect>
         <WholesaleField
-          label="客户支付金额"
+          label={uiText("attribute012")}
           min={0}
           name="customer_payment_amount"
           required
           step="0.01"
           type="number"
         />
-        <WholesaleSelect label="收款平台" name="payment_platform">
-          <option value="">选择收款平台</option>
+        <WholesaleSelect label={uiText("attribute013")} name="payment_platform">
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_form_dialog.text004" />
+          </option>
           {WHOLESALE_PAYMENT_PLATFORM_OPTIONS.map((platform) => (
             <option key={platform} value={platform}>
               {platform}
             </option>
           ))}
         </WholesaleSelect>
-        <WholesaleField label="订单计入月份" name="order_month" required type="month" />
+        <WholesaleField
+          label={uiText("attribute014")}
+          name="order_month"
+          required
+          type="month"
+        />
         <div className="md:col-span-2 xl:col-span-4">
-          <WholesaleTextarea label="备注" name="notes" />
+          <WholesaleTextarea label={uiText("attribute015")} name="notes" />
         </div>
         <div className="flex justify-end md:col-span-2 xl:col-span-4">
-          <WholesaleSubmitButton pending={pending}>保存订单</WholesaleSubmitButton>
+          <WholesaleSubmitButton pending={pending}>
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_form_dialog.text005" />
+          </WholesaleSubmitButton>
         </div>
       </form>
     </DashboardDialog>

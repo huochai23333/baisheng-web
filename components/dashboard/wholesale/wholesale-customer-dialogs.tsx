@@ -1,14 +1,11 @@
 "use client";
-
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
-
 import { WholesaleCustomerDeleteDialog } from "./wholesale-customer-delete-dialog";
 import { WholesaleCustomerDetails } from "./wholesale-customer-details";
 import { WholesaleCustomerForm } from "./wholesale-customer-form";
-
 type WholesaleCustomerDialogsProps = {
   canAssignSalesUser: boolean;
   canEdit: boolean;
@@ -30,7 +27,6 @@ type WholesaleCustomerDialogsProps = {
   selectedCustomer: WholesaleCustomer | null;
   selectedCustomerId: string | null;
 };
-
 export function WholesaleCustomerDialogs({
   canAssignSalesUser,
   canEdit,
@@ -52,19 +48,20 @@ export function WholesaleCustomerDialogs({
   selectedCustomer,
   selectedCustomerId,
 }: WholesaleCustomerDialogsProps) {
-  const [customerToEdit, setCustomerToEdit] = useState<WholesaleCustomer | null>(
-    null,
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_customer_dialogs",
   );
+  const [customerToEdit, setCustomerToEdit] =
+    useState<WholesaleCustomer | null>(null);
   const [customerToDelete, setCustomerToDelete] =
     useState<WholesaleCustomer | null>(null);
-
   return (
     <>
       <DashboardDialog
-        description="客户唯一标识名称用于认领 1688 订单和物流归属，其他名称可填写客户常用昵称或店铺名。"
+        description={uiText("attribute001")}
         onOpenChange={onCreateDialogOpenChange}
         open={createDialogOpen}
-        title="新增批发客户"
+        title={uiText("attribute002")}
       >
         <WholesaleCustomerForm
           canAssignSalesUser={canAssignSalesUser}
@@ -107,12 +104,12 @@ export function WholesaleCustomerDialogs({
       </DashboardDialog>
 
       <DashboardDialog
-        description="修改客户唯一名称、联系方式、来源、其他名称、关联业务员和备注。"
+        description={uiText("attribute003")}
         onOpenChange={(open) => {
           if (!open) setCustomerToEdit(null);
         }}
         open={Boolean(customerToEdit)}
-        title="编辑批发客户"
+        title={uiText("attribute004")}
       >
         {customerToEdit ? (
           <WholesaleCustomerForm
@@ -133,11 +130,9 @@ export function WholesaleCustomerDialogs({
         customer={customerToDelete}
         onDeleteCustomer={async (customerId) => {
           const deleted = await onDeleteCustomer(customerId);
-
           if (deleted) {
             onSelectedCustomerIdChange(null);
           }
-
           return deleted;
         }}
         onOpenChange={(open) => {
@@ -146,7 +141,7 @@ export function WholesaleCustomerDialogs({
         open={Boolean(customerToDelete)}
         pending={Boolean(
           customerToDelete &&
-            pendingKey === `customer:delete:${customerToDelete.id}`,
+          pendingKey === `customer:delete:${customerToDelete.id}`,
         )}
       />
     </>

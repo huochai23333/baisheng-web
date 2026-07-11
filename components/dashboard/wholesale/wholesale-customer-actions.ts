@@ -1,6 +1,7 @@
 "use client";
 
 import { getBrowserSupabaseClient } from "@/lib/supabase";
+import { addClientToBusiness } from "@/lib/client-business-access";
 
 import {
   optionalString,
@@ -26,12 +27,26 @@ type RunActionResult = (
 ) => Promise<boolean>;
 
 export function createWholesaleCustomerActions({
+  addRegisteredCustomerSuccessMessage,
   runAction,
   runActionResult,
 }: {
+  addRegisteredCustomerSuccessMessage: string;
   runAction: RunAction;
   runActionResult: RunActionResult;
 }) {
+  const addRegisteredCustomer = (userId: string) =>
+    runActionResult(
+      `customer:add-business:${userId}`,
+      addRegisteredCustomerSuccessMessage,
+      async () => {
+        const supabase = getBrowserSupabaseClient();
+        if (!supabase) throw new Error("client unavailable");
+
+        await addClientToBusiness(supabase, userId, "wholesale");
+      },
+    );
+
   const createCustomer = (formData: FormData) =>
     runActionResult("customer:create", "批发客户已保存。", async () => {
       const supabase = getBrowserSupabaseClient();
@@ -49,7 +64,9 @@ export function createWholesaleCustomerActions({
         unique_name: requiredString(formData.get("unique_name")),
       };
 
-      const { error } = await supabase.from("wholesale_customers").insert(payload);
+      const { error } = await supabase
+        .from("wholesale_customers")
+        .insert(payload);
       if (error) throw error;
     });
 
@@ -122,6 +139,7 @@ export function createWholesaleCustomerActions({
 
   return {
     addCustomerOtherName,
+    addRegisteredCustomer,
     createCustomer,
     deleteCustomer,
     linkCustomerAccount,

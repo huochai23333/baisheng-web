@@ -17,8 +17,12 @@ import { getAdminTaskMediaLibraryData } from "@/lib/admin-task-media-library";
 import { getAdminTaskReviewBoardData } from "@/lib/admin-task-reviews";
 import { getAdminReviewsPageData } from "@/lib/admin-reviews";
 import { getAdminPeoplePageData } from "@/lib/admin-people";
+import { getClientBusinessCandidates } from "@/lib/client-business-access";
 import { getAdminOperationRecordsPageData } from "@/lib/admin-operation-records";
-import { getAdminTasksPageData, parseAdminTasksSearchParams } from "@/lib/admin-tasks";
+import {
+  getAdminTasksPageData,
+  parseAdminTasksSearchParams,
+} from "@/lib/admin-tasks";
 import { getSalesmanPeoplePageData } from "@/lib/salesman-people";
 import {
   getReferralsPageData,
@@ -53,112 +57,96 @@ import { renderWholesaleSectionPage } from "./wholesale-section-page";
 
 export { generateWorkspaceSectionMetadata as generateMetadata } from "./section-metadata";
 
-const AdminCommissionClient = dynamic(
-  () =>
-    import("@/components/dashboard/commission/admin-commission-client").then(
-      (mod) => mod.AdminCommissionClient,
-    ),
+const AdminCommissionClient = dynamic(() =>
+  import("@/components/dashboard/commission/admin-commission-client").then(
+    (mod) => mod.AdminCommissionClient,
+  ),
 );
 
-const AdminOrdersClient = dynamic(
-  () =>
-    import("@/components/dashboard/admin-orders/admin-orders-client").then(
-      (mod) => mod.AdminOrdersClient,
-    ),
+const AdminOrdersClient = dynamic(() =>
+  import("@/components/dashboard/admin-orders/admin-orders-client").then(
+    (mod) => mod.AdminOrdersClient,
+  ),
 );
 
-const TourismPeopleClient = dynamic(
-  () =>
-    import("@/components/dashboard/tourism-people/tourism-people-client").then(
-      (mod) => mod.TourismPeopleClient,
-    ),
+const TourismPeopleClient = dynamic(() =>
+  import("@/components/dashboard/tourism-people/tourism-people-client").then(
+    (mod) => mod.TourismPeopleClient,
+  ),
 );
 
-const TourismCustomersClient = dynamic(
-  () =>
-    import(
-      "@/components/dashboard/tourism-people/tourism-customers-client"
-    ).then((mod) => mod.TourismCustomersClient),
+const TourismCustomersClient = dynamic(() =>
+  import("@/components/dashboard/tourism-people/tourism-customers-client").then(
+    (mod) => mod.TourismCustomersClient,
+  ),
 );
 
-const SalesmanPeopleClient = dynamic(
-  () =>
-    import("@/components/dashboard/salesman-people/salesman-people-client").then(
-      (mod) => mod.SalesmanPeopleClient,
-    ),
+const SalesmanPeopleClient = dynamic(() =>
+  import("@/components/dashboard/salesman-people/salesman-people-client").then(
+    (mod) => mod.SalesmanPeopleClient,
+  ),
 );
 
-const AdminOperationRecordsClient = dynamic(
-  () =>
-    import(
-      "@/components/dashboard/admin-operation-records/admin-operation-records-client"
-    ).then((mod) => mod.AdminOperationRecordsClient),
+const AdminOperationRecordsClient = dynamic(() =>
+  import("@/components/dashboard/admin-operation-records/admin-operation-records-client").then(
+    (mod) => mod.AdminOperationRecordsClient,
+  ),
 );
 
-const AdminReviewsClient = dynamic(
-  () =>
-    import("@/components/dashboard/admin-reviews/admin-reviews-client").then(
-      (mod) => mod.AdminReviewsClient,
-    ),
+const AdminReviewsClient = dynamic(() =>
+  import("@/components/dashboard/admin-reviews/admin-reviews-client").then(
+    (mod) => mod.AdminReviewsClient,
+  ),
 );
 
-const AdminTasksClient = dynamic(
-  () =>
-    import("@/components/dashboard/admin-tasks/admin-tasks-client").then(
-      (mod) => mod.AdminTasksClient,
-    ),
+const AdminTasksClient = dynamic(() =>
+  import("@/components/dashboard/admin-tasks/admin-tasks-client").then(
+    (mod) => mod.AdminTasksClient,
+  ),
 );
 
-const ReferralsClient = dynamic(
-  () =>
-    import("@/components/dashboard/referrals/referrals-client").then(
-      (mod) => mod.ReferralsClient,
-    ),
+const ReferralsClient = dynamic(() =>
+  import("@/components/dashboard/referrals/referrals-client").then(
+    (mod) => mod.ReferralsClient,
+  ),
 );
 
-const SalesmanCommissionClient = dynamic(
-  () =>
-    import("@/components/dashboard/commission/salesman-commission-client").then(
-      (mod) => mod.SalesmanCommissionClient,
-    ),
+const SalesmanCommissionClient = dynamic(() =>
+  import("@/components/dashboard/commission/salesman-commission-client").then(
+    (mod) => mod.SalesmanCommissionClient,
+  ),
 );
 
-const SalesmanTasksClient = dynamic(
-  () =>
-    import("@/components/dashboard/salesman-tasks/salesman-tasks-client").then(
-      (mod) => mod.SalesmanTasksClient,
-    ),
+const SalesmanTasksClient = dynamic(() =>
+  import("@/components/dashboard/salesman-tasks/salesman-tasks-client").then(
+    (mod) => mod.SalesmanTasksClient,
+  ),
 );
 
-const TeamManagementClient = dynamic(
-  () =>
-    import("@/components/dashboard/team-management/team-management-client").then(
-      (mod) => mod.TeamManagementClient,
-    ),
+const TeamManagementClient = dynamic(() =>
+  import("@/components/dashboard/team-management/team-management-client").then(
+    (mod) => mod.TeamManagementClient,
+  ),
 );
 
-const BusinessVipClient = dynamic(
-  () =>
-    import("@/components/dashboard/business-vip/business-vip-client").then(
-      (mod) => mod.BusinessVipClient,
-    ),
+const BusinessVipClient = dynamic(() =>
+  import("@/components/dashboard/business-vip/business-vip-client").then(
+    (mod) => mod.BusinessVipClient,
+  ),
 );
 
-const BusinessSettingsClient = dynamic(
-  () =>
-    import("@/components/dashboard/business-settings/business-settings-client").then(
-      (mod) => mod.BusinessSettingsClient,
-    ),
+const BusinessSettingsClient = dynamic(() =>
+  import("@/components/dashboard/business-settings/business-settings-client").then(
+    (mod) => mod.BusinessSettingsClient,
+  ),
 );
 
 export default async function WorkspaceSectionPage({
   params,
   searchParams,
 }: SectionPageProps) {
-  const [{ business, section, workspace }, resolvedSearchParams] = await Promise.all([
-    params,
-    searchParams,
-  ]);
+  const [{ business, section, workspace }, resolvedSearchParams] =
+    await Promise.all([params, searchParams]);
   const config = getWorkspaceConfigByRouteSegment(workspace);
 
   if (!config || !isWorkspaceBusinessKey(business)) {
@@ -197,7 +185,8 @@ export default async function WorkspaceSectionPage({
 
   if (section === "orders" && config.pageVariants.orders) {
     const supabase = await getServerSupabaseClient();
-    const orderSearchParams = parseAdminOrdersSearchParams(resolvedSearchParams);
+    const orderSearchParams =
+      parseAdminOrdersSearchParams(resolvedSearchParams);
     const initialData = await getAdminOrdersPageData(supabase, {
       filters: orderSearchParams.filters,
       includeOrderCosts: config.pageVariants.orders === "admin",
@@ -223,11 +212,12 @@ export default async function WorkspaceSectionPage({
   } else if (section === "tasks") {
     if (config.pageVariants.tasks === "admin") {
       const supabase = await getServerSupabaseClient();
-      const [initialData, initialReviewData, initialMediaLibraryData] = await Promise.all([
-        getAdminTasksPageData(supabase),
-        getAdminTaskReviewBoardData(supabase),
-        getAdminTaskMediaLibraryData(supabase),
-      ]);
+      const [initialData, initialReviewData, initialMediaLibraryData] =
+        await Promise.all([
+          getAdminTasksPageData(supabase),
+          getAdminTaskReviewBoardData(supabase),
+          getAdminTaskMediaLibraryData(supabase),
+        ]);
       const initialView = parseAdminTasksSearchParams(resolvedSearchParams);
       content = (
         <AdminTasksClient
@@ -241,7 +231,12 @@ export default async function WorkspaceSectionPage({
       const supabase = await getServerSupabaseClient();
       const initialData = await getSalesmanTasksPageData(supabase);
       const initialView = parseSalesmanTasksSearchParams(resolvedSearchParams);
-      content = <SalesmanTasksClient initialData={initialData} initialView={initialView} />;
+      content = (
+        <SalesmanTasksClient
+          initialData={initialData}
+          initialView={initialView}
+        />
+      );
     }
   } else if (section === "reviews" && config.pageVariants.reviews) {
     const supabase = await getServerSupabaseClient();
@@ -250,8 +245,16 @@ export default async function WorkspaceSectionPage({
   } else if (section === "customers" && config.pageVariants.customers) {
     const supabase = await getServerSupabaseClient();
     if (config.pageVariants.customers === "admin") {
-      const initialData = await getAdminPeoplePageData(supabase);
-      content = <TourismCustomersClient initialData={initialData} />;
+      const [initialData, businessCandidates] = await Promise.all([
+        getAdminPeoplePageData(supabase),
+        getClientBusinessCandidates(supabase, "tourism"),
+      ]);
+      content = (
+        <TourismCustomersClient
+          businessCandidates={businessCandidates}
+          initialData={initialData}
+        />
+      );
     } else {
       const initialData = await getSalesmanPeoplePageData(supabase);
       content = <SalesmanPeopleClient initialData={initialData} />;
@@ -298,7 +301,9 @@ export default async function WorkspaceSectionPage({
     const fallbackT = await getTranslations(
       `WorkspaceSections.fallbacks.${config.routeSegment}`,
     );
-    const title = sectionKey ? sectionT(`${sectionKey}.title`) : fallbackT("title");
+    const title = sectionKey
+      ? sectionT(`${sectionKey}.title`)
+      : fallbackT("title");
     const description = sectionKey
       ? sectionT(`${sectionKey}.description`)
       : fallbackT("description");
@@ -312,5 +317,7 @@ export default async function WorkspaceSectionPage({
     );
   }
 
-  return <ScopedIntlProvider namespaces={namespaces}>{content}</ScopedIntlProvider>;
+  return (
+    <ScopedIntlProvider namespaces={namespaces}>{content}</ScopedIntlProvider>
+  );
 }

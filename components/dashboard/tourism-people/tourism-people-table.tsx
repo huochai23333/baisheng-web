@@ -1,10 +1,9 @@
 "use client";
 
 import { UsersRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import {
-  DashboardTableFrame,
-} from "@/components/dashboard/dashboard-section-panel";
+import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import type { AdminPersonRow } from "@/lib/admin-people";
 import type { Locale } from "@/lib/locale";
@@ -14,8 +13,6 @@ import {
   formatTourismPeopleDate,
   getTourismPersonContact,
   getTourismPersonName,
-  getTourismRoleLabel,
-  TOURISM_STATUS_LABELS,
   type TourismPeopleTab,
 } from "./tourism-people-display";
 
@@ -32,14 +29,19 @@ export function TourismPeopleTable({
   people,
   tab,
 }: TourismPeopleTableProps) {
-  const subjectLabel = tab === "customers" ? "客户" : "人员";
+  const t = useTranslations("TourismPeople.table");
+  const subjectLabel = t(`subjects.${tab}`);
+  const unnamedFallback = t("fallbacks.unnamed");
+  const contactFallback = t("fallbacks.noContact");
+  const pendingFallback = t("fallbacks.pending");
+  const noReferrerFallback = t("fallbacks.noReferrer");
 
   if (people.length === 0) {
     return (
       <EmptyState
-        description={`没有匹配的${subjectLabel}。可以调整搜索或筛选条件后再查看。`}
+        description={t("emptyDescription", { subject: subjectLabel })}
         icon={<UsersRound className="size-5" />}
-        title={`暂无匹配${subjectLabel}`}
+        title={t("emptyTitle", { subject: subjectLabel })}
       />
     );
   }
@@ -59,10 +61,10 @@ export function TourismPeopleTable({
             <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
               <tr>
                 <th className="px-3 py-3">{subjectLabel}</th>
-                <th className="px-3 py-3">账号状态</th>
-                <th className="px-3 py-3">推荐信息</th>
-                <th className="px-3 py-3">城市</th>
-                <th className="px-3 py-3">注册时间</th>
+                <th className="px-3 py-3">{t("columns.status")}</th>
+                <th className="px-3 py-3">{t("columns.referral")}</th>
+                <th className="px-3 py-3">{t("columns.city")}</th>
+                <th className="px-3 py-3">{t("columns.createdAt")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#eee9e1]">
@@ -74,30 +76,48 @@ export function TourismPeopleTable({
                 >
                   <td className="px-3 py-4">
                     <p className="break-words font-semibold text-[#23313a] [overflow-wrap:anywhere]">
-                      {getTourismPersonName(person)}
+                      {getTourismPersonName(person, unnamedFallback)}
                     </p>
                     <p className="mt-1 break-all text-xs text-[#7b858d]">
-                      {getTourismPersonContact(person)}
+                      {getTourismPersonContact(person, contactFallback)}
                     </p>
-                    <RoleChip>{getTourismRoleLabel(tab)}</RoleChip>
+                    <RoleChip>{t(`roles.${tab}`)}</RoleChip>
                   </td>
                   <td className="px-3 py-4">
-                    <StatusChip status={person.status} />
+                    <StatusChip
+                      label={t(`statuses.${person.status}`)}
+                      status={person.status}
+                    />
                   </td>
                   <td className="px-3 py-4 text-[#53616d]">
-                    <p>邀请码：{person.referral_code ?? "待补充"}</p>
-                    <p className="mt-1 text-xs text-[#7b858d]">
-                      推荐人：{person.referrer_name ?? person.referrer_email ?? "无"}
+                    <p>
+                      {t("referralCode", {
+                        value: person.referral_code ?? pendingFallback,
+                      })}
                     </p>
                     <p className="mt-1 text-xs text-[#7b858d]">
-                      直接推荐 {person.direct_referral_count} 人
+                      {t("referrer", {
+                        value:
+                          person.referrer_name ??
+                          person.referrer_email ??
+                          noReferrerFallback,
+                      })}
+                    </p>
+                    <p className="mt-1 text-xs text-[#7b858d]">
+                      {t("directReferrals", {
+                        count: person.direct_referral_count,
+                      })}
                     </p>
                   </td>
                   <td className="px-3 py-4 text-[#53616d]">
-                    {person.city ?? "待补充"}
+                    {person.city ?? pendingFallback}
                   </td>
                   <td className="px-3 py-4 text-[#53616d]">
-                    {formatTourismPeopleDate(person.created_at, locale)}
+                    {formatTourismPeopleDate(
+                      person.created_at,
+                      locale,
+                      pendingFallback,
+                    )}
                   </td>
                 </tr>
               ))}
@@ -105,6 +125,7 @@ export function TourismPeopleTable({
           </table>
         </DashboardTableFrame>
       </div>
+
       <div className="grid gap-3 md:hidden">
         {people.map((person) => (
           <button
@@ -116,19 +137,29 @@ export function TourismPeopleTable({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="break-words font-semibold text-[#23313a]">
-                  {getTourismPersonName(person)}
+                  {getTourismPersonName(person, unnamedFallback)}
                 </p>
                 <p className="mt-1 break-all text-sm text-[#6f7b85]">
-                  {getTourismPersonContact(person)}
+                  {getTourismPersonContact(person, contactFallback)}
                 </p>
               </div>
-              <StatusChip status={person.status} />
+              <StatusChip
+                label={t(`statuses.${person.status}`)}
+                status={person.status}
+              />
             </div>
             <p className="mt-3 text-sm text-[#6f7b85]">
-              邀请码：{person.referral_code ?? "待补充"}
+              {t("referralCode", {
+                value: person.referral_code ?? pendingFallback,
+              })}
             </p>
             <p className="mt-1 text-sm text-[#6f7b85]">
-              推荐人：{person.referrer_name ?? person.referrer_email ?? "无"}
+              {t("referrer", {
+                value:
+                  person.referrer_name ??
+                  person.referrer_email ??
+                  noReferrerFallback,
+              })}
             </p>
           </button>
         ))}
@@ -145,7 +176,13 @@ function RoleChip({ children }: { children: string }) {
   );
 }
 
-function StatusChip({ status }: { status: AdminPersonRow["status"] }) {
+function StatusChip({
+  label,
+  status,
+}: {
+  label: string;
+  status: AdminPersonRow["status"];
+}) {
   return (
     <span
       className={cn(
@@ -155,7 +192,7 @@ function StatusChip({ status }: { status: AdminPersonRow["status"] }) {
         status === "suspended" && "bg-[#fbe6e6] text-[#b13d3d]",
       )}
     >
-      {TOURISM_STATUS_LABELS[status]}
+      {label}
     </span>
   );
 }

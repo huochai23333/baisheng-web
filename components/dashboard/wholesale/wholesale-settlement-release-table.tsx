@@ -1,18 +1,9 @@
 "use client";
-
-import {
-  CheckCircle2,
-  LoaderCircle,
-  XCircle,
-} from "lucide-react";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { CheckCircle2, LoaderCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type {
-  WholesaleOrder,
-  WholesaleProfile,
-} from "@/lib/wholesale";
+import type { WholesaleOrder, WholesaleProfile } from "@/lib/wholesale";
 import type { WholesaleSettlementRelease } from "@/lib/wholesale-settlement-releases";
-
 import {
   formatCurrency,
   formatDate,
@@ -31,7 +22,6 @@ import {
   wholesaleStickyFirstTdClassName,
   wholesaleStickyFirstThClassName,
 } from "./wholesale-ui";
-
 type WholesaleSettlementReleaseTableProps = {
   canClaim: boolean;
   canPublish: boolean;
@@ -42,7 +32,6 @@ type WholesaleSettlementReleaseTableProps = {
   profilesById: Map<string, WholesaleProfile>;
   releases: WholesaleSettlementRelease[];
 };
-
 export function WholesaleSettlementReleaseTable({
   canClaim,
   canPublish,
@@ -58,16 +47,32 @@ export function WholesaleSettlementReleaseTable({
       <thead>
         <tr>
           <WholesaleTh className={wholesaleStickyFirstThClassName}>
-            客户和金额
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text001" />
           </WholesaleTh>
-          <WholesaleTh>状态</WholesaleTh>
-          <WholesaleTh>收款日期</WholesaleTh>
-          <WholesaleTh>发布人</WholesaleTh>
-          <WholesaleTh>认领人</WholesaleTh>
-          <WholesaleTh>匹配订单</WholesaleTh>
-          <WholesaleTh>处理时间</WholesaleTh>
-          <WholesaleTh className="min-w-[240px] whitespace-normal">备注</WholesaleTh>
-          <WholesaleTh>操作</WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text002" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text003" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text004" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text005" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text006" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text007" />
+          </WholesaleTh>
+          <WholesaleTh className="min-w-[240px] whitespace-normal">
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text008" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text009" />
+          </WholesaleTh>
         </tr>
       </thead>
       <tbody>
@@ -79,7 +84,6 @@ export function WholesaleSettlementReleaseTable({
             pendingKey === `settlement-release:cancel:${release.id}`;
           const claimPending =
             pendingKey === `settlement-release:claim:${release.id}`;
-
           return (
             <tr
               className="group"
@@ -138,7 +142,7 @@ export function WholesaleSettlementReleaseTable({
                       ) : (
                         <CheckCircle2 className="size-3.5" />
                       )}
-                      认领匹配
+                      <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text010" />
                     </Button>
                   ) : null}
                   {canPublish && release.status === "pending" ? (
@@ -154,12 +158,12 @@ export function WholesaleSettlementReleaseTable({
                       ) : (
                         <XCircle className="size-3.5" />
                       )}
-                      取消
+                      <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text011" />
                     </Button>
                   ) : null}
                   {release.status !== "pending" ? (
                     <span className="text-xs leading-6 text-[#7b8790]">
-                      已处理
+                      <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text012" />
                     </span>
                   ) : null}
                 </div>

@@ -137,6 +137,7 @@ export function scopeWholesaleRows({
     profiles: scopedProfiles,
     purchaseOrders: scopedPurchaseOrders,
     referrals: scopedReferrals,
+    registeredCandidates,
   };
 }
 
@@ -168,7 +169,9 @@ function scopeWholesaleLogisticsStatuses({
   return logisticsStatuses.filter(
     (status) =>
       (status.customer_id ? customerIds.has(status.customer_id) : false) ||
-      (status.wholesale_order_id ? orderIds.has(status.wholesale_order_id) : false) ||
+      (status.wholesale_order_id
+        ? orderIds.has(status.wholesale_order_id)
+        : false) ||
       status.created_by_user_id === currentUserId,
   );
 }
@@ -255,11 +258,14 @@ function scopeWholesalePurchaseOrders({
   }
 
   return purchaseOrders.filter((order) => {
-    const isUnclaimedHallOrder = !order.customer_id && !order.wholesale_order_id;
+    const isUnclaimedHallOrder =
+      !order.customer_id && !order.wholesale_order_id;
 
     return (
       (order.customer_id ? customerIds.has(order.customer_id) : false) ||
-      (order.wholesale_order_id ? orderIds.has(order.wholesale_order_id) : false) ||
+      (order.wholesale_order_id
+        ? orderIds.has(order.wholesale_order_id)
+        : false) ||
       order.claimed_by_user_id === currentUserId ||
       order.imported_by_user_id === currentUserId ||
       (canUseWholesaleSalesScope(currentRole) && isUnclaimedHallOrder)
@@ -291,7 +297,9 @@ function scopeWholesaleLogisticsOrders({
   return logisticsOrders.filter(
     (order) =>
       (order.customer_id ? customerIds.has(order.customer_id) : false) ||
-      (order.wholesale_order_id ? orderIds.has(order.wholesale_order_id) : false) ||
+      (order.wholesale_order_id
+        ? orderIds.has(order.wholesale_order_id)
+        : false) ||
       order.created_by_user_id === currentUserId,
   );
 }
@@ -319,7 +327,9 @@ function scopeWholesaleCommissions({
 
   return commissions.filter(
     (commission) =>
-      (commission.customer_id ? customerIds.has(commission.customer_id) : false) ||
+      (commission.customer_id
+        ? customerIds.has(commission.customer_id)
+        : false) ||
       orderIds.has(commission.order_id) ||
       commission.beneficiary_user_id === currentUserId ||
       commission.settled_by_user_id === currentUserId,
@@ -400,9 +410,7 @@ function scopeWholesaleOrderChangeLogs({
   }
 
   return orderChangeLogs.filter(
-    (log) =>
-      orderIds.has(log.order_id) ||
-      log.actor_user_id === currentUserId,
+    (log) => orderIds.has(log.order_id) || log.actor_user_id === currentUserId,
   );
 }
 
@@ -521,11 +529,7 @@ function canReadFullWholesaleDirectory(role: AppRole | null) {
 }
 
 function canReadFullWholesaleBackoffice(role: AppRole | null) {
-  return (
-    role === "administrator" ||
-    role === "manager" ||
-    role === "operator"
-  );
+  return role === "administrator" || role === "manager" || role === "operator";
 }
 
 function canUseWholesaleSalesScope(role: AppRole | null) {

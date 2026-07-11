@@ -12,7 +12,7 @@ export const companyConfig = {
       brandSubtitle: "Curated Management Workspace",
       copyright: "© 2026 Baisheng Management System",
       inviteAccessDescription:
-        "Baisheng currently uses invitation-based access to maintain service quality. Contact an administrator or your referrer if you need an invite code.",
+        "An invite code is optional. Enter one to connect with your referrer, or continue directly without one.",
       productDescription:
         "Sign-in, registration and workspace flows for the Baisheng Management System.",
       productName: "Baisheng Management System",
@@ -25,7 +25,7 @@ export const companyConfig = {
       brandSubtitle: "精选管理工作台",
       copyright: "© 2026 柏盛管理系统",
       inviteAccessDescription:
-        "柏盛目前采用邀请制以保障服务质量。如果您尚未获得邀请码，请联系系统管理员或推荐人。",
+        "邀请码为选填项。有邀请码时可关联推荐人，没有邀请码也可以直接完成注册。",
       productDescription: "柏盛管理系统的登录、注册与业务工作台。",
       productName: "柏盛管理系统",
       registerAsideTitle: "申请加入<br></br>柏盛工作台",

@@ -1,13 +1,8 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-
-import {
-  Plus,
-  RefreshCcw,
-  ReceiptText,
-} from "lucide-react";
-
+import { Plus, RefreshCcw, ReceiptText } from "lucide-react";
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -22,10 +17,7 @@ import type {
 } from "@/lib/wholesale";
 import type { WholesaleSettlementRelease } from "@/lib/wholesale-settlement-releases";
 import { normalizeSearchText } from "@/lib/value-normalizers";
-
-import {
-  formatCurrency,
-} from "./wholesale-display";
+import { formatCurrency } from "./wholesale-display";
 import {
   WholesaleSettlementReleaseClaimDialog,
   WholesaleSettlementReleaseCreateDialog,
@@ -40,7 +32,6 @@ import {
   WholesalePageShell,
   WholesaleStatGrid,
 } from "./wholesale-ui";
-
 type WholesaleSettlementReleaseSectionProps = {
   canClaim: boolean;
   canPublish: boolean;
@@ -54,10 +45,8 @@ type WholesaleSettlementReleaseSectionProps = {
   profiles: WholesaleProfile[];
   releases: WholesaleSettlementRelease[];
 };
-
 const ALL = "all";
 const FALLBACK_CURRENCIES = ["USD", "CNY", "EUR", "JPY", "AUD"];
-
 export function WholesaleSettlementReleaseSection({
   canClaim,
   canPublish,
@@ -71,6 +60,9 @@ export function WholesaleSettlementReleaseSection({
   profiles,
   releases,
 }: WholesaleSettlementReleaseSectionProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_settlement_release_section",
+  );
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedClaimRelease, setSelectedClaimRelease] =
     useState<WholesaleSettlementRelease | null>(null);
@@ -91,13 +83,11 @@ export function WholesaleSettlementReleaseSection({
   const orderSettlementsByOrderId = useMemo(() => {
     // 认领弹窗要按“订单剩余可结汇金额”筛选订单，所以先按订单 ID 分组已有结汇记录。
     const grouped = new Map<string, WholesaleOrderSettlement[]>();
-
     for (const settlement of orderSettlements) {
       const rows = grouped.get(settlement.order_id) ?? [];
       rows.push(settlement);
       grouped.set(settlement.order_id, rows);
     }
-
     return grouped;
   }, [orderSettlements]);
   const currencyOptions = useMemo(() => {
@@ -106,16 +96,13 @@ export function WholesaleSettlementReleaseSection({
       ...orders.map((order) => order.customer_payment_currency),
       ...releases.map((release) => release.release_currency),
     ]);
-
     return Array.from(values).filter(Boolean).sort();
   }, [orders, releases]);
   const filteredReleases = useMemo(() => {
     const searchValue = normalizeSearchText(searchText);
-
     return releases.filter((release) => {
       if (statusFilter !== ALL && release.status !== statusFilter) return false;
       if (!searchValue) return true;
-
       return normalizeSearchText(
         getSettlementReleaseSearchText({
           ordersById,
@@ -125,11 +112,14 @@ export function WholesaleSettlementReleaseSection({
       ).includes(searchValue);
     });
   }, [ordersById, profilesById, releases, searchText, statusFilter]);
-  const pendingCount = releases.filter((release) => release.status === "pending").length;
-  const claimedCount = releases.filter((release) => release.status === "claimed").length;
+  const pendingCount = releases.filter(
+    (release) => release.status === "pending",
+  ).length;
+  const claimedCount = releases.filter(
+    (release) => release.status === "claimed",
+  ).length;
   const pendingAmountSummary = formatPendingAmountSummary(releases);
   const hasActiveFilters = searchText || statusFilter !== ALL;
-
   return (
     <WholesalePageShell
       actions={
@@ -140,13 +130,13 @@ export function WholesaleSettlementReleaseSection({
             type="button"
           >
             <Plus className="size-4" />
-            发布收款
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_section.text001" />
           </Button>
         ) : null
       }
-      description="财务发布收到的客户结汇款，业务员认领后匹配到对应批发订单。"
-      eyebrow="批发业务"
-      title="结汇发布"
+      description={uiText("attribute001")}
+      eyebrow={uiText("attribute002")}
+      title={uiText("attribute003")}
     >
       <WholesaleStatGrid
         stats={[
@@ -170,29 +160,31 @@ export function WholesaleSettlementReleaseSection({
             variant="outline"
           >
             <RefreshCcw className="size-4" />
-            清空筛选
+            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_section.text002" />
           </Button>
         }
         description={`共 ${releases.length} 条发布记录，当前显示 ${filteredReleases.length} 条。`}
-        title="结汇收款列表"
+        title={uiText("attribute004")}
       >
         <div className="mb-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
-          <DashboardFilterField label="搜索收款">
+          <DashboardFilterField label={uiText("attribute005")}>
             <input
-              aria-label="搜索收款"
+              aria-label={uiText("attribute006")}
               className={dashboardFilterInputClassName}
               onChange={(event) => setSearchText(event.target.value)}
-              placeholder="搜索客户、订单、发布人或备注"
+              placeholder={uiText("attribute007")}
               value={searchText}
             />
           </DashboardFilterField>
-          <DashboardFilterField label="处理状态">
+          <DashboardFilterField label={uiText("attribute008")}>
             <select
               className={dashboardFilterInputClassName}
               onChange={(event) => setStatusFilter(event.target.value)}
               value={statusFilter}
             >
-              <option value={ALL}>全部状态</option>
+              <option value={ALL}>
+                <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_section.text003" />
+              </option>
               {Object.entries(WHOLESALE_SETTLEMENT_RELEASE_STATUS_LABELS).map(
                 ([status, label]) => (
                   <option key={status} value={status}>
@@ -217,9 +209,9 @@ export function WholesaleSettlementReleaseSection({
           />
         ) : (
           <WholesaleEmptyState
-            description="当前没有符合条件的结汇收款。"
+            description={uiText("attribute009")}
             icon={<ReceiptText className="size-6" />}
-            title="暂无结汇收款"
+            title={uiText("attribute010")}
           />
         )}
       </DashboardListSection>
@@ -252,10 +244,8 @@ export function WholesaleSettlementReleaseSection({
     </WholesalePageShell>
   );
 }
-
 function formatPendingAmountSummary(releases: WholesaleSettlementRelease[]) {
   const totals = new Map<string, number>();
-
   for (const release of releases) {
     if (release.status !== "pending") continue;
     // 不同币种不能直接相加，先按币种分别累计再展示。
@@ -265,11 +255,9 @@ function formatPendingAmountSummary(releases: WholesaleSettlementRelease[]) {
         Number(release.release_amount ?? 0),
     );
   }
-
   if (totals.size === 0) {
     return "无待认领";
   }
-
   return Array.from(totals.entries())
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([currency, amount]) => formatCurrency(amount, currency))

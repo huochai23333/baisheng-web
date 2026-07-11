@@ -1,9 +1,8 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-
 import { Calculator, RefreshCcw } from "lucide-react";
-
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -13,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { normalizeSearchText } from "@/lib/value-normalizers";
 import type { WholesaleCustomer } from "@/lib/wholesale";
-
 import {
   formatCurrency,
   formatNumber,
@@ -27,9 +25,7 @@ import {
   WholesaleTh,
 } from "./wholesale-ui";
 import type { WholesaleReferralCommissionRow } from "./wholesale-referral-commission";
-
 const ALL = "all";
-
 export function WholesaleReferralCommissionSection({
   customersById,
   referralRows,
@@ -37,11 +33,13 @@ export function WholesaleReferralCommissionSection({
   customersById: Map<string, WholesaleCustomer>;
   referralRows: WholesaleReferralCommissionRow[];
 }) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_referral_commission_section",
+  );
   const [search, setSearch] = useState("");
   const [customerFilter, setCustomerFilter] = useState(ALL);
   const filteredRows = useMemo(() => {
     const searchValue = normalizeSearchText(search);
-
     return referralRows.filter((row) => {
       if (
         customerFilter !== ALL &&
@@ -50,9 +48,7 @@ export function WholesaleReferralCommissionSection({
       ) {
         return false;
       }
-
       if (!searchValue) return true;
-
       return [
         getCustomerName(customersById, row.referrerCustomerId),
         getCustomerName(customersById, row.referredCustomerId),
@@ -70,12 +66,11 @@ export function WholesaleReferralCommissionSection({
     0,
   );
   const hasActiveFilters = search || customerFilter !== ALL;
-
   return (
     <WholesalePageShell
-      description="汇总批发客户之间产生的推荐佣金，和业务员提成分开查看。"
-      eyebrow="批发业务"
-      title="佣金"
+      description={uiText("attribute001")}
+      eyebrow={uiText("attribute002")}
+      title={uiText("attribute003")}
     >
       <WholesaleStatGrid
         stats={[
@@ -98,29 +93,31 @@ export function WholesaleReferralCommissionSection({
             variant="outline"
           >
             <RefreshCcw className="size-4" />
-            清空筛选
+            <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text001" />
           </Button>
         }
         description={`共 ${referralRows.length} 条月度佣金记录，当前显示 ${filteredRows.length} 条。`}
-        title="客户推荐佣金"
+        title={uiText("attribute004")}
       >
         <div className="mb-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_260px]">
-          <DashboardFilterField label="搜索佣金">
+          <DashboardFilterField label={uiText("attribute005")}>
             <input
               className={dashboardFilterInputClassName}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="推荐客户、被推荐客户或订单编号"
+              placeholder={uiText("attribute006")}
               type="search"
               value={search}
             />
           </DashboardFilterField>
-          <DashboardFilterField label="客户">
+          <DashboardFilterField label={uiText("attribute007")}>
             <select
               className={dashboardFilterInputClassName}
               onChange={(event) => setCustomerFilter(event.target.value)}
               value={customerFilter}
             >
-              <option value={ALL}>全部客户</option>
+              <option value={ALL}>
+                <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text002" />
+              </option>
               {[...customersById.values()].map((customer) => (
                 <option key={customer.id} value={customer.id}>
                   {customer.unique_name}
@@ -131,9 +128,9 @@ export function WholesaleReferralCommissionSection({
         </div>
         {filteredRows.length === 0 ? (
           <WholesaleEmptyState
-            description="没有匹配的客户推荐佣金。"
+            description={uiText("attribute008")}
             icon={<Calculator className="size-5" />}
-            title="暂无匹配佣金"
+            title={uiText("attribute009")}
           />
         ) : (
           <>
@@ -150,16 +147,20 @@ export function WholesaleReferralCommissionSection({
                   <thead>
                     <tr>
                       <WholesaleTh className="whitespace-normal">
-                        推荐客户
+                        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text003" />
                       </WholesaleTh>
                       <WholesaleTh className="whitespace-normal">
-                        被推荐客户
+                        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text004" />
                       </WholesaleTh>
-                      <WholesaleTh className="whitespace-normal">月份</WholesaleTh>
                       <WholesaleTh className="whitespace-normal">
-                        计算明细
+                        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text005" />
                       </WholesaleTh>
-                      <WholesaleTh className="whitespace-normal">佣金</WholesaleTh>
+                      <WholesaleTh className="whitespace-normal">
+                        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text006" />
+                      </WholesaleTh>
+                      <WholesaleTh className="whitespace-normal">
+                        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text007" />
+                      </WholesaleTh>
                     </tr>
                   </thead>
                   <tbody>
@@ -168,10 +169,16 @@ export function WholesaleReferralCommissionSection({
                         key={`${row.referrerCustomerId}-${row.referredCustomerId}-${row.monthKey}`}
                       >
                         <WholesaleTd className="whitespace-normal">
-                          {getCustomerName(customersById, row.referrerCustomerId)}
+                          {getCustomerName(
+                            customersById,
+                            row.referrerCustomerId,
+                          )}
                         </WholesaleTd>
                         <WholesaleTd className="whitespace-normal">
-                          {getCustomerName(customersById, row.referredCustomerId)}
+                          {getCustomerName(
+                            customersById,
+                            row.referredCustomerId,
+                          )}
                         </WholesaleTd>
                         <WholesaleTd className="whitespace-normal">
                           {row.monthKey}
@@ -200,7 +207,8 @@ export function WholesaleReferralCommissionSection({
                         {getCustomerName(customersById, row.referrerCustomerId)}
                       </p>
                       <p className="mt-1 break-words text-sm text-[#6f7b85]">
-                        推荐给 {getCustomerName(customersById, row.referredCustomerId)}
+                        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text008" />
+                        {getCustomerName(customersById, row.referredCustomerId)}
                       </p>
                       <p className="mt-1 text-xs text-[#7b858d]">
                         {row.monthKey}
@@ -222,7 +230,6 @@ export function WholesaleReferralCommissionSection({
     </WholesalePageShell>
   );
 }
-
 function ReferralCommissionBreakdown({
   row,
 }: {
@@ -231,16 +238,23 @@ function ReferralCommissionBreakdown({
   return (
     <div className="grid gap-1 text-xs leading-5 text-[#6f7b85]">
       <p>
-        订单金额：{formatCurrency(row.monthlyOrderAmountRmb)}，金额佣金{" "}
+        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text009" />
+        {formatCurrency(row.monthlyOrderAmountRmb)}
+        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text010" />{" "}
         {formatCurrency(row.amountCommissionRmb)}
       </p>
       <p>
-        运单数量：{formatNumber(row.waybillCount)}，运单奖励{" "}
+        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text011" />
+        {formatNumber(row.waybillCount)}
+        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text012" />{" "}
         {formatCurrency(row.waybillBonusUsd, "USD")}
-        {row.waybillBonusUsd > 0 ? ` / ${formatCurrency(row.waybillBonusRmb)}` : ""}
+        {row.waybillBonusUsd > 0
+          ? ` / ${formatCurrency(row.waybillBonusRmb)}`
+          : ""}
       </p>
       <p className="break-words [overflow-wrap:anywhere]">
-        相关订单：{row.orderNumbers.length > 0 ? row.orderNumbers.join("、") : "暂无"}
+        <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text013" />
+        {row.orderNumbers.length > 0 ? row.orderNumbers.join("、") : "暂无"}
       </p>
     </div>
   );

@@ -1,5 +1,5 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
 import type {
@@ -8,7 +8,6 @@ import type {
   WholesaleOrder,
   WholesaleProfile,
 } from "@/lib/wholesale";
-
 import {
   formatCurrency,
   formatDateTime,
@@ -17,12 +16,7 @@ import {
   getProfileName,
   WHOLESALE_STATUS_LABELS,
 } from "./wholesale-display";
-import {
-  WholesaleStatusBadge,
-  WholesaleTd,
-  WholesaleTh,
-} from "./wholesale-ui";
-
+import { WholesaleStatusBadge, WholesaleTd, WholesaleTh } from "./wholesale-ui";
 type WholesaleCommissionRecordsProps = {
   canAdmin: boolean;
   commissions: WholesaleCommission[];
@@ -32,13 +26,11 @@ type WholesaleCommissionRecordsProps = {
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
 };
-
 function getCommissionTone(status: WholesaleCommission["status"]) {
   if (status === "settled") return "success" as const;
   if (status === "cancelled") return "danger" as const;
   return "warning" as const;
 }
-
 // 桌面表格与移动卡片只负责展示已经筛选好的记录，筛选状态留在上层页面管理。
 export function WholesaleCommissionRecords({
   canAdmin,
@@ -65,23 +57,40 @@ export function WholesaleCommissionRecords({
             </colgroup>
             <thead>
               <tr>
-                <WholesaleTh className="whitespace-normal">订单编号</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">客户</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">业务员</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">订单金额</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">提成</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">状态</WholesaleTh>
-                {canAdmin ? <WholesaleTh className="whitespace-normal">结算</WholesaleTh> : null}
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text001" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text002" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text003" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text004" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text005" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text006" />
+                </WholesaleTh>
+                {canAdmin ? (
+                  <WholesaleTh className="whitespace-normal">
+                    <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text007" />
+                  </WholesaleTh>
+                ) : null}
               </tr>
             </thead>
             <tbody>
               {commissions.map((commission) => {
                 const order = orderById.get(commission.order_id);
-
                 return (
                   <tr key={commission.id}>
                     <WholesaleTd className="whitespace-normal">
-                      <p className="font-semibold">{order?.order_number ?? "未找到订单"}</p>
+                      <p className="font-semibold">
+                        {order?.order_number ?? "未找到订单"}
+                      </p>
                       <p className="mt-1 text-xs text-[#71808d]">
                         {formatDateTime(commission.calculated_at)}
                       </p>
@@ -90,12 +99,18 @@ export function WholesaleCommissionRecords({
                       {getCustomerName(customersById, commission.customer_id)}
                     </WholesaleTd>
                     <WholesaleTd className="whitespace-normal">
-                      {getProfileName(profilesById, commission.beneficiary_user_id)}
+                      {getProfileName(
+                        profilesById,
+                        commission.beneficiary_user_id,
+                      )}
                     </WholesaleTd>
                     <WholesaleTd className="whitespace-normal">
-                      <p>{formatCurrency(commission.order_payment_rmb_amount)}</p>
+                      <p>
+                        {formatCurrency(commission.order_payment_rmb_amount)}
+                      </p>
                       <p className="mt-1 text-xs text-[#71808d]">
-                        毛利 {formatCurrency(commission.gross_profit_rmb)}
+                        <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text008" />
+                        {formatCurrency(commission.gross_profit_rmb)}
                       </p>
                     </WholesaleTd>
                     <WholesaleTd className="whitespace-normal">
@@ -105,7 +120,9 @@ export function WholesaleCommissionRecords({
                       </p>
                     </WholesaleTd>
                     <WholesaleTd className="whitespace-normal">
-                      <WholesaleStatusBadge tone={getCommissionTone(commission.status)}>
+                      <WholesaleStatusBadge
+                        tone={getCommissionTone(commission.status)}
+                      >
                         {WHOLESALE_STATUS_LABELS[commission.status]}
                       </WholesaleStatusBadge>
                     </WholesaleTd>
@@ -129,7 +146,6 @@ export function WholesaleCommissionRecords({
       <div className="grid gap-3 md:hidden">
         {commissions.map((commission) => {
           const order = orderById.get(commission.order_id);
-
           return (
             <article
               className="min-w-0 rounded-[8px] border border-[#e4e8ec] bg-white p-4"
@@ -144,16 +160,28 @@ export function WholesaleCommissionRecords({
                     {getCustomerName(customersById, commission.customer_id)}
                   </p>
                 </div>
-                <WholesaleStatusBadge tone={getCommissionTone(commission.status)}>
+                <WholesaleStatusBadge
+                  tone={getCommissionTone(commission.status)}
+                >
                   {WHOLESALE_STATUS_LABELS[commission.status]}
                 </WholesaleStatusBadge>
               </div>
               <div className="mt-3 grid gap-2 break-words text-sm text-[#5e6b75]">
-                <p>业务员：{getProfileName(profilesById, commission.beneficiary_user_id)}</p>
-                <p>订单金额：{formatCurrency(commission.order_payment_rmb_amount)}</p>
-                <p>毛利：{formatCurrency(commission.gross_profit_rmb)}</p>
                 <p>
-                  提成：{formatCurrency(commission.commission_amount_rmb)}（
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text009" />
+                  {getProfileName(profilesById, commission.beneficiary_user_id)}
+                </p>
+                <p>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text010" />
+                  {formatCurrency(commission.order_payment_rmb_amount)}
+                </p>
+                <p>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text011" />
+                  {formatCurrency(commission.gross_profit_rmb)}
+                </p>
+                <p>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text012" />
+                  {formatCurrency(commission.commission_amount_rmb)}（
                   {formatPercent(commission.commission_rate)}）
                 </p>
               </div>
@@ -172,7 +200,6 @@ export function WholesaleCommissionRecords({
     </>
   );
 }
-
 function SettleButton({
   className = "",
   commission,
@@ -187,11 +214,13 @@ function SettleButton({
   return (
     <Button
       className={`${className} h-9 rounded-full bg-[#486782] px-3 text-xs font-semibold text-white hover:bg-[#3e5f79] disabled:opacity-60`}
-      disabled={commission.status !== "pending" || pendingKey === "commission:settle"}
+      disabled={
+        commission.status !== "pending" || pendingKey === "commission:settle"
+      }
       onClick={() => onSettleCommission(commission.id)}
       type="button"
     >
-      标记结算
+      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text013" />
     </Button>
   );
 }

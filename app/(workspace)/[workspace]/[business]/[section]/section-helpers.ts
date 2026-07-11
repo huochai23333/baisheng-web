@@ -49,7 +49,12 @@ export function getSectionNamespaces(
   }
 
   if (section === "orders" && config.pageVariants.orders) {
-    namespaces.push("Orders", "OrdersUI", "DashboardPagination", "DashboardShared");
+    namespaces.push(
+      "Orders",
+      "OrdersUI",
+      "DashboardPagination",
+      "DashboardShared",
+    );
   }
 
   if (section === "commission" && config.pageVariants.commission) {
@@ -61,6 +66,7 @@ export function getSectionNamespaces(
       config.pageVariants.customers === "admin"
         ? "TourismPeople"
         : "SalesmanPeople",
+      "ClientBusinessAccess",
       "DashboardShared",
     );
 
@@ -91,7 +97,9 @@ export function getSectionNamespaces(
 
   if (section === "people" && config.pageVariants.people) {
     namespaces.push(
-      config.pageVariants.people === "admin" ? "TourismPeople" : "SalesmanPeople",
+      config.pageVariants.people === "admin"
+        ? "TourismPeople"
+        : "SalesmanPeople",
       "DashboardShared",
       "PersonPrivateNotes",
     );
@@ -114,7 +122,13 @@ export function getSectionNamespaces(
   }
 
   if (section === "settings" && config.pageVariants.settings) {
-    namespaces.push("Commission", "DashboardShared", "Orders", "OrdersUI", "SystemSettings");
+    namespaces.push(
+      "Commission",
+      "DashboardShared",
+      "Orders",
+      "OrdersUI",
+      "SystemSettings",
+    );
   }
 
   return namespaces;

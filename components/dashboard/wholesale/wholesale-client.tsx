@@ -1,9 +1,8 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
 import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { WholesalePageData } from "@/lib/wholesale";
-
 import { WholesaleClaimsSection } from "./wholesale-claims-section";
 import { WholesaleCommissionSection } from "./wholesale-commission-section";
 import { WholesaleCustomersSection } from "./wholesale-customers-section";
@@ -12,8 +11,11 @@ import { WholesaleOrdersSection } from "./wholesale-orders-section";
 import { WholesalePeopleSection } from "./wholesale-people-section";
 import { WholesaleReferralsSection } from "./wholesale-referrals-section";
 import { useWholesaleActions } from "./use-wholesale-actions";
-
-export function WholesaleClient({ initialData }: { initialData: WholesalePageData }) {
+export function WholesaleClient({
+  initialData,
+}: {
+  initialData: WholesalePageData;
+}) {
   const actions = useWholesaleActions();
   const customersById = new Map(
     initialData.customers.map((customer) => [customer.id, customer]),
@@ -24,21 +26,22 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
   const salesAccounts = initialData.profiles.filter(
     (profile) => profile.role === "salesman",
   );
-  const registeredAccounts = initialData.profiles.filter(
-    (profile) => profile.role === "client",
-  );
+  // 账号合并和追加业务都只使用数据库确认过资格的客户候选列表。
+  const registeredAccounts = initialData.registeredCandidates;
   const canAdmin = initialData.currentRole === "administrator";
   const canUseSalesTools =
-    initialData.currentRole === "salesman" || initialData.currentRole === "finance";
+    initialData.currentRole === "salesman" ||
+    initialData.currentRole === "finance";
   const canEdit = canAdmin || canUseSalesTools;
   const canManageWholesaleCustomers =
     canAdmin || initialData.currentRole === "salesman";
   const canLinkCustomerAccount = canManageWholesaleCustomers;
-
   return (
     <div className="space-y-6">
       {actions.feedback ? (
-        <PageBanner tone={actions.feedback.tone}>{actions.feedback.message}</PageBanner>
+        <PageBanner tone={actions.feedback.tone}>
+          {actions.feedback.message}
+        </PageBanner>
       ) : null}
 
       {initialData.section === "orders" && initialData.orderPage ? (
@@ -56,7 +59,9 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
           onRejectOrderEditRequest={actions.rejectOrderEditRequest}
           onRequestOrderEdit={actions.requestOrderEdit}
           onUpdateOrder={actions.updateOrder}
-          orderEditWindowDays={initialData.orderEditSettings.directEditWindowDays}
+          orderEditWindowDays={
+            initialData.orderEditSettings.directEditWindowDays
+          }
           pendingKey={actions.pendingKey}
           profilesById={profilesById}
           salesAccounts={salesAccounts}
@@ -74,7 +79,7 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
             onClick={() => window.location.reload()}
             type="button"
           >
-            重新加载
+            <UiMessage id="components_dashboard_wholesale_wholesale_client.text001" />
           </Button>
         </div>
       ) : null}
@@ -108,12 +113,14 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
 
       {initialData.section === "customers" ? (
         <WholesaleCustomersSection
+          canAddRegisteredCustomer={canAdmin}
           canAssignSalesUser={canAdmin}
           canEdit={canManageWholesaleCustomers}
           canLinkCustomerAccount={canLinkCustomerAccount}
           currentUserId={initialData.currentUserId}
           customers={initialData.customers}
           onAddCustomerOtherName={actions.addCustomerOtherName}
+          onAddRegisteredCustomer={actions.addRegisteredCustomer}
           onCreateCustomer={actions.createCustomer}
           onDeleteCustomer={actions.deleteCustomer}
           onLinkCustomerAccount={actions.linkCustomerAccount}
@@ -126,9 +133,7 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
       ) : null}
 
       {initialData.section === "people" ? (
-        <WholesalePeopleSection
-          salesAccounts={salesAccounts}
-        />
+        <WholesalePeopleSection salesAccounts={salesAccounts} />
       ) : null}
 
       {initialData.section === "referrals" ? (
@@ -142,7 +147,8 @@ export function WholesaleClient({ initialData }: { initialData: WholesalePageDat
         />
       ) : null}
 
-      {initialData.section === "commission" || initialData.section === "incentives" ? (
+      {initialData.section === "commission" ||
+      initialData.section === "incentives" ? (
         <WholesaleCommissionSection
           canAdmin={canAdmin}
           commissionRuleSettings={initialData.commissionRuleSettings}

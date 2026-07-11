@@ -1,24 +1,22 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
 import { LoaderCircle, Sparkles } from "lucide-react";
-
+import { useTranslations } from "next-intl";
 import { DashboardSectionPanel } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
-
 import {
   useWholesaleOrderAssessment,
   type WholesaleOrderAssessmentFilters,
 } from "./use-wholesale-order-assessment";
-
 type WholesaleOrderAssessmentPanelProps = {
   filters: WholesaleOrderAssessmentFilters;
   matchedOrderCount: number;
 };
-
 export function WholesaleOrderAssessmentPanel({
   filters,
   matchedOrderCount,
 }: WholesaleOrderAssessmentPanelProps) {
+  const t = useTranslations("WholesaleBusiness.ordersUi");
   const {
     assessment,
     errorMessage,
@@ -26,17 +24,18 @@ export function WholesaleOrderAssessmentPanel({
     hasStaleAssessment,
     pending,
   } = useWholesaleOrderAssessment(filters);
-
   return (
     <DashboardSectionPanel className="border-[#dfe8ee] bg-[#f8fbfd]/86 p-4 sm:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-sm font-semibold text-[#486782]">
             <Sparkles className="size-4" />
-            AI订单评估
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text001" />
           </div>
           <p className="mt-2 break-words text-sm leading-6 text-[#6f7b85]">
-            根据当前筛选出的 {matchedOrderCount} 笔订单，生成金额、状态、毛利和风险点概览。
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text002" />
+            {matchedOrderCount}
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text003" />
           </p>
         </div>
         <Button
@@ -50,13 +49,13 @@ export function WholesaleOrderAssessmentPanel({
           ) : (
             <Sparkles className="size-4" />
           )}
-          {pending ? "正在评估" : "生成当前范围评估"}
+          {pending ? t("assessment.pending") : t("assessment.generate")}
         </Button>
       </div>
 
       {matchedOrderCount === 0 ? (
         <p className="mt-4 rounded-[16px] bg-white/72 px-4 py-3 text-sm leading-6 text-[#7a8791]">
-          当前筛选条件下没有订单，调整日期或筛选条件后再生成评估。
+          <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text004" />
         </p>
       ) : null}
 
@@ -73,7 +72,7 @@ export function WholesaleOrderAssessmentPanel({
         >
           {hasStaleAssessment ? (
             <p className="mb-3 rounded-[14px] bg-[#fff8e6] px-3 py-2 text-xs leading-5 text-[#8a650d]">
-              筛选条件已变化，建议重新生成评估。
+              <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text005" />
             </p>
           ) : null}
           <p className="whitespace-pre-wrap break-words">{assessment.trim()}</p>

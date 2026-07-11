@@ -5,12 +5,6 @@ import type { Locale } from "@/lib/locale";
 
 export type TourismPeopleTab = "customers" | "promoters";
 
-export const TOURISM_STATUS_LABELS = {
-  active: "正常",
-  inactive: "未启用",
-  suspended: "已停用",
-} as const;
-
 export function isTourismCustomer(person: AdminPersonRow) {
   return (
     person.role === "client" &&
@@ -22,22 +16,21 @@ export function isTourismPromoter(person: AdminPersonRow) {
   return person.role === "promoter";
 }
 
-export function getTourismPersonName(person: AdminPersonRow) {
-  return person.name?.trim() || person.email?.trim() || "未命名账号";
+export function getTourismPersonName(person: AdminPersonRow, fallback: string) {
+  return person.name?.trim() || person.email?.trim() || fallback;
 }
 
-export function getTourismPersonContact(person: AdminPersonRow) {
-  return [person.email, person.phone].filter(Boolean).join(" / ") || "未填写联系方式";
-}
-
-export function getTourismRoleLabel(tab: TourismPeopleTab) {
-  return tab === "customers" ? "旅游客户" : "地推";
+export function getTourismPersonContact(
+  person: AdminPersonRow,
+  fallback: string,
+) {
+  return [person.email, person.phone].filter(Boolean).join(" / ") || fallback;
 }
 
 export function formatTourismPeopleDate(
   value: string | null,
   locale: Locale,
-  fallback = "待补充",
+  fallback: string,
 ) {
   if (!value) return fallback;
 

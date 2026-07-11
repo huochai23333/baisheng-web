@@ -1,9 +1,6 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
-import {
-  normalizeAppRole,
-  normalizeUserStatus,
-} from "./auth-metadata";
+import { normalizeAppRole, normalizeUserStatus } from "./auth-metadata";
 import { withRequestTimeout } from "./request-timeout";
 import {
   isSalesmanBusinessBoard,
@@ -47,6 +44,15 @@ export type ReferralTreeEdge = {
   is_company_root_edge?: boolean;
 };
 
+export type ReferralCompanyRoot = {
+  user_id: string;
+  name: string | null;
+  email: string | null;
+  status: UserStatus | null;
+  role: AppRole | null;
+  created_at: string;
+};
+
 export type ReferralTreeViewerContext = {
   user: User;
   role: AppRole | null;
@@ -60,6 +66,7 @@ export type ReferralsPageData = {
   currentViewerId: string | null;
   currentViewerRole: AppRole | null;
   edges: ReferralTreeEdge[];
+  companyRoots: ReferralCompanyRoot[];
 };
 
 type ReferralsPageOptions = {
@@ -93,7 +100,8 @@ export async function getReferralsPageData(
   supabase: SupabaseClient,
   options: ReferralsPageOptions = {},
 ): Promise<ReferralsPageData> {
-  const businessBoard = options.businessBoard ?? DEFAULT_REFERRALS_BUSINESS_BOARD;
+  const businessBoard =
+    options.businessBoard ?? DEFAULT_REFERRALS_BUSINESS_BOARD;
   const viewer = await getCurrentReferralTreeViewerContext(supabase);
 
   if (!viewer) {
@@ -101,6 +109,7 @@ export async function getReferralsPageData(
       availableBoards: [],
       businessBoard,
       canViewReferrals: false,
+      companyRoots: [],
       currentViewerId: null,
       currentViewerRole: null,
       edges: [],
@@ -116,16 +125,45 @@ export async function getReferralsPageData(
     canReadReferralTreeByRole(viewer.role, viewer.status) &&
     availableBoards.includes(resolvedBusinessBoard);
 
+  const [edges, companyRoots] = canViewReferrals
+    ? await Promise.all([
+        getReferralTreeEdges(supabase, resolvedBusinessBoard),
+        getReferralCompanyRoots(supabase, resolvedBusinessBoard),
+      ])
+    : [[], []];
+
   return {
     availableBoards,
     businessBoard: resolvedBusinessBoard,
     canViewReferrals,
+    companyRoots,
     currentViewerId: viewer.user.id,
     currentViewerRole: viewer.role,
-    edges: canViewReferrals
-      ? await getReferralTreeEdges(supabase, resolvedBusinessBoard)
-      : [],
+    edges,
   };
+}
+
+export async function getReferralCompanyRoots(
+  supabase: SupabaseClient,
+  businessBoard: ReferralBusinessBoard,
+): Promise<ReferralCompanyRoot[]> {
+  const { data, error } = await withRequestTimeout(
+    supabase.rpc("get_referral_company_roots", {
+      _business_board: businessBoard,
+    }),
+  );
+
+  if (error) {
+    throw error;
+  }
+
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data
+    .map((item) => normalizeReferralCompanyRoot(item))
+    .filter((item): item is ReferralCompanyRoot => item !== null);
 }
 
 export async function getCurrentReferralBusinessBoards(
@@ -199,39 +237,88 @@ function normalizeReferralTreeEdge(value: unknown): ReferralTreeEdge | null {
   }
 
   const referrerUserId =
-    "referrer_user_id" in value ? normalizeOptionalString(value.referrer_user_id) : null;
-  const newUserId = "new_user_id" in value ? normalizeOptionalString(value.new_user_id) : null;
-  const createdAt = "created_at" in value ? normalizeOptionalString(value.created_at) : null;
+    "referrer_user_id" in value
+      ? normalizeOptionalString(value.referrer_user_id)
+      : null;
+  const newUserId =
+    "new_user_id" in value ? normalizeOptionalString(value.new_user_id) : null;
+  const createdAt =
+    "created_at" in value ? normalizeOptionalString(value.created_at) : null;
 
   if (!referrerUserId || !newUserId || !createdAt) {
     return null;
   }
 
   const relationScope =
-    "relation_scope" in value ? normalizeReferralScope(value.relation_scope) : "scoped";
+    "relation_scope" in value
+      ? normalizeReferralScope(value.relation_scope)
+      : "scoped";
 
   return {
     referrer_user_id: referrerUserId,
     referrer_name:
-      "referrer_name" in value ? normalizeOptionalString(value.referrer_name) : null,
+      "referrer_name" in value
+        ? normalizeOptionalString(value.referrer_name)
+        : null,
     referrer_email:
-      "referrer_email" in value ? normalizeOptionalString(value.referrer_email) : null,
+      "referrer_email" in value
+        ? normalizeOptionalString(value.referrer_email)
+        : null,
     referrer_status:
-      "referrer_status" in value ? normalizeUserStatus(value.referrer_status) : null,
-    referrer_role: "referrer_role" in value ? normalizeAppRole(value.referrer_role) : null,
+      "referrer_status" in value
+        ? normalizeUserStatus(value.referrer_status)
+        : null,
+    referrer_role:
+      "referrer_role" in value ? normalizeAppRole(value.referrer_role) : null,
     referrer_is_team_salesman:
-      "referrer_is_team_salesman" in value && value.referrer_is_team_salesman === true,
+      "referrer_is_team_salesman" in value &&
+      value.referrer_is_team_salesman === true,
     new_user_id: newUserId,
-    new_user_name: "new_user_name" in value ? normalizeOptionalString(value.new_user_name) : null,
+    new_user_name:
+      "new_user_name" in value
+        ? normalizeOptionalString(value.new_user_name)
+        : null,
     new_user_email:
-      "new_user_email" in value ? normalizeOptionalString(value.new_user_email) : null,
+      "new_user_email" in value
+        ? normalizeOptionalString(value.new_user_email)
+        : null,
     new_user_status:
-      "new_user_status" in value ? normalizeUserStatus(value.new_user_status) : null,
-    new_user_role: "new_user_role" in value ? normalizeAppRole(value.new_user_role) : null,
+      "new_user_status" in value
+        ? normalizeUserStatus(value.new_user_status)
+        : null,
+    new_user_role:
+      "new_user_role" in value ? normalizeAppRole(value.new_user_role) : null,
     new_user_is_team_salesman:
-      "new_user_is_team_salesman" in value && value.new_user_is_team_salesman === true,
+      "new_user_is_team_salesman" in value &&
+      value.new_user_is_team_salesman === true,
     created_at: createdAt,
     relation_scope: relationScope,
+  };
+}
+
+function normalizeReferralCompanyRoot(
+  value: unknown,
+): ReferralCompanyRoot | null {
+  if (typeof value !== "object" || value === null) {
+    return null;
+  }
+
+  const userId =
+    "user_id" in value ? normalizeOptionalString(value.user_id) : null;
+  const createdAt =
+    "created_at" in value ? normalizeOptionalString(value.created_at) : null;
+
+  if (!userId || !createdAt) {
+    return null;
+  }
+
+  return {
+    user_id: userId,
+    name: "name" in value ? normalizeOptionalString(value.name) : null,
+    email: "email" in value ? normalizeOptionalString(value.email) : null,
+    status: "status" in value ? normalizeUserStatus(value.status) : null,
+    role: "role" in value ? normalizeAppRole(value.role) : null,
+    created_at: createdAt,
   };
 }
 

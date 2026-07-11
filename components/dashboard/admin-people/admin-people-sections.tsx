@@ -1,5 +1,5 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
 import {
   Clock3,
   Filter,
@@ -11,7 +11,6 @@ import {
   UsersRound,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-
 import {
   DashboardFilterField,
   DashboardFilterPanel,
@@ -27,7 +26,6 @@ import type {
 } from "@/lib/admin-people";
 import type { Locale } from "@/lib/locale";
 import { cn } from "@/lib/utils";
-
 import {
   formatPeopleDate,
   getRoleLabel,
@@ -35,16 +33,13 @@ import {
 } from "./admin-people-display";
 import { PeopleTable } from "./admin-people-table";
 import type { useAdminPeopleViewModel } from "./use-admin-people-view-model";
-
 type AdminPeopleViewModel = ReturnType<typeof useAdminPeopleViewModel>;
-
 export function AdminPeopleHeaderSection({
   summary,
 }: {
   summary: AdminPeopleViewModel["summary"];
 }) {
   const t = useTranslations("AdminPeople");
-
   return (
     <DashboardSectionHeader
       badge={t("header.badge")}
@@ -82,10 +77,8 @@ export function AdminPeopleHeaderSection({
     />
   );
 }
-
 export function AdminPeopleNoPermissionSection() {
   const t = useTranslations("AdminPeople");
-
   return (
     <DashboardListSection
       description={t("states.noPermissionDescription")}
@@ -100,7 +93,6 @@ export function AdminPeopleNoPermissionSection() {
     </DashboardListSection>
   );
 }
-
 export function AdminPeopleDirectorySection({
   currentViewerId,
   filteredPeople,
@@ -133,7 +125,6 @@ export function AdminPeopleDirectorySection({
   statusOptions: AdminPeopleViewModel["statusOptions"];
 }) {
   const t = useTranslations("AdminPeople");
-
   return (
     <DashboardListSection
       description={t("directory.description")}
@@ -205,7 +196,6 @@ export function AdminPeopleDirectorySection({
     </DashboardListSection>
   );
 }
-
 export function AdminPeopleRecentChangesSection({
   changes,
   locale,
@@ -219,7 +209,6 @@ export function AdminPeopleRecentChangesSection({
 }) {
   const t = useTranslations("AdminPeople");
   const fallback = t("fallback.notProvided");
-
   return (
     <DashboardListSection
       description={t("logs.description")}
@@ -251,7 +240,9 @@ export function AdminPeopleRecentChangesSection({
                     <tr key={change.id} className="align-top">
                       <td className="px-4 py-4">
                         <p className="font-semibold text-[#23313a]">
-                          {change.target_name ?? change.target_email ?? fallback}
+                          {change.target_name ??
+                            change.target_email ??
+                            fallback}
                         </p>
                         <p className="mt-1 text-xs text-[#7b858d]">
                           {change.target_email ?? fallback}
@@ -301,10 +292,12 @@ export function AdminPeopleRecentChangesSection({
                   />
                 </div>
                 <p className="mt-3 text-sm text-[#53616d]">
-                  操作人：{change.actor_name ?? change.actor_email ?? fallback}
+                  <UiMessage id="components_dashboard_admin_people_admin_people_sections.text001" />
+                  {change.actor_name ?? change.actor_email ?? fallback}
                 </p>
                 <p className="mt-1 break-words text-sm text-[#53616d]">
-                  备注：{change.note ?? t("logs.noNote")}
+                  <UiMessage id="components_dashboard_admin_people_admin_people_sections.text002" />
+                  {change.note ?? t("logs.noNote")}
                 </p>
                 <p className="mt-1 text-xs text-[#7b858d]">
                   {formatPeopleDate(change.created_at, locale, fallback)}
@@ -317,7 +310,6 @@ export function AdminPeopleRecentChangesSection({
     </DashboardListSection>
   );
 }
-
 function ChangeSummary({
   change,
   fallback,
@@ -330,7 +322,6 @@ function ChangeSummary({
   statusLabels: AdminPeopleViewModel["statusLabels"];
 }) {
   const t = useTranslations("AdminPeople");
-
   return (
     <>
       <p>

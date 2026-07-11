@@ -1,4 +1,4 @@
-import type { ReferralTreeEdge } from "@/lib/referrals";
+import type { ReferralCompanyRoot, ReferralTreeEdge } from "@/lib/referrals";
 import type { AppRole, UserStatus } from "@/lib/user-self-service";
 import { normalizeSearchText } from "@/lib/value-normalizers";
 
@@ -104,11 +104,24 @@ export function createReferralsCopy(t: ReferralTranslator): ReferralsCopy {
 
 export function buildReferralGraph(
   edges: ReferralTreeEdge[],
+  companyRoots: ReferralCompanyRoot[],
   companyBranchName: string,
 ): ReferralGraph {
   const nodes = new Map<string, ReferralPerson>();
   const childEdgesByParent = new Map<string, ReferralTreeEdge[]>();
   const parentByChild = new Map<string, string>();
+
+  for (const root of companyRoots) {
+    nodes.set(root.user_id, {
+      userId: root.user_id,
+      name: root.name,
+      email: root.email,
+      role: root.role,
+      status: root.status,
+      isTeamSalesman: false,
+      kind: "person",
+    });
+  }
 
   for (const edge of edges) {
     nodes.set(edge.referrer_user_id, {
@@ -131,7 +144,8 @@ export function buildReferralGraph(
       kind: "person",
     });
 
-    const existingChildEdges = childEdgesByParent.get(edge.referrer_user_id) ?? [];
+    const existingChildEdges =
+      childEdgesByParent.get(edge.referrer_user_id) ?? [];
     existingChildEdges.push(edge);
     childEdgesByParent.set(edge.referrer_user_id, existingChildEdges);
     parentByChild.set(edge.new_user_id, edge.referrer_user_id);
@@ -183,13 +197,19 @@ export function buildTreeDisplayData(
     }
   } else {
     for (const [nodeId, person] of graph.nodes.entries()) {
-      if (matchesReferralPerson(person, normalizedSearchText, copy, sharedCopy)) {
+      if (
+        matchesReferralPerson(person, normalizedSearchText, copy, sharedCopy)
+      ) {
         matchingNodeIds.add(nodeId);
       }
     }
 
     for (const matchingNodeId of matchingNodeIds) {
-      collectAncestorNodeIds(graph.parentByChild, matchingNodeId, visibleNodeIds);
+      collectAncestorNodeIds(
+        graph.parentByChild,
+        matchingNodeId,
+        visibleNodeIds,
+      );
       collectDescendantNodeIds(
         graph.childEdgesByParent,
         matchingNodeId,

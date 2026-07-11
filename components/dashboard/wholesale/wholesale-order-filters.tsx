@@ -1,7 +1,7 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { RefreshCcw } from "lucide-react";
-
 import {
   DashboardFilterField,
   dashboardFilterInputClassName,
@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import type { WholesaleOrderFilters } from "@/lib/wholesale-order-page";
-
 type WholesaleOrderFiltersProps = {
   customers: WholesaleCustomer[];
   filters: WholesaleOrderFilters;
@@ -21,7 +20,6 @@ type WholesaleOrderFiltersProps = {
   ) => void;
   salesAccounts: WholesaleProfile[];
 };
-
 export function WholesaleOrderFiltersPanel({
   customers,
   filters,
@@ -30,13 +28,18 @@ export function WholesaleOrderFiltersPanel({
   onUpdate,
   salesAccounts,
 }: WholesaleOrderFiltersProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_order_filters",
+  );
   return (
     <section className="rounded-[24px] border border-[#e7e2db] bg-white/90 p-4 shadow-sm sm:p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-[#253640]">查找订单</h2>
+          <h2 className="text-base font-semibold text-[#253640]">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text001" />
+          </h2>
           <p className="mt-1 text-sm text-[#71808d]">
-            可以按订单、关联单号、客户、业务员、状态和日期查找。
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text002" />
           </p>
         </div>
         <Button
@@ -47,21 +50,21 @@ export function WholesaleOrderFiltersPanel({
           variant="outline"
         >
           <RefreshCcw className="size-4" />
-          清空筛选
+          <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text003" />
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <DashboardFilterField label="搜索订单">
+        <DashboardFilterField label={uiText("attribute001")}>
           <input
             className={dashboardFilterInputClassName}
             onChange={(event) => onUpdate("searchText", event.target.value)}
-            placeholder="订单号、客户、1688 单号或物流号"
+            placeholder={uiText("attribute002")}
             type="search"
             value={filters.searchText}
           />
         </DashboardFilterField>
-        <DashboardFilterField label="订单状态">
+        <DashboardFilterField label={uiText("attribute003")}>
           <select
             className={dashboardFilterInputClassName}
             onChange={(event) =>
@@ -72,19 +75,29 @@ export function WholesaleOrderFiltersPanel({
             }
             value={filters.status}
           >
-            <option value="all">全部状态</option>
-            <option value="unsettled">未结汇</option>
-            <option value="partial_settled">部分结汇</option>
-            <option value="settled">已结汇</option>
+            <option value="all">
+              <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text004" />
+            </option>
+            <option value="unsettled">
+              <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text005" />
+            </option>
+            <option value="partial_settled">
+              <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text006" />
+            </option>
+            <option value="settled">
+              <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text007" />
+            </option>
           </select>
         </DashboardFilterField>
-        <DashboardFilterField label="客户">
+        <DashboardFilterField label={uiText("attribute004")}>
           <select
             className={dashboardFilterInputClassName}
             onChange={(event) => onUpdate("customerId", event.target.value)}
             value={filters.customerId}
           >
-            <option value="">全部客户</option>
+            <option value="">
+              <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text008" />
+            </option>
             {customers.map((customer) => (
               <option key={customer.id} value={customer.id}>
                 {customer.unique_name}
@@ -92,13 +105,15 @@ export function WholesaleOrderFiltersPanel({
             ))}
           </select>
         </DashboardFilterField>
-        <DashboardFilterField label="业务员">
+        <DashboardFilterField label={uiText("attribute005")}>
           <select
             className={dashboardFilterInputClassName}
             onChange={(event) => onUpdate("salesUserId", event.target.value)}
             value={filters.salesUserId}
           >
-            <option value="">全部业务员</option>
+            <option value="">
+              <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text009" />
+            </option>
             {salesAccounts.map((profile) => (
               <option key={profile.user_id} value={profile.user_id}>
                 {profile.name || profile.email}
@@ -106,13 +121,12 @@ export function WholesaleOrderFiltersPanel({
             ))}
           </select>
         </DashboardFilterField>
-        <DashboardFilterField label="下单日期从">
+        <DashboardFilterField label={uiText("attribute006")}>
           <input
             className={dashboardFilterInputClassName}
             onChange={(event) => {
               const nextDate = event.target.value;
               onUpdate("orderedFromDate", nextDate);
-
               if (
                 filters.orderedToDate &&
                 nextDate &&
@@ -125,7 +139,7 @@ export function WholesaleOrderFiltersPanel({
             value={filters.orderedFromDate}
           />
         </DashboardFilterField>
-        <DashboardFilterField label="下单日期到">
+        <DashboardFilterField label={uiText("attribute007")}>
           <input
             className={dashboardFilterInputClassName}
             min={filters.orderedFromDate || undefined}

@@ -14,6 +14,9 @@ export async function loginAs(
 ): Promise<RegressionAccount> {
   const account = getRegressionAccount(role);
 
+  // 大多数既有回归断言使用中文文案，因此测试必须明确选择中文，
+  // 不能再依赖测试浏览器自身的 Accept-Language。
+  await setTestLocale(page, "zh");
   await page.goto("/login");
   await page.locator('input[name="email"]').fill(account.email);
   await page.locator('input[name="password"]').fill(account.password);
@@ -29,8 +32,22 @@ export async function loginAs(
   return account;
 }
 
+export async function setTestLocale(page: Page, locale: "en" | "zh") {
+  const baseUrl = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
+
+  await page.context().addCookies([
+    {
+      name: "bs-locale",
+      url: baseUrl,
+      value: locale,
+    },
+  ]);
+}
+
 export async function expectWorkspaceShell(page: Page) {
-  await expect(page.getByRole("heading", { name: "柏盛管理系统" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "柏盛管理系统" }),
+  ).toBeVisible();
   await expect(page.locator("main")).toBeVisible();
 }
 

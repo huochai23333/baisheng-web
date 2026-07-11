@@ -1,9 +1,8 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import type { FormEvent } from "react";
-
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
-
 import { getProfileName } from "./wholesale-display";
 import {
   WholesaleField,
@@ -11,7 +10,6 @@ import {
   WholesaleSubmitButton,
   WholesaleTextarea,
 } from "./wholesale-ui";
-
 type WholesaleCustomerFormProps = {
   canAssignSalesUser: boolean;
   currentUserId: string | null;
@@ -23,7 +21,6 @@ type WholesaleCustomerFormProps = {
   profilesById: Map<string, WholesaleProfile>;
   salesAccounts: WholesaleProfile[];
 };
-
 export function WholesaleCustomerForm({
   canAssignSalesUser,
   currentUserId,
@@ -35,48 +32,48 @@ export function WholesaleCustomerForm({
   profilesById,
   salesAccounts,
 }: WholesaleCustomerFormProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_customer_form",
+  );
   const fixedSalesUserId =
-    mode === "create" ? currentUserId : customer?.assigned_sales_user_id ?? null;
+    mode === "create"
+      ? currentUserId
+      : (customer?.assigned_sales_user_id ?? null);
   const fixedSalesUserName = fixedSalesUserId
     ? getProfileName(profilesById, fixedSalesUserId)
     : "暂不分配";
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     const form = event.currentTarget;
     const saved = await onSubmit(new FormData(form));
-
     if (!saved) {
       return;
     }
-
     if (mode === "create") {
       form.reset();
     }
-
     onSaved();
   };
-
   return (
-    <form
-      className="grid gap-4 md:grid-cols-2"
-      onSubmit={handleSubmit}
-    >
-      {customer ? <input name="customer_id" type="hidden" value={customer.id} /> : null}
+    <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
+      {customer ? (
+        <input name="customer_id" type="hidden" value={customer.id} />
+      ) : null}
       <WholesaleField
         defaultValue={customer?.unique_name}
-        label="客户唯一标识名称"
+        label={uiText("attribute001")}
         name="unique_name"
         required
       />
       {canAssignSalesUser ? (
         <WholesaleSelect
           defaultValue={customer?.assigned_sales_user_id ?? ""}
-          label="关联业务员"
+          label={uiText("attribute002")}
           name="assigned_sales_user_id"
         >
-          <option value="">暂不分配</option>
+          <option value="">
+            <UiMessage id="components_dashboard_wholesale_wholesale_customer_form.text001" />
+          </option>
           {salesAccounts.map((profile) => (
             <option key={profile.user_id} value={profile.user_id}>
               {profile.name || profile.email}
@@ -90,7 +87,9 @@ export function WholesaleCustomerForm({
             type="hidden"
             value={fixedSalesUserId ?? ""}
           />
-          <p className="text-xs font-semibold text-[#7b8790]">关联业务员</p>
+          <p className="text-xs font-semibold text-[#7b8790]">
+            <UiMessage id="components_dashboard_wholesale_wholesale_customer_form.text002" />
+          </p>
           <p className="mt-2 break-words text-sm font-medium text-[#2b3942]">
             {fixedSalesUserName}
           </p>
@@ -99,25 +98,25 @@ export function WholesaleCustomerForm({
       <div className="md:col-span-2">
         <WholesaleTextarea
           defaultValue={customer?.other_names.join("\n")}
-          label="客户其他名称"
+          label={uiText("attribute003")}
           name="other_names"
-          placeholder="可一次填写多个，用逗号或换行分开"
+          placeholder={uiText("attribute004")}
         />
       </div>
       <WholesaleField
         defaultValue={customer?.contact_details ?? undefined}
-        label="联系方式"
+        label={uiText("attribute005")}
         name="contact_details"
       />
       <WholesaleField
         defaultValue={customer?.source ?? undefined}
-        label="客户来源"
+        label={uiText("attribute006")}
         name="source"
       />
       <div className="md:col-span-2">
         <WholesaleTextarea
           defaultValue={customer?.notes ?? undefined}
-          label="备注"
+          label={uiText("attribute007")}
           name="notes"
         />
       </div>

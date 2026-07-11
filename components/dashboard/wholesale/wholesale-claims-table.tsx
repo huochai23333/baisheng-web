@@ -1,9 +1,7 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
 import { CheckCircle2, Trash2 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-
 import {
   formatCurrency,
   formatDateTime,
@@ -18,10 +16,8 @@ import {
   wholesaleStickyFirstTdClassName,
   wholesaleStickyFirstThClassName,
 } from "./wholesale-ui";
-
 const wholesaleClaimStickyFirstThClassName = `${wholesaleStickyFirstThClassName} min-w-[220px] whitespace-nowrap`;
 const wholesaleClaimStickyFirstTdClassName = `${wholesaleStickyFirstTdClassName} min-w-[220px] whitespace-nowrap`;
-
 export function WholesaleClaimsTable({
   canAdmin,
   canEdit,
@@ -42,22 +38,44 @@ export function WholesaleClaimsTable({
       <thead>
         <tr>
           <WholesaleTh className={wholesaleClaimStickyFirstThClassName}>
-            1688 订单号
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text001" />
           </WholesaleTh>
-          <WholesaleTh>收货人名字</WholesaleTh>
-          <WholesaleTh>辅助归类</WholesaleTh>
-          <WholesaleTh>业务员</WholesaleTh>
-          <WholesaleTh>客户</WholesaleTh>
-          <WholesaleTh>关联批发订单</WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text002" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text003" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text004" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text005" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text006" />
+          </WholesaleTh>
           <WholesaleTh className="min-w-[260px] whitespace-normal">
-            商品
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text007" />
           </WholesaleTh>
-          <WholesaleTh>数量</WholesaleTh>
-          <WholesaleTh>采购金额</WholesaleTh>
-          <WholesaleTh>采购时间</WholesaleTh>
-          <WholesaleTh>认领时间</WholesaleTh>
-          <WholesaleTh>接收时间</WholesaleTh>
-          <WholesaleTh>操作</WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text008" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text009" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text010" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text011" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text012" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text013" />
+          </WholesaleTh>
         </tr>
       </thead>
       <tbody>
@@ -76,7 +94,6 @@ export function WholesaleClaimsTable({
     </WholesaleTable>
   );
 }
-
 function WholesaleClaimTableRow({
   canAdmin,
   canEdit,
@@ -93,7 +110,6 @@ function WholesaleClaimTableRow({
   row: WholesaleClaimRow;
 }) {
   const { purchaseOrder } = row;
-
   return (
     <tr className="group">
       <WholesaleTd className={wholesaleClaimStickyFirstTdClassName}>
@@ -122,7 +138,7 @@ function WholesaleClaimTableRow({
               {row.assistedCustomerName}
             </div>
             <div className="mt-1 text-xs leading-5 text-[#71808d]">
-              按收货人名字匹配
+              <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text014" />
             </div>
           </div>
         ) : (
@@ -142,7 +158,8 @@ function WholesaleClaimTableRow({
         <div>{purchaseOrder.item_summary ?? "未记录商品"}</div>
         {purchaseOrder.seller_name ? (
           <div className="mt-1 text-xs text-[#71808d]">
-            1688 店铺 {purchaseOrder.seller_name}
+            <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text015" />
+            {purchaseOrder.seller_name}
           </div>
         ) : null}
       </WholesaleTd>
@@ -164,7 +181,6 @@ function WholesaleClaimTableRow({
     </tr>
   );
 }
-
 function ClaimInlineSlot({
   canEdit,
   onOpenClaim,
@@ -178,9 +194,12 @@ function ClaimInlineSlot({
 }) {
   if (row.board === "hall") {
     if (!canEdit) {
-      return <WholesaleStatusBadge tone="warning">等待认领</WholesaleStatusBadge>;
+      return (
+        <WholesaleStatusBadge tone="warning">
+          <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text016" />
+        </WholesaleStatusBadge>
+      );
     }
-
     return (
       <Button
         className="h-8 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
@@ -188,18 +207,23 @@ function ClaimInlineSlot({
         onClick={() => onOpenClaim(row)}
         type="button"
       >
-        认领
+        <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text017" />
       </Button>
     );
   }
-
   if (row.board === "claimed") {
-    return <WholesaleStatusBadge tone="success">已认领</WholesaleStatusBadge>;
+    return (
+      <WholesaleStatusBadge tone="success">
+        <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text018" />
+      </WholesaleStatusBadge>
+    );
   }
-
-  return <WholesaleStatusBadge tone="warning">待分类</WholesaleStatusBadge>;
+  return (
+    <WholesaleStatusBadge tone="warning">
+      <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text019" />
+    </WholesaleStatusBadge>
+  );
 }
-
 function ClaimActions({
   canAdmin,
   canEdit,
@@ -229,10 +253,12 @@ function ClaimActions({
           onClick={onOpenClaim}
           type="button"
         >
-          确认归属
+          <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text020" />
         </Button>
       ) : row.board === "assisted" ? (
-        <WholesaleStatusBadge tone="warning">等待认领</WholesaleStatusBadge>
+        <WholesaleStatusBadge tone="warning">
+          <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text021" />
+        </WholesaleStatusBadge>
       ) : null}
       {canAdmin ? (
         <Button
@@ -242,7 +268,7 @@ function ClaimActions({
           type="button"
         >
           <Trash2 className="size-3.5" />
-          移出
+          <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text022" />
         </Button>
       ) : null}
     </div>

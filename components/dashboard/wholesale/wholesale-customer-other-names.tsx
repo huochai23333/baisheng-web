@@ -1,40 +1,40 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-
 import { Plus, X } from "lucide-react";
-
 import {
   DashboardFilterField,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
 import type { WholesaleCustomer } from "@/lib/wholesale";
-
 import { WholesaleSubmitButton } from "./wholesale-ui";
-
 type WholesaleCustomerOtherNamesProps = {
   canEdit: boolean;
   customer: WholesaleCustomer;
   onAddOtherName: (formData: FormData) => void | Promise<void>;
   pending: boolean;
 };
-
 export function WholesaleCustomerOtherNames({
   canEdit,
   customer,
   onAddOtherName,
   pending,
 }: WholesaleCustomerOtherNamesProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_customer_other_names",
+  );
   const [isAdding, setIsAdding] = useState(false);
-
   return (
     <section className="rounded-[18px] border border-[#ebe7e1] bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h4 className="text-sm font-semibold text-[#263640]">其他名称</h4>
+          <h4 className="text-sm font-semibold text-[#263640]">
+            <UiMessage id="components_dashboard_wholesale_wholesale_customer_other_names.text001" />
+          </h4>
           <p className="mt-1 text-xs leading-5 text-[#6f7b85]">
-            可记录客户常用昵称、店铺名或对账名称。
+            <UiMessage id="components_dashboard_wholesale_wholesale_customer_other_names.text002" />
           </p>
         </div>
         {canEdit ? (
@@ -44,7 +44,11 @@ export function WholesaleCustomerOtherNames({
             type="button"
             variant="outline"
           >
-            {isAdding ? <X className="size-3.5" /> : <Plus className="size-3.5" />}
+            {isAdding ? (
+              <X className="size-3.5" />
+            ) : (
+              <Plus className="size-3.5" />
+            )}
             {isAdding ? "收起" : "新增名称"}
           </Button>
         ) : null}
@@ -61,7 +65,9 @@ export function WholesaleCustomerOtherNames({
             </span>
           ))
         ) : (
-          <p className="text-sm leading-6 text-[#7a8791]">暂未记录其他名称。</p>
+          <p className="text-sm leading-6 text-[#7a8791]">
+            <UiMessage id="components_dashboard_wholesale_wholesale_customer_other_names.text003" />
+          </p>
         )}
       </div>
 
@@ -71,23 +77,24 @@ export function WholesaleCustomerOtherNames({
           onSubmit={async (event) => {
             event.preventDefault();
             const form = event.currentTarget;
-
             await onAddOtherName(new FormData(form));
             form.reset();
             setIsAdding(false);
           }}
         >
           <input name="customer_id" type="hidden" value={customer.id} />
-          <DashboardFilterField label="新增其他名称">
+          <DashboardFilterField label={uiText("attribute001")}>
             <input
               className={dashboardFilterInputClassName}
               name="other_names"
-              placeholder="可一次填写多个，用逗号或换行分开"
+              placeholder={uiText("attribute002")}
               required
             />
           </DashboardFilterField>
           <div className="flex items-end justify-end">
-            <WholesaleSubmitButton pending={pending}>保存名称</WholesaleSubmitButton>
+            <WholesaleSubmitButton pending={pending}>
+              <UiMessage id="components_dashboard_wholesale_wholesale_customer_other_names.text004" />
+            </WholesaleSubmitButton>
           </div>
         </form>
       ) : null}

@@ -1,7 +1,7 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import {
   DashboardFilterField,
@@ -17,10 +17,8 @@ import {
   type ExchangeRateRow,
 } from "@/lib/exchange-rates";
 import type { WholesaleOrder, WholesaleOrderSettlement } from "@/lib/wholesale";
-
 import { formatCurrency, formatDate, formatRate } from "./wholesale-display";
 import { WholesaleSubmitButton } from "./wholesale-ui";
-
 type WholesaleOrderSettlementDialogProps = {
   exchangeRates: ExchangeRateRow[];
   onOpenChange: (open: boolean) => void;
@@ -29,7 +27,6 @@ type WholesaleOrderSettlementDialogProps = {
   pending: boolean;
   settlements: WholesaleOrderSettlement[];
 };
-
 export function WholesaleOrderSettlementDialog({
   exchangeRates,
   onOpenChange,
@@ -38,6 +35,9 @@ export function WholesaleOrderSettlementDialog({
   pending,
   settlements,
 }: WholesaleOrderSettlementDialogProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_order_rate_dialogs",
+  );
   const [settlementAmount, setSettlementAmount] = useState("");
   const [settlementDate, setSettlementDate] = useState(getBeijingDateString());
   const settledAmount = useMemo(
@@ -68,22 +68,18 @@ export function WholesaleOrderSettlementDialog({
     Number(settlementAmount || 0),
     activeRateValue,
   );
-
   return (
     <DashboardDialog
-      description={
-        "登记每一次实际结汇的金额和日期。系统会使用所选日期的汇率，累计结汇金额达到订单金额后自动变为已结汇。"
-      }
+      description={uiText("dialogDescription")}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
           setSettlementAmount("");
           setSettlementDate(getBeijingDateString());
         }
-
         onOpenChange(nextOpen);
       }}
       open
-      title="确认结汇"
+      title={uiText("attribute001")}
     >
       <form
         className="grid gap-4 md:grid-cols-2"
@@ -96,36 +92,42 @@ export function WholesaleOrderSettlementDialog({
         }}
       >
         <input name="order_id" type="hidden" value={order.id} />
-        <ReadOnlyRateField label="订单编号" value={order.order_number} />
         <ReadOnlyRateField
-          label="客户支付"
+          label={uiText("attribute002")}
+          value={order.order_number}
+        />
+        <ReadOnlyRateField
+          label={uiText("attribute003")}
           value={formatCurrency(
             order.customer_payment_amount,
             order.customer_payment_currency,
           )}
         />
         <ReadOnlyRateField
-          label="剩余可结汇"
-          value={formatCurrency(remainingAmount, order.customer_payment_currency)}
+          label={uiText("attribute004")}
+          value={formatCurrency(
+            remainingAmount,
+            order.customer_payment_currency,
+          )}
         />
-        <DashboardFilterField label="本次结汇金额">
+        <DashboardFilterField label={uiText("attribute005")}>
           <input
             className={dashboardFilterInputClassName}
             max={remainingAmount}
             min={0.01}
             name="settlement_amount"
             onChange={(event) => setSettlementAmount(event.target.value)}
-            placeholder="填写本次结汇金额"
+            placeholder={uiText("attribute006")}
             required
             step="0.01"
             type="number"
             value={settlementAmount}
           />
           <p className="mt-2 text-xs leading-5 text-[#7b8790]">
-            金额使用订单客户支付币种，不能超过剩余可结汇金额。
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text001" />
           </p>
         </DashboardFilterField>
-        <DashboardFilterField label="结汇日期">
+        <DashboardFilterField label={uiText("attribute007")}>
           <input
             className={dashboardFilterInputClassName}
             name="settlement_date"
@@ -135,15 +137,15 @@ export function WholesaleOrderSettlementDialog({
             value={settlementDate}
           />
           <p className="mt-2 text-xs leading-5 text-[#7b8790]">
-            保存时会使用这个日期的汇率。
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text002" />
           </p>
         </DashboardFilterField>
         <ReadOnlyRateField
-          label="匹配汇率"
+          label={uiText("attribute008")}
           value={activeRateValue || "这个日期暂无汇率"}
         />
         <ReadOnlyRateField
-          label="本次人民币金额"
+          label={uiText("attribute009")}
           value={
             rmbPreview
               ? formatCurrency(Number(rmbPreview))
@@ -157,13 +159,14 @@ export function WholesaleOrderSettlementDialog({
           />
         </div>
         <div className="flex flex-wrap justify-end gap-3 md:col-span-2">
-          <WholesaleSubmitButton pending={pending}>保存结汇记录</WholesaleSubmitButton>
+          <WholesaleSubmitButton pending={pending}>
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text003" />
+          </WholesaleSubmitButton>
         </div>
       </form>
     </DashboardDialog>
   );
 }
-
 function ReadOnlyRateField({ label, value }: { label: string; value: string }) {
   return (
     <DashboardFilterField label={label}>
@@ -173,7 +176,6 @@ function ReadOnlyRateField({ label, value }: { label: string; value: string }) {
     </DashboardFilterField>
   );
 }
-
 function SettlementRecordList({
   currency,
   settlements,
@@ -184,14 +186,15 @@ function SettlementRecordList({
   if (settlements.length === 0) {
     return (
       <div className="rounded-[16px] border border-[#d9e2e8] bg-white px-4 py-3 text-sm leading-6 text-[#6d7881]">
-        暂无结汇记录。
+        <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text004" />
       </div>
     );
   }
-
   return (
     <div className="rounded-[16px] border border-[#d9e2e8] bg-white p-3">
-      <p className="mb-2 text-xs font-semibold text-[#6d7881]">已登记记录</p>
+      <p className="mb-2 text-xs font-semibold text-[#6d7881]">
+        <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text005" />
+      </p>
       <div className="grid gap-2">
         {settlements.map((settlement) => (
           <div
@@ -202,7 +205,10 @@ function SettlementRecordList({
             <span>
               {formatCurrency(settlement.settlement_amount, currency)}
             </span>
-            <span>汇率 {formatRate(settlement.settlement_exchange_rate)}</span>
+            <span>
+              <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text006" />
+              {formatRate(settlement.settlement_exchange_rate)}
+            </span>
             <span>{formatCurrency(settlement.settlement_rmb_amount)}</span>
           </div>
         ))}

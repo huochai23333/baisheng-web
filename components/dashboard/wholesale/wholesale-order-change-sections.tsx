@@ -1,5 +1,6 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
   History,
@@ -7,10 +8,7 @@ import {
   LoaderCircle,
   XCircle,
 } from "lucide-react";
-
-import {
-  DashboardListSection,
-} from "@/components/dashboard/dashboard-section-panel";
+import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
 import type {
   WholesaleCustomer,
@@ -19,8 +17,11 @@ import type {
   WholesaleOrderEditRequest,
   WholesaleProfile,
 } from "@/lib/wholesale";
-
-import { formatDateTime, getCustomerName, getProfileName } from "./wholesale-display";
+import {
+  formatDateTime,
+  getCustomerName,
+  getProfileName,
+} from "./wholesale-display";
 import {
   WholesaleEmptyState,
   WholesaleStatusBadge,
@@ -28,7 +29,6 @@ import {
   WholesaleTd,
   WholesaleTh,
 } from "./wholesale-ui";
-
 type WholesaleOrderChangeSectionsProps = {
   canReviewRequests: boolean;
   customersById: Map<string, WholesaleCustomer>;
@@ -40,7 +40,6 @@ type WholesaleOrderChangeSectionsProps = {
   profilesById: Map<string, WholesaleProfile>;
   requests: WholesaleOrderEditRequest[];
 };
-
 const EDIT_FIELD_LABELS: Record<string, string> = {
   courier_company: "快递公司",
   customer_id: "客户",
@@ -57,9 +56,7 @@ const EDIT_FIELD_LABELS: Record<string, string> = {
   settlement_exchange_rate: "结汇汇率",
   small_order_count: "小单数量",
 };
-
 const EDIT_FIELD_ORDER = Object.keys(EDIT_FIELD_LABELS);
-
 export function WholesaleOrderChangeSections({
   canReviewRequests,
   customersById,
@@ -71,42 +68,61 @@ export function WholesaleOrderChangeSections({
   profilesById,
   requests,
 }: WholesaleOrderChangeSectionsProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_order_change_sections",
+  );
   const visibleRequests = canReviewRequests
     ? requests
     : requests.filter((request) => request.status !== "approved");
-
   return (
     <>
       {canReviewRequests || visibleRequests.length > 0 ? (
         <DashboardListSection
-          description="超过可直接修改天数后，业务员提交的订单修改会在这里等待处理。"
-          title="修改申请"
+          description={uiText("attribute001")}
+          title={uiText("attribute002")}
         >
           {visibleRequests.length === 0 ? (
             <WholesaleEmptyState
-              description="当前没有等待处理的批发订单修改申请。"
+              description={uiText("attribute003")}
               icon={<Inbox className="size-5" />}
-              title="暂无修改申请"
+              title={uiText("attribute004")}
             />
           ) : (
             <WholesaleTable minWidth={980}>
               <thead>
                 <tr>
-                  <WholesaleTh>订单</WholesaleTh>
-                  <WholesaleTh>客户</WholesaleTh>
-                  <WholesaleTh>申请人</WholesaleTh>
-                  <WholesaleTh>申请内容</WholesaleTh>
-                  <WholesaleTh>说明</WholesaleTh>
-                  <WholesaleTh>状态</WholesaleTh>
-                  <WholesaleTh>申请时间</WholesaleTh>
-                  {canReviewRequests ? <WholesaleTh>操作</WholesaleTh> : null}
+                  <WholesaleTh>
+                    <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text001" />
+                  </WholesaleTh>
+                  <WholesaleTh>
+                    <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text002" />
+                  </WholesaleTh>
+                  <WholesaleTh>
+                    <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text003" />
+                  </WholesaleTh>
+                  <WholesaleTh>
+                    <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text004" />
+                  </WholesaleTh>
+                  <WholesaleTh>
+                    <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text005" />
+                  </WholesaleTh>
+                  <WholesaleTh>
+                    <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text006" />
+                  </WholesaleTh>
+                  <WholesaleTh>
+                    <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text007" />
+                  </WholesaleTh>
+                  {canReviewRequests ? (
+                    <WholesaleTh>
+                      <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text008" />
+                    </WholesaleTh>
+                  ) : null}
                 </tr>
               </thead>
               <tbody>
                 {visibleRequests.map((request) => {
                   const order = ordersById.get(request.order_id);
                   const isPending = request.status === "pending";
-
                   return (
                     <tr key={request.id}>
                       <WholesaleTd className="min-w-[160px] whitespace-normal">
@@ -118,7 +134,10 @@ export function WholesaleOrderChangeSections({
                           : "未记录"}
                       </WholesaleTd>
                       <WholesaleTd className="min-w-[150px] whitespace-normal">
-                        {getProfileName(profilesById, request.requested_by_user_id)}
+                        {getProfileName(
+                          profilesById,
+                          request.requested_by_user_id,
+                        )}
                       </WholesaleTd>
                       <WholesaleTd className="min-w-[220px] whitespace-normal">
                         {formatRequestChangeSummary(request)}
@@ -127,11 +146,15 @@ export function WholesaleOrderChangeSections({
                         {request.request_note ?? "未填写"}
                       </WholesaleTd>
                       <WholesaleTd>
-                        <WholesaleStatusBadge tone={getRequestStatusTone(request.status)}>
+                        <WholesaleStatusBadge
+                          tone={getRequestStatusTone(request.status)}
+                        >
                           {getRequestStatusLabel(request.status)}
                         </WholesaleStatusBadge>
                       </WholesaleTd>
-                      <WholesaleTd>{formatDateTime(request.created_at)}</WholesaleTd>
+                      <WholesaleTd>
+                        {formatDateTime(request.created_at)}
+                      </WholesaleTd>
                       {canReviewRequests ? (
                         <WholesaleTd>
                           {isPending ? (
@@ -142,7 +165,9 @@ export function WholesaleOrderChangeSections({
                                   pendingKey ===
                                   `order-edit:approve:${request.id}`
                                 }
-                                onClick={() => void onApproveRequest(request.id)}
+                                onClick={() =>
+                                  void onApproveRequest(request.id)
+                                }
                                 type="button"
                               >
                                 {pendingKey ===
@@ -151,7 +176,7 @@ export function WholesaleOrderChangeSections({
                                 ) : (
                                   <CheckCircle2 className="size-3.5" />
                                 )}
-                                通过
+                                <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text009" />
                               </Button>
                               <Button
                                 className="h-9 rounded-full border border-[#f1d1d1] bg-[#fff2f2] px-3 text-xs text-[#b13d3d] hover:bg-[#fce5e5]"
@@ -169,7 +194,7 @@ export function WholesaleOrderChangeSections({
                                 ) : (
                                   <XCircle className="size-3.5" />
                                 )}
-                                退回
+                                <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text010" />
                               </Button>
                             </div>
                           ) : (
@@ -187,31 +212,42 @@ export function WholesaleOrderChangeSections({
       ) : null}
 
       <DashboardListSection
-        description="每次直接修改或管理员通过申请后，系统都会保留一条记录。"
-        title="修改记录"
+        description={uiText("attribute005")}
+        title={uiText("attribute006")}
       >
         {logs.length === 0 ? (
           <WholesaleEmptyState
-            description="还没有批发订单修改记录。"
+            description={uiText("attribute007")}
             icon={<History className="size-5" />}
-            title="暂无修改记录"
+            title={uiText("attribute008")}
           />
         ) : (
           <WholesaleTable minWidth={920}>
             <thead>
               <tr>
-                <WholesaleTh>订单</WholesaleTh>
-                <WholesaleTh>客户</WholesaleTh>
-                <WholesaleTh>操作人</WholesaleTh>
-                <WholesaleTh>操作方式</WholesaleTh>
-                <WholesaleTh>修改内容</WholesaleTh>
-                <WholesaleTh>时间</WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text011" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text012" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text013" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text014" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text015" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text016" />
+                </WholesaleTh>
               </tr>
             </thead>
             <tbody>
               {logs.map((log) => {
                 const order = ordersById.get(log.order_id);
-
                 return (
                   <tr key={log.id}>
                     <WholesaleTd className="min-w-[160px] whitespace-normal">
@@ -240,18 +276,15 @@ export function WholesaleOrderChangeSections({
     </>
   );
 }
-
 function formatRequestChangeSummary(request: WholesaleOrderEditRequest) {
   return formatChangedFieldLabels(
     request.current_snapshot,
     request.requested_changes,
   );
 }
-
 function formatLogChangeSummary(log: WholesaleOrderChangeLog) {
   return formatChangedFieldLabels(log.previous_data, log.next_data);
 }
-
 function getLogActionLabel(action: WholesaleOrderChangeLog["action"]) {
   switch (action) {
     case "approved_update":
@@ -263,7 +296,6 @@ function getLogActionLabel(action: WholesaleOrderChangeLog["action"]) {
       return "直接修改";
   }
 }
-
 function formatChangedFieldLabels(
   previousData: Record<string, unknown>,
   nextData: Record<string, unknown>,
@@ -271,31 +303,24 @@ function formatChangedFieldLabels(
   const changedLabels = EDIT_FIELD_ORDER.filter((key) =>
     hasDisplayChange(previousData[key], nextData[key]),
   ).map((key) => EDIT_FIELD_LABELS[key]);
-
   if (changedLabels.length === 0) {
     return "内容已重新保存";
   }
-
   return changedLabels.join("、");
 }
-
 function hasDisplayChange(left: unknown, right: unknown) {
   // 这里只统一展示摘要，数据库仍保存完整的修改前后快照，方便后续精确核对。
   return normalizeSummaryValue(left) !== normalizeSummaryValue(right);
 }
-
 function normalizeSummaryValue(value: unknown) {
   if (value === null || value === undefined) {
     return "";
   }
-
   if (typeof value === "number") {
     return String(Math.round(value * 1000000) / 1000000);
   }
-
   return String(value);
 }
-
 function getRequestStatusLabel(status: WholesaleOrderEditRequest["status"]) {
   switch (status) {
     case "approved":
@@ -306,7 +331,6 @@ function getRequestStatusLabel(status: WholesaleOrderEditRequest["status"]) {
       return "待处理";
   }
 }
-
 function getRequestStatusTone(status: WholesaleOrderEditRequest["status"]) {
   switch (status) {
     case "approved":

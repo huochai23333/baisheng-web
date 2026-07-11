@@ -1,12 +1,7 @@
 "use client";
-
-import {
-  CheckCircle2,
-  LoaderCircle,
-  PencilLine,
-  Send,
-} from "lucide-react";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { CheckCircle2, LoaderCircle, PencilLine, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type {
   Wholesale1688Order,
@@ -17,7 +12,6 @@ import type {
   WholesaleProfile,
 } from "@/lib/wholesale";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
-
 import {
   formatCurrency,
   formatDate,
@@ -40,16 +34,16 @@ import {
   wholesaleStickyFirstTdClassName,
   wholesaleStickyFirstThClassName,
 } from "./wholesale-ui";
-
 export type WholesaleOrderEditAction = {
-  label: "修改订单" | "申请修改";
+  label: string;
   tone: "direct" | "request";
 };
-
 type WholesaleOrdersTableProps = {
   canMarkOrderSettled: (order: WholesaleOrder) => boolean;
   customersById: Map<string, WholesaleCustomer>;
-  getOrderEditAction: (order: WholesaleOrder) => WholesaleOrderEditAction | null;
+  getOrderEditAction: (
+    order: WholesaleOrder,
+  ) => WholesaleOrderEditAction | null;
   logisticsOrdersByOrderId: Map<string, WholesaleLogisticsOrder[]>;
   logisticsStatusesByOrderId: Map<string, WholesaleLogisticsStatus[]>;
   orderSettlementsByOrderId: Map<string, WholesaleOrderSettlement[]>;
@@ -60,7 +54,6 @@ type WholesaleOrdersTableProps = {
   profilesById: Map<string, WholesaleProfile>;
   purchaseOrdersByOrderId: Map<string, Wholesale1688Order[]>;
 };
-
 export function WholesaleOrdersTable({
   canMarkOrderSettled,
   customersById,
@@ -75,44 +68,89 @@ export function WholesaleOrdersTable({
   profilesById,
   purchaseOrdersByOrderId,
 }: WholesaleOrdersTableProps) {
+  const t = useTranslations("WholesaleBusiness.ordersUi");
   return (
     <WholesaleTable minWidth={3660}>
       <thead>
         <tr>
           <WholesaleTh className={wholesaleStickyFirstThClassName}>
-            订单编号
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text001" />
           </WholesaleTh>
-          <WholesaleTh>客户</WholesaleTh>
-          <WholesaleTh>业务员</WholesaleTh>
-          <WholesaleTh>小单数量</WholesaleTh>
-          <WholesaleTh>产品采购金额</WholesaleTh>
-          <WholesaleTh>打包费</WholesaleTh>
-          <WholesaleTh>国际运费</WholesaleTh>
-          <WholesaleTh>其他费用</WholesaleTh>
-          <WholesaleTh>推荐佣金费用</WholesaleTh>
-          <WholesaleTh>快递公司</WholesaleTh>
-          <WholesaleTh>结汇进度</WholesaleTh>
-          <WholesaleTh>平均结汇汇率</WholesaleTh>
-          <WholesaleTh>支付币种</WholesaleTh>
-          <WholesaleTh>客户支付金额</WholesaleTh>
-          <WholesaleTh>人民币金额</WholesaleTh>
-          <WholesaleTh>收款平台</WholesaleTh>
-          <WholesaleTh>毛利</WholesaleTh>
-          <WholesaleTh>毛利率</WholesaleTh>
-          <WholesaleTh>单位毛利</WholesaleTh>
-          <WholesaleTh>订单计入月份</WholesaleTh>
-          <WholesaleTh>下单时间</WholesaleTh>
-          <WholesaleTh>最近结汇时间</WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text002" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text003" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text004" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text005" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text006" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text007" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text008" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text009" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text010" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text011" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text012" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text013" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text014" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text015" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text016" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text017" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text018" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text019" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text020" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text021" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text022" />
+          </WholesaleTh>
           <WholesaleTh className="min-w-[300px] whitespace-normal">
-            结汇记录
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text023" />
           </WholesaleTh>
           <WholesaleTh className="min-w-[320px] whitespace-normal">
-            关联 1688 采购订单
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text024" />
           </WholesaleTh>
           <WholesaleTh className="min-w-[320px] whitespace-normal">
-            关联物流订单
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text025" />
           </WholesaleTh>
-          <WholesaleTh className="min-w-[240px] whitespace-normal">备注</WholesaleTh>
+          <WholesaleTh className="min-w-[240px] whitespace-normal">
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text026" />
+          </WholesaleTh>
         </tr>
       </thead>
       <tbody>
@@ -127,7 +165,6 @@ export function WholesaleOrdersTable({
             Number(order.customer_payment_amount) - settledAmount,
             0,
           );
-
           return (
             <tr
               className="group"
@@ -174,7 +211,7 @@ export function WholesaleOrdersTable({
                         ) : (
                           <CheckCircle2 className="size-3.5" />
                         )}
-                        登记结汇
+                        <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text027" />
                       </Button>
                     ) : null}
                   </div>
@@ -187,28 +224,42 @@ export function WholesaleOrdersTable({
                 {getProfileName(profilesById, order.sales_user_id)}
               </WholesaleTd>
               <WholesaleTd>{formatNumber(order.small_order_count)}</WholesaleTd>
-              <WholesaleTd>{formatCurrency(order.product_purchase_amount)}</WholesaleTd>
+              <WholesaleTd>
+                {formatCurrency(order.product_purchase_amount)}
+              </WholesaleTd>
               <WholesaleTd>{formatCurrency(order.packing_fee)}</WholesaleTd>
-              <WholesaleTd>{formatCurrency(order.international_shipping_fee)}</WholesaleTd>
+              <WholesaleTd>
+                {formatCurrency(order.international_shipping_fee)}
+              </WholesaleTd>
               <WholesaleTd>{formatCurrency(order.other_fee)}</WholesaleTd>
-              <WholesaleTd>{formatCurrency(order.referral_commission_fee)}</WholesaleTd>
+              <WholesaleTd>
+                {formatCurrency(order.referral_commission_fee)}
+              </WholesaleTd>
               <WholesaleTd className="min-w-[140px] whitespace-normal">
-                {order.courier_company ?? "未记录"}
+                {order.courier_company ?? t("fallbacks.notRecorded")}
               </WholesaleTd>
               <WholesaleTd className="min-w-[160px] whitespace-normal">
                 <div>
                   <p>
-                    已结 {formatCurrency(settledAmount, order.customer_payment_currency)}
+                    <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text028" />
+                    {formatCurrency(
+                      settledAmount,
+                      order.customer_payment_currency,
+                    )}
                   </p>
                   <p className="mt-1 text-xs text-[#7b8790]">
-                    剩余 {formatCurrency(remainingAmount, order.customer_payment_currency)}
+                    <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text029" />
+                    {formatCurrency(
+                      remainingAmount,
+                      order.customer_payment_currency,
+                    )}
                   </p>
                 </div>
               </WholesaleTd>
               <WholesaleTd>
                 {order.settlement_exchange_rate === null ||
                 order.settlement_exchange_rate === undefined
-                  ? "未结汇"
+                  ? t("fallbacks.unsettled")
                   : formatRate(order.settlement_exchange_rate)}
               </WholesaleTd>
               <WholesaleTd>{order.customer_payment_currency}</WholesaleTd>
@@ -219,20 +270,35 @@ export function WholesaleOrdersTable({
                 )}
               </WholesaleTd>
               <WholesaleTd>
-                {formatOptionalCurrency(order.customer_payment_rmb_amount)}
+                {formatOptionalCurrency(
+                  order.customer_payment_rmb_amount,
+                  t("fallbacks.afterSettlement"),
+                )}
               </WholesaleTd>
               <WholesaleTd className="min-w-[140px] whitespace-normal">
-                {order.payment_platform ?? "未记录"}
+                {order.payment_platform ?? t("fallbacks.notRecorded")}
               </WholesaleTd>
-              <WholesaleTd>{formatOptionalCurrency(order.gross_profit)}</WholesaleTd>
-              <WholesaleTd>{formatPercent(order.gross_margin)}</WholesaleTd>
               <WholesaleTd>
-                {formatOptionalCurrency(order.unit_gross_profit)}
+                {formatOptionalCurrency(
+                  order.gross_profit,
+                  t("fallbacks.afterSettlement"),
+                )}
+              </WholesaleTd>
+              <WholesaleTd>
+                {formatPercent(order.gross_margin, t("fallbacks.notGenerated"))}
+              </WholesaleTd>
+              <WholesaleTd>
+                {formatOptionalCurrency(
+                  order.unit_gross_profit,
+                  t("fallbacks.afterSettlement"),
+                )}
               </WholesaleTd>
               <WholesaleTd>{formatDate(order.order_month)}</WholesaleTd>
               <WholesaleTd>{formatDateTime(order.ordered_at)}</WholesaleTd>
               <WholesaleTd>
-                {order.settled_at ? formatDateTime(order.settled_at) : "未结汇"}
+                {order.settled_at
+                  ? formatDateTime(order.settled_at)
+                  : t("fallbacks.unsettled")}
               </WholesaleTd>
               <WholesaleTd className="min-w-[300px] whitespace-normal">
                 <SettlementRecordsCell
@@ -249,11 +315,13 @@ export function WholesaleOrdersTable({
               <WholesaleTd className="min-w-[320px] whitespace-normal">
                 <LinkedLogisticsOrders
                   logisticsOrders={logisticsOrdersByOrderId.get(order.id) ?? []}
-                  logisticsStatuses={logisticsStatusesByOrderId.get(order.id) ?? []}
+                  logisticsStatuses={
+                    logisticsStatusesByOrderId.get(order.id) ?? []
+                  }
                 />
               </WholesaleTd>
               <WholesaleTd className="min-w-[240px] whitespace-normal">
-                {order.notes ?? "未记录"}
+                {order.notes ?? t("fallbacks.notRecorded")}
               </WholesaleTd>
             </tr>
           );
@@ -262,7 +330,6 @@ export function WholesaleOrdersTable({
     </WholesaleTable>
   );
 }
-
 function SettlementRecordsCell({
   currency,
   settlements,
@@ -271,9 +338,12 @@ function SettlementRecordsCell({
   settlements: WholesaleOrderSettlement[];
 }) {
   if (settlements.length === 0) {
-    return <span className="text-[#7b8790]">暂无记录</span>;
+    return (
+      <span className="text-[#7b8790]">
+        <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text030" />
+      </span>
+    );
   }
-
   return (
     <div className="grid max-h-24 gap-2 overflow-y-auto pr-1">
       {settlements.map((settlement) => (
@@ -285,7 +355,8 @@ function SettlementRecordsCell({
             {formatDate(settlement.settled_on)}
           </p>
           <p>
-            {formatCurrency(settlement.settlement_amount, currency)} / 汇率{" "}
+            {formatCurrency(settlement.settlement_amount, currency)}
+            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text031" />{" "}
             {formatRate(settlement.settlement_exchange_rate)}
           </p>
           <p>{formatCurrency(settlement.settlement_rmb_amount)}</p>

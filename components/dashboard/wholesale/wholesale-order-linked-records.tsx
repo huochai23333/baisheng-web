@@ -1,9 +1,8 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-
 import { ShoppingCart, Truck } from "lucide-react";
-
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { Button } from "@/components/ui/button";
 import type {
@@ -12,7 +11,6 @@ import type {
   WholesaleProfile,
 } from "@/lib/wholesale";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
-
 import {
   formatCurrency,
   formatDateTime,
@@ -24,7 +22,6 @@ import {
   WholesaleDetailGrid,
   type WholesaleDetailGridRow,
 } from "./wholesale-detail-grid";
-
 type LinkedLogisticsRecord =
   | {
       id: string;
@@ -38,7 +35,6 @@ type LinkedLogisticsRecord =
       record: WholesaleLogisticsOrder;
       type: "order";
     };
-
 export function LinkedPurchaseOrders({
   profilesById,
   purchaseOrders,
@@ -46,13 +42,18 @@ export function LinkedPurchaseOrders({
   profilesById: Map<string, WholesaleProfile>;
   purchaseOrders: Wholesale1688Order[];
 }) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_order_linked_records",
+  );
   const [selectedPurchaseOrder, setSelectedPurchaseOrder] =
     useState<Wholesale1688Order | null>(null);
-
   if (purchaseOrders.length === 0) {
-    return <span className="text-[#71808d]">未关联</span>;
+    return (
+      <span className="text-[#71808d]">
+        <UiMessage id="components_dashboard_wholesale_wholesale_order_linked_records.text001" />
+      </span>
+    );
   }
-
   return (
     <>
       <div className="max-h-24 space-y-2 overflow-y-auto pr-1">
@@ -72,12 +73,12 @@ export function LinkedPurchaseOrders({
         ))}
       </div>
       <DashboardDialog
-        description="查看这条 1688 订单的商品、金额和认领信息。"
+        description={uiText("attribute001")}
         onOpenChange={(open) => {
           if (!open) setSelectedPurchaseOrder(null);
         }}
         open={selectedPurchaseOrder !== null}
-        title="1688 订单详情"
+        title={uiText("attribute002")}
       >
         {selectedPurchaseOrder ? (
           <WholesaleDetailGrid
@@ -91,7 +92,6 @@ export function LinkedPurchaseOrders({
     </>
   );
 }
-
 export function LinkedLogisticsOrders({
   logisticsOrders,
   logisticsStatuses,
@@ -99,6 +99,9 @@ export function LinkedLogisticsOrders({
   logisticsOrders: WholesaleLogisticsOrder[];
   logisticsStatuses: WholesaleLogisticsStatus[];
 }) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_order_linked_records",
+  );
   const [selectedRecord, setSelectedRecord] =
     useState<LinkedLogisticsRecord | null>(null);
   const logisticsRecords = useMemo(
@@ -111,7 +114,8 @@ export function LinkedLogisticsOrders({
       })),
       ...logisticsOrders.map((record) => ({
         id: record.id,
-        label: record.source_workflow_order_number ??
+        label:
+          record.source_workflow_order_number ??
           record.international_tracking_number,
         record,
         type: "order" as const,
@@ -119,11 +123,13 @@ export function LinkedLogisticsOrders({
     ],
     [logisticsOrders, logisticsStatuses],
   );
-
   if (logisticsOrders.length === 0 && logisticsStatuses.length === 0) {
-    return <span className="text-[#71808d]">未关联</span>;
+    return (
+      <span className="text-[#71808d]">
+        <UiMessage id="components_dashboard_wholesale_wholesale_order_linked_records.text002" />
+      </span>
+    );
   }
-
   return (
     <>
       <div className="max-h-24 space-y-2 overflow-y-auto pr-1">
@@ -143,27 +149,27 @@ export function LinkedLogisticsOrders({
         ))}
       </div>
       <DashboardDialog
-        description="查看这条关联物流的状态、费用和时间信息。"
+        description={uiText("attribute003")}
         onOpenChange={(open) => {
           if (!open) setSelectedRecord(null);
         }}
         open={selectedRecord !== null}
-        title="物流订单详情"
+        title={uiText("attribute004")}
       >
         {selectedRecord ? (
-          <WholesaleDetailGrid rows={getLinkedLogisticsDetailRows(selectedRecord)} />
+          <WholesaleDetailGrid
+            rows={getLinkedLogisticsDetailRows(selectedRecord)}
+          />
         ) : null}
       </DashboardDialog>
     </>
   );
 }
-
 function getLinkedLogisticsDetailRows(
   selectedRecord: LinkedLogisticsRecord,
 ): WholesaleDetailGridRow[] {
   if (selectedRecord.type === "status") {
     const logisticsStatus = selectedRecord.record;
-
     return [
       { label: "物流号", value: logisticsStatus.tracking_number },
       { label: "客户名称", value: logisticsStatus.customer_name },
@@ -194,15 +200,16 @@ function getLinkedLogisticsDetailRows(
       { label: "创建时间", value: formatDateTime(logisticsStatus.created_at) },
     ];
   }
-
   const logisticsOrder = selectedRecord.record;
-
   return [
     {
       label: "物流订单号",
       value: logisticsOrder.source_workflow_order_number ?? "未记录",
     },
-    { label: "国际物流号", value: logisticsOrder.international_tracking_number },
+    {
+      label: "国际物流号",
+      value: logisticsOrder.international_tracking_number,
+    },
     {
       label: "目的地物流号",
       value: logisticsOrder.destination_tracking_number ?? "未记录",
@@ -217,13 +224,15 @@ function getLinkedLogisticsDetailRows(
     },
     {
       label: "物流费用",
-      value: formatCurrency(logisticsOrder.logistics_fee, logisticsOrder.currency),
+      value: formatCurrency(
+        logisticsOrder.logistics_fee,
+        logisticsOrder.currency,
+      ),
     },
     { label: "创建时间", value: formatDateTime(logisticsOrder.created_at) },
     { label: "更新时间", value: formatDateTime(logisticsOrder.updated_at) },
   ];
 }
-
 function getLinkedPurchaseOrderDetailRows(
   purchaseOrder: Wholesale1688Order,
   profilesById: Map<string, WholesaleProfile>,

@@ -4,12 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import {
-  Network,
-  Package,
-  Plane,
-  ShieldAlert,
-} from "lucide-react";
+import { Network, Package, Plane, ShieldAlert } from "lucide-react";
 
 import { useLocale } from "@/components/i18n/locale-provider";
 import {
@@ -59,17 +54,20 @@ export function ReferralsClient({
     [sharedT],
   );
 
-  const [selectedBoard, setSelectedBoard] =
-    useState<ReferralBusinessBoard>(initialData.businessBoard);
-  const [pendingBoard, setPendingBoard] = useState<ReferralBusinessBoard | null>(
-    null,
+  const [selectedBoard, setSelectedBoard] = useState<ReferralBusinessBoard>(
+    initialData.businessBoard,
   );
-  const [canViewReferrals, setCanViewReferrals] = useState(initialData.canViewReferrals);
+  const [pendingBoard, setPendingBoard] =
+    useState<ReferralBusinessBoard | null>(null);
+  const [canViewReferrals, setCanViewReferrals] = useState(
+    initialData.canViewReferrals,
+  );
   const [availableBoards, setAvailableBoards] = useState(
     initialData.availableBoards,
   );
   const [pageFeedback, setPageFeedback] = useState<PageFeedback>(null);
   const [edges, setEdges] = useState(initialData.edges);
+  const [companyRoots, setCompanyRoots] = useState(initialData.companyRoots);
   const [currentViewerId, setCurrentViewerId] = useState<string | null>(
     initialData.currentViewerId,
   );
@@ -82,6 +80,7 @@ export function ReferralsClient({
     setAvailableBoards(pageData.availableBoards);
     setSelectedBoard(pageData.businessBoard);
     setCanViewReferrals(pageData.canViewReferrals);
+    setCompanyRoots(pageData.companyRoots);
     setEdges(pageData.edges);
     setCurrentViewerId(pageData.currentViewerId);
     setCurrentViewerRole(pageData.currentViewerRole);
@@ -199,8 +198,8 @@ export function ReferralsClient({
   useWorkspaceSyncEffect(refreshReferrals);
 
   const graph = useMemo(
-    () => buildReferralGraph(edges, copy.tree.companyBranch),
-    [copy.tree.companyBranch, edges],
+    () => buildReferralGraph(edges, companyRoots, copy.tree.companyBranch),
+    [companyRoots, copy.tree.companyBranch, edges],
   );
   const sectionDescription = useMemo(
     () => getReferralSectionDescription(currentViewerRole, copy),
@@ -240,7 +239,7 @@ export function ReferralsClient({
             title={t("states.noPermissionTitle")}
           />
         </DashboardListSection>
-      ) : edges.length === 0 ? (
+      ) : edges.length === 0 && companyRoots.length === 0 ? (
         <DashboardListSection>
           <EmptyState
             description={t("states.emptyDescription")}

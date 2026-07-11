@@ -1,9 +1,8 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-
 import { Calculator, RefreshCcw } from "lucide-react";
-
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -23,7 +22,6 @@ import type {
   WholesaleReferral,
 } from "@/lib/wholesale";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
-
 import {
   formatCurrency,
   getCustomerName,
@@ -34,13 +32,10 @@ import {
   WholesalePageShell,
   WholesaleStatGrid,
 } from "./wholesale-ui";
-import {
-  buildReferralCommissionRows,
-} from "./wholesale-referral-commission";
+import { buildReferralCommissionRows } from "./wholesale-referral-commission";
 import { formatWholesaleOrderCommissionDescription } from "./wholesale-commission-settings";
 import { WholesaleReferralCommissionSection } from "./wholesale-referral-commission-section";
 import { WholesaleCommissionRecords } from "./wholesale-commission-records";
-
 type WholesaleCommissionSectionProps = {
   canAdmin: boolean;
   commissionRuleSettings: CommissionRuleSetting[];
@@ -56,9 +51,7 @@ type WholesaleCommissionSectionProps = {
   referrals: WholesaleReferral[];
   variant: "commission" | "incentives";
 };
-
 const ALL = "all";
-
 export function WholesaleCommissionSection({
   canAdmin,
   commissionRuleSettings,
@@ -74,6 +67,9 @@ export function WholesaleCommissionSection({
   referrals,
   variant,
 }: WholesaleCommissionSectionProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_commission_section",
+  );
   const [incentiveSearch, setIncentiveSearch] = useState("");
   const [incentiveStatusFilter, setIncentiveStatusFilter] = useState(ALL);
   const [incentiveSalesFilter, setIncentiveSalesFilter] = useState(ALL);
@@ -83,7 +79,8 @@ export function WholesaleCommissionSection({
     [orders],
   );
   const commissionDescription = useMemo(
-    () => formatWholesaleOrderCommissionDescription(commissionRuleSettings, locale),
+    () =>
+      formatWholesaleOrderCommissionDescription(commissionRuleSettings, locale),
     [commissionRuleSettings, locale],
   );
   const referralRows = useMemo(
@@ -109,26 +106,21 @@ export function WholesaleCommissionSection({
   );
   const filteredCommissions = useMemo(() => {
     const searchValue = normalizeSearchText(incentiveSearch);
-
     return commissions.filter((commission) => {
       const order = orderById.get(commission.order_id);
-
       if (
         incentiveStatusFilter !== ALL &&
         commission.status !== incentiveStatusFilter
       ) {
         return false;
       }
-
       if (
         incentiveSalesFilter !== ALL &&
         (commission.beneficiary_user_id ?? "") !== incentiveSalesFilter
       ) {
         return false;
       }
-
       if (!searchValue) return true;
-
       return [
         order?.order_number ?? "",
         getCustomerName(customersById, commission.customer_id),
@@ -157,13 +149,11 @@ export function WholesaleCommissionSection({
         .map((commission) => commission.beneficiary_user_id)
         .filter((value): value is string => Boolean(value)),
     );
-
     return [...userIds].map((userId) => ({
       label: getProfileName(profilesById, userId),
       userId,
     }));
   }, [commissions, profilesById]);
-
   if (variant === "commission") {
     return (
       <WholesaleReferralCommissionSection
@@ -172,15 +162,15 @@ export function WholesaleCommissionSection({
       />
     );
   }
-
   const hasActiveFilters =
-    incentiveSearch || incentiveStatusFilter !== ALL || incentiveSalesFilter !== ALL;
-
+    incentiveSearch ||
+    incentiveStatusFilter !== ALL ||
+    incentiveSalesFilter !== ALL;
   return (
     <WholesalePageShell
       description={commissionDescription}
-      eyebrow="批发业务"
-      title="提成"
+      eyebrow={uiText("attribute001")}
+      title={uiText("attribute002")}
     >
       <WholesaleStatGrid
         stats={[
@@ -205,29 +195,31 @@ export function WholesaleCommissionSection({
             variant="outline"
           >
             <RefreshCcw className="size-4" />
-            清空筛选
+            <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text001" />
           </Button>
         }
         description={`共 ${commissions.length} 条提成记录，当前显示 ${filteredCommissions.length} 条。`}
-        title="业务员提成"
+        title={uiText("attribute003")}
       >
         <div className="mb-5 grid gap-4 md:grid-cols-3">
-          <DashboardFilterField label="搜索提成">
+          <DashboardFilterField label={uiText("attribute004")}>
             <input
               className={dashboardFilterInputClassName}
               onChange={(event) => setIncentiveSearch(event.target.value)}
-              placeholder="订单编号、客户或业务员"
+              placeholder={uiText("attribute005")}
               type="search"
               value={incentiveSearch}
             />
           </DashboardFilterField>
-          <DashboardFilterField label="业务员">
+          <DashboardFilterField label={uiText("attribute006")}>
             <select
               className={dashboardFilterInputClassName}
               onChange={(event) => setIncentiveSalesFilter(event.target.value)}
               value={incentiveSalesFilter}
             >
-              <option value={ALL}>全部业务员</option>
+              <option value={ALL}>
+                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text002" />
+              </option>
               {salesAccounts.map((account) => (
                 <option key={account.userId} value={account.userId}>
                   {account.label}
@@ -235,25 +227,33 @@ export function WholesaleCommissionSection({
               ))}
             </select>
           </DashboardFilterField>
-          <DashboardFilterField label="结算状态">
+          <DashboardFilterField label={uiText("attribute007")}>
             <select
               className={dashboardFilterInputClassName}
               onChange={(event) => setIncentiveStatusFilter(event.target.value)}
               value={incentiveStatusFilter}
             >
-              <option value={ALL}>全部状态</option>
-              <option value="pending">待结算</option>
-              <option value="settled">已结算</option>
-              <option value="cancelled">已取消</option>
+              <option value={ALL}>
+                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text003" />
+              </option>
+              <option value="pending">
+                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text004" />
+              </option>
+              <option value="settled">
+                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text005" />
+              </option>
+              <option value="cancelled">
+                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text006" />
+              </option>
             </select>
           </DashboardFilterField>
         </div>
 
         {filteredCommissions.length === 0 ? (
           <WholesaleEmptyState
-            description="批发订单保存后，系统会按毛利自动生成提成记录。"
+            description={uiText("attribute008")}
             icon={<Calculator className="size-5" />}
-            title="暂无匹配提成"
+            title={uiText("attribute009")}
           />
         ) : (
           <WholesaleCommissionRecords

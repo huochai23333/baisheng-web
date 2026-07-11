@@ -22,10 +22,10 @@
     "switching": "Switching"
   },
   "DashboardPagination": {
-    "range": "Showing {start} - {end} of {total}",
     "previous": "Previous",
     "next": "Next",
-    "page": "Page {page} / {pageCount}"
+    "page": "Page {page} of {pageCount}",
+    "range": "{start}-{end} of {total}"
   },
   "AuthShell": {
     "brandTitle": "Management System",
@@ -182,16 +182,16 @@
   },
   "RegisterPage": {
     "title": "Register",
-    "asideTitle": "Request Access to<br></br>the Workspace",
-    "asideDescription": "Create an account with an invite code. Available features are opened according to your profile and role.",
-    "noteTitle": "Invitation Access",
-    "noteDescription": "The system currently uses invitation-based access to maintain service quality. Contact an administrator or your referrer if you need an invite code.",
+    "asideTitle": "Choose a Business<br></br>and Open Your Workspace",
+    "asideDescription": "Create a customer account step by step and choose the travel or wholesale business you want to explore.",
+    "noteTitle": "Invite Code Is Optional",
+    "noteDescription": "Enter an invite code if you have one to connect with your referrer. You can also register without one.",
     "headerTitle": "Create Your Account",
-    "headerDescription": "Use accurate contact details and a valid invite code to create your account.",
+    "headerDescription": "Create your account in four short steps. Phone number and invite code are optional.",
     "footerPrompt": "Already have an account?",
     "footerLinkLabel": "Back to Sign In",
-    "mobileNoteTitle": "Invitation Access",
-    "mobileNoteDescription": "The system currently uses invitation-based access to maintain service quality. Contact an administrator or your referrer if you need an invite code."
+    "mobileNoteTitle": "Invite Code Is Optional",
+    "mobileNoteDescription": "Enter an invite code if you have one, or continue without it."
   },
   "ForgotPasswordPage": {
     "title": "Forgot Password",
@@ -225,13 +225,49 @@
     "tooFrequent": "Too many sign-in attempts. Please try again later."
   },
   "RegisterForm": {
+    "progressLabel": "Registration progress",
+    "steps": {
+      "1": {
+        "title": "Enter an Invite Code",
+        "description": "This step is optional. A valid invite can match the right business for you."
+      },
+      "2": {
+        "title": "Choose a Business",
+        "description": "Choose the travel or wholesale business you want to explore."
+      },
+      "3": {
+        "title": "Add Account Details",
+        "description": "Enter your email and name. A phone number is optional."
+      },
+      "4": {
+        "title": "Create a Password",
+        "description": "Set a secure password, accept the terms, and register."
+      }
+    },
     "username": "Name",
     "usernamePlaceholder": "Your name or alias",
     "phone": "Phone",
-    "phonePlaceholder": "11-digit phone number",
+    "phonePlaceholder": "Enter your local phone number",
+    "phoneOptionalHint": "Optional. If entered, it will be saved with the selected international calling code.",
+    "countryCode": "Country or region code",
+    "countrySearch": "Search countries or regions",
+    "countrySearchPlaceholder": "Search by country, region, or code",
+    "countryEmpty": "No matching country or region",
     "email": "Email",
     "inviteCode": "Invite Code",
-    "inviteCodePlaceholder": "Required",
+    "inviteCodePlaceholder": "Leave blank if you do not have one",
+    "inviteCodeHint": "A sales invite matches wholesale, while a promoter invite matches travel.",
+    "businessLocked": "Your invite code matched this business, so it cannot be changed for this registration.",
+    "businesses": {
+      "tourism": {
+        "title": "Explore Travel",
+        "description": "Access travel orders, services, customer benefits, and related collaboration."
+      },
+      "wholesale": {
+        "title": "Explore Wholesale",
+        "description": "Access wholesale orders, logistics, settlement, and customer benefits."
+      }
+    },
     "password": "Create Password",
     "passwordPlaceholder": "10+ character password",
     "passwordHint": "Use at least 10 characters with uppercase letters, lowercase letters, and numbers. Avoid names, birthdays, and common passwords.",
@@ -243,21 +279,48 @@
     "terms": "Terms of Service",
     "and": "and",
     "privacy": "Privacy Policy",
-    "submit": "Create Account",
+    "back": "Back",
+    "next": "Continue",
+    "checking": "Checking...",
+    "submit": "Register Now",
     "submitting": "Creating account...",
     "acceptTerms": "Please read and accept the Terms of Service and Privacy Policy first.",
+    "businessRequired": "Choose the business you want to explore.",
+    "businessLockedError": "This invite code is matched to another business. Go back and check the code.",
+    "profileRequired": "Enter your name and email address.",
+    "invalidPhone": "Enter a valid phone number for the selected country code, or leave it blank.",
     "serviceUnavailable": "The service is temporarily unavailable. Please try again later.",
-    "referralRequired": "The invite code cannot be empty.",
+    "referralRequired": "Invite codes are optional. If you use one, enter the complete code.",
     "referralNotFound": "The invite code does not exist. Please check and try again.",
     "referralMaxUses": "The invite code has reached its usage limit.",
     "referralExpired": "The invite code has expired. Please contact an administrator for a new one.",
-    "registrationFailed": "Registration could not be completed. Check the invite code or contact an administrator.",
+    "registrationFailed": "Registration could not be completed. Check your details or contact an administrator.",
     "userExists": "This email is already registered. Please sign in instead.",
     "weakPassword": "This password is too common. Please choose a stronger one.",
     "invalidEmail": "Enter a valid email address.",
     "signupDisabled": "Self-service registration is not available right now. Contact an administrator.",
     "tooFrequent": "Too many registration attempts. Please try again later.",
     "emailDeliveryFailed": "The verification email could not be sent. Confirm the email can receive messages or contact an administrator."
+  },
+  "ClientBusinessAccess": {
+    "businesses": {
+      "tourism": "Travel",
+      "wholesale": "Wholesale"
+    },
+    "title": "Add to {business}",
+    "description": "Choose a registered customer who is not yet in {business}. Existing business access will remain available.",
+    "searchLabel": "Search customers",
+    "searchPlaceholder": "Name, email, or phone",
+    "empty": "There are no customers available to add.",
+    "unnamed": "Unnamed customer",
+    "noContact": "No contact details",
+    "add": "Add Customer",
+    "adding": "Adding...",
+    "success": "The customer was added to {business}.",
+    "serviceUnavailable": "The system cannot be reached right now. Please try again later.",
+    "forbidden": "This account cannot change customer business access.",
+    "invalidTarget": "This customer cannot be added to the business right now. Refresh and try again.",
+    "unknownError": "The customer could not be added. Please try again later."
   },
   "ForgotPasswordForm": {
     "recoverySuccess": "The reset link has been verified. Please set a new password.",
@@ -660,6 +723,92 @@
         "title": "Wholesale Settings",
         "description": "Manage wholesale order edit rules, sales incentives, and customer referral commission rules."
       }
+    },
+    "directoryUi": {
+      "customerCount": "{total} customers in total, with {visible} currently shown.",
+      "accountCount": "{total} accounts in total, with {visible} currently shown.",
+      "customerKinds": {
+        "registered_account": "Registered Account",
+        "sales_created": "Added by Sales"
+      },
+      "roles": {
+        "promoter": "Promoter",
+        "salesman": "Sales"
+      },
+      "statuses": {
+        "active": "Active",
+        "inactive": "Not Active"
+      },
+      "fallbacks": {
+        "noOtherNames": "No other names",
+        "notRecorded": "Not recorded",
+        "noSource": "No source recorded",
+        "unassigned": "Unassigned",
+        "unnamed": "Unnamed Account",
+        "notLinkedAccount": "No linked sign-in account",
+        "notLinked": "Not linked",
+        "noContact": "No contact details",
+        "notProvided": "Not provided",
+        "noEmail": "No email provided",
+        "noPhone": "No phone provided"
+      },
+      "details": {
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "city": "City",
+        "role": "Role",
+        "status": "Status"
+      }
+    },
+    "ordersUi": {
+      "actions": {
+        "edit": "Edit Order",
+        "requestEdit": "Request Edit"
+      },
+      "listCount": "Showing {shown} of {total} orders.",
+      "loadingList": "Loading orders that match the current filters.",
+      "statuses": {
+        "unsettled": "Unsettled",
+        "partial_settled": "Partially Settled",
+        "settled": "Settled"
+      },
+      "fallbacks": {
+        "notRecorded": "Not recorded",
+        "unsettled": "Unsettled",
+        "afterSettlement": "Calculated after settlement",
+        "notGenerated": "Not available"
+      },
+      "summary": {
+        "orderCount": "Order Count",
+        "customerPaymentRmb": "Customer Payment in CNY",
+        "grossProfit": "Total Gross Profit",
+        "averageMargin": "Average Margin"
+      },
+      "assessment": {
+        "pending": "Assessing",
+        "generate": "Assess Current Results"
+      }
+    },
+    "logisticsUi": {
+      "notLinked": "Not linked",
+      "notRecorded": "Not recorded",
+      "stoppedChecking": "Checking stopped",
+      "statuses": {
+        "checking": "Checking",
+        "delivered": "Delivered",
+        "exception": "Exception",
+        "stopped": "Stopped"
+      }
+    },
+    "referralsUi": {
+      "companyName": "Company",
+      "summary": "{customers} customers and {referrals} referral relationships.",
+      "mainBranch": "Main Branch",
+      "children": "{count} Downstream",
+      "companyDescription": "All customers sit under the main company branch. Existing referral relationships continue below each customer.",
+      "companyChild": "Direct Company Customer",
+      "referredAt": "Referred: {value}"
     }
   },
   "WorkspaceSections": {
@@ -852,15 +1001,15 @@
         "time": "Time",
         "actor": "Handler"
       },
-    "types": {
-      "open": "Open VIP",
-      "renew": "Renew One Year",
-      "set_expires_at": "Change Validity",
-      "cancel": "Cancel Member"
+      "types": {
+        "open": "Open VIP",
+        "renew": "Renew One Year",
+        "set_expires_at": "Change Validity",
+        "cancel": "Cancel Member"
+      },
+      "expiresChange": "Validity: {previous} -> {next}",
+      "annualFee": "Annual fee: {amount}"
     },
-    "expiresChange": "Validity: {previous} -> {next}",
-    "annualFee": "Annual fee: {amount}"
-  },
     "actions": {
       "open": "Open VIP",
       "request": "Submit Request",
@@ -903,14 +1052,14 @@
       "wholesale": {
         "openTitle": "Confirm VIP Opening",
         "renewTitle": "Confirm VIP Renewal",
-      "openDescription": "After confirmation, wholesale VIP will be opened for {name}.",
-      "renewDescription": "After confirmation, wholesale VIP will be renewed for {name}.",
-      "openRule": "Opening starts from today and expires one year later.",
-      "renewRule": "Renewal adds one year after the current end time.",
-      "annualFee": "Annual fee: 200 USD",
-      "commissionRule": "This action does not create a VIP commission for sales.",
-      "openSubmit": "Confirm Opening",
-      "renewSubmit": "Confirm Renewal",
+        "openDescription": "After confirmation, wholesale VIP will be opened for {name}.",
+        "renewDescription": "After confirmation, wholesale VIP will be renewed for {name}.",
+        "openRule": "Opening starts from today and expires one year later.",
+        "renewRule": "Renewal adds one year after the current end time.",
+        "annualFee": "Annual fee: 200 USD",
+        "commissionRule": "This action does not create a VIP commission for sales.",
+        "openSubmit": "Confirm Opening",
+        "renewSubmit": "Confirm Renewal",
         "recordsTitle": "Opening and Renewal Records",
         "recordsDescription": "All opening and renewal records for {name}.",
         "recordsEmptyTitle": "No opening or renewal records yet",
@@ -947,42 +1096,42 @@
       "afternoon": "Good afternoon",
       "evening": "Good evening"
     },
-      "announcements": {
-        "title": "Announcements",
-        "description": "Only published announcements visible to this account are shown here.",
-        "emptyTitle": "No announcements",
-        "emptyDescription": "New published announcements will appear here."
-      },
-      "clock": {
-        "title": "Current Time",
-        "miniTitle": "Time",
-        "description": "Check the current Beijing time. It refreshes while you stay on the home page.",
-        "compactDescription": "Shows the current Beijing time.",
-        "timezoneLabel": "Beijing time"
-      },
-      "invite": {
-        "title": "My Invite Code",
-        "description": "Copy your invite code, or send a registration link to someone who needs an account.",
-        "compactDescription": "Quickly copy your invite code and registration link.",
-        "codeLabel": "Invite code",
-        "copyCode": "Copy invite code",
-        "copyLink": "Copy registration link",
-        "copyBoardLink": "Copy {board} registration link",
-        "copiedCode": "Invite code copied.",
-        "copiedLink": "Registration link copied.",
-        "copiedBoardLink": "{board} registration link copied.",
-        "copyFailed": "Copy failed. Please try again later.",
-        "noCodeTitle": "No invite code yet",
-        "noCodeDescription": "This account does not have an invite code available yet. Contact an administrator to confirm.",
-        "noLinkAccess": "This account does not have any available business registration link yet.",
-        "businessBoards": {
-          "tourism": "Tourism Business",
-          "wholesale": "Wholesale Business"
-        }
-      },
-      "customizer": {
-        "edit": "Edit Widgets",
-        "done": "Done",
+    "announcements": {
+      "title": "Announcements",
+      "description": "Only published announcements visible to this account are shown here.",
+      "emptyTitle": "No announcements",
+      "emptyDescription": "New published announcements will appear here."
+    },
+    "clock": {
+      "title": "Current Time",
+      "miniTitle": "Time",
+      "description": "Check the current Beijing time. It refreshes while you stay on the home page.",
+      "compactDescription": "Shows the current Beijing time.",
+      "timezoneLabel": "Beijing time"
+    },
+    "invite": {
+      "title": "My Invite Code",
+      "description": "Copy your invite code, or send a registration link to someone who needs an account.",
+      "compactDescription": "Quickly copy your invite code and registration link.",
+      "codeLabel": "Invite code",
+      "copyCode": "Copy invite code",
+      "copyLink": "Copy registration link",
+      "copyBoardLink": "Copy {board} registration link",
+      "copiedCode": "Invite code copied.",
+      "copiedLink": "Registration link copied.",
+      "copiedBoardLink": "{board} registration link copied.",
+      "copyFailed": "Copy failed. Please try again later.",
+      "noCodeTitle": "No invite code yet",
+      "noCodeDescription": "This account does not have an invite code available yet. Contact an administrator to confirm.",
+      "noLinkAccess": "This account does not have any available business registration link yet.",
+      "businessBoards": {
+        "tourism": "Tourism Business",
+        "wholesale": "Wholesale Business"
+      }
+    },
+    "customizer": {
+      "edit": "Edit Widgets",
+      "done": "Done",
       "addWidget": "Add to Home",
       "reset": "Reset Layout",
       "removeWidget": "Remove Widget",
@@ -999,21 +1148,21 @@
         "todoCount": "{count} todos"
       },
       "widgets": {
-          "greeting": {
-            "title": "Greeting Card",
-            "description": "Shows the current greeting and welcome message."
-          },
-          "clock": {
-            "title": "Current Time",
-            "description": "Shows refreshing Beijing time."
-          },
-          "invite": {
-            "title": "My Invite Code",
-            "description": "Copy invite codes and registration links."
-          },
-          "announcements": {
-            "title": "Announcements",
-            "description": "Shows announcements visible to this account."
+        "greeting": {
+          "title": "Greeting Card",
+          "description": "Shows the current greeting and welcome message."
+        },
+        "clock": {
+          "title": "Current Time",
+          "description": "Shows refreshing Beijing time."
+        },
+        "invite": {
+          "title": "My Invite Code",
+          "description": "Copy invite codes and registration links."
+        },
+        "announcements": {
+          "title": "Announcements",
+          "description": "Shows announcements visible to this account."
         },
         "todos": {
           "title": "My Todos",
@@ -1430,10 +1579,10 @@
         "title": "Tourism Settings",
         "description": "Tourism service fees, service prices, discounts, and service commission"
       },
-    "wholesale": {
-      "title": "Wholesale Settings",
-      "description": "Wholesale order edit rules, sales incentives, and customer referral commission"
-    },
+      "wholesale": {
+        "title": "Wholesale Settings",
+        "description": "Wholesale order edit rules, sales incentives, and customer referral commission"
+      },
       "exchangeRates": {
         "title": "Exchange Rate Settings",
         "description": "Currency rates, automatic fetch, and history"
@@ -2289,55 +2438,55 @@
         "missing": "Not available"
       },
       "fields": {
-      "tier1Rate": "First Rate",
-      "tier1Limit": "First Amount",
-      "tier2Rate": "Extra Rate",
-      "tier1Count": "First Count",
-      "tier1BonusUsd": "First Reward",
-      "tier2Count": "Second Count",
-      "tier2BonusUsd": "Second Reward",
-      "tier3Count": "Third Count",
-      "tier3BonusUsd": "Third Reward",
-      "rate": "Rate",
-      "bonusUsd": "Reward Amount"
-    },
+        "tier1Rate": "First Rate",
+        "tier1Limit": "First Amount",
+        "tier2Rate": "Extra Rate",
+        "tier1Count": "First Count",
+        "tier1BonusUsd": "First Reward",
+        "tier2Count": "Second Count",
+        "tier2BonusUsd": "Second Reward",
+        "tier3Count": "Third Count",
+        "tier3BonusUsd": "Third Reward",
+        "rate": "Rate",
+        "bonusUsd": "Reward Amount"
+      },
       "rules": {
         "serviceEscortSalesman": "Escort Service Sales Commission",
-      "digitalSurvivalSalesman": "Digital Survival Sales Commission",
-      "serviceReferral": "Service Order Referral Commission",
-      "vipFirstYearReferralBonus": "VIP First-Year Referral Reward",
-      "wholesaleOrderSalesmanTier": "Wholesale Order Sales Commission",
-      "wholesaleReferralOrderAmount": "Wholesale Monthly Order Referral",
-      "wholesaleReferralWaybillBonus": "Wholesale Monthly Waybill Reward"
-    },
+        "digitalSurvivalSalesman": "Digital Survival Sales Commission",
+        "serviceReferral": "Service Order Referral Commission",
+        "vipFirstYearReferralBonus": "VIP First-Year Referral Reward",
+        "wholesaleOrderSalesmanTier": "Wholesale Order Sales Commission",
+        "wholesaleReferralOrderAmount": "Wholesale Monthly Order Referral",
+        "wholesaleReferralWaybillBonus": "Wholesale Monthly Waybill Reward"
+      },
       "ruleDescriptions": {
         "serviceEscortSalesman": "Applies to tour escort orders and medical escort orders. Created for the salesperson after the order is completed.",
-      "digitalSurvivalSalesman": "Created for the salesperson after a digital survival service is completed.",
-      "serviceReferral": "Created for the referrer when a referred customer completes a service order.",
-      "vipFirstYearReferralBonus": "Created for the referrer when a referred customer opens the matching VIP for the first time.",
-      "wholesaleOrderSalesmanTier": "Created for the salesperson when a wholesale order is saved.",
-      "wholesaleReferralOrderAmount": "Calculated from each referred wholesale customer's monthly order amount.",
-      "wholesaleReferralWaybillBonus": "Adds a reward from each referred wholesale customer's monthly waybill count."
-    },
+        "digitalSurvivalSalesman": "Created for the salesperson after a digital survival service is completed.",
+        "serviceReferral": "Created for the referrer when a referred customer completes a service order.",
+        "vipFirstYearReferralBonus": "Created for the referrer when a referred customer opens the matching VIP for the first time.",
+        "wholesaleOrderSalesmanTier": "Created for the salesperson when a wholesale order is saved.",
+        "wholesaleReferralOrderAmount": "Calculated from each referred wholesale customer's monthly order amount.",
+        "wholesaleReferralWaybillBonus": "Adds a reward from each referred wholesale customer's monthly waybill count."
+      },
       "calculations": {
         "serviceEscortSalesman": "Commission = cost amount + (service order RMB amount - cost amount) × {rate}",
-      "digitalSurvivalSalesman": "Commission = max(service order RMB amount - cost amount, 0) × {rate}",
-      "serviceReferral": "Commission = service order RMB amount × {rate}",
-      "vipFirstYearReferralBonus": "Commission = {bonusUsd} × order transaction rate",
-      "wholesaleOrderSalesmanTier": "Commission = max(wholesale order gross profit, 0) × matching rate; orders up to {tier1Limit} use {tier1Rate}, orders above that use {tier2Rate}",
-      "wholesaleReferralOrderAmount": "Commission = monthly order RMB amount × {rate}",
-      "wholesaleReferralWaybillBonus": "More than {tier1Count} waybills adds {tier1BonusUsd}; more than {tier2Count} adds {tier2BonusUsd}; more than {tier3Count} adds {tier3BonusUsd}"
-    },
+        "digitalSurvivalSalesman": "Commission = max(service order RMB amount - cost amount, 0) × {rate}",
+        "serviceReferral": "Commission = service order RMB amount × {rate}",
+        "vipFirstYearReferralBonus": "Commission = {bonusUsd} × order transaction rate",
+        "wholesaleOrderSalesmanTier": "Commission = max(wholesale order gross profit, 0) × matching rate; orders up to {tier1Limit} use {tier1Rate}, orders above that use {tier2Rate}",
+        "wholesaleReferralOrderAmount": "Commission = monthly order RMB amount × {rate}",
+        "wholesaleReferralWaybillBonus": "More than {tier1Count} waybills adds {tier1BonusUsd}; more than {tier2Count} adds {tier2BonusUsd}; more than {tier3Count} adds {tier3BonusUsd}"
+      },
       "actions": {
         "edit": "Edit",
         "save": "Save",
         "cancel": "Cancel"
       },
-    "validation": {
-      "rate": "Enter a rate between 0 and 100.",
-      "amount": "Enter an amount greater than 0.",
-      "count": "Enter a whole number greater than 0."
-    },
+      "validation": {
+        "rate": "Enter a rate between 0 and 100.",
+        "amount": "Enter an amount greater than 0.",
+        "count": "Enter a whole number greater than 0."
+      },
       "feedback": {
         "updateSuccess": "Commission rules have been updated."
       },
@@ -3034,6 +3183,104 @@
     "metadata": {
       "title": "Tourism People Management",
       "customersTitle": "Tourism Customer Management"
+    },
+    "customers": {
+      "noPermissionTitle": "No Travel Customer Access",
+      "noPermissionDescription": "Only active administrators can review and add travel customers.",
+      "emptyPermissionTitle": "Access Unavailable",
+      "badge": "Travel",
+      "headerTitle": "Travel Customer Management",
+      "headerDescription": "Review current travel customers and add other registered customers to the travel business. Account role, status, and city remain in Account Management.",
+      "metricTotal": "Travel Customers",
+      "metricActive": "Currently Active",
+      "addCustomer": "Add Customer",
+      "resetFilters": "Clear Filters",
+      "listTitle": "Travel Customers",
+      "listDescription": "{total} customers in total, with {visible} currently shown.",
+      "searchLabel": "Search Customers",
+      "searchPlaceholder": "Name, phone, email, city, or invite code",
+      "statusLabel": "Account Status",
+      "allStatuses": "All Statuses",
+      "statuses": {
+        "active": "Active",
+        "inactive": "Not Active",
+        "suspended": "Suspended"
+      },
+      "detailsTitle": "Customer Details"
+    },
+    "people": {
+      "noPermissionTitle": "No Tourism People Access",
+      "noPermissionDescription": "Only active administrators can review tourism personnel.",
+      "emptyPermissionTitle": "Access Unavailable",
+      "badge": "Tourism Business",
+      "headerTitle": "Tourism People Management",
+      "headerDescription": "Review tourism personnel here. Account role, status, and city remain managed in the global Account Management area.",
+      "metricTotal": "Promoter Accounts",
+      "metricActive": "Currently Active",
+      "resetFilters": "Clear Filters",
+      "listTitle": "Promoter Accounts",
+      "listDescription": "{total} people in total, with {visible} currently shown.",
+      "searchLabel": "Search People",
+      "searchPlaceholder": "Name, phone, email, city, or invite code",
+      "statusLabel": "Account Status",
+      "allStatuses": "All Statuses",
+      "statuses": {
+        "active": "Active",
+        "inactive": "Not Active",
+        "suspended": "Suspended"
+      },
+      "detailsTitle": "Person Details",
+      "fallbacks": {
+        "unnamed": "Unnamed Account",
+        "noContact": "No contact details",
+        "pending": "Not provided",
+        "noReferrer": "None",
+        "noTeam": "No team"
+      },
+      "details": {
+        "contact": "Contact",
+        "status": "Account Status",
+        "city": "City",
+        "referralCode": "Invite Code",
+        "referrer": "Referrer",
+        "team": "Team",
+        "directReferrals": "Direct Referrals",
+        "directReferralsValue": "{count}",
+        "createdAt": "Registered",
+        "latestChange": "Latest Change"
+      }
+    },
+    "table": {
+      "subjects": {
+        "customers": "Customer",
+        "promoters": "Person"
+      },
+      "roles": {
+        "customers": "Tourism Customer",
+        "promoters": "Promoter"
+      },
+      "columns": {
+        "status": "Account Status",
+        "referral": "Referral Information",
+        "city": "City",
+        "createdAt": "Registered"
+      },
+      "statuses": {
+        "active": "Active",
+        "inactive": "Not Active",
+        "suspended": "Suspended"
+      },
+      "emptyTitle": "No Matching {subject}",
+      "emptyDescription": "No {subject} matches the current search and filters.",
+      "referralCode": "Invite Code: {value}",
+      "referrer": "Referrer: {value}",
+      "directReferrals": "{count} Direct Referrals",
+      "fallbacks": {
+        "unnamed": "Unnamed Account",
+        "noContact": "No contact details",
+        "pending": "Not provided",
+        "noReferrer": "None"
+      }
     }
   },
   "AdminPeople": {
@@ -3428,10 +3675,580 @@
       "unknown": "The team details could not be saved. Please try again later."
     }
   },
-  "DashboardPagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {page} of {pageCount}",
-    "range": "{start}-{end} of {total}"
+  "UiText": {
+    "shared": {
+      "closeDialog": "Close dialog",
+      "loading": "Loading",
+      "precision": "Precision",
+      "elegance": "Elegance",
+      "humanity": "Humanity"
+    },
+    "components_dashboard_admin_people_admin_people_sections": {
+      "text002": " Remark:",
+      "text001": " Operator:"
+    },
+    "components_dashboard_admin_people_admin_people_table": {
+      "text001": " Remark:"
+    },
+    "components_dashboard_business_settings_wholesale_order_edit_settings_section": {
+      "attribute001": "Order modification rules",
+      "text002": " Save rule ",
+      "attribute002": "The number of days can be modified directly",
+      "text001": " Calculated based on order entry time. Filling in 0 means that the salesperson cannot modify it directly after submission. "
+    },
+    "components_dashboard_tourism_people_tourism_people_client": {
+      "attribute004": "No permission yet",
+      "attribute011": "Account status",
+      "text005": "Deactivated",
+      "text001": " Clear filter ",
+      "text004": "Not enabled",
+      "attribute002": "No tourist management rights",
+      "text003": "Normal",
+      "attribute009": "Search people",
+      "attribute010": "Name, mobile phone number, email, city or referral code",
+      "text002": "All status",
+      "attribute005": "Travel business",
+      "attribute008": "Local promotion account",
+      "attribute007": "Tourism personnel management",
+      "attribute003": "Please use a normally enabled administrator account to view travel personnel.",
+      "attribute001": "Only normally enabled administrator accounts can view tourist personnel.",
+      "attribute006": "Check out the travel business staff here. The identity, status and city adjustment of the login account are handled in the global account management."
+    },
+    "components_dashboard_tourism_people_tourism_people_table": {
+      "text001": "Account status",
+      "text008": " People ",
+      "text004": "Registration time",
+      "text003": "City",
+      "text007": " Direct recommendation ",
+      "text006": " Recommended by:",
+      "text005": "Invitation code:",
+      "text009": " Invitation code:",
+      "text010": " Recommended by:",
+      "text002": "Recommended information"
+    },
+    "components_dashboard_wholesale_wholesale_claims_dialogs": {
+      "text009": "Select customer",
+      "attribute005": "Client",
+      "text002": " Read ",
+      "text001": " Select file ",
+      "text003": " Purchase orders, of which ",
+      "attribute006": "Associated wholesale orders",
+      "text005": " Receive purchase order ",
+      "text007": "\"Match to customer\" ",
+      "text004": " The strip has the name of the recipient. After confirmation, you will first enter the hall to be sorted or claimed. ",
+      "text011": " Confirm ownership ",
+      "attribute003": "Order document",
+      "attribute002": "Upload 1688 orders",
+      "text010": " This customer does not have a wholesale order that can be associated. Please create a new order before claiming it. ",
+      "attribute001": "Select the order form exported from 1688 and confirm it is correct before receiving it and entering the claim list. The system will sort your items to be sorted first according to the name of the consignee.",
+      "attribute004": "After confirming the customer and wholesale orders, this purchase order will enter claimed.",
+      "text006": " The system “based on the consignee’s name”",
+      "text008": "”, please confirm the wholesale order to be associated. "
+    },
+    "components_dashboard_wholesale_wholesale_claims_section": {
+      "text003": " Strip ",
+      "text002": " Clear search ",
+      "attribute002": "Wholesale business",
+      "text001": " Upload 1688 files ",
+      "attribute005": "Search purchase orders",
+      "attribute006": "1688 Order number, consignee, product, customer, salesperson",
+      "attribute001": "1688 Purchase orders are processed separately according to claimed, pending classification and claiming hall. After uploading the order form, the system will first assist in categorizing it by the name of the consignee, and only after confirming the customer and wholesale order will the claim be completed.",
+      "attribute003": "Order claim",
+      "attribute004": "Purchase order claim",
+      "attribute007": "No purchase order yet"
+    },
+    "components_dashboard_wholesale_wholesale_claims_table": {
+      "text005": "Client",
+      "text006": "Associated wholesale orders",
+      "text020": " Confirm ownership ",
+      "text007": " Commodity ",
+      "text008": "Quantity",
+      "text004": "Salesman",
+      "text012": "Receiving time",
+      "text009": "Purchase amount",
+      "text017": " Claim ",
+      "text013": "Operate",
+      "text010": "Purchase time",
+      "text022": " Move out ",
+      "text011": "Claim time",
+      "text015": " 1688 stores ",
+      "text021": "Waiting to be claimed",
+      "text002": "Consignee name",
+      "text019": "To be classified",
+      "text014": " Match by consignee name ",
+      "text016": "Waiting to be claimed",
+      "text018": "Claimed",
+      "text003": "Auxiliary classification",
+      "text001": " 1688 order number "
+    },
+    "components_dashboard_wholesale_wholesale_client": {
+      "text001": " Reload "
+    },
+    "components_dashboard_wholesale_wholesale_commission_records": {
+      "text002": "Client",
+      "text003": "Salesman",
+      "text008": " Gross profit ",
+      "text011": "Gross profit:",
+      "text005": "Commission",
+      "text004": "Order amount",
+      "text010": "Order amount:",
+      "text009": "Salesperson:",
+      "text007": "Settlement",
+      "text006": "State",
+      "text001": "Order number",
+      "text012": " Commission:",
+      "text013": " Mark settlement "
+    },
+    "components_dashboard_wholesale_wholesale_commission_section": {
+      "attribute001": "Wholesale business",
+      "attribute002": "Commission",
+      "text001": " Clear filter ",
+      "attribute006": "Salesman",
+      "text003": "All status",
+      "text006": "Canceled",
+      "text005": "Settled",
+      "text004": "Pending settlement",
+      "attribute009": "No matching commission yet",
+      "attribute007": "Settlement status",
+      "text002": "All salesmen",
+      "attribute004": "Search commission",
+      "attribute003": "Salesperson commission",
+      "attribute005": "Order number, customer or salesperson",
+      "attribute008": "After the wholesale order is saved, the system will automatically generate commission records based on gross profit."
+    },
+    "components_dashboard_wholesale_wholesale_customer_delete_dialog": {
+      "text004": " Confirm deletion ",
+      "text002": " If this customer already has a wholesale order, the system will retain the customer to avoid loss of order data. ",
+      "attribute001": "After deletion, the customer will be removed from customer management; customers with existing orders cannot be deleted.",
+      "text001": " Confirm deletion\"",
+      "text003": " Don’t delete it yet ",
+      "attribute002": "Delete wholesale customer"
+    },
+    "components_dashboard_wholesale_wholesale_customer_details": {
+      "text002": " Delete customer ",
+      "text003": " This customer has been merged with the registered account. After logging in, the customer will see the wholesale orders, logistics and commissions under their name. ",
+      "attribute003": "There is currently no merged account",
+      "text005": "Select the accounts to merge",
+      "attribute001": "Select customer registration account",
+      "text006": " Merge accounts ",
+      "text004": " Associate and merge registered accounts ",
+      "text001": " Edit customer ",
+      "text007": " After the merger, this registered account will take over existing and subsequent wholesale orders, logistics, and commissions under the current customer's name. ",
+      "attribute002": "There are currently no unmerged customer registration accounts. Once the customer has completed registration, they can select and merge here."
+    },
+    "components_dashboard_wholesale_wholesale_customer_dialogs": {
+      "attribute002": "Add new wholesale customers",
+      "attribute004": "Edit wholesale customers",
+      "attribute003": "Modify the customer's unique name, contact information, source, other names, associated salesperson and remarks.",
+      "attribute001": "The customer's unique identification name is used to claim 1688 orders and logistics ownership. Other names can be filled in with the customer's common nickname or store name."
+    },
+    "components_dashboard_wholesale_wholesale_customer_form": {
+      "attribute005": "Contact information",
+      "attribute006": "Customer source",
+      "attribute007": "Remark",
+      "attribute003": "Other names of customers",
+      "attribute002": "Related salesperson",
+      "text001": "Not allocated yet",
+      "text002": "Related salesperson",
+      "attribute001": "Customer unique identification name",
+      "attribute004": "Multiple entries can be entered at one time, separated by commas or newlines."
+    },
+    "components_dashboard_wholesale_wholesale_customer_other_names": {
+      "attribute002": "Multiple entries can be entered at one time, separated by commas or newlines.",
+      "text004": "Save name",
+      "text002": " Common customer nicknames, store names or reconciliation names can be recorded. ",
+      "attribute001": "Add another name",
+      "text001": "Other names",
+      "text003": "No other names have been recorded yet."
+    },
+    "components_dashboard_wholesale_wholesale_customers_section": {
+      "attribute002": "Wholesale business",
+      "attribute003": "Customer management",
+      "text001": " Add new customer profile ",
+      "attribute001": "Separately manage wholesale customer files, contact information, sources, associated salespersons and registered account merger status."
+    },
+    "components_dashboard_wholesale_wholesale_logistics_section": {
+      "attribute002": "Wholesale business",
+      "attribute011": "Associated wholesale orders",
+      "text005": "Client",
+      "text013": "Client",
+      "attribute003": "Logistics management",
+      "attribute008": "Customer name",
+      "attribute007": "Fill in the logistics number that needs to be verified",
+      "text007": "Current status",
+      "text006": "Wholesale order",
+      "attribute004": "Usually it will be automatically synchronized; if you need to follow up on a logistics number in advance, you can manually add it here.",
+      "attribute001": "The system will synchronize the logistics number, customer and current status every day; it will automatically stop checking after it has been delivered or when delivery cannot continue.",
+      "text012": " Waybill number ",
+      "text015": "Wholesale order",
+      "text020": " Destination ",
+      "text019": "Update time",
+      "attribute012": "The status will be updated once a day according to the logistics number, and the most recently updated records will be displayed first; it will not be checked again after delivery or abnormal termination.",
+      "attribute015": "No logistics verification record yet",
+      "text008": "Check results",
+      "attribute013": "Daily checklist",
+      "text003": " Add to check ",
+      "text002": "Not relevant yet",
+      "attribute016": "The entered freight forwarder, cost and source order information is retained here to facilitate the verification of historical costs.",
+      "text010": "Check next time",
+      "text009": "Last checked",
+      "attribute017": "Logistics cost record",
+      "text004": " Logistics number ",
+      "attribute009": "Fill in the customer's common name",
+      "attribute010": "Belong to customers",
+      "attribute006": "Logistics number",
+      "attribute005": "Manual replenishment logistics",
+      "text001": "Not matching yet",
+      "text014": "Source order",
+      "text016": "Freight forwarding",
+      "text018": "Logistics costs",
+      "text017": "Latest progress",
+      "text011": " No new progress found yet ",
+      "attribute014": "It has not been synced to the logistics record yet. After synchronization, the customer, current status and last check time will be displayed here."
+    },
+    "components_dashboard_wholesale_wholesale_order_assessment_panel": {
+      "text004": " There are no orders under the current filter conditions. Adjust the date or filter conditions before generating an evaluation. ",
+      "text003": " Each order generates an overview of the amount, status, gross profit and risk points. ",
+      "text005": " The filter criteria have changed and it is recommended to regenerate the assessment. ",
+      "text002": " Filtered based on current ",
+      "text001": " AI order evaluation "
+    },
+    "components_dashboard_wholesale_wholesale_order_change_sections": {
+      "text002": "Client",
+      "text006": "State",
+      "text008": "Operate",
+      "text012": "Client",
+      "text016": "Time",
+      "text010": " Return ",
+      "text014": "Operation mode",
+      "text001": "Order",
+      "text011": "Order",
+      "text005": "Illustrate",
+      "text004": "Application content",
+      "attribute006": "Modify records",
+      "text007": "Application time",
+      "text013": "Operator",
+      "text015": "Modify content",
+      "text003": "Applicant",
+      "text009": " Pass ",
+      "attribute008": "No modification record yet",
+      "attribute002": "Modify application",
+      "attribute004": "No modification request yet",
+      "attribute005": "The system will retain a record for each direct modification or application approval by the administrator.",
+      "attribute003": "There are currently no wholesale order modification requests pending.",
+      "attribute001": "After the number of days that can be directly modified has exceeded, the order modification submitted by the salesperson will wait for processing here.",
+      "attribute007": "There is no wholesale order modification record yet."
+    },
+    "components_dashboard_wholesale_wholesale_order_details_dialog": {
+      "attribute008": "Remark",
+      "text004": " · exchange rate ",
+      "attribute002": "Order information",
+      "text002": " Closed ",
+      "attribute006": "The 1688 purchase order has not been associated yet.",
+      "text005": "The foreign exchange settlement record has not been registered yet.",
+      "text003": ", remaining",
+      "attribute005": "Linked Procurement and Logistics",
+      "attribute004": "Foreign exchange settlement records",
+      "attribute003": "Expenses and profits",
+      "text001": " Register for foreign exchange settlement ",
+      "attribute001": "View expenses, profits, foreign exchange settlement, related procurement logistics and remarks in groups.",
+      "attribute007": "Logistics records have not been associated yet."
+    },
+    "components_dashboard_wholesale_wholesale_order_edit_dialog": {
+      "attribute001": "Customer name",
+      "text001": "Select customer",
+      "attribute002": "Related salesperson",
+      "text002": "Not allocated yet",
+      "attribute013": "Remark",
+      "attribute005": "International shipping costs",
+      "attribute008": "Courier company",
+      "attribute006": "Other expenses",
+      "attribute003": "Small order quantity",
+      "attribute015": "Briefly explain why the modification is needed to facilitate the administrator's processing.",
+      "attribute009": "Customer payment currency",
+      "attribute012": "Orders count towards month",
+      "attribute011": "Collection platform",
+      "text003": "Select currency",
+      "attribute010": "Customer payment amount",
+      "attribute007": "Referral commission fee",
+      "text004": "Choose a payment platform",
+      "attribute004": "Product purchase amount",
+      "attribute014": "Application instructions"
+    },
+    "components_dashboard_wholesale_wholesale_order_filters": {
+      "text003": " Clear filter ",
+      "text004": "All status",
+      "attribute004": "Client",
+      "attribute005": "Salesman",
+      "text009": "All salesmen",
+      "attribute001": "Search orders",
+      "attribute003": "Order status",
+      "text008": "All customers",
+      "text001": "Find order",
+      "text002": " You can search by order, associated order number, customer, salesperson, status and date. ",
+      "attribute002": "Order number, customer, 1688 order number or logistics number",
+      "attribute007": "Order date arrives",
+      "attribute006": "Order date from",
+      "text007": "Exchange settled",
+      "text005": "Not yet settled",
+      "text006": "Partial foreign exchange settlement"
+    },
+    "components_dashboard_wholesale_wholesale_order_form_dialog": {
+      "attribute003": "Customer name",
+      "text001": "Select customer",
+      "attribute004": "Related salesperson",
+      "text002": "Not allocated yet",
+      "attribute005": "Small order quantity",
+      "attribute006": "Product purchase amount",
+      "attribute007": "International shipping costs",
+      "attribute008": "Other expenses",
+      "attribute009": "Referral commission fee",
+      "attribute010": "Courier company",
+      "attribute011": "Customer payment currency",
+      "text003": "Select currency",
+      "attribute012": "Customer payment amount",
+      "attribute013": "Collection platform",
+      "text004": "Choose a payment platform",
+      "attribute014": "Orders count towards month",
+      "attribute015": "Remark",
+      "text005": "Save order",
+      "attribute002": "Create a new wholesale order",
+      "attribute001": "An order number is automatically generated. In the entry stage, only customer payments and costs are recorded. During foreign exchange settlement, the exchange rate is confirmed and the RMB amount, gross profit and commission are calculated."
+    },
+    "components_dashboard_wholesale_wholesale_order_linked_records": {
+      "text002": "Not associated",
+      "text001": "Not associated",
+      "attribute001": "Check the product, amount and claim information of this 1688 order.",
+      "attribute003": "View the status, cost and time information of this associated logistics.",
+      "attribute002": "1688 Order details",
+      "attribute004": "Logistics order details"
+    },
+    "components_dashboard_wholesale_wholesale_order_rate_dialogs": {
+      "dialogDescription": "Record each settled amount and date. The selected date's exchange rate is used, and the order becomes settled once the accumulated amount reaches the order total.",
+      "attribute002": "Order number",
+      "text006": "Exchange rate ",
+      "attribute003": "Customer pays",
+      "text004": " There is no settlement record yet. ",
+      "text002": " The exchange rate for this date will be used when saving. ",
+      "text001": " The amount uses the payment currency of the order customer and cannot exceed the remaining amount that can be settled. ",
+      "attribute008": "Match exchange rate",
+      "text005": "Registered records",
+      "attribute005": "The amount of foreign exchange settlement this time",
+      "attribute009": "The amount of RMB this time",
+      "attribute004": "The remaining amount can be settled",
+      "text003": "Save foreign exchange settlement records",
+      "attribute006": "Fill in the amount of this exchange settlement",
+      "attribute007": "Exchange settlement date",
+      "attribute001": "Confirm exchange settlement"
+    },
+    "components_dashboard_wholesale_wholesale_order_summary": {
+      "text001": " Overview of this month (click to expand) "
+    },
+    "components_dashboard_wholesale_wholesale_orders_mobile_list": {
+      "attribute003": "Salesman",
+      "attribute004": "Order time",
+      "attribute001": "Payment amount",
+      "attribute002": "Foreign exchange settlement progress"
+    },
+    "components_dashboard_wholesale_wholesale_orders_section": {
+      "attribute002": "Wholesale business",
+      "attribute003": "Wholesale order",
+      "text002": " Reload ",
+      "text004": " Continue loading ",
+      "attribute004": "Order list",
+      "text001": " Create new order ",
+      "attribute006": "No matching orders yet",
+      "text003": " Loading orders... ",
+      "attribute005": "There are no matching wholesale orders. You can adjust the filter conditions or create a new order.",
+      "attribute001": "View wholesale orders in batches by condition. Keep the complete form on the computer, and click on the order card on the mobile phone to view expenses, profits, foreign exchange settlement and related records."
+    },
+    "components_dashboard_wholesale_wholesale_orders_table": {
+      "text001": " Order number ",
+      "text002": "Client",
+      "text003": "Salesman",
+      "text004": "Small order quantity",
+      "text005": "Product purchase amount",
+      "text007": "International shipping costs",
+      "text008": "Other expenses",
+      "text009": "Referral commission fee",
+      "text010": "Courier company",
+      "text011": "Foreign exchange settlement progress",
+      "text014": "Customer payment amount",
+      "text016": "Collection platform",
+      "text017": "Gross profit",
+      "text020": "Orders count towards month",
+      "text021": "Order time",
+      "text023": " Foreign exchange settlement records ",
+      "text026": "Remark",
+      "text027": " Register for foreign exchange settlement ",
+      "text028": " Closed ",
+      "text031": " / exchange rate",
+      "text030": "No record yet",
+      "text029": " Remaining ",
+      "text018": "Gross profit margin",
+      "text013": "Payment currency",
+      "text022": "Latest exchange settlement time",
+      "text024": " Associated 1688 Purchase Order ",
+      "text012": "Average foreign exchange settlement rate",
+      "text006": "Packing fee",
+      "text025": " Associated logistics orders ",
+      "text015": "RMB amount",
+      "text019": "Gross profit per unit"
+    },
+    "components_dashboard_wholesale_wholesale_people_directories": {
+      "text001": "Client",
+      "text002": "Contact information",
+      "text003": "Related salesperson",
+      "text006": " Salesperson:",
+      "text009": "Contact information",
+      "text010": "City",
+      "text012": "State",
+      "text008": "Name",
+      "text014": " City:",
+      "text011": "Identity",
+      "text005": "Registration time",
+      "text013": " Identity:",
+      "text004": "Customer type",
+      "attribute004": "No matching account yet",
+      "text007": " Register an account: ",
+      "attribute002": "No matching customers yet",
+      "attribute003": "There is no matching salesperson account.",
+      "attribute001": "There are no matching wholesale customers. You can adjust filter conditions or add new customers."
+    },
+    "components_dashboard_wholesale_wholesale_people_section": {
+      "attribute002": "Wholesale business",
+      "attribute003": "People management",
+      "text001": " Salesperson account ",
+      "attribute001": "View here the salesperson accounts that can undertake wholesale customers and orders. Customer files have been moved to the customer management section."
+    },
+    "components_dashboard_wholesale_wholesale_people_tabs": {
+      "text001": " Clear filter ",
+      "attribute004": "Customer type",
+      "attribute005": "Related salesperson",
+      "text005": "All salesmen",
+      "text006": " Clear filter ",
+      "attribute006": "Salesperson account",
+      "text008": "Salesman",
+      "attribute010": "Account status",
+      "text009": "All status",
+      "text010": "Normal",
+      "text011": "Not enabled",
+      "text012": "Deactivated",
+      "text002": "All types",
+      "attribute001": "Wholesale customers",
+      "text004": "Salesperson registration account",
+      "text003": "Registered account",
+      "attribute002": "Search for customers",
+      "attribute007": "Search account",
+      "attribute009": "Account identity",
+      "text007": "All identities",
+      "attribute003": "Customer name, contact information, source or salesperson",
+      "attribute008": "Name, email, mobile phone or city"
+    },
+    "components_dashboard_wholesale_wholesale_referral_commission_section": {
+      "attribute002": "Wholesale business",
+      "text001": " Clear filter ",
+      "attribute007": "Client",
+      "text002": "All customers",
+      "text009": " Order amount:",
+      "text005": "Month",
+      "text003": " Recommend customers ",
+      "text007": "Commission",
+      "attribute003": "Commission",
+      "attribute006": "Referring customer, recommended customer or order number",
+      "text008": " Recommended to ",
+      "attribute004": "Customer referral commission",
+      "attribute001": "Summarize the referral commissions generated between wholesale customers and view them separately from the salesperson commissions.",
+      "text004": " Recommended customers ",
+      "attribute009": "No matching commission yet",
+      "text006": " Calculation details ",
+      "attribute005": "Search commission",
+      "text011": " Waybill quantity:",
+      "text012": ", waybill reward",
+      "attribute008": "There is no matching commission for customer referrals.",
+      "text010": ", amount of commission",
+      "text013": " Related orders:"
+    },
+    "components_dashboard_wholesale_wholesale_referrals_section": {
+      "attribute002": "Wholesale business",
+      "attribute005": "Search for customers",
+      "attribute011": "Recommend customers",
+      "attribute012": "Recommended customers",
+      "attribute007": "There are no matching wholesale customers.",
+      "attribute009": "A customer can only have one direct referral; referral commissions are aggregated based on the recommended customer's orders.",
+      "attribute001": "Display the referral relationship between wholesale customers and use it to subsequently summarize customer referral commissions based on wholesale orders.",
+      "attribute006": "Enter customer name to find referral relationships",
+      "attribute010": "Add recommendation relationship",
+      "text004": " Save relationship ",
+      "attribute003": "Recommendation tree",
+      "text002": "Select recommended customers",
+      "attribute008": "No recommendation relationship yet",
+      "text003": "Select recommended customers",
+      "attribute004": "Customer recommendation tree",
+      "text001": " Add recommendation relationship "
+    },
+    "components_dashboard_wholesale_wholesale_settlement_release_dialogs": {
+      "attribute003": "Select customer",
+      "attribute010": "Remark",
+      "attribute004": "Customer name",
+      "attribute008": "Currency",
+      "text004": " Confirm match ",
+      "text002": " After selecting an existing customer, the name will be automatically brought up; if it cannot be found temporarily, you can fill it in manually first. ",
+      "attribute011": "You can fill in the payment screenshot number, reconciliation instructions or other remarks",
+      "attribute012": "After selecting a wholesale order, this payment will be registered as the order settlement record based on the payment date.",
+      "attribute001": "Publish the customer's remittance received today or on a specified date, and the salesperson will match it to a wholesale order after claiming it.",
+      "attribute013": "Claim the remittance collection",
+      "attribute006": "Exchange settlement amount",
+      "attribute005": "Fill in customer name",
+      "attribute002": "Release foreign exchange settlement and collection",
+      "attribute014": "Payment information",
+      "text003": "Post payment",
+      "text001": "Fill in the customer name first",
+      "attribute007": "Fill in the amount received",
+      "attribute009": "Payment date"
+    },
+    "components_dashboard_wholesale_wholesale_settlement_release_order_picker": {
+      "orderedLabel": " / Ordered ",
+      "paymentLabel": " / Paid ",
+      "remainingLabel": " / Remaining ",
+      "attribute001": "Search orders",
+      "attribute002": "Search orders",
+      "attribute004": "Order date from",
+      "attribute005": "Order date from",
+      "attribute006": "Order date arrives",
+      "attribute007": "Order date arrives",
+      "attribute003": "Customer name, order number or amount",
+      "attribute008": "Match orders",
+      "text001": "There are no matching orders under the current filter."
+    },
+    "components_dashboard_wholesale_wholesale_settlement_release_section": {
+      "text001": " Post payment ",
+      "attribute002": "Wholesale business",
+      "text002": " Clear filter ",
+      "text003": "All status",
+      "attribute001": "The financial department publishes the customer's remittance received, and the salesperson matches it to the corresponding wholesale order after claiming it.",
+      "attribute008": "Processing status",
+      "attribute010": "No foreign exchange settlement and collection yet",
+      "attribute003": "Exchange settlement release",
+      "attribute005": "Search for payments",
+      "attribute004": "Foreign exchange settlement and collection list",
+      "attribute006": "Search for payments",
+      "attribute007": "Search for customers, orders, publishers or notes",
+      "attribute009": "There are currently no eligible foreign exchange settlement collections."
+    },
+    "components_dashboard_wholesale_wholesale_settlement_release_table": {
+      "text002": "State",
+      "text003": "Payment date",
+      "text006": "Match orders",
+      "text008": "Remark",
+      "text009": "Operate",
+      "text012": " Processed ",
+      "text011": " Cancel ",
+      "text004": "Posted by",
+      "text007": "Processing time",
+      "text005": "Claimant",
+      "text010": " Claim a match ",
+      "text001": " Customer and amount "
+    }
   }
 }

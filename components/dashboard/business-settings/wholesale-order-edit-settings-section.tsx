@@ -1,9 +1,8 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-
 import { LoaderCircle, PencilLine, Save } from "lucide-react";
-
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -19,9 +18,10 @@ import {
   updateWholesaleOrderEditSettings,
   type WholesaleOrderEditSettings,
 } from "@/lib/wholesale-order-edit-settings";
-
-type PageFeedback = { message: string; tone: NoticeTone } | null;
-
+type PageFeedback = {
+  message: string;
+  tone: NoticeTone;
+} | null;
 export function WholesaleOrderEditSettingsSection({
   initialSettings,
   onSettingsChange,
@@ -29,6 +29,9 @@ export function WholesaleOrderEditSettingsSection({
   initialSettings: WholesaleOrderEditSettings | null;
   onSettingsChange?: (settings: WholesaleOrderEditSettings) => void;
 }) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_business_settings_wholesale_order_edit_settings_section",
+  );
   const supabase = getBrowserSupabaseClient();
   const [settings, setSettings] = useState(initialSettings);
   const [draftDays, setDraftDays] = useState(
@@ -36,14 +39,11 @@ export function WholesaleOrderEditSettingsSection({
   );
   const [pending, setPending] = useState(false);
   const [feedback, setFeedback] = useState<PageFeedback>(null);
-
   async function saveSettings() {
     if (!supabase || pending) {
       return;
     }
-
     const parsedDays = Number(draftDays);
-
     if (!Number.isInteger(parsedDays) || parsedDays < 0 || parsedDays > 3650) {
       setFeedback({
         tone: "error",
@@ -51,10 +51,8 @@ export function WholesaleOrderEditSettingsSection({
       });
       return;
     }
-
     setPending(true);
     setFeedback(null);
-
     try {
       const nextSettings = await updateWholesaleOrderEditSettings(
         supabase,
@@ -70,19 +68,19 @@ export function WholesaleOrderEditSettingsSection({
       setPending(false);
     }
   }
-
   const currentDays = settings?.directEditWindowDays ?? 30;
-
   return (
     <DashboardListSection
       bodyClassName="flex flex-col gap-5"
       description={`业务员录入订单后，${currentDays} 天内可以直接修改；超过后需要提交给管理员处理。`}
-      title="订单修改规则"
+      title={uiText("attribute001")}
     >
-      {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
+      {feedback ? (
+        <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner>
+      ) : null}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-        <DashboardFilterField label="可直接修改天数">
+        <DashboardFilterField label={uiText("attribute002")}>
           <div className="relative">
             <PencilLine className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#7d8890]" />
             <input
@@ -95,7 +93,7 @@ export function WholesaleOrderEditSettingsSection({
             />
           </div>
           <p className="mt-2 text-sm leading-6 text-[#6f7b85]">
-            按订单录入时间计算。填写 0 表示业务员提交后不能再直接修改。
+            <UiMessage id="components_dashboard_business_settings_wholesale_order_edit_settings_section.text001" />
           </p>
         </DashboardFilterField>
 
@@ -110,23 +108,25 @@ export function WholesaleOrderEditSettingsSection({
           ) : (
             <Save className="size-4" />
           )}
-          保存规则
+          <UiMessage id="components_dashboard_business_settings_wholesale_order_edit_settings_section.text002" />
         </Button>
       </div>
     </DashboardListSection>
   );
 }
-
 function toSettingsErrorMessage(error: unknown) {
-  const message = String((error as { message?: string })?.message ?? "").toLowerCase();
-
+  const message = String(
+    (
+      error as {
+        message?: string;
+      }
+    )?.message ?? "",
+  ).toLowerCase();
   if (message.includes("forbidden") || message.includes("permission")) {
     return "当前账号不能修改这项规则。";
   }
-
   if (message.includes("invalid")) {
     return "请填写 0 到 3650 之间的整数天数。";
   }
-
   return "规则没有保存成功，请稍后再试。";
 }

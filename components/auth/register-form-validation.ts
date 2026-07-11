@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import type {
+  SignupBusiness,
+  SignupInviteContext,
+} from "./register-form-types";
+
 import {
   getErrorMessage,
   isEmailDeliveryAuthError,
@@ -11,14 +16,9 @@ import {
 } from "./auth-error-messages";
 
 type SignupReferralCodeStatus =
-  | "valid"
-  | "required"
-  | "not_found"
-  | "max_uses"
-  | "expired";
+  "valid" | "required" | "not_found" | "max_uses" | "expired";
 type SignupReferralCodeValidationResult =
-  | SignupReferralCodeStatus
-  | "unavailable";
+  SignupReferralCodeStatus | "unavailable";
 type SignupResponseData = {
   session: unknown;
   user: {
@@ -45,6 +45,49 @@ export async function validateSignupReferralCode(
   return normalizeSignupReferralCodeStatus(data);
 }
 
+export async function getSignupInviteContext(
+  supabase: SupabaseClient,
+  referralCode: string,
+): Promise<SignupInviteContext | SignupReferralCodeStatus | "unavailable"> {
+  if (!referralCode.trim()) {
+    return {
+      locksBusiness: false,
+      status: "optional",
+      suggestedBusinessKey: null,
+    };
+  }
+
+  const { data, error } = await supabase.rpc("get_signup_invite_context", {
+    _signup_referral_code: referralCode,
+  });
+
+  if (error) {
+    if (isReferralValidationUnavailable(error)) {
+      return "unavailable";
+    }
+
+    throw error;
+  }
+
+  const value = Array.isArray(data) ? data[0] : data;
+
+  if (!isRecord(value)) {
+    return "not_found";
+  }
+
+  const status = normalizeSignupReferralCodeStatus(value.status);
+
+  if (status !== "valid") {
+    return status;
+  }
+
+  return {
+    locksBusiness: value.locks_business === true,
+    status: "valid",
+    suggestedBusinessKey: normalizeSignupBusiness(value.suggested_business_key),
+  };
+}
+
 export function formatReferralCodeStatus(
   status: SignupReferralCodeStatus,
   t: (key: string) => string,
@@ -63,10 +106,7 @@ export function formatReferralCodeStatus(
   }
 }
 
-export function formatAuthError(
-  error: unknown,
-  t: (key: string) => string,
-) {
+export function formatAuthError(error: unknown, t: (key: string) => string) {
   const message = getErrorMessage(error, "");
 
   if (message.includes("referral_code is required")) {
@@ -83,6 +123,18 @@ export function formatAuthError(
 
   if (message.includes("referral_code has expired")) {
     return t("referralExpired");
+  }
+
+  if (message.includes("signup_business_locked")) {
+    return t("businessLockedError");
+  }
+
+  if (message.includes("signup_business_invalid")) {
+    return t("businessRequired");
+  }
+
+  if (message.includes("signup_name_required")) {
+    return t("profileRequired");
   }
 
   if (isUserAlreadyRegisteredAuthError(error)) {
@@ -140,6 +192,10 @@ function normalizeSignupReferralCodeStatus(
   }
 }
 
+function normalizeSignupBusiness(value: unknown): SignupBusiness | null {
+  return value === "tourism" || value === "wholesale" ? value : null;
+}
+
 function isReferralValidationUnavailable(error: unknown) {
   if (!isRecord(error)) {
     return false;
@@ -150,6 +206,7 @@ function isReferralValidationUnavailable(error: unknown) {
 
   return (
     code === "PGRST202" ||
+    message.includes("get_signup_invite_context") ||
     message.includes("validate_signup_referral_code") ||
     message.includes("Could not find the function")
   );

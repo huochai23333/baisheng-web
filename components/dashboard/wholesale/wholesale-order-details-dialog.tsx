@@ -1,7 +1,7 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, PencilLine, Send } from "lucide-react";
-
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { Button } from "@/components/ui/button";
 import type {
@@ -11,7 +11,6 @@ import type {
   WholesaleOrderSettlement,
 } from "@/lib/wholesale";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
-
 import {
   formatCurrency,
   formatDate,
@@ -24,7 +23,6 @@ import {
 } from "./wholesale-display";
 import { WholesaleDetailGrid } from "./wholesale-detail-grid";
 import type { WholesaleOrderEditAction } from "./wholesale-orders-table";
-
 type WholesaleOrderDetailsDialogProps = {
   canMarkOrderSettled: boolean;
   customerName: string;
@@ -40,7 +38,6 @@ type WholesaleOrderDetailsDialogProps = {
   salesName: string;
   settlements: WholesaleOrderSettlement[];
 };
-
 export function WholesaleOrderDetailsDialog({
   canMarkOrderSettled,
   customerName,
@@ -56,11 +53,13 @@ export function WholesaleOrderDetailsDialog({
   salesName,
   settlements,
 }: WholesaleOrderDetailsDialogProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_order_details_dialog",
+  );
   const settledAmount = settlements.reduce(
     (sum, settlement) => sum + Number(settlement.settlement_amount),
     0,
   );
-
   return (
     <DashboardDialog
       actions={
@@ -88,13 +87,13 @@ export function WholesaleOrderDetailsDialog({
                 type="button"
               >
                 <CheckCircle2 className="size-4" />
-                登记结汇
+                <UiMessage id="components_dashboard_wholesale_wholesale_order_details_dialog.text001" />
               </Button>
             ) : null}
           </div>
         ) : null
       }
-      description="分组查看费用、利润、结汇、关联采购物流和备注。"
+      description={uiText("attribute001")}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) onClose();
       }}
@@ -102,12 +101,15 @@ export function WholesaleOrderDetailsDialog({
       title={`订单 ${order.order_number}`}
     >
       <div className="space-y-6">
-        <DetailGroup title="订单信息">
+        <DetailGroup title={uiText("attribute002")}>
           <WholesaleDetailGrid
             rows={[
               { label: "客户", value: customerName },
               { label: "业务员", value: salesName },
-              { label: "状态", value: WHOLESALE_ORDER_STATUS_LABELS[order.status] },
+              {
+                label: "状态",
+                value: WHOLESALE_ORDER_STATUS_LABELS[order.status],
+              },
               { label: "下单时间", value: formatDateTime(order.ordered_at) },
               {
                 label: "客户支付",
@@ -121,10 +123,13 @@ export function WholesaleOrderDetailsDialog({
           />
         </DetailGroup>
 
-        <DetailGroup title="费用和利润">
+        <DetailGroup title={uiText("attribute003")}>
           <WholesaleDetailGrid
             rows={[
-              { label: "小单数量", value: formatNumber(order.small_order_count) },
+              {
+                label: "小单数量",
+                value: formatNumber(order.small_order_count),
+              },
               {
                 label: "产品采购金额",
                 value: formatCurrency(order.product_purchase_amount),
@@ -139,7 +144,10 @@ export function WholesaleOrderDetailsDialog({
                 label: "推荐佣金费用",
                 value: formatCurrency(order.referral_commission_fee),
               },
-              { label: "毛利", value: formatOptionalCurrency(order.gross_profit) },
+              {
+                label: "毛利",
+                value: formatOptionalCurrency(order.gross_profit),
+              },
               { label: "毛利率", value: formatPercent(order.gross_margin) },
               {
                 label: "单位毛利",
@@ -149,10 +157,11 @@ export function WholesaleOrderDetailsDialog({
           />
         </DetailGroup>
 
-        <DetailGroup title="结汇记录">
+        <DetailGroup title={uiText("attribute004")}>
           <p className="mb-3 text-sm text-[#65737d]">
-            已结 {formatCurrency(settledAmount, order.customer_payment_currency)}，
-            剩余{" "}
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_details_dialog.text002" />
+            {formatCurrency(settledAmount, order.customer_payment_currency)}
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_details_dialog.text003" />{" "}
             {formatCurrency(
               Math.max(order.customer_payment_amount - settledAmount, 0),
               order.customer_payment_currency,
@@ -173,25 +182,28 @@ export function WholesaleOrderDetailsDialog({
                       settlement.settlement_amount,
                       order.customer_payment_currency,
                     )}{" "}
-                    · 汇率 {formatRate(settlement.settlement_exchange_rate)} ·{" "}
+                    <UiMessage id="components_dashboard_wholesale_wholesale_order_details_dialog.text004" />
+                    {formatRate(settlement.settlement_exchange_rate)} ·{" "}
                     {formatCurrency(settlement.settlement_rmb_amount)}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#71808d]">尚未登记结汇记录。</p>
+            <p className="text-sm text-[#71808d]">
+              <UiMessage id="components_dashboard_wholesale_wholesale_order_details_dialog.text005" />
+            </p>
           )}
         </DetailGroup>
 
-        <DetailGroup title="关联采购和物流">
+        <DetailGroup title={uiText("attribute005")}>
           <RecordLabels
-            emptyText="尚未关联 1688 采购订单。"
+            emptyText={uiText("attribute006")}
             labels={purchaseOrders.map((item) => item.external_order_number)}
           />
           <div className="mt-3">
             <RecordLabels
-              emptyText="尚未关联物流记录。"
+              emptyText={uiText("attribute007")}
               labels={[
                 ...logisticsStatuses.map((item) => item.tracking_number),
                 ...logisticsOrders.map(
@@ -204,7 +216,7 @@ export function WholesaleOrderDetailsDialog({
           </div>
         </DetailGroup>
 
-        <DetailGroup title="备注">
+        <DetailGroup title={uiText("attribute008")}>
           <p className="break-words text-sm leading-6 text-[#4f606b] [overflow-wrap:anywhere]">
             {order.notes ?? "未记录备注。"}
           </p>
@@ -213,7 +225,6 @@ export function WholesaleOrderDetailsDialog({
     </DashboardDialog>
   );
 }
-
 function DetailGroup({
   children,
   title,
@@ -228,7 +239,6 @@ function DetailGroup({
     </section>
   );
 }
-
 function RecordLabels({
   emptyText,
   labels,
@@ -239,7 +249,6 @@ function RecordLabels({
   if (labels.length === 0) {
     return <p className="text-sm text-[#71808d]">{emptyText}</p>;
   }
-
   return (
     <div className="flex flex-wrap gap-2">
       {labels.map((label) => (

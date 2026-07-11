@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
@@ -36,11 +37,16 @@ type Imported1688Row = {
 
 export function useWholesaleActions() {
   const router = useRouter();
+  const accessT = useTranslations("ClientBusinessAccess");
   const [feedback, setFeedback] = useState<ActionFeedback>(null);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
 
   const runActionResult = useCallback(
-    async (key: string, successMessage: string, action: () => Promise<void>) => {
+    async (
+      key: string,
+      successMessage: string,
+      action: () => Promise<void>,
+    ) => {
       const supabase = getBrowserSupabaseClient();
 
       if (!supabase) {
@@ -73,15 +79,26 @@ export function useWholesaleActions() {
   );
 
   const runAction = useCallback(
-    async (key: string, successMessage: string, action: () => Promise<void>) => {
+    async (
+      key: string,
+      successMessage: string,
+      action: () => Promise<void>,
+    ) => {
       await runActionResult(key, successMessage, action);
     },
     [runActionResult],
   );
 
   const customerActions = useMemo(
-    () => createWholesaleCustomerActions({ runAction, runActionResult }),
-    [runAction, runActionResult],
+    () =>
+      createWholesaleCustomerActions({
+        addRegisteredCustomerSuccessMessage: accessT("success", {
+          business: accessT("businesses.wholesale"),
+        }),
+        runAction,
+        runActionResult,
+      }),
+    [accessT, runAction, runActionResult],
   );
 
   const createOrder = useCallback(
@@ -150,18 +167,29 @@ export function useWholesaleActions() {
     (formData: FormData) => {
       const orderId = requiredString(formData.get("order_id"));
 
-      return runAction(`order:settle:${orderId}`, "结汇记录已保存。", async () => {
-        const supabase = getBrowserSupabaseClient();
-        if (!supabase) throw new Error("client unavailable");
+      return runAction(
+        `order:settle:${orderId}`,
+        "结汇记录已保存。",
+        async () => {
+          const supabase = getBrowserSupabaseClient();
+          if (!supabase) throw new Error("client unavailable");
 
-        const { error } = await supabase.rpc("add_wholesale_order_settlement", {
-          p_order_id: orderId,
-          p_settlement_amount: positiveNumber(formData.get("settlement_amount")),
-          p_settlement_date: requiredString(formData.get("settlement_date")),
-        });
+          const { error } = await supabase.rpc(
+            "add_wholesale_order_settlement",
+            {
+              p_order_id: orderId,
+              p_settlement_amount: positiveNumber(
+                formData.get("settlement_amount"),
+              ),
+              p_settlement_date: requiredString(
+                formData.get("settlement_date"),
+              ),
+            },
+          );
 
-        if (error) throw error;
-      });
+          if (error) throw error;
+        },
+      );
     },
     [runAction],
   );
@@ -234,17 +262,15 @@ export function useWholesaleActions() {
 
         if (batchError || !batch) throw batchError ?? new Error("batch failed");
 
-        const { error } = await supabase
-          .from("wholesale_1688_orders")
-          .upsert(
-            rows.map((row) => ({
-              ...row,
-              batch_id: batch.id,
-              customer_id: null,
-              wholesale_order_id: null,
-            })),
-            { ignoreDuplicates: true, onConflict: "external_order_number" },
-          );
+        const { error } = await supabase.from("wholesale_1688_orders").upsert(
+          rows.map((row) => ({
+            ...row,
+            batch_id: batch.id,
+            customer_id: null,
+            wholesale_order_id: null,
+          })),
+          { ignoreDuplicates: true, onConflict: "external_order_number" },
+        );
 
         if (error) throw error;
       }),
@@ -260,7 +286,9 @@ export function useWholesaleActions() {
         const { error } = await supabase.rpc("claim_wholesale_1688_order", {
           p_1688_order_id: requiredString(formData.get("purchase_order_id")),
           p_customer_id: requiredString(formData.get("customer_id")),
-          p_wholesale_order_id: optionalString(formData.get("wholesale_order_id")),
+          p_wholesale_order_id: optionalString(
+            formData.get("wholesale_order_id"),
+          ),
         });
 
         if (error) throw error;
@@ -285,12 +313,16 @@ export function useWholesaleActions() {
 
   const createLogisticsStatus = useCallback(
     (formData: FormData) =>
-      runAction("logistics-status:create", "物流号已加入每日核对。", async () => {
-        const supabase = getBrowserSupabaseClient();
-        if (!supabase) throw new Error("client unavailable");
+      runAction(
+        "logistics-status:create",
+        "物流号已加入每日核对。",
+        async () => {
+          const supabase = getBrowserSupabaseClient();
+          if (!supabase) throw new Error("client unavailable");
 
-        await createWholesaleLogisticsStatus(supabase, formData);
-      }),
+          await createWholesaleLogisticsStatus(supabase, formData);
+        },
+      ),
     [runAction],
   );
 
@@ -301,8 +333,12 @@ export function useWholesaleActions() {
         if (!supabase) throw new Error("client unavailable");
 
         const { error } = await supabase.from("wholesale_referrals").insert({
-          referred_customer_id: requiredString(formData.get("referred_customer_id")),
-          referrer_customer_id: requiredString(formData.get("referrer_customer_id")),
+          referred_customer_id: requiredString(
+            formData.get("referred_customer_id"),
+          ),
+          referrer_customer_id: requiredString(
+            formData.get("referrer_customer_id"),
+          ),
         });
 
         if (error) throw error;

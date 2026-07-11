@@ -1,21 +1,17 @@
 "use client";
-
-import {
-  PackageCheck,
-} from "lucide-react";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useLocale, useTranslations } from "next-intl";
+import { PackageCheck } from "lucide-react";
 import type {
   WholesaleCustomer,
   WholesaleLogisticsOrder,
   WholesaleOrder,
 } from "@/lib/wholesale";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
-
 import {
   formatCurrency,
   formatDateTime,
   getCustomerName,
-  WHOLESALE_LOGISTICS_STATUS_LABELS,
 } from "./wholesale-display";
 import {
   WholesaleEmptyState,
@@ -31,7 +27,6 @@ import {
   wholesaleStickyFirstTdClassName,
   wholesaleStickyFirstThClassName,
 } from "./wholesale-ui";
-
 type WholesaleLogisticsSectionProps = {
   canEdit: boolean;
   customers: WholesaleCustomer[];
@@ -42,7 +37,6 @@ type WholesaleLogisticsSectionProps = {
   orders: WholesaleOrder[];
   pendingKey: string | null;
 };
-
 export function WholesaleLogisticsSection({
   canEdit,
   customers,
@@ -53,18 +47,22 @@ export function WholesaleLogisticsSection({
   orders,
   pendingKey,
 }: WholesaleLogisticsSectionProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_logistics_section",
+  );
+  const t = useTranslations("WholesaleBusiness.logisticsUi");
+  const locale = useLocale();
   const ordersById = new Map(orders.map((order) => [order.id, order]));
-
   return (
     <WholesalePageShell
-      description="系统会每天同步物流号、客户和当前状态；已送达或出现无法继续配送的情况后会自动停止核对。"
-      eyebrow="批发业务"
-      title="物流管理"
+      description={uiText("attribute001")}
+      eyebrow={uiText("attribute002")}
+      title={uiText("attribute003")}
     >
       {canEdit ? (
         <WholesalePanel
-          description="通常会自动同步；如果需要提前跟进某个物流号，可以在这里手动补充。"
-          title="手动补充物流"
+          description={uiText("attribute004")}
+          title={uiText("attribute005")}
         >
           <form
             className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
@@ -75,27 +73,34 @@ export function WholesaleLogisticsSection({
             }}
           >
             <WholesaleField
-              label="物流号"
+              label={uiText("attribute006")}
               name="tracking_number"
-              placeholder="填写需要核对的物流号"
+              placeholder={uiText("attribute007")}
               required
             />
             <WholesaleField
-              label="客户名"
+              label={uiText("attribute008")}
               name="customer_name"
-              placeholder="填写客户常用名称"
+              placeholder={uiText("attribute009")}
               required
             />
-            <WholesaleSelect label="归属客户" name="customer_id">
-              <option value="">暂不匹配</option>
+            <WholesaleSelect label={uiText("attribute010")} name="customer_id">
+              <option value="">
+                <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text001" />
+              </option>
               {customers.map((customer) => (
                 <option key={customer.id} value={customer.id}>
                   {customer.unique_name}
                 </option>
               ))}
             </WholesaleSelect>
-            <WholesaleSelect label="关联批发订单" name="wholesale_order_id">
-              <option value="">暂不关联</option>
+            <WholesaleSelect
+              label={uiText("attribute011")}
+              name="wholesale_order_id"
+            >
+              <option value="">
+                <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text002" />
+              </option>
               {orders.map((order) => (
                 <option key={order.id} value={order.id}>
                   {order.order_number}
@@ -106,7 +111,7 @@ export function WholesaleLogisticsSection({
               <WholesaleSubmitButton
                 pending={pendingKey === "logistics-status:create"}
               >
-                加入核对
+                <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text003" />
               </WholesaleSubmitButton>
             </div>
           </form>
@@ -114,28 +119,40 @@ export function WholesaleLogisticsSection({
       ) : null}
 
       <WholesalePanel
-        description="状态会按物流号每天更新一次，先显示最近更新的记录；送达或异常终止后不再重复核对。"
-        title="每日核对列表"
+        description={uiText("attribute012")}
+        title={uiText("attribute013")}
       >
         {logisticsStatuses.length === 0 ? (
           <WholesaleEmptyState
-            description="还没有同步到物流记录。同步后，这里会显示客户、当前状态和最近核对时间。"
+            description={uiText("attribute014")}
             icon={<PackageCheck className="size-5" />}
-            title="暂无物流核对记录"
+            title={uiText("attribute015")}
           />
         ) : (
           <WholesaleTable minWidth={1180}>
             <thead>
               <tr>
                 <WholesaleTh className={wholesaleStickyFirstThClassName}>
-                  物流号
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text004" />
                 </WholesaleTh>
-                <WholesaleTh>客户</WholesaleTh>
-                <WholesaleTh>批发订单</WholesaleTh>
-                <WholesaleTh>当前状态</WholesaleTh>
-                <WholesaleTh>核对结果</WholesaleTh>
-                <WholesaleTh>上次核对</WholesaleTh>
-                <WholesaleTh>下次核对</WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text005" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text006" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text007" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text008" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text009" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text010" />
+                </WholesaleTh>
               </tr>
             </thead>
             <tbody>
@@ -147,7 +164,7 @@ export function WholesaleLogisticsSection({
                     </div>
                     {row.last_error ? (
                       <div className="mt-2 text-xs leading-5 text-[#a46a1f]">
-                        暂时没有查到新进展
+                        <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text011" />
                       </div>
                     ) : null}
                   </WholesaleTd>
@@ -158,21 +175,33 @@ export function WholesaleLogisticsSection({
                   </WholesaleTd>
                   <WholesaleTd>
                     {row.wholesale_order_id
-                      ? ordersById.get(row.wholesale_order_id)?.order_number ??
-                        "未关联"
-                      : "未关联"}
+                      ? (ordersById.get(row.wholesale_order_id)?.order_number ??
+                        t("notLinked"))
+                      : t("notLinked")}
                   </WholesaleTd>
                   <WholesaleTd className="min-w-[240px] whitespace-normal">
                     {row.status_text}
                   </WholesaleTd>
                   <WholesaleTd>
                     <WholesaleStatusBadge tone={getLogisticsStatusTone(row)}>
-                      {WHOLESALE_LOGISTICS_STATUS_LABELS[row.status_kind]}
+                      {t(`statuses.${row.status_kind}`)}
                     </WholesaleStatusBadge>
                   </WholesaleTd>
-                  <WholesaleTd>{formatDateTime(row.last_checked_at)}</WholesaleTd>
                   <WholesaleTd>
-                    {row.is_terminal ? "已停止核对" : formatDateTime(row.next_check_at)}
+                    {formatDateTime(
+                      row.last_checked_at,
+                      t("notRecorded"),
+                      locale,
+                    )}
+                  </WholesaleTd>
+                  <WholesaleTd>
+                    {row.is_terminal
+                      ? t("stoppedChecking")
+                      : formatDateTime(
+                          row.next_check_at,
+                          t("notRecorded"),
+                          locale,
+                        )}
                   </WholesaleTd>
                 </tr>
               ))}
@@ -183,22 +212,36 @@ export function WholesaleLogisticsSection({
 
       {logisticsOrders.length > 0 ? (
         <WholesalePanel
-          description="这里保留已经录入的货代、费用和来源订单信息，方便核对历史费用。"
-          title="物流费用记录"
+          description={uiText("attribute016")}
+          title={uiText("attribute017")}
         >
           <WholesaleTable minWidth={1180}>
             <thead>
               <tr>
                 <WholesaleTh className={wholesaleStickyFirstThClassName}>
-                  运单号
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text012" />
                 </WholesaleTh>
-                <WholesaleTh>客户</WholesaleTh>
-                <WholesaleTh>来源订单</WholesaleTh>
-                <WholesaleTh>批发订单</WholesaleTh>
-                <WholesaleTh>货代</WholesaleTh>
-                <WholesaleTh>最新进度</WholesaleTh>
-                <WholesaleTh>物流费用</WholesaleTh>
-                <WholesaleTh>更新时间</WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text013" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text014" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text015" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text016" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text017" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text018" />
+                </WholesaleTh>
+                <WholesaleTh>
+                  <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text019" />
+                </WholesaleTh>
               </tr>
             </thead>
             <tbody>
@@ -209,21 +252,37 @@ export function WholesaleLogisticsSection({
                       {row.international_tracking_number}
                     </div>
                     <div className="mt-2 text-xs leading-5 text-[#71808d]">
-                      目的地 {row.destination_tracking_number ?? "未记录"}
+                      <UiMessage id="components_dashboard_wholesale_wholesale_logistics_section.text020" />
+                      {row.destination_tracking_number ?? t("notRecorded")}
                     </div>
                   </WholesaleTd>
-                  <WholesaleTd>{getCustomerName(customersById, row.customer_id)}</WholesaleTd>
-                  <WholesaleTd>{row.source_workflow_order_number ?? "未记录"}</WholesaleTd>
+                  <WholesaleTd>
+                    {getCustomerName(customersById, row.customer_id)}
+                  </WholesaleTd>
+                  <WholesaleTd>
+                    {row.source_workflow_order_number ?? t("notRecorded")}
+                  </WholesaleTd>
                   <WholesaleTd>
                     {row.wholesale_order_id
-                      ? ordersById.get(row.wholesale_order_id)?.order_number ?? "未关联"
-                      : "未关联"}
+                      ? (ordersById.get(row.wholesale_order_id)?.order_number ??
+                        t("notLinked"))
+                      : t("notLinked")}
                   </WholesaleTd>
-                  <WholesaleTd>{row.freight_forwarder ?? "未记录"}</WholesaleTd>
-                  <WholesaleTd>{row.latest_status ?? "未记录"}</WholesaleTd>
-                  <WholesaleTd>{formatCurrency(row.logistics_fee, row.currency)}</WholesaleTd>
                   <WholesaleTd>
-                    {formatDateTime(row.latest_checkpoint_at ?? row.updated_at)}
+                    {row.freight_forwarder ?? t("notRecorded")}
+                  </WholesaleTd>
+                  <WholesaleTd>
+                    {row.latest_status ?? t("notRecorded")}
+                  </WholesaleTd>
+                  <WholesaleTd>
+                    {formatCurrency(row.logistics_fee, row.currency)}
+                  </WholesaleTd>
+                  <WholesaleTd>
+                    {formatDateTime(
+                      row.latest_checkpoint_at ?? row.updated_at,
+                      t("notRecorded"),
+                      locale,
+                    )}
                   </WholesaleTd>
                 </tr>
               ))}
@@ -234,15 +293,12 @@ export function WholesaleLogisticsSection({
     </WholesalePageShell>
   );
 }
-
 function getLogisticsStatusTone(row: WholesaleLogisticsStatus) {
   if (row.status_kind === "delivered") {
     return "success";
   }
-
   if (row.status_kind === "exception" || row.status_kind === "stopped") {
     return "danger";
   }
-
   return "warning";
 }

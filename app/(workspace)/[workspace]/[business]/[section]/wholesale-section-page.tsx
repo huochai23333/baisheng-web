@@ -14,32 +14,28 @@ import {
   type WorkspaceWholesaleSectionKey,
 } from "@/lib/workspace-config";
 
-const WholesaleClient = dynamic(
-  () =>
-    import("@/components/dashboard/wholesale/wholesale-client").then(
-      (mod) => mod.WholesaleClient,
-    ),
+const WholesaleClient = dynamic(() =>
+  import("@/components/dashboard/wholesale/wholesale-client").then(
+    (mod) => mod.WholesaleClient,
+  ),
 );
 
-const BusinessVipClient = dynamic(
-  () =>
-    import("@/components/dashboard/business-vip/business-vip-client").then(
-      (mod) => mod.BusinessVipClient,
-    ),
+const BusinessVipClient = dynamic(() =>
+  import("@/components/dashboard/business-vip/business-vip-client").then(
+    (mod) => mod.BusinessVipClient,
+  ),
 );
 
-const BusinessSettingsClient = dynamic(
-  () =>
-    import("@/components/dashboard/business-settings/business-settings-client").then(
-      (mod) => mod.BusinessSettingsClient,
-    ),
+const BusinessSettingsClient = dynamic(() =>
+  import("@/components/dashboard/business-settings/business-settings-client").then(
+    (mod) => mod.BusinessSettingsClient,
+  ),
 );
 
-const WholesaleSettlementReleaseClient = dynamic(
-  () =>
-    import(
-      "@/components/dashboard/wholesale/wholesale-settlement-release-client"
-    ).then((mod) => mod.WholesaleSettlementReleaseClient),
+const WholesaleSettlementReleaseClient = dynamic(() =>
+  import("@/components/dashboard/wholesale/wholesale-settlement-release-client").then(
+    (mod) => mod.WholesaleSettlementReleaseClient,
+  ),
 );
 
 export async function renderWholesaleSectionPage(
@@ -73,7 +69,10 @@ export async function renderWholesaleSectionPage(
   }
 
   if (wholesaleSection === "settings") {
-    const initialData = await getBusinessSettingsPageData(supabase, "wholesale");
+    const initialData = await getBusinessSettingsPageData(
+      supabase,
+      "wholesale",
+    );
 
     return (
       <ScopedIntlProvider
@@ -103,7 +102,13 @@ export async function renderWholesaleSectionPage(
   const initialData = await getWholesalePageData(supabase, wholesaleSection);
 
   return (
-    <ScopedIntlProvider namespaces={["DashboardShared"]}>
+    <ScopedIntlProvider
+      namespaces={[
+        "ClientBusinessAccess",
+        "DashboardShared",
+        "WholesaleBusiness",
+      ]}
+    >
       <WholesaleClient initialData={initialData} />
     </ScopedIntlProvider>
   );

@@ -1,23 +1,17 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { UserCog, UsersRound } from "lucide-react";
-
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
-
 import { WholesaleDetailGrid } from "./wholesale-detail-grid";
-import {
-  formatDate,
-  getProfileName,
-  WHOLESALE_STATUS_LABELS,
-} from "./wholesale-display";
+import { formatDate } from "./wholesale-display";
 import {
   WholesaleEmptyState,
   WholesaleStatusBadge,
   WholesaleTd,
   WholesaleTh,
 } from "./wholesale-ui";
-
 export function WholesaleCustomerDirectory({
   customers,
   onSelect,
@@ -27,16 +21,19 @@ export function WholesaleCustomerDirectory({
   onSelect: (customer: WholesaleCustomer) => void;
   profilesById: Map<string, WholesaleProfile>;
 }) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_people_directories",
+  );
+  const t = useTranslations("WholesaleBusiness.directoryUi");
   if (customers.length === 0) {
     return (
       <WholesaleEmptyState
-        description="没有匹配的批发客户。可以调整筛选条件，或新增客户。"
+        description={uiText("attribute001")}
         icon={<UsersRound className="size-5" />}
-        title="暂无匹配客户"
+        title={uiText("attribute002")}
       />
     );
   }
-
   return (
     <>
       <div className="hidden md:block">
@@ -51,11 +48,21 @@ export function WholesaleCustomerDirectory({
             </colgroup>
             <thead>
               <tr>
-                <WholesaleTh className="whitespace-normal">客户</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">联系方式</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">关联业务员</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">客户类型</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">登记时间</WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text001" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text002" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text003" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text004" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text005" />
+                </WholesaleTh>
               </tr>
             </thead>
             <tbody>
@@ -70,26 +77,36 @@ export function WholesaleCustomerDirectory({
                     <p className="mt-1 text-xs text-[#71808d]">
                       {customer.other_names.length > 0
                         ? customer.other_names.join("、")
-                        : "未记录其他名称"}
+                        : t("fallbacks.noOtherNames")}
                     </p>
                   </WholesaleTd>
                   <WholesaleTd className="whitespace-normal">
-                    <p>{customer.contact_details ?? "未记录"}</p>
+                    <p>
+                      {customer.contact_details ?? t("fallbacks.notRecorded")}
+                    </p>
                     <p className="mt-1 text-xs text-[#71808d]">
-                      {customer.source ?? "未记录来源"}
+                      {customer.source ?? t("fallbacks.noSource")}
                     </p>
                   </WholesaleTd>
                   <WholesaleTd className="whitespace-normal">
-                    {getProfileName(profilesById, customer.assigned_sales_user_id)}
+                    {getLocalizedProfileName(
+                      profilesById,
+                      customer.assigned_sales_user_id,
+                      t("fallbacks.unassigned"),
+                    )}
                   </WholesaleTd>
                   <WholesaleTd className="whitespace-normal">
                     <WholesaleStatusBadge>
-                      {WHOLESALE_STATUS_LABELS[customer.customer_kind]}
+                      {t(`customerKinds.${customer.customer_kind}`)}
                     </WholesaleStatusBadge>
                     <p className="mt-2 text-xs text-[#71808d]">
                       {customer.registered_user_id
-                        ? getProfileName(profilesById, customer.registered_user_id)
-                        : "未合并注册账号"}
+                        ? getLocalizedProfileName(
+                            profilesById,
+                            customer.registered_user_id,
+                            t("fallbacks.unnamed"),
+                          )
+                        : t("fallbacks.notLinkedAccount")}
                     </p>
                   </WholesaleTd>
                   <WholesaleTd className="whitespace-normal">
@@ -115,21 +132,30 @@ export function WholesaleCustomerDirectory({
                   {customer.unique_name}
                 </p>
                 <p className="mt-1 break-words text-sm text-[#6f7b85]">
-                  {customer.contact_details ?? "未记录联系方式"}
+                  {customer.contact_details ?? t("fallbacks.noContact")}
                 </p>
               </div>
               <WholesaleStatusBadge>
-                {WHOLESALE_STATUS_LABELS[customer.customer_kind]}
+                {t(`customerKinds.${customer.customer_kind}`)}
               </WholesaleStatusBadge>
             </div>
             <p className="mt-3 text-sm text-[#6f7b85]">
-              业务员：{getProfileName(profilesById, customer.assigned_sales_user_id)}
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text006" />
+              {getLocalizedProfileName(
+                profilesById,
+                customer.assigned_sales_user_id,
+                t("fallbacks.unassigned"),
+              )}
             </p>
             <p className="mt-1 text-sm text-[#6f7b85]">
-              注册账号：
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text007" />
               {customer.registered_user_id
-                ? getProfileName(profilesById, customer.registered_user_id)
-                : "未合并"}
+                ? getLocalizedProfileName(
+                    profilesById,
+                    customer.registered_user_id,
+                    t("fallbacks.unnamed"),
+                  )
+                : t("fallbacks.notLinked")}
             </p>
           </button>
         ))}
@@ -137,7 +163,6 @@ export function WholesaleCustomerDirectory({
     </>
   );
 }
-
 export function WholesaleSalesAccountDirectory({
   accounts,
   onSelect,
@@ -145,16 +170,19 @@ export function WholesaleSalesAccountDirectory({
   accounts: WholesaleProfile[];
   onSelect: (profile: WholesaleProfile) => void;
 }) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_people_directories",
+  );
+  const t = useTranslations("WholesaleBusiness.directoryUi");
   if (accounts.length === 0) {
     return (
       <WholesaleEmptyState
-        description="没有匹配的业务员账号。"
+        description={uiText("attribute003")}
         icon={<UserCog className="size-5" />}
-        title="暂无匹配账号"
+        title={uiText("attribute004")}
       />
     );
   }
-
   return (
     <>
       <div className="hidden md:block">
@@ -169,11 +197,21 @@ export function WholesaleSalesAccountDirectory({
             </colgroup>
             <thead>
               <tr>
-                <WholesaleTh className="whitespace-normal">姓名</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">联系方式</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">城市</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">身份</WholesaleTh>
-                <WholesaleTh className="whitespace-normal">状态</WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text008" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text009" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text010" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text011" />
+                </WholesaleTh>
+                <WholesaleTh className="whitespace-normal">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text012" />
+                </WholesaleTh>
               </tr>
             </thead>
             <tbody>
@@ -184,25 +222,29 @@ export function WholesaleSalesAccountDirectory({
                   onClick={() => onSelect(profile)}
                 >
                   <WholesaleTd className="whitespace-normal">
-                    {profile.name ?? "未填写"}
+                    {profile.name ?? t("fallbacks.notProvided")}
                   </WholesaleTd>
                   <WholesaleTd className="whitespace-normal">
-                    <p>{profile.email ?? "未填写邮箱"}</p>
+                    <p>{profile.email ?? t("fallbacks.noEmail")}</p>
                     <p className="mt-1 text-xs text-[#71808d]">
-                      {profile.phone ?? "未填写手机"}
+                      {profile.phone ?? t("fallbacks.noPhone")}
                     </p>
                   </WholesaleTd>
                   <WholesaleTd className="whitespace-normal">
-                    {profile.city ?? "未填写"}
+                    {profile.city ?? t("fallbacks.notProvided")}
                   </WholesaleTd>
                   <WholesaleTd className="whitespace-normal">
-                    {profile.role === "promoter" ? "地推" : "业务员"}
+                    {profile.role === "promoter"
+                      ? t("roles.promoter")
+                      : t("roles.salesman")}
                   </WholesaleTd>
                   <WholesaleTd className="whitespace-normal">
                     <WholesaleStatusBadge
                       tone={profile.status === "active" ? "success" : "warning"}
                     >
-                      {profile.status === "active" ? "正常" : "未启用"}
+                      {profile.status === "active"
+                        ? t("statuses.active")
+                        : t("statuses.inactive")}
                     </WholesaleStatusBadge>
                   </WholesaleTd>
                 </tr>
@@ -222,23 +264,29 @@ export function WholesaleSalesAccountDirectory({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="break-words font-semibold text-[#23313a]">
-                  {profile.name ?? "未填写"}
+                  {profile.name ?? t("fallbacks.notProvided")}
                 </p>
                 <p className="mt-1 break-words text-sm text-[#6f7b85]">
-                  {profile.email ?? profile.phone ?? "未填写联系方式"}
+                  {profile.email ?? profile.phone ?? t("fallbacks.noContact")}
                 </p>
               </div>
               <WholesaleStatusBadge
                 tone={profile.status === "active" ? "success" : "warning"}
               >
-                {profile.status === "active" ? "正常" : "未启用"}
+                {profile.status === "active"
+                  ? t("statuses.active")
+                  : t("statuses.inactive")}
               </WholesaleStatusBadge>
             </div>
             <p className="mt-3 text-sm text-[#6f7b85]">
-              身份：{profile.role === "promoter" ? "地推" : "业务员"}
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text013" />
+              {profile.role === "promoter"
+                ? t("roles.promoter")
+                : t("roles.salesman")}
             </p>
             <p className="mt-1 text-sm text-[#6f7b85]">
-              城市：{profile.city ?? "未填写"}
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text014" />
+              {profile.city ?? t("fallbacks.notProvided")}
             </p>
           </button>
         ))}
@@ -246,16 +294,51 @@ export function WholesaleSalesAccountDirectory({
     </>
   );
 }
-
-export function WholesaleAccountDetails({ profile }: { profile: WholesaleProfile }) {
+export function WholesaleAccountDetails({
+  profile,
+}: {
+  profile: WholesaleProfile;
+}) {
+  const t = useTranslations("WholesaleBusiness.directoryUi");
   const rows = [
-    { label: "姓名", value: profile.name ?? "未填写" },
-    { label: "邮箱", value: profile.email ?? "未填写" },
-    { label: "手机号", value: profile.phone ?? "未填写" },
-    { label: "城市", value: profile.city ?? "未填写" },
-    { label: "身份", value: profile.role === "promoter" ? "地推" : "业务员" },
-    { label: "状态", value: profile.status === "active" ? "正常" : "未启用" },
+    {
+      label: t("details.name"),
+      value: profile.name ?? t("fallbacks.notProvided"),
+    },
+    {
+      label: t("details.email"),
+      value: profile.email ?? t("fallbacks.notProvided"),
+    },
+    {
+      label: t("details.phone"),
+      value: profile.phone ?? t("fallbacks.notProvided"),
+    },
+    {
+      label: t("details.city"),
+      value: profile.city ?? t("fallbacks.notProvided"),
+    },
+    {
+      label: t("details.role"),
+      value:
+        profile.role === "promoter" ? t("roles.promoter") : t("roles.salesman"),
+    },
+    {
+      label: t("details.status"),
+      value:
+        profile.status === "active"
+          ? t("statuses.active")
+          : t("statuses.inactive"),
+    },
   ];
-
   return <WholesaleDetailGrid rows={rows} />;
+}
+
+function getLocalizedProfileName(
+  profilesById: Map<string, WholesaleProfile>,
+  userId: string | null,
+  fallback: string,
+) {
+  if (!userId) return fallback;
+  const profile = profilesById.get(userId);
+  return profile?.name || profile?.email || fallback;
 }

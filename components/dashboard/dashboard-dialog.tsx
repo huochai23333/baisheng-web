@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 type DashboardDialogProps = {
   open: boolean;
@@ -17,15 +18,15 @@ type DashboardDialogProps = {
 };
 
 const DIALOG_FOCUSABLE_SELECTOR = [
-  'a[href]',
-  'area[href]',
-  'button:not([disabled])',
+  "a[href]",
+  "area[href]",
+  "button:not([disabled])",
   'input:not([disabled]):not([type="hidden"])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
-  'iframe',
-  'object',
-  'embed',
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "iframe",
+  "object",
+  "embed",
   '[contenteditable="true"]',
   '[tabindex]:not([tabindex="-1"])',
 ].join(",");
@@ -42,6 +43,7 @@ export function DashboardDialog({
   actions,
   children,
 }: DashboardDialogProps) {
+  const uiText = useTranslations("UiText.shared");
   const titleId = useId();
   const descriptionId = useId();
   const clientReady = useSyncExternalStore(
@@ -67,12 +69,15 @@ export function DashboardDialog({
     }
 
     previousFocusedElementRef.current =
-      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
 
     const previousOverflow = document.body.style.overflow;
     const previousPaddingRight = document.body.style.paddingRight;
     const previousTouchAction = document.body.style.touchAction;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
 
     document.body.style.overflow = "hidden";
     document.body.style.touchAction = "none";
@@ -108,7 +113,9 @@ export function DashboardDialog({
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
       const activeElement =
-        document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
 
       if (!activeElement || !dialogElement.contains(activeElement)) {
         event.preventDefault();
@@ -160,14 +167,17 @@ export function DashboardDialog({
   }
 
   const overlayTransition = { duration: 0.18, ease: "easeOut" as const };
-  const dialogTransition = { duration: 0.24, ease: [0.22, 1, 0.36, 1] as const };
+  const dialogTransition = {
+    duration: 0.24,
+    ease: [0.22, 1, 0.36, 1] as const,
+  };
 
   return createPortal(
     <AnimatePresence>
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
           <motion.button
-            aria-label="Close dialog"
+            aria-label={uiText("closeDialog")}
             animate={{ opacity: 1 }}
             className="absolute inset-0 bg-[rgba(24,31,38,0.34)]"
             exit={{ opacity: 0 }}
@@ -215,7 +225,7 @@ export function DashboardDialog({
               </div>
 
               <button
-                aria-label="Close dialog"
+                aria-label={uiText("closeDialog")}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[#486782] transition-colors duration-200 hover:bg-[#eef3f6]"
                 onClick={() => onOpenChange(false)}
                 ref={closeButtonRef}

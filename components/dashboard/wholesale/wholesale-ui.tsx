@@ -64,10 +64,7 @@ export function WholesalePanel({
   return (
     <DashboardSectionPanel className="min-w-0 p-4 sm:p-6 xl:p-8">
       {title ? (
-        <DashboardListHeader
-          description={description}
-          title={title}
-        />
+        <DashboardListHeader description={description} title={title} />
       ) : description ? (
         <p className="break-words text-sm leading-7 text-[#6f7b85] [overflow-wrap:anywhere]">
           {description}
@@ -88,11 +85,7 @@ export function WholesaleEmptyState({
   description: string;
 }) {
   return (
-    <DashboardEmptyState
-      description={description}
-      icon={icon}
-      title={title}
-    />
+    <DashboardEmptyState description={description} icon={icon} title={title} />
   );
 }
 
@@ -285,7 +278,8 @@ export function WholesaleSubmitButton({
   children,
   pending,
 }: {
-  children: string;
+  // 按钮文字可能来自消息组件，所以这里接收 ReactNode，而不是只接收字符串。
+  children: ReactNode;
   pending: boolean;
 }) {
   return (

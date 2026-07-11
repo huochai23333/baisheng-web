@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Plus, RefreshCcw, Search, UserCheck, UsersRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { RefreshCcw, Search, UserCheck, UsersRound } from "lucide-react";
-
+import { ClientBusinessAddDialog } from "@/components/dashboard/client-business-add-dialog";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import {
   DashboardFilterField,
@@ -12,78 +12,44 @@ import {
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
-import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
+import {
+  EmptyState,
+  PageBanner,
+} from "@/components/dashboard/dashboard-shared-ui";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
-import type { AdminPeoplePageData, AdminPersonRow } from "@/lib/admin-people";
+import type { AdminPeoplePageData } from "@/lib/admin-people";
+import type { ClientBusinessCandidate } from "@/lib/client-business-access";
 import { cn } from "@/lib/utils";
-import { normalizeSearchText } from "@/lib/value-normalizers";
 
-import {
-  getTourismPersonName,
-  isTourismCustomer,
-} from "./tourism-people-display";
+import { getTourismPersonName } from "./tourism-people-display";
 import { TourismPersonDetails } from "./tourism-people-client";
 import { TourismPeopleTable } from "./tourism-people-table";
-
-const ALL = "all";
+import { useTourismCustomersState } from "./use-tourism-customers-state";
 
 export function TourismCustomersClient({
+  businessCandidates,
   initialData,
 }: {
+  businessCandidates: ClientBusinessCandidate[];
   initialData: AdminPeoplePageData;
 }) {
   const { locale } = useLocale();
-  const [searchText, setSearchText] = useState("");
-  const [statusFilter, setStatusFilter] = useState(ALL);
-  const [selectedCustomer, setSelectedCustomer] =
-    useState<AdminPersonRow | null>(null);
-
-  // 旅游客户从账号目录里筛出，但在业务下以独立客户板块展示。
-  const tourismCustomers = useMemo(
-    () => initialData.people.filter(isTourismCustomer),
-    [initialData.people],
-  );
-  const filteredCustomers = useMemo(() => {
-    const searchValue = normalizeSearchText(searchText);
-
-    return tourismCustomers.filter((customer) => {
-      if (statusFilter !== ALL && customer.status !== statusFilter) {
-        return false;
-      }
-
-      if (!searchValue) {
-        return true;
-      }
-
-      return [
-        customer.name ?? "",
-        customer.email ?? "",
-        customer.phone ?? "",
-        customer.city ?? "",
-        customer.referral_code ?? "",
-        customer.referrer_name ?? "",
-        customer.referrer_email ?? "",
-        customer.team_name ?? "",
-      ].some((value) => normalizeSearchText(value).includes(searchValue));
-    });
-  }, [searchText, statusFilter, tourismCustomers]);
-  const hasFilters = searchText || statusFilter !== ALL;
-  const activeCount = tourismCustomers.filter(
-    (customer) => customer.status === "active",
-  ).length;
+  const t = useTranslations("TourismPeople.customers");
+  const tableT = useTranslations("TourismPeople.table");
+  const state = useTourismCustomersState(initialData, businessCandidates);
 
   if (!initialData.hasPermission) {
     return (
       <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
         <DashboardListSection
-          description="只有正常启用的管理员账号可以查看旅游客户。"
-          title="没有旅游客户管理权限"
+          description={t("noPermissionDescription")}
+          title={t("noPermissionTitle")}
         >
           <EmptyState
-            description="请使用正常启用的管理员账号查看旅游客户。"
+            description={t("noPermissionDescription")}
             icon={<UsersRound className="size-5" />}
-            title="暂无权限"
+            title={t("emptyPermissionTitle")}
           />
         </DashboardListSection>
       </section>
@@ -92,71 +58,87 @@ export function TourismCustomersClient({
 
   return (
     <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
+      {state.feedback ? (
+        <PageBanner tone={state.feedback.tone}>
+          {state.feedback.message}
+        </PageBanner>
+      ) : null}
+
       <DashboardSectionHeader
-        badge="旅游业务"
+        actions={
+          <Button
+            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            onClick={() => state.setAddDialogOpen(true)}
+            type="button"
+          >
+            <Plus className="size-4" />
+            {t("addCustomer")}
+          </Button>
+        }
+        badge={t("badge")}
         badgeIcon={<UsersRound className="size-4" />}
-        description="这里单独查看旅游客户资料。账号身份、状态和城市调整仍在全局账号管理中处理。"
+        description={t("headerDescription")}
         metrics={[
           {
             accent: "blue",
             icon: <UsersRound className="size-5" />,
-            label: "旅游客户",
-            value: tourismCustomers.length,
+            label: t("metricTotal"),
+            value: state.tourismCustomers.length,
           },
           {
             accent: "green",
             icon: <UserCheck className="size-5" />,
-            label: "当前正常",
-            value: activeCount,
+            label: t("metricActive"),
+            value: state.activeCount,
           },
         ]}
         metricsClassName="grid-cols-1 sm:grid-cols-2"
         metricsPlacement="below"
-        title="旅游客户管理"
+        title={t("headerTitle")}
       />
 
       <DashboardListSection
         actions={
           <Button
             className="rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
-            disabled={!hasFilters}
-            onClick={() => {
-              setSearchText("");
-              setStatusFilter(ALL);
-            }}
+            disabled={!state.hasFilters}
+            onClick={state.resetFilters}
             type="button"
             variant="outline"
           >
             <RefreshCcw className="size-4" />
-            清空筛选
+            {t("resetFilters")}
           </Button>
         }
-        description={`共 ${tourismCustomers.length} 位客户，当前显示 ${filteredCustomers.length} 位。`}
-        title="旅游客户"
+        description={t("listDescription", {
+          total: state.tourismCustomers.length,
+          visible: state.filteredCustomers.length,
+        })}
+        title={t("listTitle")}
       >
         <DashboardFilterPanel gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-          <DashboardFilterField label="搜索客户">
+          <DashboardFilterField label={t("searchLabel")}>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
               <input
                 className={cn(dashboardFilterInputClassName, "pl-10")}
-                onChange={(event) => setSearchText(event.target.value)}
-                placeholder="姓名、手机号、邮箱、城市或推荐码"
+                onChange={(event) => state.setSearchText(event.target.value)}
+                placeholder={t("searchPlaceholder")}
                 type="search"
-                value={searchText}
+                value={state.searchText}
               />
             </div>
           </DashboardFilterField>
-          <DashboardFilterField label="账号状态">
+          <DashboardFilterField label={t("statusLabel")}>
             <select
               className={dashboardFilterInputClassName}
-              onChange={(event) => setStatusFilter(event.target.value)}
-              value={statusFilter}
+              onChange={(event) => state.setStatusFilter(event.target.value)}
+              value={state.statusFilter}
             >
-              <option value={ALL}>全部状态</option>
-              <option value="active">正常</option>
-              <option value="inactive">未启用</option>
-              <option value="suspended">已停用</option>
+              <option value="all">{t("allStatuses")}</option>
+              <option value="active">{t("statuses.active")}</option>
+              <option value="inactive">{t("statuses.inactive")}</option>
+              <option value="suspended">{t("statuses.suspended")}</option>
             </select>
           </DashboardFilterField>
         </DashboardFilterPanel>
@@ -164,8 +146,8 @@ export function TourismCustomersClient({
         <div className="mt-5">
           <TourismPeopleTable
             locale={locale}
-            onSelect={setSelectedCustomer}
-            people={filteredCustomers}
+            onSelect={state.setSelectedCustomer}
+            people={state.filteredCustomers}
             tab="customers"
           />
         </div>
@@ -173,19 +155,35 @@ export function TourismCustomersClient({
 
       <DashboardDialog
         onOpenChange={(open) => {
-          if (!open) setSelectedCustomer(null);
+          if (!open) state.setSelectedCustomer(null);
         }}
-        open={Boolean(selectedCustomer)}
+        open={Boolean(state.selectedCustomer)}
         title={
-          selectedCustomer
-            ? getTourismPersonName(selectedCustomer)
-            : "客户详情"
+          state.selectedCustomer
+            ? getTourismPersonName(
+                state.selectedCustomer,
+                tableT("fallbacks.unnamed"),
+              )
+            : t("detailsTitle")
         }
       >
-        {selectedCustomer ? (
-          <TourismPersonDetails locale={locale} person={selectedCustomer} />
+        {state.selectedCustomer ? (
+          <TourismPersonDetails
+            locale={locale}
+            person={state.selectedCustomer}
+          />
         ) : null}
       </DashboardDialog>
+
+      <ClientBusinessAddDialog
+        business="tourism"
+        candidates={state.addCandidates}
+        error={state.feedback?.tone === "error" ? state.feedback.message : null}
+        onAdd={state.addCustomer}
+        onOpenChange={state.setAddDialogOpen}
+        open={state.addDialogOpen}
+        pendingUserId={state.pendingUserId}
+      />
     </section>
   );
 }

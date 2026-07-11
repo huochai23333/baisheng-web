@@ -7,7 +7,9 @@ export type RegressionRole =
   | "promoter"
   | "operator"
   | "client"
-  | "finance";
+  | "finance"
+  | "manager"
+  | "recruiter";
 
 export type RegressionAccount = {
   email: string;
@@ -20,8 +22,10 @@ const ROLE_ENV_PREFIX: Record<RegressionRole, string> = {
   administrator: "E2E_ADMIN",
   client: "E2E_CLIENT",
   finance: "E2E_FINANCE",
+  manager: "E2E_MANAGER",
   operator: "E2E_OPERATOR",
   promoter: "E2E_PROMOTER",
+  recruiter: "E2E_RECRUITER",
   salesman: "E2E_SALESMAN",
 };
 
@@ -29,8 +33,10 @@ const ROLE_WORKSPACE_PATH: Record<RegressionRole, string> = {
   administrator: "/admin",
   client: "/client",
   finance: "/finance",
+  manager: "/manager",
   operator: "/operator",
   promoter: "/promoter",
+  recruiter: "/recruiter",
   salesman: "/salesman",
 };
 
@@ -38,8 +44,10 @@ const LOCAL_ROLE_EMAIL_PREFIX: Record<RegressionRole, string> = {
   administrator: "local.admin@",
   client: "local.client@",
   finance: "local.finance@",
+  manager: "local.manager@",
   operator: "local.operator@",
   promoter: "local.promoter@",
+  recruiter: "local.recruiter@",
   salesman: "local.salesman@",
 };
 
@@ -50,12 +58,15 @@ const FALLBACK_ROLE_ORDER: readonly RegressionRole[] = [
   "client",
   "finance",
   "operator",
+  "manager",
+  "recruiter",
 ];
 
 const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 const SECRET_PATTERN = /[A-Za-z0-9!#$%&*+./:<=>?@^_`{|}~-]{8,}/g;
 
-let cachedAccounts: Partial<Record<RegressionRole, RegressionAccount>> | null = null;
+let cachedAccounts: Partial<Record<RegressionRole, RegressionAccount>> | null =
+  null;
 
 export function getRegressionAccount(role: RegressionRole): RegressionAccount {
   const accounts = loadRegressionAccounts();
@@ -83,7 +94,9 @@ function loadRegressionAccounts() {
   return cachedAccounts;
 }
 
-function loadAccountsFromEnv(): Partial<Record<RegressionRole, RegressionAccount>> {
+function loadAccountsFromEnv(): Partial<
+  Record<RegressionRole, RegressionAccount>
+> {
   const accounts: Partial<Record<RegressionRole, RegressionAccount>> = {};
 
   for (const role of FALLBACK_ROLE_ORDER) {
@@ -104,7 +117,9 @@ function loadAccountsFromEnv(): Partial<Record<RegressionRole, RegressionAccount
   return accounts;
 }
 
-function loadAccountsFromLocalFile(): Partial<Record<RegressionRole, RegressionAccount>> {
+function loadAccountsFromLocalFile(): Partial<
+  Record<RegressionRole, RegressionAccount>
+> {
   if (shouldPreferLocalSupabaseAccounts()) {
     const localAccounts = loadLocalDockerAccounts();
 
@@ -133,7 +148,9 @@ function loadOrderedAccounts(
   const passwords = text
     .split(/\r?\n/)
     .filter((line) => !line.match(EMAIL_PATTERN))
-    .flatMap((line) => Array.from(line.matchAll(SECRET_PATTERN), (match) => match[0]));
+    .flatMap((line) =>
+      Array.from(line.matchAll(SECRET_PATTERN), (match) => match[0]),
+    );
   const accounts: Partial<Record<RegressionRole, RegressionAccount>> = {};
 
   FALLBACK_ROLE_ORDER.forEach((role, index) => {
@@ -153,7 +170,9 @@ function loadOrderedAccounts(
   return accounts;
 }
 
-function loadLocalDockerAccounts(): Partial<Record<RegressionRole, RegressionAccount>> {
+function loadLocalDockerAccounts(): Partial<
+  Record<RegressionRole, RegressionAccount>
+> {
   const localSeedPath = findLocalSeedPath();
 
   if (!localSeedPath) {
@@ -192,7 +211,13 @@ function findLocalSeedPath() {
   // 本地开发仓库可能使用旧的根目录布局或新的 supabase/ 标准项目目录，测试优先读取真实存在的种子文件。
   const candidatePaths = [
     path.resolve(process.cwd(), "..", "supabase", "local-test-data.sql"),
-    path.resolve(process.cwd(), "..", "supabase", "supabase", "local-test-data.sql"),
+    path.resolve(
+      process.cwd(),
+      "..",
+      "supabase",
+      "supabase",
+      "local-test-data.sql",
+    ),
     path.resolve(
       process.cwd(),
       "..",

@@ -1,7 +1,7 @@
 "use client";
-
+import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { RefreshCcw } from "lucide-react";
-
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -9,9 +9,10 @@ import {
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
-
-import { WholesaleCustomerDirectory, WholesaleSalesAccountDirectory } from "./wholesale-people-directories";
-
+import {
+  WholesaleCustomerDirectory,
+  WholesaleSalesAccountDirectory,
+} from "./wholesale-people-directories";
 type WholesaleCustomerPeopleTabProps = {
   customerKindFilter: string;
   customerSalesFilter: string;
@@ -27,7 +28,6 @@ type WholesaleCustomerPeopleTabProps = {
   profilesById: Map<string, WholesaleProfile>;
   salesAccounts: WholesaleProfile[];
 };
-
 type WholesaleSalesAccountPeopleTabProps = {
   accountRoleFilter: string;
   accountSearch: string;
@@ -41,9 +41,7 @@ type WholesaleSalesAccountPeopleTabProps = {
   onSelectProfile: (profile: WholesaleProfile) => void;
   salesAccounts: WholesaleProfile[];
 };
-
 const ALL = "all";
-
 export function WholesaleCustomerPeopleTab({
   customerKindFilter,
   customerSalesFilter,
@@ -59,6 +57,10 @@ export function WholesaleCustomerPeopleTab({
   profilesById,
   salesAccounts,
 }: WholesaleCustomerPeopleTabProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_people_tabs",
+  );
+  const t = useTranslations("WholesaleBusiness.directoryUi");
   return (
     <DashboardListSection
       actions={
@@ -70,40 +72,53 @@ export function WholesaleCustomerPeopleTab({
           variant="outline"
         >
           <RefreshCcw className="size-4" />
-          清空筛选
+          <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text001" />
         </Button>
       }
-      description={`共 ${customers.length} 位客户，当前显示 ${filteredCustomers.length} 位。`}
-      title="批发客户"
+      description={t("customerCount", {
+        total: customers.length,
+        visible: filteredCustomers.length,
+      })}
+      title={uiText("attribute001")}
     >
       <div className="mb-5 grid gap-4 md:grid-cols-3">
-        <DashboardFilterField label="搜索客户">
+        <DashboardFilterField label={uiText("attribute002")}>
           <input
             className={dashboardFilterInputClassName}
             onChange={(event) => onCustomerSearchChange(event.target.value)}
-            placeholder="客户名称、联系方式、来源或业务员"
+            placeholder={uiText("attribute003")}
             type="search"
             value={customerSearch}
           />
         </DashboardFilterField>
-        <DashboardFilterField label="客户类型">
+        <DashboardFilterField label={uiText("attribute004")}>
           <select
             className={dashboardFilterInputClassName}
             onChange={(event) => onCustomerKindFilterChange(event.target.value)}
             value={customerKindFilter}
           >
-            <option value={ALL}>全部类型</option>
-            <option value="registered_account">已注册账户</option>
-            <option value="sales_created">业务员登记账户</option>
+            <option value={ALL}>
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text002" />
+            </option>
+            <option value="registered_account">
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text003" />
+            </option>
+            <option value="sales_created">
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text004" />
+            </option>
           </select>
         </DashboardFilterField>
-        <DashboardFilterField label="关联业务员">
+        <DashboardFilterField label={uiText("attribute005")}>
           <select
             className={dashboardFilterInputClassName}
-            onChange={(event) => onCustomerSalesFilterChange(event.target.value)}
+            onChange={(event) =>
+              onCustomerSalesFilterChange(event.target.value)
+            }
             value={customerSalesFilter}
           >
-            <option value={ALL}>全部业务员</option>
+            <option value={ALL}>
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text005" />
+            </option>
             {salesAccounts.map((profile) => (
               <option key={profile.user_id} value={profile.user_id}>
                 {profile.name || profile.email}
@@ -120,7 +135,6 @@ export function WholesaleCustomerPeopleTab({
     </DashboardListSection>
   );
 }
-
 export function WholesaleSalesAccountPeopleTab({
   accountRoleFilter,
   accountSearch,
@@ -134,6 +148,10 @@ export function WholesaleSalesAccountPeopleTab({
   onSelectProfile,
   salesAccounts,
 }: WholesaleSalesAccountPeopleTabProps) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_people_tabs",
+  );
+  const t = useTranslations("WholesaleBusiness.directoryUi");
   return (
     <DashboardListSection
       actions={
@@ -145,42 +163,59 @@ export function WholesaleSalesAccountPeopleTab({
           variant="outline"
         >
           <RefreshCcw className="size-4" />
-          清空筛选
+          <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text006" />
         </Button>
       }
-      description={`共 ${salesAccounts.length} 个账号，当前显示 ${filteredAccounts.length} 个。`}
-      title="业务员账户"
+      description={t("accountCount", {
+        total: salesAccounts.length,
+        visible: filteredAccounts.length,
+      })}
+      title={uiText("attribute006")}
     >
       <div className="mb-5 grid gap-4 md:grid-cols-3">
-        <DashboardFilterField label="搜索账号">
+        <DashboardFilterField label={uiText("attribute007")}>
           <input
             className={dashboardFilterInputClassName}
             onChange={(event) => onAccountSearchChange(event.target.value)}
-            placeholder="姓名、邮箱、手机或城市"
+            placeholder={uiText("attribute008")}
             type="search"
             value={accountSearch}
           />
         </DashboardFilterField>
-        <DashboardFilterField label="账号身份">
+        <DashboardFilterField label={uiText("attribute009")}>
           <select
             className={dashboardFilterInputClassName}
             onChange={(event) => onAccountRoleFilterChange(event.target.value)}
             value={accountRoleFilter}
           >
-            <option value={ALL}>全部身份</option>
-            <option value="salesman">业务员</option>
+            <option value={ALL}>
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text007" />
+            </option>
+            <option value="salesman">
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text008" />
+            </option>
           </select>
         </DashboardFilterField>
-        <DashboardFilterField label="账号状态">
+        <DashboardFilterField label={uiText("attribute010")}>
           <select
             className={dashboardFilterInputClassName}
-            onChange={(event) => onAccountStatusFilterChange(event.target.value)}
+            onChange={(event) =>
+              onAccountStatusFilterChange(event.target.value)
+            }
             value={accountStatusFilter}
           >
-            <option value={ALL}>全部状态</option>
-            <option value="active">正常</option>
-            <option value="inactive">未启用</option>
-            <option value="suspended">已停用</option>
+            <option value={ALL}>
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text009" />
+            </option>
+            <option value="active">
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text010" />
+            </option>
+            <option value="inactive">
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text011" />
+            </option>
+            <option value="suspended">
+              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text012" />
+            </option>
           </select>
         </DashboardFilterField>
       </div>

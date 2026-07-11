@@ -1,7 +1,6 @@
 "use client";
-
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-
 import type {
   Wholesale1688Order,
   WholesaleCustomer,
@@ -11,22 +10,21 @@ import type {
   WholesaleProfile,
 } from "@/lib/wholesale";
 import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
-
 import {
   formatCurrency,
   formatDateTime,
   getCustomerName,
   getProfileName,
-  WHOLESALE_ORDER_STATUS_LABELS,
 } from "./wholesale-display";
 import { WholesaleOrderDetailsDialog } from "./wholesale-order-details-dialog";
 import type { WholesaleOrderEditAction } from "./wholesale-orders-table";
 import { WholesaleStatusBadge } from "./wholesale-ui";
-
 type WholesaleOrdersMobileListProps = {
   canMarkOrderSettled: (order: WholesaleOrder) => boolean;
   customersById: Map<string, WholesaleCustomer>;
-  getOrderEditAction: (order: WholesaleOrder) => WholesaleOrderEditAction | null;
+  getOrderEditAction: (
+    order: WholesaleOrder,
+  ) => WholesaleOrderEditAction | null;
   logisticsOrdersByOrderId: Map<string, WholesaleLogisticsOrder[]>;
   logisticsStatusesByOrderId: Map<string, WholesaleLogisticsStatus[]>;
   onOpenOrderEdit: (order: WholesaleOrder) => void;
@@ -36,7 +34,6 @@ type WholesaleOrdersMobileListProps = {
   profilesById: Map<string, WholesaleProfile>;
   purchaseOrdersByOrderId: Map<string, Wholesale1688Order[]>;
 };
-
 export function WholesaleOrdersMobileList({
   canMarkOrderSettled,
   customersById,
@@ -50,8 +47,13 @@ export function WholesaleOrdersMobileList({
   profilesById,
   purchaseOrdersByOrderId,
 }: WholesaleOrdersMobileListProps) {
-  const [selectedOrder, setSelectedOrder] = useState<WholesaleOrder | null>(null);
-
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_orders_mobile_list",
+  );
+  const t = useTranslations("WholesaleBusiness.ordersUi");
+  const [selectedOrder, setSelectedOrder] = useState<WholesaleOrder | null>(
+    null,
+  );
   return (
     <div className="grid gap-3 md:hidden">
       {orders.map((order) => {
@@ -60,7 +62,6 @@ export function WholesaleOrdersMobileList({
           (sum, settlement) => sum + Number(settlement.settlement_amount),
           0,
         );
-
         return (
           <button
             className="min-w-0 rounded-[22px] border border-[#e6e1d9] bg-white p-4 text-left shadow-sm transition active:scale-[0.99]"
@@ -81,28 +82,28 @@ export function WholesaleOrdersMobileList({
               <WholesaleStatusBadge
                 tone={order.status === "settled" ? "success" : "warning"}
               >
-                {WHOLESALE_ORDER_STATUS_LABELS[order.status]}
+                {t(`statuses.${order.status}`)}
               </WholesaleStatusBadge>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <MobileOrderValue
-                label="支付金额"
+                label={uiText("attribute001")}
                 value={formatCurrency(
                   order.customer_payment_amount,
                   order.customer_payment_currency,
                 )}
               />
               <MobileOrderValue
-                label="结汇进度"
+                label={uiText("attribute002")}
                 value={`${formatCurrency(settledAmount, order.customer_payment_currency)} / ${formatCurrency(order.customer_payment_amount, order.customer_payment_currency)}`}
               />
               <MobileOrderValue
-                label="业务员"
+                label={uiText("attribute003")}
                 value={getProfileName(profilesById, order.sales_user_id)}
               />
               <MobileOrderValue
-                label="下单时间"
+                label={uiText("attribute004")}
                 value={formatDateTime(order.ordered_at)}
               />
             </div>
@@ -113,7 +114,10 @@ export function WholesaleOrdersMobileList({
       {selectedOrder ? (
         <WholesaleOrderDetailsDialog
           canMarkOrderSettled={canMarkOrderSettled(selectedOrder)}
-          customerName={getCustomerName(customersById, selectedOrder.customer_id)}
+          customerName={getCustomerName(
+            customersById,
+            selectedOrder.customer_id,
+          )}
           editAction={getOrderEditAction(selectedOrder)}
           logisticsOrders={logisticsOrdersByOrderId.get(selectedOrder.id) ?? []}
           logisticsStatuses={
@@ -138,7 +142,6 @@ export function WholesaleOrdersMobileList({
     </div>
   );
 }
-
 function MobileOrderValue({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-[14px] bg-[#f7f9fa] px-3 py-2">

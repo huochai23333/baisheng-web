@@ -26,6 +26,10 @@ import {
   getWholesaleOrderEditSettings,
   type WholesaleOrderEditSettings,
 } from "./wholesale-order-edit-settings";
+import {
+  getWholesaleProfiles,
+  getWholesaleProfilesWithCandidates,
+} from "./wholesale-profiles";
 import type { WorkspaceWholesaleSectionKey } from "./workspace-config";
 
 export type WholesaleCustomer = {
@@ -88,9 +92,7 @@ export type WholesaleOrderSettlement = {
 };
 
 export type WholesaleOrderEditRequestStatus =
-  | "approved"
-  | "pending"
-  | "rejected";
+  "approved" | "pending" | "rejected";
 
 export type WholesaleOrderEditRequest = {
   id: string;
@@ -215,6 +217,7 @@ export type WholesalePageData = {
   commissions: WholesaleCommission[];
   referrals: WholesaleReferral[];
   profiles: WholesaleProfile[];
+  registeredCandidates: WholesaleProfile[];
   section: WorkspaceWholesaleSectionKey;
 };
 
@@ -242,22 +245,27 @@ export async function getWholesalePageData(
 
   if (section === "orders") {
     const filters = options?.orderFilters ?? getInitialWholesaleOrderFilters();
-    const [customers, profiles, exchangeRates, orderEditSettings, orderPageResult] =
-      await Promise.all([
-        getWholesaleCustomers(supabase),
-        getWholesaleProfiles(supabase, false),
-        getExchangeRates(supabase),
-        getWholesaleOrderEditSettings(supabase),
-        getWholesaleOrderPage(supabase, filters, null, options?.orderLimit)
-          .then((page) => ({ error: null, page }))
-          .catch((error: unknown) => ({
-            error:
-              error instanceof Error
-                ? error.message
-                : "批发订单暂时没有加载成功，请稍后重试。",
-            page: null,
-          })),
-      ]);
+    const [
+      customers,
+      profiles,
+      exchangeRates,
+      orderEditSettings,
+      orderPageResult,
+    ] = await Promise.all([
+      getWholesaleCustomers(supabase),
+      getWholesaleProfiles(supabase, false),
+      getExchangeRates(supabase),
+      getWholesaleOrderEditSettings(supabase),
+      getWholesaleOrderPage(supabase, filters, null, options?.orderLimit)
+        .then((page) => ({ error: null, page }))
+        .catch((error: unknown) => ({
+          error:
+            error instanceof Error
+              ? error.message
+              : "批发订单暂时没有加载成功，请稍后重试。",
+          page: null,
+        })),
+    ]);
 
     const orderPage = orderPageResult.page;
 
@@ -320,18 +328,19 @@ async function getWholesaleSectionRows(
   const rows = createEmptyWholesaleSectionRows();
 
   if (section === "order-claims") {
-    const [customers, orders, purchaseOrders, profileResult] = await Promise.all([
-      getWholesaleCustomers(supabase),
-      getAllWholesaleOrders(supabase),
-      queryRows<Wholesale1688Order>(
-        supabase
-          .from("wholesale_1688_orders")
-          .select("*")
-          .order("created_at", { ascending: false }),
-        "1688 采购订单",
-      ),
-      getWholesaleProfilesWithCandidates(supabase, false),
-    ]);
+    const [customers, orders, purchaseOrders, profileResult] =
+      await Promise.all([
+        getWholesaleCustomers(supabase),
+        getAllWholesaleOrders(supabase),
+        queryRows<Wholesale1688Order>(
+          supabase
+            .from("wholesale_1688_orders")
+            .select("*")
+            .order("created_at", { ascending: false }),
+          "1688 采购订单",
+        ),
+        getWholesaleProfilesWithCandidates(supabase, false),
+      ]);
 
     return { ...rows, customers, orders, purchaseOrders, ...profileResult };
   }
@@ -508,68 +517,6 @@ async function getAllWholesaleOrders(supabase: SupabaseClient) {
       .order("id", { ascending: false }),
     "批发订单",
   );
-}
-
-async function getWholesaleProfiles(
-  supabase: SupabaseClient,
-  includeLinkCandidates: boolean,
-) {
-  const result = await getWholesaleProfilesWithCandidates(
-    supabase,
-    includeLinkCandidates,
-  );
-  return result.profiles;
-}
-
-async function getWholesaleProfilesWithCandidates(
-  supabase: SupabaseClient,
-  includeLinkCandidates: boolean,
-) {
-  const [profiles, roleRows, roles, registeredCandidates] = await Promise.all([
-    queryRows<Omit<WholesaleProfile, "role">>(
-      supabase
-        .from("user_profiles")
-        .select("user_id,name,email,phone,status,city")
-        .order("created_at", { ascending: false }),
-      "账号资料",
-    ),
-    queryRows<{ user_id: string; role_id: string }>(
-      supabase.from("user_roles_data").select("user_id,role_id"),
-      "账号身份关联",
-    ),
-    queryRows<{ id: string; role: AppRole }>(
-      supabase.from("user_roles").select("id,role"),
-      "账号身份",
-    ),
-    includeLinkCandidates
-      ? queryRows<WholesaleProfile>(
-          supabase.rpc("list_wholesale_customer_link_candidates"),
-          "可关联客户账号",
-        )
-      : Promise.resolve([]),
-  ]);
-  const rolesById = new Map(roles.map((roleRow) => [roleRow.id, roleRow.role]));
-  const roleByUserId = new Map(
-    roleRows.map((roleRow) => [
-      roleRow.user_id,
-      rolesById.get(roleRow.role_id) ?? null,
-    ]),
-  );
-  const profilesByUserId = new Map(
-    profiles.map((profile) => [
-      profile.user_id,
-      { ...profile, role: roleByUserId.get(profile.user_id) ?? null },
-    ]),
-  );
-
-  for (const candidate of registeredCandidates) {
-    profilesByUserId.set(candidate.user_id, candidate);
-  }
-
-  return {
-    profiles: Array.from(profilesByUserId.values()),
-    registeredCandidates,
-  };
 }
 
 async function queryRows<T>(

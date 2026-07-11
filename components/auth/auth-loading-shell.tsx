@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { UiMessage } from "@/components/i18n/ui-message";
 
 type AuthLoadingShellProps = {
   variant: "login" | "register" | "recovery";
@@ -17,7 +18,9 @@ export function AuthLoadingShell({ variant }: AuthLoadingShellProps) {
       )}
       role="status"
     >
-      <span className="sr-only">loading</span>
+      <span className="sr-only">
+        <UiMessage id="shared.loading" />
+      </span>
 
       {variant === "register" ? (
         <>
