@@ -3,6 +3,13 @@ import { UiMessage } from "@/components/i18n/ui-message";
 import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { WholesalePageData } from "@/lib/wholesale";
+import {
+  canAssignWholesaleSalesUser,
+  canBypassWholesaleOrderEditWindow,
+  canManageEveryWholesaleCustomer,
+  canManageEveryWholesaleOrder,
+  canReviewWholesaleOrderEditRequests,
+} from "@/lib/wholesale-role-permissions";
 import { WholesaleClaimsSection } from "./wholesale-claims-section";
 import { WholesaleCommissionSection } from "./wholesale-commission-section";
 import { WholesaleCustomersSection } from "./wholesale-customers-section";
@@ -33,8 +40,9 @@ export function WholesaleClient({
     initialData.currentRole === "salesman" ||
     initialData.currentRole === "finance";
   const canEdit = canAdmin || canUseSalesTools;
-  const canManageWholesaleCustomers =
-    canAdmin || initialData.currentRole === "salesman";
+  const canManageWholesaleCustomers = canManageEveryWholesaleCustomer(
+    initialData.currentRole,
+  );
   const canLinkCustomerAccount = canManageWholesaleCustomers;
   return (
     <div className="space-y-6">
@@ -47,7 +55,18 @@ export function WholesaleClient({
       {initialData.section === "orders" && initialData.orderPage ? (
         <WholesaleOrdersSection
           canEdit={canEdit}
-          canManageAllOrders={canAdmin}
+          canBypassEditWindow={canBypassWholesaleOrderEditWindow(
+            initialData.currentRole,
+          )}
+          canManageEveryOrder={canManageEveryWholesaleOrder(
+            initialData.currentRole,
+          )}
+          canReassignOrder={canAssignWholesaleSalesUser(
+            initialData.currentRole,
+          )}
+          canReviewOrderEditRequests={canReviewWholesaleOrderEditRequests(
+            initialData.currentRole,
+          )}
           currentRole={initialData.currentRole}
           currentUserId={initialData.currentUserId}
           customers={initialData.customers}
@@ -92,6 +111,9 @@ export function WholesaleClient({
           actions={actions}
           canAdmin={canAdmin}
           canEdit={canEdit}
+          canReassignClaims={canManageEveryWholesaleOrder(
+            initialData.currentRole,
+          )}
           customers={initialData.customers}
           customersById={customersById}
           orders={initialData.orders}
@@ -117,7 +139,9 @@ export function WholesaleClient({
       {initialData.section === "customers" ? (
         <WholesaleCustomersSection
           canAddRegisteredCustomer={canAdmin}
-          canAssignSalesUser={canAdmin}
+          canAssignSalesUser={canAssignWholesaleSalesUser(
+            initialData.currentRole,
+          )}
           canEdit={canManageWholesaleCustomers}
           canLinkCustomerAccount={canLinkCustomerAccount}
           currentUserId={initialData.currentUserId}

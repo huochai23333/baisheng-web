@@ -21,6 +21,7 @@ const wholesaleClaimStickyFirstTdClassName = `${wholesaleStickyFirstTdClassName}
 export function WholesaleClaimsTable({
   canAdmin,
   canEdit,
+  canReassignClaims,
   onDelete,
   onOpenClaim,
   pendingKey,
@@ -28,6 +29,7 @@ export function WholesaleClaimsTable({
 }: {
   canAdmin: boolean;
   canEdit: boolean;
+  canReassignClaims: boolean;
   onDelete: (purchaseOrderId: string) => void;
   onOpenClaim: (row: WholesaleClaimRow) => void;
   pendingKey: string | null;
@@ -83,6 +85,7 @@ export function WholesaleClaimsTable({
           <WholesaleClaimTableRow
             canAdmin={canAdmin}
             canEdit={canEdit}
+            canReassignClaims={canReassignClaims}
             key={row.purchaseOrder.id}
             onDelete={onDelete}
             onOpenClaim={onOpenClaim}
@@ -97,6 +100,7 @@ export function WholesaleClaimsTable({
 function WholesaleClaimTableRow({
   canAdmin,
   canEdit,
+  canReassignClaims,
   onDelete,
   onOpenClaim,
   pendingKey,
@@ -104,6 +108,7 @@ function WholesaleClaimTableRow({
 }: {
   canAdmin: boolean;
   canEdit: boolean;
+  canReassignClaims: boolean;
   onDelete: (purchaseOrderId: string) => void;
   onOpenClaim: (row: WholesaleClaimRow) => void;
   pendingKey: string | null;
@@ -119,6 +124,7 @@ function WholesaleClaimTableRow({
         <div className="mt-2">
           <ClaimInlineSlot
             canEdit={canEdit}
+            canReassignClaim={canReassignClaims}
             onOpenClaim={onOpenClaim}
             pending={pendingKey}
             row={row}
@@ -183,11 +189,13 @@ function WholesaleClaimTableRow({
 }
 function ClaimInlineSlot({
   canEdit,
+  canReassignClaim,
   onOpenClaim,
   pending,
   row,
 }: {
   canEdit: boolean;
+  canReassignClaim: boolean;
   onOpenClaim: (row: WholesaleClaimRow) => void;
   pending: string | null;
   row: WholesaleClaimRow;
@@ -212,6 +220,19 @@ function ClaimInlineSlot({
     );
   }
   if (row.board === "claimed") {
+    if (canReassignClaim) {
+      return (
+        <Button
+          className="h-8 rounded-full border border-[#d8e2e8] bg-white px-3 text-xs text-[#486782] hover:bg-[#eef3f6]"
+          disabled={pending === "1688:claim"}
+          onClick={() => onOpenClaim(row)}
+          type="button"
+          variant="outline"
+        >
+          <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text023" />
+        </Button>
+      );
+    }
     return (
       <WholesaleStatusBadge tone="success">
         <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text018" />

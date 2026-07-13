@@ -5,8 +5,11 @@ import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-at
 import type { WholesaleOrderPage } from "@/lib/wholesale-order-page";
 
 export type WholesaleOrdersSectionProps = {
+  canBypassEditWindow: boolean;
   canEdit: boolean;
-  canManageAllOrders: boolean;
+  canManageEveryOrder: boolean;
+  canReassignOrder: boolean;
+  canReviewOrderEditRequests: boolean;
   currentRole: AppRole | null;
   currentUserId: string | null;
   customers: WholesaleCustomer[];

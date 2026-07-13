@@ -33,7 +33,7 @@ import {
   WholesaleSubmitButton,
 } from "./wholesale-ui";
 type WholesaleOrderEditDialogProps = {
-  canManageAllOrders: boolean;
+  canReassignOrder: boolean;
   editWindowDays: number;
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
@@ -47,7 +47,7 @@ type WholesaleOrderEditDialogProps = {
   salesAccounts: WholesaleProfile[];
 };
 export function WholesaleOrderEditDialog({
-  canManageAllOrders,
+  canReassignOrder,
   editWindowDays,
   customers,
   exchangeRates,
@@ -120,7 +120,7 @@ export function WholesaleOrderEditDialog({
         }}
       >
         <input name="order_id" type="hidden" value={order.id} />
-        {!canManageAllOrders ? (
+        {!canReassignOrder ? (
           <>
             <input name="customer_id" type="hidden" value={order.customer_id} />
             <input
@@ -133,7 +133,7 @@ export function WholesaleOrderEditDialog({
 
         <WholesaleSelect
           defaultValue={order.customer_id}
-          disabled={!canManageAllOrders}
+          disabled={!canReassignOrder}
           label={uiText("attribute001")}
           name="customer_id"
           required
@@ -149,7 +149,7 @@ export function WholesaleOrderEditDialog({
         </WholesaleSelect>
         <WholesaleSelect
           defaultValue={order.sales_user_id ?? ""}
-          disabled={!canManageAllOrders}
+          disabled={!canReassignOrder}
           label={uiText("attribute002")}
           name="sales_user_id"
         >

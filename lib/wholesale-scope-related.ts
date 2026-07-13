@@ -15,7 +15,7 @@ import type { WholesaleLogisticsStatus } from "./wholesale-logistics-statuses";
 import {
   canReadFullWholesaleBackoffice,
   canReadFullWholesaleDirectory,
-} from "./wholesale-scope-role-rules";
+} from "./wholesale-role-permissions";
 
 export function scopeWholesaleCommissions({
   currentRole,
@@ -32,6 +32,13 @@ export function scopeWholesaleCommissions({
 }) {
   if (canReadFullWholesaleBackoffice(currentRole)) return commissions;
   if (!currentUserId) return [];
+
+  if (currentRole === "salesman") {
+    // 日常订单可以协作，但佣金仍只展示给实际受益业务员本人。
+    return commissions.filter(
+      (commission) => commission.beneficiary_user_id === currentUserId,
+    );
+  }
 
   return commissions.filter(
     (commission) =>

@@ -89,6 +89,11 @@ export function getInactiveRegressionAccount(): RegressionAccount | null {
   return getSpecialLocalAccount("local.inactive-client@", "client");
 }
 
+export function getPeerSalesmanRegressionAccount(): RegressionAccount | null {
+  // 第二个业务员仅用于本地协作回归；云端测试没有该固定账号时，用例会明确跳过。
+  return getSpecialLocalAccount("local.peer-salesman@", "salesman");
+}
+
 function getSpecialLocalAccount(
   emailPrefix: string,
   role: RegressionRole,

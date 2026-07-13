@@ -33,6 +33,7 @@ import { WholesaleEmptyState, WholesalePageShell } from "./wholesale-ui";
 type WholesaleClaimsSectionProps = {
   canAdmin: boolean;
   canEdit: boolean;
+  canReassignClaims: boolean;
   customers: WholesaleCustomer[];
   customersById: Map<string, WholesaleCustomer>;
   orders: WholesaleOrder[];
@@ -48,6 +49,7 @@ export function WholesaleClaimsSection({
   actions,
   canAdmin,
   canEdit,
+  canReassignClaims,
   customers,
   customersById,
   orders,
@@ -166,6 +168,7 @@ export function WholesaleClaimsSection({
           <WholesaleClaimsTable
             canAdmin={canAdmin}
             canEdit={canEdit}
+            canReassignClaims={canReassignClaims}
             onDelete={actions.delete1688Order}
             onOpenClaim={setClaimTarget}
             pendingKey={pendingKey}

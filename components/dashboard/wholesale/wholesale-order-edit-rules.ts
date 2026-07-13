@@ -6,15 +6,15 @@ import type {
 export type WholesaleOrderEditMode = "direct" | "request";
 
 export function getWholesaleOrderEditMode({
-  canManageAllOrders,
+  canBypassEditWindow,
   editWindowDays,
   order,
 }: {
-  canManageAllOrders: boolean;
+  canBypassEditWindow: boolean;
   editWindowDays: number;
   order: WholesaleOrderListItem;
 }): WholesaleOrderEditMode {
-  if (canManageAllOrders) {
+  if (canBypassEditWindow) {
     return "direct";
   }
 
@@ -40,13 +40,13 @@ export function isWithinWholesaleOrderEditWindow(
 
 export function canCurrentUserManageWholesaleOrder({
   canEdit,
-  canManageAllOrders,
+  canManageEveryOrder,
   currentUserId,
   customer,
   order,
 }: {
   canEdit: boolean;
-  canManageAllOrders: boolean;
+  canManageEveryOrder: boolean;
   currentUserId: string | null;
   customer: WholesaleCustomer | undefined;
   order: WholesaleOrderListItem;
@@ -55,7 +55,7 @@ export function canCurrentUserManageWholesaleOrder({
     return false;
   }
 
-  if (canManageAllOrders) {
+  if (canManageEveryOrder) {
     return true;
   }
 
@@ -63,7 +63,7 @@ export function canCurrentUserManageWholesaleOrder({
     return false;
   }
 
-  // This mirrors the database manage-scope rule for the visible order row.
+  // 这里与数据库的订单管理范围保持一致，普通非协作角色仍只能处理自己负责的订单。
   return (
     order.sales_user_id === currentUserId ||
     order.created_by_user_id === currentUserId ||

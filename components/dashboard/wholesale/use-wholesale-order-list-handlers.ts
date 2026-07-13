@@ -20,7 +20,7 @@ type RefreshAfter = <Result>(
 export function useWholesaleOrderListHandlers({
   attachmentsByOrderId,
   canEdit,
-  canManageAllOrders,
+  canManageEveryOrder,
   currentRole,
   currentUserId,
   customersById,
@@ -31,7 +31,7 @@ export function useWholesaleOrderListHandlers({
 }: {
   attachmentsByOrderId: Map<string, WholesaleOrderListAttachment[]>;
   canEdit: boolean;
-  canManageAllOrders: boolean;
+  canManageEveryOrder: boolean;
   currentRole: AppRole | null;
   currentUserId: string | null;
   customersById: Map<string, WholesaleCustomer>;
@@ -56,7 +56,7 @@ export function useWholesaleOrderListHandlers({
         currentRole === "salesman" &&
         canCurrentUserManageWholesaleOrder({
           canEdit,
-          canManageAllOrders,
+          canManageEveryOrder,
           currentUserId,
           customer: customersById.get(order.customer_id),
           order,
@@ -65,7 +65,7 @@ export function useWholesaleOrderListHandlers({
     },
     [
       canEdit,
-      canManageAllOrders,
+      canManageEveryOrder,
       currentRole,
       currentUserId,
       customersById,

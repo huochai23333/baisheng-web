@@ -21,10 +21,11 @@ import {
   scopeWholesaleReferrals,
 } from "./wholesale-scope-related";
 import {
+  canCollaborateAcrossWholesale,
   canReadFullWholesaleBackoffice,
   canReadFullWholesaleDirectory,
   canUseWholesaleSalesScope,
-} from "./wholesale-scope-role-rules";
+} from "./wholesale-role-permissions";
 
 type ScopeWholesaleRowsInput = {
   commissions: WholesaleCommission[];
@@ -242,7 +243,10 @@ function scopeWholesaleOrders({
   customerIds: Set<string>;
   orders: WholesaleOrder[];
 }) {
-  if (canReadFullWholesaleBackoffice(currentRole)) {
+  if (
+    canReadFullWholesaleBackoffice(currentRole) ||
+    canCollaborateAcrossWholesale(currentRole)
+  ) {
     return orders;
   }
 
@@ -275,7 +279,10 @@ function scopeWholesalePurchaseOrders({
   orderIds: Set<string>;
   purchaseOrders: Wholesale1688Order[];
 }) {
-  if (canReadFullWholesaleBackoffice(currentRole)) {
+  if (
+    canReadFullWholesaleBackoffice(currentRole) ||
+    canCollaborateAcrossWholesale(currentRole)
+  ) {
     return purchaseOrders;
   }
 
@@ -312,7 +319,10 @@ function scopeWholesaleLogisticsOrders({
   logisticsOrders: WholesaleLogisticsOrder[];
   orderIds: Set<string>;
 }) {
-  if (canReadFullWholesaleBackoffice(currentRole)) {
+  if (
+    canReadFullWholesaleBackoffice(currentRole) ||
+    canCollaborateAcrossWholesale(currentRole)
+  ) {
     return logisticsOrders;
   }
 

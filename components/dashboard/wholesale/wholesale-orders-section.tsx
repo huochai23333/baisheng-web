@@ -33,8 +33,11 @@ import {
 import type { WholesaleOrdersSectionProps } from "./wholesale-orders-section-types";
 import { WholesaleEmptyState, WholesalePageShell } from "./wholesale-ui";
 export function WholesaleOrdersSection({
+  canBypassEditWindow,
   canEdit,
-  canManageAllOrders,
+  canManageEveryOrder,
+  canReassignOrder,
+  canReviewOrderEditRequests,
   currentRole,
   currentUserId,
   customers,
@@ -86,12 +89,12 @@ export function WholesaleOrdersSection({
       order.status !== "settled" &&
       canCurrentUserManageWholesaleOrder({
         canEdit,
-        canManageAllOrders,
+        canManageEveryOrder,
         currentUserId,
         customer: customersById.get(order.customer_id),
         order,
       }),
-    [canEdit, canManageAllOrders, currentUserId, customersById],
+    [canEdit, canManageEveryOrder, currentUserId, customersById],
   );
   const getOrderEditAction = useCallback(
     (order: WholesaleOrderListItem): WholesaleOrderEditAction | null => {
@@ -99,7 +102,7 @@ export function WholesaleOrdersSection({
         !hasWholesaleOrderInternalFields(order) ||
         !canCurrentUserManageWholesaleOrder({
           canEdit,
-          canManageAllOrders,
+          canManageEveryOrder,
           currentUserId,
           customer: customersById.get(order.customer_id),
           order,
@@ -108,7 +111,7 @@ export function WholesaleOrdersSection({
         return null;
       }
       return getWholesaleOrderEditMode({
-        canManageAllOrders,
+        canBypassEditWindow,
         editWindowDays: orderEditWindowDays,
         order,
       }) === "direct"
@@ -117,7 +120,8 @@ export function WholesaleOrdersSection({
     },
     [
       canEdit,
-      canManageAllOrders,
+      canBypassEditWindow,
+      canManageEveryOrder,
       currentUserId,
       customersById,
       orderEditWindowDays,
@@ -135,7 +139,7 @@ export function WholesaleOrdersSection({
   const orderListHandlers = useWholesaleOrderListHandlers({
     attachmentsByOrderId: viewData.orderListAttachmentsByOrderId,
     canEdit,
-    canManageAllOrders,
+    canManageEveryOrder,
     currentRole,
     currentUserId,
     customersById,
@@ -146,7 +150,7 @@ export function WholesaleOrdersSection({
   });
   const selectedEditMode = selectedEditOrder
     ? getWholesaleOrderEditMode({
-        canManageAllOrders,
+        canBypassEditWindow,
         editWindowDays: orderEditWindowDays,
         order: selectedEditOrder,
       })
@@ -314,7 +318,7 @@ export function WholesaleOrdersSection({
 
       {page?.canViewInternalFields ? (
         <WholesaleOrderChangeSections
-          canReviewRequests={canManageAllOrders}
+          canReviewRequests={canReviewOrderEditRequests}
           customersById={customersById}
           logs={page.orderChangeLogs}
           onApproveRequest={(requestId) =>
@@ -344,7 +348,7 @@ export function WholesaleOrdersSection({
 
       {selectedEditOrder && hasWholesaleOrderInternalFields(selectedEditOrder) ? (
         <WholesaleOrderEditDialog
-          canManageAllOrders={canManageAllOrders}
+          canReassignOrder={canReassignOrder}
           customers={customers}
           editWindowDays={orderEditWindowDays}
           exchangeRates={exchangeRates}
