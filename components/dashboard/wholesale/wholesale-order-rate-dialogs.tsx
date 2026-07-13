@@ -25,7 +25,7 @@ import { WholesaleSubmitButton } from "./wholesale-ui";
 type WholesaleOrderSettlementDialogProps = {
   exchangeRates: ExchangeRateRow[];
   onOpenChange: (open: boolean) => void;
-  onSettleOrder: (formData: FormData) => void | Promise<void>;
+  onSettleOrder: (formData: FormData) => Promise<boolean>;
   order: WholesaleOrderListItem;
   pending: boolean;
   settlements: WholesaleOrderSettlement[];
@@ -86,9 +86,13 @@ export function WholesaleOrderSettlementDialog({
     >
       <form
         className="grid gap-4 md:grid-cols-2"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
-          void onSettleOrder(new FormData(event.currentTarget));
+          const succeeded = await onSettleOrder(
+            new FormData(event.currentTarget),
+          );
+          // 请求失败时保留金额和日期，避免用户重复录入结汇信息。
+          if (!succeeded) return;
           setSettlementAmount("");
           setSettlementDate(getBeijingDateString());
           onOpenChange(false);

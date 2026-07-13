@@ -25,7 +25,7 @@ import {
 type WholesaleSettlementReleaseTableProps = {
   canClaim: boolean;
   canPublish: boolean;
-  onCancelRelease: (releaseId: string) => void | Promise<void>;
+  onCancelRelease: (releaseId: string) => Promise<boolean>;
   onOpenClaim: (release: WholesaleSettlementRelease) => void;
   ordersById: Map<string, WholesaleOrder>;
   pendingKey: string | null;

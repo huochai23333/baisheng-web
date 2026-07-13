@@ -33,7 +33,7 @@ type WholesaleLogisticsSectionProps = {
   customersById: Map<string, WholesaleCustomer>;
   logisticsOrders: WholesaleLogisticsOrder[];
   logisticsStatuses: WholesaleLogisticsStatus[];
-  onCreateLogisticsStatus: (formData: FormData) => void;
+  onCreateLogisticsStatus: (formData: FormData) => Promise<boolean>;
   orders: WholesaleOrder[];
   pendingKey: string | null;
 };
@@ -66,10 +66,14 @@ export function WholesaleLogisticsSection({
         >
           <form
             className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
-              onCreateLogisticsStatus(new FormData(event.currentTarget));
-              event.currentTarget.reset();
+              const form = event.currentTarget;
+              const succeeded = await onCreateLogisticsStatus(
+                new FormData(form),
+              );
+              // 只有数据库确认成功后才清空物流号和客户信息。
+              if (succeeded) form.reset();
             }}
           >
             <WholesaleField

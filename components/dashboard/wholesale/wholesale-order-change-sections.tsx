@@ -33,8 +33,8 @@ type WholesaleOrderChangeSectionsProps = {
   canReviewRequests: boolean;
   customersById: Map<string, WholesaleCustomer>;
   logs: WholesaleOrderChangeLog[];
-  onApproveRequest: (requestId: string) => void | Promise<void>;
-  onRejectRequest: (requestId: string) => void | Promise<void>;
+  onApproveRequest: (requestId: string) => Promise<boolean>;
+  onRejectRequest: (requestId: string) => Promise<boolean>;
   ordersById: Map<string, WholesaleOrderListItem>;
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;

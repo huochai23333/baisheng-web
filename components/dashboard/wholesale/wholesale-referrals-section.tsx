@@ -26,7 +26,7 @@ type WholesaleReferralsSectionProps = {
   canEdit: boolean;
   customers: WholesaleCustomer[];
   customersById: Map<string, WholesaleCustomer>;
-  onCreateReferral: (formData: FormData) => void | Promise<void>;
+  onCreateReferral: (formData: FormData) => Promise<boolean>;
   pendingKey: string | null;
   referrals: WholesaleReferral[];
 };
@@ -121,10 +121,13 @@ export function WholesaleReferralsSection({
       >
         <form
           className="grid gap-4 md:grid-cols-2"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
-            void onCreateReferral(new FormData(event.currentTarget));
-            event.currentTarget.reset();
+            const form = event.currentTarget;
+            const succeeded = await onCreateReferral(new FormData(form));
+            // 保存失败时弹窗保持打开，两位客户的选择也继续保留。
+            if (!succeeded) return;
+            form.reset();
             setDialogOpen(false);
           }}
         >

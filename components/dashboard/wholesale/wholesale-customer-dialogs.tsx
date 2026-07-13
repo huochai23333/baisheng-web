@@ -13,11 +13,11 @@ type WholesaleCustomerDialogsProps = {
   createDialogOpen: boolean;
   currentUserId: string | null;
   linkedRegisteredUserIds: Set<string>;
-  onAddCustomerOtherName: (formData: FormData) => void | Promise<void>;
+  onAddCustomerOtherName: (formData: FormData) => Promise<boolean>;
   onCreateCustomer: (formData: FormData) => boolean | Promise<boolean>;
   onCreateDialogOpenChange: (open: boolean) => void;
   onDeleteCustomer: (customerId: string) => boolean | Promise<boolean>;
-  onLinkCustomerAccount: (formData: FormData) => void | Promise<void>;
+  onLinkCustomerAccount: (formData: FormData) => Promise<boolean>;
   onSelectedCustomerIdChange: (id: string | null) => void;
   onUpdateCustomer: (formData: FormData) => boolean | Promise<boolean>;
   pendingKey: string | null;

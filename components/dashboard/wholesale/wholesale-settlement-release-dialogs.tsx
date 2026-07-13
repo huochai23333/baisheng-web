@@ -27,7 +27,7 @@ import {
 type CreateDialogProps = {
   currencyOptions: string[];
   customers: WholesaleCustomer[];
-  onCreateRelease: (formData: FormData) => void | Promise<void>;
+  onCreateRelease: (formData: FormData) => Promise<boolean>;
   onOpenChange: (open: boolean) => void;
   pending: boolean;
 };
@@ -63,9 +63,13 @@ export function WholesaleSettlementReleaseCreateDialog({
     >
       <form
         className="grid gap-4 md:grid-cols-2"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
-          void onCreateRelease(new FormData(event.currentTarget));
+          const succeeded = await onCreateRelease(
+            new FormData(event.currentTarget),
+          );
+          // 发布失败时保留客户、金额、币种和备注，用户无需重新填写。
+          if (!succeeded) return;
           onOpenChange(false);
         }}
       >
@@ -159,7 +163,7 @@ export function WholesaleSettlementReleaseCreateDialog({
 }
 type ClaimDialogProps = {
   customersById: Map<string, WholesaleCustomer>;
-  onClaimRelease: (formData: FormData) => void | Promise<void>;
+  onClaimRelease: (formData: FormData) => Promise<boolean>;
   onOpenChange: (open: boolean) => void;
   orderSettlementsByOrderId: Map<string, WholesaleOrderSettlement[]>;
   orders: WholesaleOrder[];
@@ -209,9 +213,13 @@ export function WholesaleSettlementReleaseClaimDialog({
     >
       <form
         className="grid gap-4"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
-          void onClaimRelease(new FormData(event.currentTarget));
+          const succeeded = await onClaimRelease(
+            new FormData(event.currentTarget),
+          );
+          // 匹配失败时继续显示当前候选订单，便于用户调整选择。
+          if (!succeeded) return;
           onOpenChange(false);
         }}
       >

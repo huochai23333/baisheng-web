@@ -11,6 +11,7 @@ import { getPeerSalesmanRegressionAccount } from "./helpers/accounts";
 const PEER_CUSTOMER_NAME = "业务员协作客户";
 const PEER_ORDER_ID = "c2000000-0000-4000-8000-000000000100";
 const PEER_ORDER_NUMBER = "WH-PEER-LOCAL-001";
+const PENDING_REQUEST_NOTE = "请管理员确认协作订单的备注修改。";
 
 test.describe("批发业务员全员协作", () => {
   test("业务员可以查看、编辑和转派同事的客户与订单", async ({ page }) => {
@@ -111,9 +112,35 @@ test.describe("批发业务员全员协作", () => {
     });
     await expect(editDialog.getByLabel("客户名")).toBeEnabled();
     await expect(editDialog.getByLabel("关联业务员")).toBeEnabled();
+    await page.keyboard.press("Escape");
+    await page.getByLabel("搜索订单").fill(PEER_ORDER_NUMBER);
+    const requestRow = page.getByRole("row").filter({
+      hasText: PENDING_REQUEST_NOTE,
+    });
+    await expect(requestRow).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /同意修改|拒绝修改/ }),
+      requestRow.getByRole("button", { name: /通过|退回/ }),
     ).toHaveCount(0);
+  });
+
+  test("管理员能看到协作订单的固定待审批申请和审批操作", async ({
+    page,
+  }) => {
+    await loginAs(page, "administrator");
+    await page.goto("/admin/wholesale/orders");
+    await page.getByLabel("搜索订单").fill(PEER_ORDER_NUMBER);
+
+    const requestRow = page.getByRole("row").filter({
+      hasText: PENDING_REQUEST_NOTE,
+    });
+    await expect(requestRow).toBeVisible();
+    await expect(requestRow).toContainText(PEER_ORDER_NUMBER);
+    await expect(
+      requestRow.getByRole("button", { name: "通过" }),
+    ).toBeVisible();
+    await expect(
+      requestRow.getByRole("button", { name: "退回" }),
+    ).toBeVisible();
   });
 
   test("手机宽度下协作订单卡片和编辑弹窗不挤压", async ({ page }) => {

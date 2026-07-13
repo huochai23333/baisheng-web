@@ -344,7 +344,7 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByLabel("关联批发订单")).toBeEnabled();
   });
 
-  test("salesman wholesale customer page hides people management", async ({
+  test("salesman wholesale customer page shares customers but hides people management", async ({
     page,
   }) => {
     await loginAs(page, "salesman");
@@ -355,7 +355,8 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByRole("heading", { name: "客户管理" })).toBeVisible();
     await expect(page.getByText("Wholesale Alpha").first()).toBeVisible();
     await expect(page.getByText("Wholesale Beta").first()).toBeVisible();
-    await expect(page.getByText("Promoter Wholesale Shop")).toHaveCount(0);
+    // 批发客户是全员协作数据，即使历史客户最初由其他岗位建立，业务员也应能继续跟进。
+    await expect(page.getByText("Promoter Wholesale Shop").first()).toBeVisible();
     await expect(page.getByRole("link", { name: "人员管理" })).toHaveCount(0);
 
     await page.goto("/salesman/wholesale/people");

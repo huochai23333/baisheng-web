@@ -18,25 +18,17 @@ type RunAction = (
   key: string,
   successMessage: string,
   action: () => Promise<void>,
-) => Promise<void>;
-
-type RunActionResult = (
-  key: string,
-  successMessage: string,
-  action: () => Promise<void>,
 ) => Promise<boolean>;
 
 export function createWholesaleCustomerActions({
   addRegisteredCustomerSuccessMessage,
   runAction,
-  runActionResult,
 }: {
   addRegisteredCustomerSuccessMessage: string;
   runAction: RunAction;
-  runActionResult: RunActionResult;
 }) {
   const addRegisteredCustomer = (userId: string) =>
-    runActionResult(
+    runAction(
       `customer:add-business:${userId}`,
       addRegisteredCustomerSuccessMessage,
       async () => {
@@ -48,7 +40,7 @@ export function createWholesaleCustomerActions({
     );
 
   const createCustomer = (formData: FormData) =>
-    runActionResult("customer:create", "批发客户已保存。", async () => {
+    runAction("customer:create", "批发客户已保存。", async () => {
       const supabase = getBrowserSupabaseClient();
       if (!supabase) throw new Error("client unavailable");
 
@@ -73,7 +65,7 @@ export function createWholesaleCustomerActions({
   const updateCustomer = (formData: FormData) => {
     const customerId = requiredString(formData.get("customer_id"));
 
-    return runActionResult(
+    return runAction(
       `customer:update:${customerId}`,
       "客户信息已更新。",
       async () => {
@@ -86,7 +78,7 @@ export function createWholesaleCustomerActions({
   };
 
   const deleteCustomer = (customerId: string) =>
-    runActionResult(
+    runAction(
       `customer:delete:${customerId}`,
       "客户已删除。",
       async () => {

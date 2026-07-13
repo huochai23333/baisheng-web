@@ -13,7 +13,7 @@ import { WholesaleSubmitButton } from "./wholesale-ui";
 type WholesaleCustomerOtherNamesProps = {
   canEdit: boolean;
   customer: WholesaleCustomer;
-  onAddOtherName: (formData: FormData) => void | Promise<void>;
+  onAddOtherName: (formData: FormData) => Promise<boolean>;
   pending: boolean;
 };
 export function WholesaleCustomerOtherNames({
@@ -77,7 +77,9 @@ export function WholesaleCustomerOtherNames({
           onSubmit={async (event) => {
             event.preventDefault();
             const form = event.currentTarget;
-            await onAddOtherName(new FormData(form));
+            const succeeded = await onAddOtherName(new FormData(form));
+            // 写入失败时保留输入框和别名，避免用户再次输入。
+            if (!succeeded) return;
             form.reset();
             setIsAdding(false);
           }}

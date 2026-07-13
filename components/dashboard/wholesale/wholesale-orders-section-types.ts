@@ -16,15 +16,15 @@ export type WholesaleOrdersSectionProps = {
   customersById: Map<string, WholesaleCustomer>;
   exchangeRates: ExchangeRateRow[];
   initialPage: WholesaleOrderPage;
-  onApproveOrderEditRequest: (requestId: string) => void | Promise<void>;
-  onCreateOrder: (formData: FormData) => void | Promise<void>;
+  onApproveOrderEditRequest: (requestId: string) => Promise<boolean>;
+  onCreateOrder: (formData: FormData) => Promise<boolean>;
   onDeleteOrderListAttachment: (
     attachment: WholesaleOrderListAttachment,
   ) => Promise<boolean>;
-  onMarkOrderSettled: (formData: FormData) => void | Promise<void>;
-  onRejectOrderEditRequest: (requestId: string) => void | Promise<void>;
-  onRequestOrderEdit: (formData: FormData) => void | Promise<void>;
-  onUpdateOrder: (formData: FormData) => void | Promise<void>;
+  onMarkOrderSettled: (formData: FormData) => Promise<boolean>;
+  onRejectOrderEditRequest: (requestId: string) => Promise<boolean>;
+  onRequestOrderEdit: (formData: FormData) => Promise<boolean>;
+  onUpdateOrder: (formData: FormData) => Promise<boolean>;
   onUploadOrderListAttachments: (options: {
     existingAttachments: WholesaleOrderListAttachment[];
     files: File[];

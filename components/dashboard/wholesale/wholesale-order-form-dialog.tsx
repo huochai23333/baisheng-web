@@ -19,7 +19,7 @@ import {
 type WholesaleOrderFormDialogProps = {
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
-  onCreateOrder: (formData: FormData) => void | Promise<void>;
+  onCreateOrder: (formData: FormData) => Promise<boolean>;
   onOpenChange: (open: boolean) => void;
   open: boolean;
   pending: boolean;
@@ -67,10 +67,13 @@ export function WholesaleOrderFormDialog({
     >
       <form
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
-          void onCreateOrder(new FormData(event.currentTarget));
-          event.currentTarget.reset();
+          const form = event.currentTarget;
+          const succeeded = await onCreateOrder(new FormData(form));
+          // 失败时不要清空表单，用户修正问题后可以直接再次提交。
+          if (!succeeded) return;
+          form.reset();
           onOpenChange(false);
         }}
       >

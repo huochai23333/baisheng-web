@@ -10,9 +10,9 @@ import type {
 import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-attachments";
 import { canCurrentUserManageWholesaleOrder } from "./wholesale-order-edit-rules";
 
-type RefreshAfter = <Result>(
-  action: () => Result | Promise<Result>,
-) => Promise<Result>;
+type RefreshAfter = (
+  action: () => boolean | Promise<boolean>,
+) => Promise<boolean>;
 
 /**
  * 附件权限和上传参数集中在这里组装，订单 Section 只负责把结果交给桌面表格和手机列表。

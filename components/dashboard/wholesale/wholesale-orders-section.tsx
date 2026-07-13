@@ -129,10 +129,12 @@ export function WholesaleOrdersSection({
     ],
   );
   const refreshAfter = useCallback(
-    async <Result,>(action: () => Result | Promise<Result>) => {
-      const result = await action();
+    async (action: () => boolean | Promise<boolean>) => {
+      const succeeded = await action();
+      // 请求失败时页面数据没有变化，也不能用旧的服务端结果覆盖用户正在处理的内容。
+      if (!succeeded) return false;
       await pageState.refreshFirstPage();
-      return result;
+      return true;
     },
     [pageState],
   );

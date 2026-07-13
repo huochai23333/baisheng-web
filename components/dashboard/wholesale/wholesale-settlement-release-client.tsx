@@ -1,8 +1,8 @@
 "use client";
 
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import type { WholesaleSettlementReleasePageData } from "@/lib/wholesale-settlement-releases";
 
+import { WholesaleActionFeedbackNotice } from "./wholesale-action-feedback";
 import { WholesaleSettlementReleaseSection } from "./wholesale-settlement-release-section";
 import { useWholesaleSettlementReleaseActions } from "./use-wholesale-settlement-release-actions";
 
@@ -21,9 +21,7 @@ export function WholesaleSettlementReleaseClient({
 
   return (
     <div className="space-y-6">
-      {actions.feedback ? (
-        <PageBanner tone={actions.feedback.tone}>{actions.feedback.message}</PageBanner>
-      ) : null}
+      <WholesaleActionFeedbackNotice feedback={actions.feedback} />
 
       <WholesaleSettlementReleaseSection
         canClaim={canClaim}

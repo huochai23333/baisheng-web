@@ -17,6 +17,7 @@ import { WholesaleLogisticsSection } from "./wholesale-logistics-section";
 import { WholesaleOrdersSection } from "./wholesale-orders-section";
 import { WholesalePeopleSection } from "./wholesale-people-section";
 import { WholesaleReferralsSection } from "./wholesale-referrals-section";
+import { WholesaleActionFeedbackNotice } from "./wholesale-action-feedback";
 import { useWholesaleActions } from "./use-wholesale-actions";
 export function WholesaleClient({
   initialData,
@@ -46,11 +47,7 @@ export function WholesaleClient({
   const canLinkCustomerAccount = canManageWholesaleCustomers;
   return (
     <div className="space-y-6">
-      {actions.feedback ? (
-        <PageBanner tone={actions.feedback.tone}>
-          {actions.feedback.message}
-        </PageBanner>
-      ) : null}
+      <WholesaleActionFeedbackNotice feedback={actions.feedback} />
 
       {initialData.section === "orders" && initialData.orderPage ? (
         <WholesaleOrdersSection

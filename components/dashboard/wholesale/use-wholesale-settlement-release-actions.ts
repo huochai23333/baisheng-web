@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
@@ -9,50 +8,12 @@ import {
   optionalString,
   positiveNumber,
   requiredString,
-  toWholesaleActionErrorMessage,
 } from "./wholesale-action-utils";
-
-type ActionFeedback = {
-  tone: "error" | "success";
-  message: string;
-} | null;
+import { useWholesaleActionRunner } from "./use-wholesale-action-runner";
 
 export function useWholesaleSettlementReleaseActions() {
-  const router = useRouter();
-  const [feedback, setFeedback] = useState<ActionFeedback>(null);
-  const [pendingKey, setPendingKey] = useState<string | null>(null);
-
-  const runAction = useCallback(
-    async (key: string, successMessage: string, action: () => Promise<void>) => {
-      const supabase = getBrowserSupabaseClient();
-
-      if (!supabase) {
-        setFeedback({
-          tone: "error",
-          message: "当前无法连接系统，请刷新页面后再试。",
-        });
-        return;
-      }
-
-      setPendingKey(key);
-      setFeedback(null);
-
-      try {
-        await action();
-        setFeedback({ tone: "success", message: successMessage });
-        // RPC 会在数据库里完成校验和写入，刷新页面可以重新读取最新的 RLS 过滤结果。
-        router.refresh();
-      } catch (error) {
-        setFeedback({
-          tone: "error",
-          message: toWholesaleActionErrorMessage(error),
-        });
-      } finally {
-        setPendingKey(null);
-      }
-    },
-    [router],
-  );
+  // 结汇发布与批发页面使用同一个成功契约，避免这里再次维护一套容易走偏的反馈逻辑。
+  const { feedback, pendingKey, runAction } = useWholesaleActionRunner();
 
   const createRelease = useCallback(
     (formData: FormData) =>

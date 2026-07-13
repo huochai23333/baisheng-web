@@ -22,10 +22,10 @@ type WholesaleCustomerDetailsProps = {
   canLinkAccount: boolean;
   customer: WholesaleCustomer;
   linkedRegisteredUserIds: Set<string>;
-  onAddOtherName: (formData: FormData) => void | Promise<void>;
+  onAddOtherName: (formData: FormData) => Promise<boolean>;
   onDeleteCustomer: () => void;
   onEditCustomer: () => void;
-  onLinkRegisteredUser: (formData: FormData) => void | Promise<void>;
+  onLinkRegisteredUser: (formData: FormData) => Promise<boolean>;
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
   registeredAccounts: WholesaleProfile[];
@@ -121,9 +121,10 @@ export function WholesaleCustomerDetails({
           {availableRegisteredAccounts.length > 0 ? (
             <form
               className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto]"
-              onSubmit={(event) => {
+              onSubmit={async (event) => {
                 event.preventDefault();
-                void onLinkRegisteredUser(new FormData(event.currentTarget));
+                // 关联失败时不改变当前选择，错误信息由页面统一反馈区展示。
+                await onLinkRegisteredUser(new FormData(event.currentTarget));
               }}
             >
               <input name="customer_id" type="hidden" value={customer.id} />

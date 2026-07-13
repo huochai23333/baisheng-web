@@ -39,8 +39,8 @@ type WholesaleOrderEditDialogProps = {
   exchangeRates: ExchangeRateRow[];
   mode: WholesaleOrderEditMode;
   onOpenChange: (open: boolean) => void;
-  onRequestOrderEdit: (formData: FormData) => void | Promise<void>;
-  onUpdateOrder: (formData: FormData) => void | Promise<void>;
+  onRequestOrderEdit: (formData: FormData) => Promise<boolean>;
+  onUpdateOrder: (formData: FormData) => Promise<boolean>;
   open: boolean;
   order: WholesaleOrder | null;
   pending: boolean;
@@ -92,7 +92,7 @@ export function WholesaleOrderEditDialog({
       <form
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
         key={`${order.id}-${mode}`}
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
           const hasOrderChanges = hasWholesaleOrderFieldChanges(
@@ -107,14 +107,13 @@ export function WholesaleOrderEditDialog({
               setRequestNoteError("请填写申请说明，方便管理员处理。");
               return;
             }
-            if (hasOrderChanges) {
-              void onRequestOrderEdit(formData);
+            if (hasOrderChanges && !(await onRequestOrderEdit(formData))) {
+              return;
             }
           } else {
-            if (hasOrderChanges) {
-              void onUpdateOrder(formData);
-            }
+            if (hasOrderChanges && !(await onUpdateOrder(formData))) return;
           }
+          // 没有修改时沿用原来的直接关闭行为；请求失败时会在上方提前返回，保留全部输入。
           setRequestNoteError("");
           onOpenChange(false);
         }}

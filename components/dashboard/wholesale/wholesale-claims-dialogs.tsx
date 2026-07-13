@@ -18,7 +18,10 @@ export function Wholesale1688UploadDialog({
   open,
   pending,
 }: {
-  onImportRows: (fileName: string, rows: Wholesale1688IngestRow[]) => void;
+  onImportRows: (
+    fileName: string,
+    rows: Wholesale1688IngestRow[],
+  ) => Promise<boolean>;
   onOpenChange: (open: boolean) => void;
   open: boolean;
   pending: boolean;
@@ -96,8 +99,10 @@ export function Wholesale1688UploadDialog({
           <Button
             className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79] disabled:opacity-60"
             disabled={parsedRows.length === 0 || pending}
-            onClick={() => {
-              onImportRows(fileName, parsedRows);
+            onClick={async () => {
+              const succeeded = await onImportRows(fileName, parsedRows);
+              // 导入失败时继续展示已经解析好的表格，不要求用户重新选文件。
+              if (!succeeded) return;
               onOpenChange(false);
             }}
             type="button"
@@ -130,7 +135,7 @@ export function WholesaleClaimDialog({
 }: {
   claimTarget: WholesaleClaimRow | null;
   customers: WholesaleCustomer[];
-  onClaim: (formData: FormData) => void;
+  onClaim: (formData: FormData) => Promise<boolean>;
   onOpenChange: (open: boolean) => void;
   orders: WholesaleOrder[];
   pending: boolean;
@@ -169,7 +174,7 @@ function WholesaleClaimDialogForm({
 }: {
   claimTarget: WholesaleClaimRow;
   customers: WholesaleCustomer[];
-  onClaim: (formData: FormData) => void;
+  onClaim: (formData: FormData) => Promise<boolean>;
   onOpenChange: (open: boolean) => void;
   orders: WholesaleOrder[];
   pending: boolean;
@@ -197,9 +202,11 @@ function WholesaleClaimDialogForm({
   return (
     <form
       className="grid gap-4"
-      onSubmit={(event) => {
+      onSubmit={async (event) => {
         event.preventDefault();
-        onClaim(new FormData(event.currentTarget));
+        const succeeded = await onClaim(new FormData(event.currentTarget));
+        // 认领失败时保留客户与订单选择，方便用户检查后重新提交。
+        if (!succeeded) return;
         onOpenChange(false);
       }}
     >

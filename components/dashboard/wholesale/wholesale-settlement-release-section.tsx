@@ -36,9 +36,9 @@ type WholesaleSettlementReleaseSectionProps = {
   canClaim: boolean;
   canPublish: boolean;
   customers: WholesaleCustomer[];
-  onCancelRelease: (releaseId: string) => void | Promise<void>;
-  onClaimRelease: (formData: FormData) => void | Promise<void>;
-  onCreateRelease: (formData: FormData) => void | Promise<void>;
+  onCancelRelease: (releaseId: string) => Promise<boolean>;
+  onClaimRelease: (formData: FormData) => Promise<boolean>;
+  onCreateRelease: (formData: FormData) => Promise<boolean>;
   orderSettlements: WholesaleOrderSettlement[];
   orders: WholesaleOrder[];
   pendingKey: string | null;

@@ -18,11 +18,11 @@ type WholesaleCustomersSectionProps = {
   canLinkCustomerAccount: boolean;
   currentUserId: string | null;
   customers: WholesaleCustomer[];
-  onAddCustomerOtherName: (formData: FormData) => void | Promise<void>;
+  onAddCustomerOtherName: (formData: FormData) => Promise<boolean>;
   onAddRegisteredCustomer: (userId: string) => boolean | Promise<boolean>;
   onCreateCustomer: (formData: FormData) => boolean | Promise<boolean>;
   onDeleteCustomer: (customerId: string) => boolean | Promise<boolean>;
-  onLinkCustomerAccount: (formData: FormData) => void | Promise<void>;
+  onLinkCustomerAccount: (formData: FormData) => Promise<boolean>;
   onUpdateCustomer: (formData: FormData) => boolean | Promise<boolean>;
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
