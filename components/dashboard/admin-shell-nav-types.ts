@@ -1,7 +1,10 @@
-import type { WorkspaceNavSegment } from "@/lib/workspace-config";
+import type {
+  WorkspaceBusinessKey,
+  WorkspaceNavSegment,
+} from "@/lib/workspace-config";
 
 export type AdminShellNavLink = {
-  groupKey?: string;
+  groupKey?: WorkspaceBusinessKey;
   groupLabel?: string;
   href: string;
   icon: WorkspaceNavSegment;
@@ -10,6 +13,6 @@ export type AdminShellNavLink = {
 
 export type AdminShellNavGroup = {
   items: readonly AdminShellNavLink[];
-  key: string;
+  key: WorkspaceBusinessKey;
   label: string;
 };

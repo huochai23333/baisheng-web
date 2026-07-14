@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 import { loginAs } from "./helpers/auth";
+import {
+  restoreDefaultAdminBusinessGroups,
+  setDesktopBusinessGroupExpanded,
+} from "./helpers/workspace-navigation";
 
 test.describe("global review center entrypoint", () => {
   test("administrator review center is a global desktop navigation item", async ({
@@ -32,7 +36,7 @@ test.describe("global review center entrypoint", () => {
       "审核中心",
     ]);
 
-    await tourismGroupButton.click();
+    await setDesktopBusinessGroupExpanded(page, "旅游业务", false);
     await expect(tourismGroupButton).toHaveAttribute("aria-expanded", "false");
     await expect(reviewLink).toBeVisible();
 
@@ -41,6 +45,8 @@ test.describe("global review center entrypoint", () => {
       () => document.documentElement.scrollWidth > window.innerWidth,
     );
     expect(desktopHasHorizontalOverflow).toBe(false);
+
+    await restoreDefaultAdminBusinessGroups(page);
   });
 
   test("administrator review center stays global in mobile navigation", async ({

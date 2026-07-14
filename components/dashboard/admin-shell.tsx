@@ -35,6 +35,7 @@ import {
   EMPTY_WORKSPACE_ANNOUNCEMENTS_STATE,
   getWorkspaceAnnouncementsState,
 } from "@/lib/workspace-announcements";
+import { getCurrentWorkspaceNavigationPreference } from "@/lib/workspace-navigation-preferences";
 
 type WorkspaceConfig = {
   accountLabel: string;
@@ -55,10 +56,17 @@ type AdminShellProps = {
 };
 
 export async function AdminShell({ children, config }: AdminShellProps) {
-  const [t, initialAnnouncementsState, workspaceBusinessAccess, locale] = await Promise.all([
+  const [
+    t,
+    initialAnnouncementsState,
+    workspaceBusinessAccess,
+    initialNavigationPreference,
+    locale,
+  ] = await Promise.all([
     getTranslations("DashboardShell"),
     getInitialWorkspaceAnnouncementsState(),
     getShellWorkspaceBusinessAccess(),
+    getInitialWorkspaceNavigationPreference(),
     getLocale(),
   ]);
   const companyText = getCompanyText(normalizeLocale(locale));
@@ -94,6 +102,9 @@ export async function AdminShell({ children, config }: AdminShellProps) {
                     emptyGroupsLabel={t("business.noAccess")}
                     globalItems={workspace.globalNavItems}
                     groups={workspace.navGroups}
+                    initialOpenGroupKeys={
+                      initialNavigationPreference?.open_business_keys ?? null
+                    }
                     mode="desktop"
                   />
 
@@ -134,6 +145,9 @@ export async function AdminShell({ children, config }: AdminShellProps) {
                     emptyGroupsLabel={t("business.noAccess")}
                     globalItems={workspace.globalNavItems}
                     groups={workspace.navGroups}
+                    initialOpenGroupKeys={
+                      initialNavigationPreference?.open_business_keys ?? null
+                    }
                     mode="mobile"
                   />
                 </div>
@@ -157,6 +171,17 @@ async function getInitialWorkspaceAnnouncementsState() {
     return await getWorkspaceAnnouncementsState(supabase);
   } catch {
     return EMPTY_WORKSPACE_ANNOUNCEMENTS_STATE;
+  }
+}
+
+async function getInitialWorkspaceNavigationPreference() {
+  try {
+    const supabase = await getServerSupabaseClient();
+
+    return await getCurrentWorkspaceNavigationPreference(supabase);
+  } catch {
+    // 新账号没有偏好或云端暂时不可用时，导航组件会继续使用原来的默认展开规则。
+    return null;
   }
 }
 

@@ -7,6 +7,10 @@ import {
   loginAs,
   type RegressionRole,
 } from "./helpers/auth";
+import {
+  restoreDefaultAdminBusinessGroups,
+  setDesktopBusinessGroupExpanded,
+} from "./helpers/workspace-navigation";
 
 type WorkspaceEntry = {
   paths: readonly string[];
@@ -106,7 +110,7 @@ test.describe("workspace entrypoint regression", () => {
     );
     await expect(wholesaleOrdersLink).toBeVisible();
 
-    await wholesaleGroupButton.click();
+    await setDesktopBusinessGroupExpanded(page, "批发业务", false);
 
     await expect(wholesaleGroupButton).toHaveAttribute(
       "aria-expanded",
@@ -114,13 +118,16 @@ test.describe("workspace entrypoint regression", () => {
     );
     await expect(wholesaleOrdersLink).toBeHidden();
 
-    await wholesaleGroupButton.click();
+    await setDesktopBusinessGroupExpanded(page, "批发业务", true);
 
     await expect(wholesaleGroupButton).toHaveAttribute(
       "aria-expanded",
       "true",
     );
     await expect(wholesaleOrdersLink).toBeVisible();
+
+    await page.goto("/admin/home");
+    await restoreDefaultAdminBusinessGroups(page);
   });
 
   for (const entry of [

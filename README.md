@@ -169,7 +169,7 @@ npm run supabase:admin -- summary
 - `/[role]/wholesale/[section]` 承载批发业务页面，使用独立批发模型，不复用旅游订单结构。
 - 有效账号访问工作范围之外的页面时保留登录状态，显示“这个页面不在你的工作范围内”并提供返回当前角色首页的按钮；只有没有会话、会话失效或账号已停用时才通过服务端退出入口清理 Cookie 并回到登录页。
 - 左侧导航先按账号当前可见业务过滤，再展示当前角色在该业务下可用的模块。
-- 桌面端左侧业务分组会在进入对应页面时自动展开，当前所在业务也可以通过分组按钮手动收起或再次展开；展开和收起带平滑过渡，移动端顶部菜单下拉也带淡入下拉动画。
+- 桌面端左侧业务分组会按当前登录账号记住旅游、批发各自的展开或收起状态，换浏览器或设备再次登录时继续使用；新账号默认展开第一个可见业务，进入具体业务页面时仍自动展开当前业务，用户也可以手动收起。展开和收起带平滑过渡；移动端顶部菜单始终展示完整业务分组，不读取桌面折叠偏好，并保留淡入下拉动画。
 - 当前阶段批发业务允许管理员、财务、业务员、以及拥有批发业务标记的客户访问；财务在批发业务中按业务员同类范围使用，不再访问旅游业务；地推、经理、运营、招聘员和只有旅游业务标记的客户只能访问旅游业务。
 - 人员管理不提供手动勾选“可见旅游业务 / 可见批发业务”的入口。客户的业务权限由注册选择或管理员在目标业务客户管理中追加；追加只扩展权限，不提供移除入口。
 - 每个账号只有一个邀请码。业务员邀请码锁定批发业务，地推邀请码锁定旅游业务；其他有效邀请码不锁定业务。邀请码为空时客户作为虚拟“公司”节点的直接下游，不写推荐关系，也不产生推荐佣金。
@@ -226,9 +226,10 @@ app/
 - `components/dashboard/operator-reimbursements/`：运营报销记录页面的页头、筛选、汇总、列表、表单弹窗、状态 hook 和显示工具。
 - `components/dashboard/admin-shell.tsx`：工作台服务端壳层。
 - `components/dashboard/admin-shell-client.tsx`：工作台登出等客户端动作。
-- `components/dashboard/admin-shell-nav.tsx`：桌面和移动端分组状态与页面组装；链接外观和图标映射位于 `admin-shell-nav-links.tsx`。
+- `components/dashboard/admin-shell-nav.tsx`：工作台导航模式调度；桌面折叠展示、移动端下拉展示和账号偏好状态分别拆在 `admin-shell-desktop-nav.tsx`、`admin-shell-mobile-nav.tsx` 与 `use-workspace-navigation-preference.ts`，链接外观和图标映射位于 `admin-shell-nav-links.tsx`。
 - `components/dashboard/admin-shell-nav-types.ts`：工作台导航展示类型。
 - `components/dashboard/use-admin-shell-navigation.ts`：工作台导航点击、预取和失焦恢复后的整页跳转兜底。
+- `lib/workspace-navigation-preferences.ts`：读取和保存当前账号的桌面业务分组展开偏好，并统一整理业务键顺序。
 - `lib/request-timeout.ts`：登录后页面共享的 Supabase 读取超时为 30 秒，避免本地并发或云端短暂变慢时误进入错误页；确实耗时的上传、审核等操作在对应 mutation 中单独设置更长时间。
 - `lib/use-stale-focus-recovery.ts`：页面长时间隐藏或窗口失焦后的跳转/刷新兜底判断。
 
@@ -270,7 +271,7 @@ baisheng-web/
 工作台共享能力：
 
 - `components/motion/` 与 `lib/motion-tokens.ts`：全站统一动效入口；时长、缓动、错峰上限和减少动态效果规则集中维护，业务组件不自行定义另一套动效节奏。
-- `admin-shell-nav.tsx`：左侧工作栏和移动端业务导航；桌面端保留菜单滚动能力，但隐藏浏览器自带滚动滑块，避免工作栏出现多余视觉控件。
+- `admin-shell-nav.tsx` 与同层桌面、移动导航模块：主文件只选择展示模式；桌面端保留菜单滚动能力但隐藏浏览器自带滚动滑块，并通过独立 hook 保存业务分组偏好；移动端保持完整下拉菜单，不参与桌面偏好同步。
 - `dashboard-section-header.tsx`：业务板块页头。
 - `dashboard-section-panel.tsx`：筛选面板、列表面板和表格外框。
 - `dashboard-dialog.tsx`：工作台通用弹窗，统一处理遮罩、滚动锁定、初始聚焦、Tab 焦点循环和关闭后回到原操作位置；弹窗内输入内容时不能重启焦点锁，避免备注、说明、城市等输入框在连续输入时失焦。
@@ -395,6 +396,7 @@ baisheng-web/
 - 批发物流状态每日核对由 Supabase `wholesale-logistics-status-sync` Edge Function 执行；该函数只调用物流库的 `logistics-status-lookup` 接口，先自动导入物流号和客户名，再更新物流状态，主页面只读取本项目 Supabase 里的物流状态镜像表，并先展示最近更新的一批记录，避免物流记录很多时页面加载变慢。
 - 服务端先通过 Supabase Auth 验证令牌，再从数据库读取账号角色和状态；数据库上下文读取失败时不使用 Auth 元数据、Cookie 内容或客户端会话兜底放行。
 - 账号可见业务由 Supabase 里的工作区业务可见范围记录、角色固定规则和对应 RPC 提供，Web 只负责读取后结合业务模块清单过滤导航和路由；管理员固定双业务，财务和业务员固定批发，地推固定旅游。当前登录用户的业务权限读取异常或返回空时，Web 会按已验证角色和 active 状态使用固定默认业务范围，避免固定业务角色因临时读取失败误显示为没有业务入口。
+- 桌面业务分组偏好保存在 `user_workspace_navigation_preferences`，只能由 active 登录账号读取自己的记录，并通过 `save_user_workspace_navigation_preference` 保存完整展开组合；空数组明确表示全部收起，读取失败时 Web 使用默认展开规则，不阻塞工作台。
 - Supabase 上传完成后，再提交和推送 Web 仓库。
 - Function secrets、供应商密钥和真实服务凭据只放在 Supabase secrets 或本机 `.env.local`，不能写入仓库。
 
@@ -405,6 +407,7 @@ baisheng-web/
 - 更新 `README.md` 中相关说明。
 - 使用 Playwright 在真实浏览器环境验证受影响页面。
 - 使用测试账号验证登录、跳转和权限链路；本地 Supabase 验证时 e2e 默认优先读取 `local.*@bs.test` 本地账号，环境变量仍可覆盖。
+- `tests/e2e/workspace-navigation-preferences.spec.ts` 使用两个互不共享浏览器存储的上下文验证桌面导航偏好跟随账号，并覆盖单组展开、两组展开、全部收起及移动端完整菜单。
 - 检查桌面和移动宽度下是否有文字竖排、遮挡、溢出或按钮/表格压缩。
 - 运行与改动风险匹配的命令，通常至少包括 `npm run lint`、`npm run typecheck`，重要改动再跑 `npm run build`。
 

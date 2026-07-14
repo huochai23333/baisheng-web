@@ -1,284 +1,49 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import type { WorkspaceBusinessKey } from "@/lib/workspace-config";
 
-import { ChevronDown, LoaderCircle } from "lucide-react";
-
-import { cn } from "@/lib/utils";
-
-import { useAdminShellNavigation } from "./use-admin-shell-navigation";
+import { AdminShellDesktopNav } from "./admin-shell-desktop-nav";
+import { AdminShellMobileNav } from "./admin-shell-mobile-nav";
 import type {
   AdminShellNavGroup,
   AdminShellNavLink,
 } from "./admin-shell-nav-types";
-import {
-  ADMIN_NAV_ICONS,
-  DesktopAdminNavLink,
-  MobileAdminNavLink,
-} from "./admin-shell-nav-links";
 
 type AdminShellNavProps = {
   emptyGroupsLabel: string;
   globalItems: readonly AdminShellNavLink[];
   groups: readonly AdminShellNavGroup[];
+  initialOpenGroupKeys: readonly WorkspaceBusinessKey[] | null;
   mode: "desktop" | "mobile";
 };
 
-// 左侧工作栏内容仍然需要能滚动，但视觉上不显示浏览器自带的滚动滑块。
-const HIDDEN_NAV_SCROLLBAR_CLASS =
-  "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
-
+/**
+ * 主导航只根据页面宽度选择对应视图，桌面偏好和移动下拉状态
+ * 分别由同层模块管理，避免一个组件继续承担多种独立职责。
+ */
 export function AdminShellNav({
   emptyGroupsLabel,
   globalItems,
   groups,
+  initialOpenGroupKeys,
   mode,
 }: AdminShellNavProps) {
-  const items = useMemo(
-    () => [...globalItems, ...groups.flatMap((group) => group.items)],
-    [globalItems, groups],
-  );
-  const {
-    activeItem,
-    handleNavClick,
-    pathname,
-    prefetchRoute,
-    resolvedPendingHref,
-  } = useAdminShellNavigation(items);
-  const activeGroupKey = activeItem?.groupKey ?? null;
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [openGroups, setOpenGroups] = useState<ReadonlySet<string>>(
-    () => getInitialOpenGroupKeys(groups, activeGroupKey),
-  );
-  const [manuallyClosedGroups, setManuallyClosedGroups] = useState<
-    ReadonlySet<string>
-  >(() => new Set());
-  const visibleOpenGroups = useMemo(() => {
-    if (
-      !activeGroupKey ||
-      openGroups.has(activeGroupKey) ||
-      manuallyClosedGroups.has(activeGroupKey)
-    ) {
-      return openGroups;
-    }
-
-    return new Set([...openGroups, activeGroupKey]);
-  }, [activeGroupKey, manuallyClosedGroups, openGroups]);
-
-  const mobileGroups = activeGroupKey
-    ? [
-        ...groups.filter((group) => group.key === activeGroupKey),
-        ...groups.filter((group) => group.key !== activeGroupKey),
-      ]
-    : groups;
-
   if (mode === "mobile") {
-    if (!activeItem) {
-      return null;
-    }
-
-    const ActiveIcon = ADMIN_NAV_ICONS[activeItem.icon];
-    const activeIsPending = resolvedPendingHref === activeItem.href;
-    const activeLabel = activeItem.groupLabel
-      ? `${activeItem.groupLabel} / ${activeItem.label}`
-      : activeItem.label;
-
     return (
-      <div className="relative">
-        <button
-          aria-expanded={mobileMenuOpen}
-          aria-label={activeLabel}
-          className="flex min-h-12 w-full items-center justify-between gap-3 rounded-[18px] border border-white/90 bg-white/88 px-4 py-3 text-left text-[#486782] shadow-[0_12px_28px_rgba(72,103,130,0.1)] backdrop-blur transition-colors hover:bg-[#f2f5f7]"
-          onClick={() => setMobileMenuOpen((value) => !value)}
-          type="button"
-        >
-          <span className="flex min-w-0 items-center gap-2.5">
-            {activeIsPending ? (
-              <LoaderCircle className="size-4 shrink-0 animate-spin" />
-            ) : (
-              <ActiveIcon className="size-4 shrink-0" />
-            )}
-            <span className="min-w-0 truncate text-sm font-semibold">
-              {activeLabel}
-            </span>
-          </span>
-          <ChevronDown
-            className={cn(
-              "size-4 shrink-0 transition-transform",
-              mobileMenuOpen ? "rotate-180" : "rotate-0",
-            )}
-          />
-        </button>
-
-        <nav
-          aria-hidden={!mobileMenuOpen}
-          className={cn(
-            "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 max-h-[62vh] overflow-y-auto rounded-[22px] border border-white/90 bg-[#fbfaf8]/98 p-2 shadow-[0_22px_50px_rgba(35,49,58,0.2)] backdrop-blur transition-[opacity,transform,clip-path] duration-200 ease-out",
-            mobileMenuOpen
-              ? "pointer-events-auto translate-y-0 opacity-100 [clip-path:inset(0_0_0_0)]"
-              : "pointer-events-none -translate-y-1 opacity-0 [clip-path:inset(0_0_100%_0)]",
-          )}
-        >
-          <div className="grid gap-2">
-            {globalItems.map((item) => (
-              <MobileAdminNavLink
-                handleNavClick={handleNavClick}
-                isFocusable={mobileMenuOpen}
-                item={item}
-                key={item.href}
-                pathname={pathname}
-                prefetchRoute={prefetchRoute}
-                resolvedPendingHref={resolvedPendingHref}
-                setMobileMenuOpen={setMobileMenuOpen}
-              />
-            ))}
-            {mobileGroups.length > 0 ? (
-              mobileGroups.map((group) => (
-                <div className="grid gap-1.5" key={group.key}>
-                  <p className="px-3 pt-2 text-[11px] font-semibold tracking-[0.12em] text-[#82909b] uppercase">
-                    {group.label}
-                  </p>
-                  {group.items.map((item) => (
-                    <MobileAdminNavLink
-                      handleNavClick={handleNavClick}
-                      isFocusable={mobileMenuOpen}
-                      item={item}
-                      key={item.href}
-                      pathname={pathname}
-                      prefetchRoute={prefetchRoute}
-                      resolvedPendingHref={resolvedPendingHref}
-                      setMobileMenuOpen={setMobileMenuOpen}
-                    />
-                  ))}
-                </div>
-              ))
-            ) : (
-              <p className="px-3 py-3 text-sm leading-6 text-[#6d767c]">
-                {emptyGroupsLabel}
-              </p>
-            )}
-          </div>
-        </nav>
-      </div>
+      <AdminShellMobileNav
+        emptyGroupsLabel={emptyGroupsLabel}
+        globalItems={globalItems}
+        groups={groups}
+      />
     );
   }
 
   return (
-    <nav
-      className={cn(
-        "min-h-0 flex-1 space-y-2 overflow-y-auto pr-1",
-        HIDDEN_NAV_SCROLLBAR_CLASS,
-      )}
-    >
-      {globalItems.map((item) => (
-        <DesktopAdminNavLink
-          handleNavClick={handleNavClick}
-          item={item}
-          key={item.href}
-          pathname={pathname}
-          prefetchRoute={prefetchRoute}
-          resolvedPendingHref={resolvedPendingHref}
-        />
-      ))}
-
-      {groups.length === 0 ? (
-        <p className="mx-1 rounded-[18px] border border-[#e2e7eb] bg-white/62 px-4 py-3 text-sm leading-6 text-[#6d767c]">
-          {emptyGroupsLabel}
-        </p>
-      ) : null}
-
-      {groups.map((group) => {
-        const isOpen = visibleOpenGroups.has(group.key);
-        const isGroupActive = group.items.some((item) => item.href === pathname);
-
-        return (
-          <div className="space-y-1" key={group.key}>
-            <button
-              aria-expanded={isOpen}
-              className={cn(
-                "mx-1 flex w-[calc(100%-0.5rem)] items-center justify-between gap-3 rounded-[18px] px-4 py-3 text-left text-sm font-semibold transition-all duration-200",
-                isGroupActive
-                  ? "bg-[#eef3f6] text-[#314b61]"
-                  : "text-[#415f76]/76 hover:bg-[#e5e3df] hover:text-[#314b61]",
-              )}
-              onClick={() => {
-                setOpenGroups((current) => {
-                  const next = new Set(current);
-                  if (isOpen) {
-                    next.delete(group.key);
-                  } else {
-                    next.add(group.key);
-                  }
-                  return next;
-                });
-                setManuallyClosedGroups((current) => {
-                  const next = new Set(current);
-                  if (isOpen) {
-                    next.add(group.key);
-                  } else {
-                    next.delete(group.key);
-                  }
-                  return next;
-                });
-              }}
-              type="button"
-            >
-              <span className="min-w-0 truncate">{group.label}</span>
-              <ChevronDown
-                className={cn(
-                  "size-4 shrink-0 transition-transform",
-                  isOpen ? "rotate-180" : "rotate-0",
-                )}
-              />
-            </button>
-
-            <div
-              aria-hidden={!isOpen}
-              className={cn(
-                "grid transition-[grid-template-rows,opacity,transform] duration-200 ease-out",
-                isOpen
-                  ? "grid-rows-[1fr] translate-y-0 opacity-100"
-                  : "grid-rows-[0fr] -translate-y-1 opacity-0",
-              )}
-            >
-              <div className="min-h-0 overflow-hidden">
-                <div
-                  className={cn(
-                    "space-y-1 pl-3 pt-1 transition-opacity duration-150",
-                    isOpen ? "opacity-100" : "pointer-events-none opacity-0",
-                  )}
-                >
-                  {group.items.map((item) => (
-                    <DesktopAdminNavLink
-                      compact
-                      handleNavClick={handleNavClick}
-                      isFocusable={isOpen}
-                      item={item}
-                      key={item.href}
-                      pathname={pathname}
-                      prefetchRoute={prefetchRoute}
-                      resolvedPendingHref={resolvedPendingHref}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </nav>
+    <AdminShellDesktopNav
+      emptyGroupsLabel={emptyGroupsLabel}
+      globalItems={globalItems}
+      groups={groups}
+      initialOpenGroupKeys={initialOpenGroupKeys}
+    />
   );
-}
-
-function getInitialOpenGroupKeys(
-  groups: readonly AdminShellNavGroup[],
-  activeGroupKey: string | null,
-) {
-  const openGroupKeys = new Set(groups.slice(0, 1).map((group) => group.key));
-
-  if (activeGroupKey) {
-    openGroupKeys.add(activeGroupKey);
-  }
-
-  return openGroupKeys;
 }
