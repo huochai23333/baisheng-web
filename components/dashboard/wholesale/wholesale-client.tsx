@@ -1,5 +1,6 @@
 "use client";
 import { UiMessage } from "@/components/i18n/ui-message";
+import { useTranslations } from "next-intl";
 import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { WholesalePageData } from "@/lib/wholesale";
@@ -24,6 +25,9 @@ export function WholesaleClient({
 }: {
   initialData: WholesalePageData;
 }) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_client",
+  );
   const actions = useWholesaleActions();
   const customersById = new Map(
     initialData.customers.map((customer) => [customer.id, customer]),
@@ -121,16 +125,20 @@ export function WholesaleClient({
       ) : null}
 
       {initialData.section === "logistics" ? (
-        <WholesaleLogisticsSection
-          canEdit={canEdit}
-          customers={initialData.customers}
-          customersById={customersById}
-          logisticsOrders={initialData.logisticsOrders}
-          logisticsStatuses={initialData.logisticsStatuses}
-          onCreateLogisticsStatus={actions.createLogisticsStatus}
-          orders={initialData.orders}
-          pendingKey={actions.pendingKey}
-        />
+        initialData.logisticsFeePage && initialData.logisticsStatusPage ? (
+          <WholesaleLogisticsSection
+            canEdit={canEdit}
+            customers={initialData.customers}
+            initialFeePage={initialData.logisticsFeePage}
+            initialStatusPage={initialData.logisticsStatusPage}
+            onCreateLogisticsStatus={actions.createLogisticsStatus}
+            onSetLogisticsOrderLink={actions.setLogisticsOrderLink}
+            orders={initialData.orderLinkOptions}
+            pendingKey={actions.pendingKey}
+          />
+        ) : (
+          <PageBanner tone="error">{uiText("text002")}</PageBanner>
+        )
       ) : null}
 
       {initialData.section === "customers" ? (

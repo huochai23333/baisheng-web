@@ -170,15 +170,44 @@ test.describe("批发写入失败保留表单", () => {
       "**/rest/v1/wholesale_logistics_statuses*",
       "POST",
     );
-    const trackingInput = page.getByLabel("物流号");
-    const customerNameInput = page.getByLabel("客户名");
+    await page.getByRole("button", { name: "创建物流记录" }).click();
+    const logisticsDialog = page.getByRole("dialog", {
+      name: "创建物流记录",
+    });
+    const trackingInput = logisticsDialog.getByLabel("物流号");
+    const customerNameInput = logisticsDialog.getByLabel("客户名");
     await trackingInput.fill("FAIL-TRACKING-001");
     await customerNameInput.fill("失败后保留的物流客户");
-    await page.getByRole("button", { name: "加入核对" }).click();
+    await logisticsDialog.getByRole("button", { name: "创建记录" }).click();
     await expectFailureNotice(page);
+    await expect(logisticsDialog).toBeVisible();
     await expect(trackingInput).toHaveValue("FAIL-TRACKING-001");
     await expect(customerNameInput).toHaveValue("失败后保留的物流客户");
     await expectResponsiveLayout(page);
+    await page.keyboard.press("Escape");
+
+    await failJsonRequest(
+      page,
+      "**/rest/v1/wholesale_logistics_statuses*",
+      "PATCH",
+    );
+    const statusRow = page.getByRole("row").filter({
+      hasText: "UNMATCHED-LOCAL-ASSERT-001",
+    });
+    await statusRow.getByRole("button", { name: "关联订单" }).click();
+    const linkDialog = page.getByRole("dialog", { name: "关联批发订单" });
+    const linkCustomer = linkDialog.getByLabel("归属客户");
+    const linkOrder = linkDialog.getByLabel("关联批发订单");
+    await linkCustomer.selectOption({ label: "Wholesale Alpha" });
+    await linkOrder.selectOption(await firstNonEmptyOptionValue(linkOrder));
+    const linkCustomerValue = await linkCustomer.inputValue();
+    const linkOrderValue = await linkOrder.inputValue();
+    await linkDialog.getByRole("button", { name: "保存关联" }).click();
+    await expectFailureNotice(page);
+    await expect(linkDialog).toBeVisible();
+    await expect(linkCustomer).toHaveValue(linkCustomerValue);
+    await expect(linkOrder).toHaveValue(linkOrderValue);
+    await page.keyboard.press("Escape");
 
     await page.goto("/admin/wholesale/referrals");
     await failJsonRequest(page, "**/rest/v1/wholesale_referrals*", "POST");

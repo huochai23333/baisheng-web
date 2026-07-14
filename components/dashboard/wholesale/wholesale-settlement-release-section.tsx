@@ -68,10 +68,6 @@ export function WholesaleSettlementReleaseSection({
     useState<WholesaleSettlementRelease | null>(null);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState(ALL);
-  const customersById = useMemo(
-    () => new Map(customers.map((customer) => [customer.id, customer])),
-    [customers],
-  );
   const ordersById = useMemo(
     () => new Map(orders.map((order) => [order.id, order])),
     [orders],
@@ -228,7 +224,7 @@ export function WholesaleSettlementReleaseSection({
 
       {selectedClaimRelease ? (
         <WholesaleSettlementReleaseClaimDialog
-          customersById={customersById}
+          customers={customers}
           onClaimRelease={onClaimRelease}
           onOpenChange={(open) => {
             if (!open) setSelectedClaimRelease(null);

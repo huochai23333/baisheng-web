@@ -5,6 +5,8 @@ import {
   requiredString,
 } from "./wholesale-action-utils";
 
+export type WholesaleLogisticsRecordType = "fee" | "status";
+
 export async function createWholesaleLogisticsStatus(
   supabase: SupabaseClient,
   formData: FormData,
@@ -27,4 +29,31 @@ export async function createWholesaleLogisticsStatus(
   if (error) {
     throw error;
   }
+}
+
+export async function setWholesaleLogisticsOrderLink(
+  supabase: SupabaseClient,
+  recordType: WholesaleLogisticsRecordType,
+  recordId: string,
+  wholesaleOrderId: string | null,
+) {
+  // 只提交订单 ID：数据库触发器会根据订单自动校正客户，解除时则保留现有客户。
+  const query =
+    recordType === "status"
+      ? supabase
+          .from("wholesale_logistics_statuses")
+          .update({ wholesale_order_id: wholesaleOrderId })
+          .eq("id", recordId)
+          .select("id")
+          .maybeSingle()
+      : supabase
+          .from("wholesale_logistics_orders")
+          .update({ wholesale_order_id: wholesaleOrderId })
+          .eq("id", recordId)
+          .select("id")
+          .maybeSingle();
+  const { data, error } = await query;
+
+  if (error) throw error;
+  if (!data) throw new Error("logistics link not permitted");
 }

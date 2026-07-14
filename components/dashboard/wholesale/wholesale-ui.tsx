@@ -260,6 +260,9 @@ export function WholesaleSelect({
   return (
     <DashboardFilterField label={label}>
       <select
+        // 原生 label 包住 select 时，浏览器可能把全部 option 文本也并入可访问名称。
+        // 明确 aria-label 后，读屏和自动化都只会读到当前字段标题。
+        aria-label={label}
         className={dashboardFilterInputClassName}
         defaultValue={defaultValue}
         disabled={disabled}
@@ -276,16 +279,18 @@ export function WholesaleSelect({
 
 export function WholesaleSubmitButton({
   children,
+  disabled = false,
   pending,
 }: {
   // 按钮文字可能来自消息组件，所以这里接收 ReactNode，而不是只接收字符串。
   children: ReactNode;
+  disabled?: boolean;
   pending: boolean;
 }) {
   return (
     <Button
       className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-      disabled={pending}
+      disabled={disabled || pending}
       type="submit"
     >
       {pending ? <LoaderCircle className="size-4 animate-spin" /> : null}

@@ -11,6 +11,10 @@ import { parseWholesale1688Csv } from "@/lib/wholesale-1688-ingest";
 import { parseWholesale1688Xlsx } from "@/lib/wholesale-1688-xlsx";
 import type { WholesaleCustomer, WholesaleOrder } from "@/lib/wholesale";
 import type { WholesaleClaimRow } from "./wholesale-claims-view-model";
+import {
+  formatWholesaleOrderLinkOption,
+  getWholesaleOrderLinkOptionsForCustomer,
+} from "./wholesale-order-link-options";
 import { WholesaleSelect } from "./wholesale-ui";
 export function Wholesale1688UploadDialog({
   onImportRows,
@@ -189,13 +193,10 @@ function WholesaleClaimDialogForm({
   const [selectedCustomerId, setSelectedCustomerId] =
     useState(defaultCustomerId);
   const [selectedOrderId, setSelectedOrderId] = useState(() =>
-    getDefaultWholesaleOrderId(orders, defaultCustomerId, claimTarget),
+    getCurrentWholesaleOrderId(orders, defaultCustomerId, claimTarget),
   );
   const matchingOrders = useMemo(
-    () =>
-      selectedCustomerId
-        ? orders.filter((order) => order.customer_id === selectedCustomerId)
-        : [],
+    () => getWholesaleOrderLinkOptionsForCustomer(orders, selectedCustomerId),
     [orders, selectedCustomerId],
   );
   const canSubmit = Boolean(selectedCustomerId && selectedOrderId);
@@ -228,11 +229,9 @@ function WholesaleClaimDialogForm({
         label={uiText("attribute005")}
         name="customer_id"
         onChange={(event) => {
-          const nextCustomerId = event.target.value;
-          setSelectedCustomerId(nextCustomerId);
-          setSelectedOrderId(
-            getDefaultWholesaleOrderId(orders, nextCustomerId, claimTarget),
-          );
+          setSelectedCustomerId(event.target.value);
+          // 客户一旦变化，原订单必然不再可信，必须让用户重新确认该客户的订单。
+          setSelectedOrderId("");
         }}
         required
         value={selectedCustomerId}
@@ -255,11 +254,13 @@ function WholesaleClaimDialogForm({
         value={selectedOrderId}
       >
         <option value="">
-          {selectedCustomerId ? "选择批发订单" : "先选择客户"}
+          {selectedCustomerId
+            ? uiText("selectOrder")
+            : uiText("selectCustomerFirst")}
         </option>
         {matchingOrders.map((order) => (
           <option key={order.id} value={order.id}>
-            {order.order_number}
+            {formatWholesaleOrderLinkOption(order)}
           </option>
         ))}
       </WholesaleSelect>
@@ -280,7 +281,7 @@ function WholesaleClaimDialogForm({
     </form>
   );
 }
-function getDefaultWholesaleOrderId(
+function getCurrentWholesaleOrderId(
   orders: WholesaleOrder[],
   customerId: string,
   claimTarget: WholesaleClaimRow,
@@ -297,8 +298,7 @@ function getDefaultWholesaleOrderId(
   ) {
     return targetOrderId;
   }
-  const matchingOrders = orders.filter(
-    (order) => order.customer_id === customerId,
-  );
-  return matchingOrders.length === 1 ? matchingOrders[0].id : "";
+
+  // 新认领不能因为客户只有一笔订单就自动选中，避免用户未确认便误关联。
+  return "";
 }

@@ -3,6 +3,10 @@ import type { AppRole } from "./auth-routing";
 import type { CommissionRuleSetting } from "./commission-settings";
 import type { ExchangeRateRow } from "./exchange-rates";
 import type { WholesaleLogisticsStatus } from "./wholesale-logistics-statuses";
+import type {
+  WholesaleLogisticsFeePage,
+  WholesaleLogisticsStatusPage,
+} from "./wholesale-logistics-page";
 import type { WholesaleOrderEditSettings } from "./wholesale-order-edit-settings";
 import type { WholesaleOrderPage } from "./wholesale-order-page";
 import type { WorkspaceWholesaleSectionKey } from "./workspace-config";
@@ -52,6 +56,20 @@ export type WholesaleOrder = {
   created_at: string;
   updated_at: string;
 };
+
+/**
+ * 关联弹窗只需要辨认订单，不应该顺带获取成本、利润等内部字段。
+ * 使用独立类型可以让 TypeScript 在有人误用未查询字段时立即报错。
+ */
+export type WholesaleOrderLinkOption = Pick<
+  WholesaleOrder,
+  | "customer_id"
+  | "customer_payment_amount"
+  | "customer_payment_currency"
+  | "id"
+  | "order_number"
+  | "ordered_at"
+>;
 
 export type WholesaleOrderInternalFieldKey =
   | "international_shipping_fee"
@@ -217,11 +235,14 @@ export type WholesalePageData = {
   orderEditSettings: WholesaleOrderEditSettings;
   orderPage: WholesaleOrderPage | null;
   orderPageError: string | null;
+  orderLinkOptions: WholesaleOrderLinkOption[];
   orders: WholesaleOrder[];
   orderSettlements: WholesaleOrderSettlement[];
   purchaseOrders: Wholesale1688Order[];
   logisticsOrders: WholesaleLogisticsOrder[];
   logisticsStatuses: WholesaleLogisticsStatus[];
+  logisticsFeePage: WholesaleLogisticsFeePage | null;
+  logisticsStatusPage: WholesaleLogisticsStatusPage | null;
   commissions: WholesaleCommission[];
   referrals: WholesaleReferral[];
   profiles: WholesaleProfile[];

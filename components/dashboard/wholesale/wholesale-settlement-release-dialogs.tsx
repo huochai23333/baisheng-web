@@ -162,7 +162,7 @@ export function WholesaleSettlementReleaseCreateDialog({
   );
 }
 type ClaimDialogProps = {
-  customersById: Map<string, WholesaleCustomer>;
+  customers: WholesaleCustomer[];
   onClaimRelease: (formData: FormData) => Promise<boolean>;
   onOpenChange: (open: boolean) => void;
   orderSettlementsByOrderId: Map<string, WholesaleOrderSettlement[]>;
@@ -171,7 +171,7 @@ type ClaimDialogProps = {
   release: WholesaleSettlementRelease;
 };
 export function WholesaleSettlementReleaseClaimDialog({
-  customersById,
+  customers,
   onClaimRelease,
   onOpenChange,
   orderSettlementsByOrderId,
@@ -201,9 +201,7 @@ export function WholesaleSettlementReleaseClaimDialog({
       }),
     [orderSettlementsByOrderId, orders, release],
   );
-  const [hasSelectableOrder, setHasSelectableOrder] = useState(
-    baseCandidates.length > 0,
-  );
+  const [hasSelectableOrder, setHasSelectableOrder] = useState(false);
   return (
     <DashboardDialog
       description={uiText("attribute012")}
@@ -230,14 +228,16 @@ export function WholesaleSettlementReleaseClaimDialog({
         />
         <WholesaleSettlementReleaseOrderPicker
           baseCandidates={baseCandidates}
-          customersById={customersById}
+          customers={customers}
           onSelectableOrderChange={setHasSelectableOrder}
-          orderSettlementsByOrderId={orderSettlementsByOrderId}
           release={release}
         />
 
         <div className="flex justify-end">
-          <WholesaleSubmitButton pending={pending || !hasSelectableOrder}>
+          <WholesaleSubmitButton
+            disabled={!hasSelectableOrder}
+            pending={pending}
+          >
             <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_dialogs.text004" />
           </WholesaleSubmitButton>
         </div>

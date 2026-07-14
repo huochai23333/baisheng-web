@@ -154,6 +154,13 @@ export function toWholesaleActionErrorMessage(error: unknown) {
   }
 
   if (
+    normalized.includes("logistics link not permitted") ||
+    normalized.includes("row-level security")
+  ) {
+    return "你暂时不能调整这条物流记录，请刷新后查看最新状态。";
+  }
+
+  if (
     normalized.includes("daily order counter exceeded") ||
     normalized.includes("duplicate key")
   ) {

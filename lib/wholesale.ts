@@ -15,6 +15,9 @@ import {
   getWholesaleLogisticsStatuses,
   type WholesaleLogisticsStatus,
 } from "./wholesale-logistics-statuses";
+import {
+  getInitialWholesaleLogisticsPageData,
+} from "./wholesale-logistics-page";
 import { scopeWholesaleRows } from "./wholesale-scope";
 import {
   getWholesaleOrderPage,
@@ -37,6 +40,7 @@ import type {
   WholesaleOrder,
   WholesaleOrderChangeLog,
   WholesaleOrderEditRequest,
+  WholesaleOrderLinkOption,
   WholesaleOrderSettlement,
   WholesalePageData,
   WholesaleProfile,
@@ -114,6 +118,22 @@ export async function getWholesalePageData(
     };
   }
 
+  if (section === "logistics") {
+    const logisticsPageData = await getInitialWholesaleLogisticsPageData(
+      supabase,
+    );
+
+    // 任一核心列表失败时保留页面壳和清楚的重试提示，不把读取失败伪装成“暂无记录”。
+    if (
+      !logisticsPageData.logisticsStatusPage ||
+      !logisticsPageData.logisticsFeePage
+    ) {
+      return { ...baseData, ...logisticsPageData };
+    }
+
+    return { ...baseData, ...logisticsPageData };
+  }
+
   const rows = await getWholesaleSectionRows(supabase, section, currentRole);
   const scopedRows = scopeWholesaleRows({
     ...rows,
@@ -172,27 +192,6 @@ async function getWholesaleSectionRows(
       ]);
 
     return { ...rows, customers, orders, purchaseOrders, ...profileResult };
-  }
-
-  if (section === "logistics") {
-    const [customers, orders, logisticsOrders, logisticsStatuses] =
-      await Promise.all([
-        getWholesaleCustomers(supabase),
-        getAllWholesaleOrders(supabase, canViewInternalFields),
-        queryRows<WholesaleLogisticsOrder>(
-          supabase
-            .from("wholesale_logistics_orders")
-            .select("*")
-            .order("updated_at", { ascending: false }),
-          "批发物流记录",
-        ),
-        queryRows<WholesaleLogisticsStatus>(
-          getWholesaleLogisticsStatuses(supabase),
-          "物流状态",
-        ),
-      ]);
-
-    return { ...rows, customers, logisticsOrders, logisticsStatuses, orders };
   }
 
   if (section === "customers") {
@@ -297,8 +296,11 @@ function createEmptyWholesalePageData({
     ...createEmptyWholesaleSectionRows(),
     currentRole,
     currentUserId,
+    logisticsFeePage: null,
+    logisticsStatusPage: null,
     orderPage: null,
     orderPageError: null,
+    orderLinkOptions: [] as WholesaleOrderLinkOption[],
     section,
   };
 }

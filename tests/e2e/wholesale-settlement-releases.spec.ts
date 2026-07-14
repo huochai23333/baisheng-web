@@ -18,7 +18,6 @@ test.describe("wholesale settlement releases", () => {
     const manualClaimNote = `手填客户认领 ${uniqueSuffix}`;
     const receivedDate = getShanghaiDateInputValue();
     const currentMonth = receivedDate.slice(0, 7).replace("-", "");
-    const monthRange = getMonthRange(receivedDate);
     const targetOrderNumber = `WH-LOCAL-${currentMonth}-004`;
     const manualTargetOrderNumber = `WH-LOCAL-${currentMonth}-008`;
 
@@ -88,12 +87,23 @@ test.describe("wholesale settlement releases", () => {
 
     const claimDialog = salesmanPage.getByRole("dialog", { name: "认领结汇收款" });
     await expect(claimDialog).toBeVisible();
-    const orderSelect = claimDialog.getByLabel("匹配订单");
+    const fixedCustomerSelect = claimDialog.getByLabel("客户");
+    const orderSelect = claimDialog.getByLabel("匹配批发订单");
+    await expect(fixedCustomerSelect).toBeDisabled();
+    await expect(fixedCustomerSelect).not.toHaveValue("");
+    await expect(orderSelect).toHaveValue("");
     const targetOrderValue = await orderSelect
       .locator("option")
       .filter({ hasText: targetOrderNumber })
       .getAttribute("value");
     expect(targetOrderValue).not.toBeNull();
+    await expect(
+      orderSelect.locator("option").filter({ hasText: targetOrderNumber }),
+    ).toContainText(" · ");
+    await salesmanPage.setViewportSize({ height: 844, width: 390 });
+    await expectNoDocumentHorizontalOverflow(salesmanPage);
+    await expectNoCompressedText(salesmanPage);
+    await salesmanPage.setViewportSize({ height: 900, width: 1440 });
     await orderSelect.selectOption(targetOrderValue ?? "");
     await claimDialog.getByRole("button", { name: "确认匹配" }).click();
 
@@ -113,11 +123,12 @@ test.describe("wholesale settlement releases", () => {
       name: "认领结汇收款",
     });
     await expect(manualClaimDialog).toBeVisible();
-    await manualClaimDialog.getByLabel("搜索订单").fill(manualTargetOrderNumber);
-    await manualClaimDialog.getByLabel("下单日期从").fill(monthRange.from);
-    await manualClaimDialog.getByLabel("下单日期到").fill(monthRange.to);
-
-    const manualOrderSelect = manualClaimDialog.getByLabel("匹配订单");
+    const manualCustomerSelect = manualClaimDialog.getByLabel("客户");
+    const manualOrderSelect = manualClaimDialog.getByLabel("匹配批发订单");
+    await expect(manualOrderSelect).toBeDisabled();
+    await manualCustomerSelect.selectOption({ label: "Wholesale Alpha" });
+    await expect(manualOrderSelect).toBeEnabled();
+    await expect(manualOrderSelect).toHaveValue("");
     await expect(
       manualOrderSelect.locator("option").filter({ hasText: manualTargetOrderNumber }),
     ).toHaveCount(1);
@@ -127,7 +138,33 @@ test.describe("wholesale settlement releases", () => {
         .filter({ hasText: manualTargetOrderNumber })
         .getAttribute("value")) ?? "",
     );
-    await manualClaimDialog.getByRole("button", { name: "确认匹配" }).click();
+    const manualCustomerValue = await manualCustomerSelect.inputValue();
+    const manualOrderValue = await manualOrderSelect.inputValue();
+    const claimRequestPattern =
+      "**/rest/v1/rpc/claim_wholesale_settlement_release";
+    await salesmanPage.route(claimRequestPattern, async (route) => {
+      await route.fulfill({
+        body: JSON.stringify({ message: "forced_failure" }),
+        contentType: "application/json",
+        status: 500,
+      });
+    });
+    const manualConfirmButton = manualClaimDialog.getByRole("button", {
+      name: "确认匹配",
+    });
+    await manualConfirmButton.click();
+    await expect(
+      salesmanPage.getByText("操作没有成功，请检查内容和权限后再试。"),
+    ).toBeVisible();
+    await expect(manualClaimDialog).toBeVisible();
+    await expect(manualCustomerSelect).toHaveValue(manualCustomerValue);
+    await expect(manualOrderSelect).toHaveValue(manualOrderValue);
+
+    // 失败验证完成后恢复真实请求，同一份选择应该可以直接重新提交。
+    await salesmanPage.unroute(claimRequestPattern);
+    await expect(manualConfirmButton).toBeEnabled();
+    // 成功后弹窗会立即移除；直接派发点击可避免 Playwright 因按钮消失而误判为点击失败。
+    await manualConfirmButton.dispatchEvent("click");
 
     await expect(salesmanPage.getByText("结汇收款已匹配到订单。")).toBeVisible();
     await expect(manualClaimRow).toContainText("已匹配");
@@ -206,21 +243,31 @@ function getShanghaiDateInputValue() {
   return `${values.year}-${values.month}-${values.day}`;
 }
 
-function getMonthRange(dateValue: string) {
-  const [year, month] = dateValue.split("-").map(Number);
-  const lastDay = new Date(year, month, 0).getDate();
-  const monthValue = String(month).padStart(2, "0");
-
-  return {
-    from: `${year}-${monthValue}-01`,
-    to: `${year}-${monthValue}-${String(lastDay).padStart(2, "0")}`,
-  };
-}
-
 async function expectNoDocumentHorizontalOverflow(page: Page) {
   const overflowPixels = await page.evaluate(
     () => document.documentElement.scrollWidth - window.innerWidth,
   );
 
   expect(overflowPixels).toBeLessThanOrEqual(2);
+}
+
+async function expectNoCompressedText(page: Page) {
+  const compressedText = await page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLElement>("button, label, option"))
+      .filter((element) => {
+        const text = element.innerText.trim();
+        const rect = element.getBoundingClientRect();
+        return (
+          text &&
+          rect.width > 0 &&
+          rect.width < 24 &&
+          rect.height > 48 &&
+          rect.height > rect.width * 2.5
+        );
+      })
+      .map((element) => element.innerText.trim())
+      .slice(0, 5),
+  );
+
+  expect(compressedText).toEqual([]);
 }

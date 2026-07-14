@@ -34,6 +34,37 @@ test.describe("wholesale 1688 import", () => {
     ).toHaveCount(0);
   });
 
+  test("认领弹窗先选客户，再显示带金额的订单", async ({ page }) => {
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await loginAs(page, "administrator");
+    await page.goto("/admin/wholesale/order-claims");
+    await page.getByRole("button", { name: /认领大厅/ }).click();
+
+    const hallClaimRow = page.getByRole("row").filter({
+      hasText: "1688-LOCAL-004",
+    });
+    await hallClaimRow.getByRole("button", { name: "认领" }).click();
+
+    const dialog = page.getByRole("dialog", { name: "1688-LOCAL-004" });
+    const customerSelect = dialog.getByLabel("客户");
+    const orderSelect = dialog.getByLabel("关联批发订单");
+    await expect(orderSelect).toBeDisabled();
+
+    await customerSelect.selectOption({ label: "Wholesale Alpha" });
+    await expect(orderSelect).toBeEnabled();
+    await expect(orderSelect).toHaveValue("");
+    await expect(orderSelect.locator("option").nth(1)).toContainText(" · ");
+
+    await orderSelect.selectOption(await firstNonEmptyOptionValue(orderSelect));
+    await customerSelect.selectOption({ label: "Wholesale Beta" });
+    await expect(orderSelect).toHaveValue("");
+
+    await expectNoDocumentHorizontalOverflow(page);
+    await page.setViewportSize({ height: 844, width: 390 });
+    await expectNoDocumentHorizontalOverflow(page);
+    await expectNoCompressedText(page);
+  });
+
   test("administrator can import a 1688 Excel order file", async ({
     page,
   }, testInfo) => {
@@ -162,4 +193,32 @@ async function expectNoDocumentHorizontalOverflow(page: Page) {
   );
 
   expect(overflowPixels).toBeLessThanOrEqual(2);
+}
+
+async function firstNonEmptyOptionValue(select: ReturnType<Page["locator"]>) {
+  const value = await select.locator("option").nth(1).getAttribute("value");
+  expect(value).not.toBeNull();
+  expect(value).not.toBe("");
+  return value ?? "";
+}
+
+async function expectNoCompressedText(page: Page) {
+  const compressedText = await page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLElement>("button, label, option"))
+      .filter((element) => {
+        const text = element.innerText.trim();
+        const rect = element.getBoundingClientRect();
+        return (
+          text &&
+          rect.width > 0 &&
+          rect.width < 24 &&
+          rect.height > 48 &&
+          rect.height > rect.width * 2.5
+        );
+      })
+      .map((element) => element.innerText.trim())
+      .slice(0, 5),
+  );
+
+  expect(compressedText).toEqual([]);
 }
