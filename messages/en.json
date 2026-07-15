@@ -3842,6 +3842,12 @@
       "text006": " The system “based on the consignee’s name”",
       "text008": "”, please confirm the wholesale order to be associated. "
     },
+    "components_dashboard_wholesale_wholesale_bulk_claim_dialog": {
+      "title": "Claim purchase orders together",
+      "description": "Assign the {count} selected purchase orders to the same client and wholesale order.",
+      "selectionSummary": "You selected {count} purchase orders. Confirm that they belong to the same client and wholesale order.",
+      "submit": "Confirm batch claim"
+    },
     "components_dashboard_wholesale_wholesale_claims_section": {
       "text003": " Strip ",
       "text002": " Clear search ",
@@ -3852,7 +3858,15 @@
       "attribute001": "1688 Purchase orders are processed separately according to claimed, pending classification and claiming hall. After uploading the order form, the system will first assist in categorizing it by the name of the consignee, and only after confirming the customer and wholesale order will the claim be completed.",
       "attribute003": "Order claim",
       "attribute004": "Purchase order claim",
-      "attribute007": "No purchase order yet"
+      "attribute007": "No purchase order yet",
+      "bulkClaim": "Claim selected orders",
+      "clearFilters": "Clear filters",
+      "clearSelection": "Clear selection",
+      "purchaseFromLabel": "Purchase start date",
+      "purchaseToLabel": "Purchase end date",
+      "recipientFilterLabel": "Recipient name",
+      "recipientFilterPlaceholder": "Enter all or part of a name",
+      "selectedCount": "{count} purchase orders selected"
     },
     "components_dashboard_wholesale_wholesale_claims_table": {
       "text005": "Client",
@@ -3877,7 +3891,9 @@
       "text018": "Claimed",
       "text003": "Auxiliary classification",
       "text023": " Adjust assignment ",
-      "text001": " 1688 order number "
+      "text001": " 1688 order number ",
+      "selectAll": "Select all purchase orders in the current results",
+      "selectOrder": "Select purchase order {orderNumber}"
     },
     "components_dashboard_wholesale_wholesale_client": {
       "text001": " Reload ",

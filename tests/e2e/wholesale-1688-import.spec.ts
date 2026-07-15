@@ -21,7 +21,8 @@ test.describe("wholesale 1688 import", () => {
     const hallClaimRow = page.getByRole("row").filter({
       hasText: "1688-LOCAL-004",
     });
-    const hallClaimOrderCell = hallClaimRow.getByRole("cell").first();
+    // 待认领表格的第一列是批量勾选框，订单号和单条认领按钮位于紧随其后的固定列。
+    const hallClaimOrderCell = hallClaimRow.getByRole("cell").nth(1);
 
     await expect(hallClaimOrderCell.getByText("认领大厅")).toHaveCount(0);
     await expect(
@@ -63,6 +64,102 @@ test.describe("wholesale 1688 import", () => {
     await page.setViewportSize({ height: 844, width: 390 });
     await expectNoDocumentHorizontalOverflow(page);
     await expectNoCompressedText(page);
+  });
+
+  test("按收货人和采购日期筛选后批量认领", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ height: 900, width: 1440 });
+
+    const suffix = Date.now();
+    const recipientName = `批量收货人${suffix}`;
+    const orderNumbers = [
+      `1688-BULK-E2E-${suffix}-1`,
+      `1688-BULK-E2E-${suffix}-2`,
+      `1688-BULK-E2E-${suffix}-NO-DATE`,
+    ];
+    const csvRows = [
+      "订单编号,订单创建时间,收货人姓名,货品标题",
+      `${orderNumbers[0]},${new Date(Date.now() - 2 * 86_400_000).toISOString()},${recipientName},批量测试商品一`,
+      `${orderNumbers[1]},${new Date(Date.now() - 86_400_000).toISOString()},${recipientName},批量测试商品二`,
+      `${orderNumbers[2]},,${recipientName},没有采购时间的测试商品`,
+    ].join("\n");
+
+    await loginAs(page, "administrator");
+    await page.goto("/admin/wholesale/order-claims");
+    await page.getByRole("button", { name: "上传 1688 文件" }).click();
+    const uploadDialog = page.getByRole("dialog", { name: "上传 1688 订单" });
+    await uploadDialog.locator('input[type="file"]').setInputFiles({
+      buffer: Buffer.from(csvRows),
+      mimeType: "text/csv",
+      name: `批量认领-${suffix}.csv`,
+    });
+    await expect(uploadDialog.getByText(/已读取 3 条采购订单/)).toBeVisible();
+    await uploadDialog.getByRole("button", { name: "接收采购订单" }).click();
+    await expect(page.getByText("1688 采购订单已接收。")).toBeVisible();
+
+    await page.getByRole("button", { name: /认领大厅/ }).click();
+    await page.getByLabel("收货人名字").fill(`收货人${suffix}`);
+    await expect(page.getByText(orderNumbers[0])).toBeVisible();
+    await expect(page.getByText(orderNumbers[1])).toBeVisible();
+    await expect(page.getByText(orderNumbers[2])).toBeVisible();
+
+    await page.getByLabel("采购开始日期").fill(shanghaiDateDaysAgo(3));
+    await page.getByLabel("采购结束日期").fill(shanghaiDateDaysAgo(0));
+    await expect(page.getByText(orderNumbers[0])).toBeVisible();
+    await expect(page.getByText(orderNumbers[1])).toBeVisible();
+    await expect(page.getByText(orderNumbers[2])).toHaveCount(0);
+
+    await page
+      .getByRole("checkbox", {
+        name: "选择当前筛选结果中的全部采购订单",
+      })
+      .check();
+    await expect(page.getByText("已选择 2 条采购订单")).toBeVisible();
+
+    await page.setViewportSize({ height: 844, width: 390 });
+    await expectNoDocumentHorizontalOverflow(page);
+    await expectNoCompressedText(page);
+    await page.getByRole("button", { name: "批量认领" }).click();
+
+    const bulkDialog = page.getByRole("dialog", {
+      name: "批量认领采购订单",
+    });
+    await bulkDialog.getByLabel("客户").selectOption({
+      label: "Wholesale Alpha",
+    });
+    const orderSelect = bulkDialog.getByLabel("关联批发订单");
+    await orderSelect.selectOption(await firstNonEmptyOptionValue(orderSelect));
+    await expectNoDocumentHorizontalOverflow(page);
+    await expectNoCompressedText(page);
+    await bulkDialog.getByRole("button", { name: "确认批量认领" }).click();
+    await expect(page.getByText("已认领 2 条采购订单。")).toBeVisible();
+
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await page.getByRole("button", { name: /已认领/ }).click();
+    await expect(page.getByText(orderNumbers[0])).toBeVisible();
+    await expect(page.getByText(orderNumbers[1])).toBeVisible();
+    await expect(
+      page.getByRole("checkbox", {
+        name: "选择当前筛选结果中的全部采购订单",
+      }),
+    ).toHaveCount(0);
+
+    // 清理本用例写入的数据，避免串行回归的后续用例受到额外订单影响。
+    for (const orderNumber of orderNumbers.slice(0, 2)) {
+      const row = page.getByRole("row").filter({ hasText: orderNumber });
+      await row.getByRole("button", { name: "移出" }).click();
+      await expect(row).toHaveCount(0);
+    }
+
+    await page.getByRole("button", { name: /认领大厅/ }).click();
+    await page.getByRole("button", { name: "清空筛选" }).click();
+    await page.getByLabel("收货人名字").fill(`收货人${suffix}`);
+    const noDateRow = page.getByRole("row").filter({
+      hasText: orderNumbers[2],
+    });
+    await expect(noDateRow).toBeVisible();
+    await noDateRow.getByRole("button", { name: "移出" }).click();
+    await expect(noDateRow).toHaveCount(0);
   });
 
   test("administrator can import a 1688 Excel order file", async ({
@@ -221,4 +318,20 @@ async function expectNoCompressedText(page: Page) {
   );
 
   expect(compressedText).toEqual([]);
+}
+
+function shanghaiDateDaysAgo(daysAgo: number) {
+  const date = new Date(Date.now() - daysAgo * 86_400_000);
+  const values = new Map(
+    new Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      month: "2-digit",
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+    })
+      .formatToParts(date)
+      .map((part) => [part.type, part.value]),
+  );
+
+  return `${values.get("year")}-${values.get("month")}-${values.get("day")}`;
 }

@@ -60,6 +60,32 @@ export function createWholesaleClaimsActions(runAction: RunWholesaleAction) {
       if (error) throw error;
     });
 
+  const bulkClaim1688Orders = (
+    purchaseOrderIds: string[],
+    customerId: string,
+    wholesaleOrderId: string,
+  ) =>
+    runAction(
+      "1688:bulk-claim",
+      `已认领 ${purchaseOrderIds.length} 条采购订单。`,
+      async () => {
+        if (purchaseOrderIds.length === 0) {
+          throw new Error("empty bulk claim");
+        }
+
+        const supabase = getBrowserSupabaseClient();
+        if (!supabase) throw new Error("client unavailable");
+
+        // 整批编号一次交给数据库函数，数据库会在同一事务中校验和更新，避免只成功一部分。
+        const { error } = await supabase.rpc("claim_wholesale_1688_orders", {
+          p_1688_order_ids: purchaseOrderIds,
+          p_customer_id: customerId,
+          p_wholesale_order_id: wholesaleOrderId,
+        });
+        if (error) throw error;
+      },
+    );
+
   const delete1688Order = (purchaseOrderId: string) =>
     runAction("1688:delete", "采购订单已移出当前认领列表。", async () => {
       const supabase = getBrowserSupabaseClient();
@@ -72,6 +98,7 @@ export function createWholesaleClaimsActions(runAction: RunWholesaleAction) {
     });
 
   return {
+    bulkClaim1688Orders,
     claim1688Order,
     delete1688Order,
     import1688Rows,

@@ -10,6 +10,20 @@ import { getCustomerName, getProfileName } from "./wholesale-display";
 
 export type WholesaleClaimBoardKey = "assisted" | "claimed" | "hall";
 
+export type WholesaleClaimFilters = {
+  purchasedFromDate: string;
+  purchasedToDate: string;
+  recipientName: string;
+  searchText: string;
+};
+
+export const EMPTY_WHOLESALE_CLAIM_FILTERS: WholesaleClaimFilters = {
+  purchasedFromDate: "",
+  purchasedToDate: "",
+  recipientName: "",
+  searchText: "",
+};
+
 export type WholesaleClaimRow = {
   assistedCustomerName: string;
   board: WholesaleClaimBoardKey;
@@ -80,13 +94,41 @@ export function buildWholesaleClaimRows({
 export function filterWholesaleClaimRows(
   rows: WholesaleClaimRow[],
   board: WholesaleClaimBoardKey,
-  searchText: string,
+  filters: WholesaleClaimFilters,
 ) {
-  const searchValue = normalizeSearchText(searchText);
+  const searchValue = normalizeSearchText(filters.searchText);
+  const recipientValue = normalizeSearchText(filters.recipientName);
 
   return rows.filter((row) => {
     if (row.board !== board) {
       return false;
+    }
+
+    if (
+      recipientValue &&
+      !normalizeSearchText(row.recipientName).includes(recipientValue)
+    ) {
+      return false;
+    }
+
+    if (filters.purchasedFromDate || filters.purchasedToDate) {
+      const purchaseDate = getShanghaiDateKey(row.purchaseOrder.purchased_at);
+
+      // 选择了日期条件时，没有有效采购时间的记录无法确定是否命中，因此不展示。
+      if (!purchaseDate) {
+        return false;
+      }
+
+      if (
+        filters.purchasedFromDate &&
+        purchaseDate < filters.purchasedFromDate
+      ) {
+        return false;
+      }
+
+      if (filters.purchasedToDate && purchaseDate > filters.purchasedToDate) {
+        return false;
+      }
     }
 
     if (!searchValue) {
@@ -107,6 +149,34 @@ export function filterWholesaleClaimRows(
       row.recipientName,
     ].some((value) => normalizeSearchText(value).includes(searchValue));
   });
+}
+
+/**
+ * 把数据库时间转成上海业务日期，再与日期输入框的 YYYY-MM-DD 比较。
+ * 使用 formatToParts 而不是依赖浏览器拼出的日期字符串，可以避免不同语言环境顺序不一致。
+ */
+function getShanghaiDateKey(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const parts = new Intl.DateTimeFormat("en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+  }).formatToParts(date);
+  const values = new Map(parts.map((part) => [part.type, part.value]));
+  const year = values.get("year");
+  const month = values.get("month");
+  const day = values.get("day");
+
+  return year && month && day ? `${year}-${month}-${day}` : null;
 }
 
 export function countWholesaleClaimBoards(rows: WholesaleClaimRow[]) {

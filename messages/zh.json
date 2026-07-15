@@ -3842,6 +3842,12 @@
       "text006": " 系统根据收货人名字“",
       "text008": "”，请确认要关联的批发订单。 "
     },
+    "components_dashboard_wholesale_wholesale_bulk_claim_dialog": {
+      "title": "批量认领采购订单",
+      "description": "把已选择的 {count} 条采购订单统一归到同一个客户和批发订单。",
+      "selectionSummary": "已选择 {count} 条采购订单，请确认它们属于同一个客户和批发订单。",
+      "submit": "确认批量认领"
+    },
     "components_dashboard_wholesale_wholesale_claims_section": {
       "text003": " 条 ",
       "text002": " 清空搜索 ",
@@ -3852,7 +3858,15 @@
       "attribute001": "1688 采购订单按已认领、待分类和认领大厅分开处理。上传订单表格后，系统会先按收货人名字辅助归类，确认客户和批发订单后才算完成认领。",
       "attribute003": "订单认领",
       "attribute004": "采购订单认领",
-      "attribute007": "暂无采购订单"
+      "attribute007": "暂无采购订单",
+      "bulkClaim": "批量认领",
+      "clearFilters": "清空筛选",
+      "clearSelection": "取消选择",
+      "purchaseFromLabel": "采购开始日期",
+      "purchaseToLabel": "采购结束日期",
+      "recipientFilterLabel": "收货人名字",
+      "recipientFilterPlaceholder": "输入全部或部分名字",
+      "selectedCount": "已选择 {count} 条采购订单"
     },
     "components_dashboard_wholesale_wholesale_claims_table": {
       "text005": "客户",
@@ -3877,7 +3891,9 @@
       "text018": "已认领",
       "text003": "辅助归类",
       "text023": " 调整归属 ",
-      "text001": " 1688 订单号 "
+      "text001": " 1688 订单号 ",
+      "selectAll": "选择当前筛选结果中的全部采购订单",
+      "selectOrder": "选择采购订单 {orderNumber}"
     },
     "components_dashboard_wholesale_wholesale_client": {
       "text001": " 重新加载 ",

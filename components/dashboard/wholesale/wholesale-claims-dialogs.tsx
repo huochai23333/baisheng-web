@@ -1,7 +1,7 @@
 "use client";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
-import { useId, useMemo, useState } from "react";
+import { useId, useState } from "react";
 import { FileSpreadsheet } from "lucide-react";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { DashboardFilterField } from "@/components/dashboard/dashboard-section-panel";
@@ -12,10 +12,9 @@ import { parseWholesale1688Xlsx } from "@/lib/wholesale-1688-xlsx";
 import type { WholesaleCustomer, WholesaleOrder } from "@/lib/wholesale";
 import type { WholesaleClaimRow } from "./wholesale-claims-view-model";
 import {
-  formatWholesaleOrderLinkOption,
-  getWholesaleOrderLinkOptionsForCustomer,
-} from "./wholesale-order-link-options";
-import { WholesaleSelect } from "./wholesale-ui";
+  WholesaleClaimTargetFields,
+  useWholesaleClaimTarget,
+} from "./wholesale-claim-target-fields";
 export function Wholesale1688UploadDialog({
   onImportRows,
   onOpenChange,
@@ -183,23 +182,19 @@ function WholesaleClaimDialogForm({
   orders: WholesaleOrder[];
   pending: boolean;
 }) {
-  const uiText = useTranslations(
-    "UiText.components_dashboard_wholesale_wholesale_claims_dialogs",
-  );
   const defaultCustomerId =
     claimTarget.purchaseOrder.assisted_customer_id ??
     claimTarget.purchaseOrder.customer_id ??
     "";
-  const [selectedCustomerId, setSelectedCustomerId] =
-    useState(defaultCustomerId);
-  const [selectedOrderId, setSelectedOrderId] = useState(() =>
-    getCurrentWholesaleOrderId(orders, defaultCustomerId, claimTarget),
-  );
-  const matchingOrders = useMemo(
-    () => getWholesaleOrderLinkOptionsForCustomer(orders, selectedCustomerId),
-    [orders, selectedCustomerId],
-  );
-  const canSubmit = Boolean(selectedCustomerId && selectedOrderId);
+  const target = useWholesaleClaimTarget({
+    initialCustomerId: defaultCustomerId,
+    initialOrderId: getCurrentWholesaleOrderId(
+      orders,
+      defaultCustomerId,
+      claimTarget,
+    ),
+    orders,
+  });
   return (
     <form
       className="grid gap-4"
@@ -225,54 +220,18 @@ function WholesaleClaimDialogForm({
           <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text008" />
         </div>
       ) : null}
-      <WholesaleSelect
-        label={uiText("attribute005")}
-        name="customer_id"
-        onChange={(event) => {
-          setSelectedCustomerId(event.target.value);
-          // 客户一旦变化，原订单必然不再可信，必须让用户重新确认该客户的订单。
-          setSelectedOrderId("");
-        }}
-        required
-        value={selectedCustomerId}
-      >
-        <option value="">
-          <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text009" />
-        </option>
-        {customers.map((customer) => (
-          <option key={customer.id} value={customer.id}>
-            {customer.unique_name}
-          </option>
-        ))}
-      </WholesaleSelect>
-      <WholesaleSelect
-        disabled={!selectedCustomerId || matchingOrders.length === 0}
-        label={uiText("attribute006")}
-        name="wholesale_order_id"
-        onChange={(event) => setSelectedOrderId(event.target.value)}
-        required
-        value={selectedOrderId}
-      >
-        <option value="">
-          {selectedCustomerId
-            ? uiText("selectOrder")
-            : uiText("selectCustomerFirst")}
-        </option>
-        {matchingOrders.map((order) => (
-          <option key={order.id} value={order.id}>
-            {formatWholesaleOrderLinkOption(order)}
-          </option>
-        ))}
-      </WholesaleSelect>
-      {selectedCustomerId && matchingOrders.length === 0 ? (
-        <p className="text-sm leading-6 text-[#9a6a07]">
-          <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text010" />
-        </p>
-      ) : null}
+      <WholesaleClaimTargetFields
+        customers={customers}
+        matchingOrders={target.matchingOrders}
+        onCustomerChange={target.setSelectedCustomerId}
+        onOrderChange={target.setSelectedOrderId}
+        selectedCustomerId={target.selectedCustomerId}
+        selectedOrderId={target.selectedOrderId}
+      />
       <div className="flex justify-end">
         <Button
           className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79] disabled:opacity-60"
-          disabled={pending || !canSubmit}
+          disabled={pending || !target.canSubmit}
           type="submit"
         >
           <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text011" />

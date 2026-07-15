@@ -2,12 +2,8 @@
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { FileSpreadsheet, RefreshCcw, Upload } from "lucide-react";
-import {
-  DashboardFilterField,
-  DashboardListSection,
-  dashboardFilterInputClassName,
-} from "@/components/dashboard/dashboard-section-panel";
+import { FileSpreadsheet, Upload } from "lucide-react";
+import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
 import type {
   Wholesale1688Order,
@@ -21,6 +17,7 @@ import {
 } from "./wholesale-claims-dialogs";
 import { WholesaleClaimsTable } from "./wholesale-claims-table";
 import {
+  EMPTY_WHOLESALE_CLAIM_FILTERS,
   buildWholesaleClaimRows,
   countWholesaleClaimBoards,
   filterWholesaleClaimRows,
@@ -28,6 +25,12 @@ import {
   type WholesaleClaimBoardKey,
   type WholesaleClaimRow,
 } from "./wholesale-claims-view-model";
+import {
+  WholesaleClaimsBulkToolbar,
+  WholesaleClaimsFiltersPanel,
+} from "./wholesale-claims-filters";
+import { WholesaleBulkClaimDialog } from "./wholesale-bulk-claim-dialog";
+import { useWholesaleClaimSelection } from "./use-wholesale-claim-selection";
 import type { useWholesaleActions } from "./use-wholesale-actions";
 import { WholesaleEmptyState, WholesalePageShell } from "./wholesale-ui";
 type WholesaleClaimsSectionProps = {
@@ -42,7 +45,10 @@ type WholesaleClaimsSectionProps = {
   purchaseOrders: Wholesale1688Order[];
   actions: Pick<
     ReturnType<typeof useWholesaleActions>,
-    "claim1688Order" | "delete1688Order" | "import1688Rows"
+    | "bulkClaim1688Orders"
+    | "claim1688Order"
+    | "delete1688Order"
+    | "import1688Rows"
   >;
 };
 export function WholesaleClaimsSection({
@@ -66,7 +72,8 @@ export function WholesaleClaimsSection({
   const [claimTarget, setClaimTarget] = useState<WholesaleClaimRow | null>(
     null,
   );
-  const [searchText, setSearchText] = useState("");
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [filters, setFilters] = useState(EMPTY_WHOLESALE_CLAIM_FILTERS);
   const ordersById = useMemo(
     () => new Map(orders.map((order) => [order.id, order])),
     [orders],
@@ -86,9 +93,16 @@ export function WholesaleClaimsSection({
     [claimRows],
   );
   const filteredRows = useMemo(
-    () => filterWholesaleClaimRows(claimRows, activeBoard, searchText),
-    [activeBoard, claimRows, searchText],
+    () => filterWholesaleClaimRows(claimRows, activeBoard, filters),
+    [activeBoard, claimRows, filters],
   );
+  const selection = useWholesaleClaimSelection({
+    board: activeBoard,
+    canEdit,
+    resetKey: JSON.stringify([activeBoard, filters]),
+    rows: filteredRows,
+  });
+  const hasActiveFilters = Object.values(filters).some(Boolean);
   const activeBoardMeta =
     WHOLESALE_CLAIM_BOARDS.find((board) => board.key === activeBoard) ??
     WHOLESALE_CLAIM_BOARDS[0];
@@ -111,70 +125,75 @@ export function WholesaleClaimsSection({
       title={uiText("attribute003")}
     >
       <DashboardListSection
-        actions={
-          <Button
-            className="rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
-            disabled={!searchText}
-            onClick={() => setSearchText("")}
-            type="button"
-            variant="outline"
-          >
-            <RefreshCcw className="size-4" />
-            <UiMessage id="components_dashboard_wholesale_wholesale_claims_section.text002" />
-          </Button>
-        }
         description={`当前在${activeBoardMeta.label}中显示 ${filteredRows.length} 条采购订单。${activeBoardMeta.description}`}
         title={uiText("attribute004")}
       >
-        <div className="mb-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <DashboardFilterField label={uiText("attribute005")}>
-            <input
-              className={dashboardFilterInputClassName}
-              onChange={(event) => setSearchText(event.target.value)}
-              placeholder={uiText("attribute006")}
-              type="search"
-              value={searchText}
-            />
-          </DashboardFilterField>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {WHOLESALE_CLAIM_BOARDS.map((board) => (
-              <button
-                className={
-                  activeBoard === board.key
-                    ? "rounded-[18px] bg-[#486782] px-4 py-3 text-left text-sm font-semibold text-white shadow-[0_12px_24px_rgba(72,103,130,0.18)]"
-                    : "rounded-[18px] border border-[#dfe5ea] bg-white px-4 py-3 text-left text-sm font-semibold text-[#486782] hover:bg-[#f4f8fa]"
-                }
-                key={board.key}
-                onClick={() => setActiveBoard(board.key)}
-                type="button"
-              >
-                <span className="block">{board.label}</span>
-                <span className="mt-1 block text-xs opacity-80">
-                  {boardCounts[board.key]}
-                  <UiMessage id="components_dashboard_wholesale_wholesale_claims_section.text003" />
-                </span>
-              </button>
-            ))}
-          </div>
+        <WholesaleClaimsFiltersPanel
+          filters={filters}
+          hasActiveFilters={hasActiveFilters}
+          onChange={(changes) =>
+            setFilters((current) => ({ ...current, ...changes }))
+          }
+          onClear={() => setFilters({ ...EMPTY_WHOLESALE_CLAIM_FILTERS })}
+        />
+
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          {WHOLESALE_CLAIM_BOARDS.map((board) => (
+            <button
+              className={
+                activeBoard === board.key
+                  ? "rounded-[18px] bg-[#486782] px-4 py-3 text-left text-sm font-semibold text-white shadow-[0_12px_24px_rgba(72,103,130,0.18)]"
+                  : "rounded-[18px] border border-[#dfe5ea] bg-white px-4 py-3 text-left text-sm font-semibold text-[#486782] hover:bg-[#f4f8fa]"
+              }
+              key={board.key}
+              onClick={() => setActiveBoard(board.key)}
+              type="button"
+            >
+              <span className="block">{board.label}</span>
+              <span className="mt-1 block text-xs opacity-80">
+                {boardCounts[board.key]}
+                <UiMessage id="components_dashboard_wholesale_wholesale_claims_section.text003" />
+              </span>
+            </button>
+          ))}
         </div>
 
-        {filteredRows.length === 0 ? (
-          <WholesaleEmptyState
-            description={getEmptyDescription(activeBoard)}
-            icon={<FileSpreadsheet className="size-5" />}
-            title={uiText("attribute007")}
-          />
-        ) : (
-          <WholesaleClaimsTable
-            canAdmin={canAdmin}
-            canEdit={canEdit}
-            canReassignClaims={canReassignClaims}
-            onDelete={actions.delete1688Order}
-            onOpenClaim={setClaimTarget}
-            pendingKey={pendingKey}
-            rows={filteredRows}
-          />
-        )}
+        <WholesaleClaimsBulkToolbar
+          onClaim={() => setBulkDialogOpen(true)}
+          onClear={selection.clearSelection}
+          selectedCount={selection.selectedRows.length}
+        />
+
+        <div className="mt-5">
+          {filteredRows.length === 0 ? (
+            <WholesaleEmptyState
+              description={getEmptyDescription(activeBoard)}
+              icon={<FileSpreadsheet className="size-5" />}
+              title={uiText("attribute007")}
+            />
+          ) : (
+            <WholesaleClaimsTable
+              canAdmin={canAdmin}
+              canEdit={canEdit}
+              canReassignClaims={canReassignClaims}
+              onDelete={actions.delete1688Order}
+              onOpenClaim={setClaimTarget}
+              pendingKey={pendingKey}
+              rows={filteredRows}
+              selection={
+                canEdit && activeBoard !== "claimed"
+                  ? {
+                      allSelected: selection.allSelected,
+                      hasPartialSelection: selection.hasPartialSelection,
+                      onToggleAll: selection.toggleAll,
+                      onToggleOne: selection.toggleOne,
+                      selectedIds: selection.selectedIds,
+                    }
+                  : undefined
+              }
+            />
+          )}
+        </div>
       </DashboardListSection>
 
       <Wholesale1688UploadDialog
@@ -193,6 +212,22 @@ export function WholesaleClaimsSection({
         }}
         orders={orders}
         pending={pendingKey === "1688:claim"}
+      />
+
+      <WholesaleBulkClaimDialog
+        customers={customers}
+        onClaim={actions.bulkClaim1688Orders}
+        onOpenChange={setBulkDialogOpen}
+        onSuccess={() => {
+          setBulkDialogOpen(false);
+          selection.clearSelection();
+        }}
+        open={bulkDialogOpen && selection.selectedRows.length > 0}
+        orders={orders}
+        pending={pendingKey === "1688:bulk-claim"}
+        purchaseOrderIds={selection.selectedRows.map(
+          (row) => row.purchaseOrder.id,
+        )}
       />
     </WholesalePageShell>
   );

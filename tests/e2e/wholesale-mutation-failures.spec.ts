@@ -158,6 +158,37 @@ test.describe("批发写入失败保留表单", () => {
     await expect(claimDialog).toBeVisible();
     await expect(customerSelect).toHaveValue(customerValue);
     await expect(orderSelect).toHaveValue(orderValue);
+
+    await page.keyboard.press("Escape");
+    await page.getByRole("button", { name: /认领大厅/ }).click();
+    await failJsonRequest(
+      page,
+      "**/rest/v1/rpc/claim_wholesale_1688_orders",
+    );
+    const hallCheckbox = page.getByRole("checkbox", {
+      name: "选择采购订单 1688-LOCAL-004",
+    });
+    await hallCheckbox.check();
+    await page.getByRole("button", { name: "批量认领" }).click();
+
+    const bulkDialog = page.getByRole("dialog", {
+      name: "批量认领采购订单",
+    });
+    const bulkCustomerSelect = bulkDialog.getByLabel("客户");
+    const bulkOrderSelect = bulkDialog.getByLabel("关联批发订单");
+    await bulkCustomerSelect.selectOption({ label: "Wholesale Alpha" });
+    await bulkOrderSelect.selectOption(
+      await firstNonEmptyOptionValue(bulkOrderSelect),
+    );
+    const bulkCustomerValue = await bulkCustomerSelect.inputValue();
+    const bulkOrderValue = await bulkOrderSelect.inputValue();
+    await bulkDialog.getByRole("button", { name: "确认批量认领" }).click();
+    await expectFailureNotice(page);
+    await expect(bulkDialog).toBeVisible();
+    await expect(bulkCustomerSelect).toHaveValue(bulkCustomerValue);
+    await expect(bulkOrderSelect).toHaveValue(bulkOrderValue);
+    await page.keyboard.press("Escape");
+    await expect(hallCheckbox).toBeChecked();
     await expectResponsiveLayout(page);
   });
 

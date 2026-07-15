@@ -1,6 +1,8 @@
 "use client";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { CheckCircle2, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   formatCurrency,
@@ -18,6 +20,19 @@ import {
 } from "./wholesale-ui";
 const wholesaleClaimStickyFirstThClassName = `${wholesaleStickyFirstThClassName} min-w-[220px] whitespace-nowrap`;
 const wholesaleClaimStickyFirstTdClassName = `${wholesaleStickyFirstTdClassName} min-w-[220px] whitespace-nowrap`;
+const wholesaleClaimSelectionThClassName =
+  "sticky left-0 z-40 w-[56px] min-w-[56px] border-r border-[#efebe5] bg-[#f7f5f2] text-center";
+const wholesaleClaimSelectionTdClassName =
+  "sticky left-0 z-30 w-[56px] min-w-[56px] border-r border-[#efebe5] bg-white text-center group-hover:bg-[#fcfbf8]";
+
+export type WholesaleClaimsTableSelection = {
+  allSelected: boolean;
+  hasPartialSelection: boolean;
+  onToggleAll: () => void;
+  onToggleOne: (purchaseOrderId: string) => void;
+  selectedIds: Set<string>;
+};
+
 export function WholesaleClaimsTable({
   canAdmin,
   canEdit,
@@ -26,6 +41,7 @@ export function WholesaleClaimsTable({
   onOpenClaim,
   pendingKey,
   rows,
+  selection,
 }: {
   canAdmin: boolean;
   canEdit: boolean;
@@ -34,12 +50,24 @@ export function WholesaleClaimsTable({
   onOpenClaim: (row: WholesaleClaimRow) => void;
   pendingKey: string | null;
   rows: WholesaleClaimRow[];
+  selection?: WholesaleClaimsTableSelection;
 }) {
   return (
-    <WholesaleTable minWidth={2040}>
+    <WholesaleTable minWidth={selection ? 2096 : 2040}>
       <thead>
         <tr>
-          <WholesaleTh className={wholesaleClaimStickyFirstThClassName}>
+          {selection ? (
+            <WholesaleTh className={wholesaleClaimSelectionThClassName}>
+              <SelectionHeaderCheckbox selection={selection} />
+            </WholesaleTh>
+          ) : null}
+          <WholesaleTh
+            className={
+              selection
+                ? `${wholesaleClaimStickyFirstThClassName} left-[56px]`
+                : wholesaleClaimStickyFirstThClassName
+            }
+          >
             <UiMessage id="components_dashboard_wholesale_wholesale_claims_table.text001" />
           </WholesaleTh>
           <WholesaleTh>
@@ -91,6 +119,7 @@ export function WholesaleClaimsTable({
             onOpenClaim={onOpenClaim}
             pendingKey={pendingKey}
             row={row}
+            selection={selection}
           />
         ))}
       </tbody>
@@ -105,6 +134,7 @@ function WholesaleClaimTableRow({
   onOpenClaim,
   pendingKey,
   row,
+  selection,
 }: {
   canAdmin: boolean;
   canEdit: boolean;
@@ -113,11 +143,34 @@ function WholesaleClaimTableRow({
   onOpenClaim: (row: WholesaleClaimRow) => void;
   pendingKey: string | null;
   row: WholesaleClaimRow;
+  selection?: WholesaleClaimsTableSelection;
 }) {
   const { purchaseOrder } = row;
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_claims_table",
+  );
   return (
     <tr className="group">
-      <WholesaleTd className={wholesaleClaimStickyFirstTdClassName}>
+      {selection ? (
+        <WholesaleTd className={wholesaleClaimSelectionTdClassName}>
+          <input
+            aria-label={uiText("selectOrder", {
+              orderNumber: purchaseOrder.external_order_number,
+            })}
+            checked={selection.selectedIds.has(purchaseOrder.id)}
+            className="size-4 cursor-pointer accent-[#486782]"
+            onChange={() => selection.onToggleOne(purchaseOrder.id)}
+            type="checkbox"
+          />
+        </WholesaleTd>
+      ) : null}
+      <WholesaleTd
+        className={
+          selection
+            ? `${wholesaleClaimStickyFirstTdClassName} left-[56px]`
+            : wholesaleClaimStickyFirstTdClassName
+        }
+      >
         <div className="font-semibold whitespace-nowrap">
           {purchaseOrder.external_order_number}
         </div>
@@ -185,6 +238,34 @@ function WholesaleClaimTableRow({
         />
       </WholesaleTd>
     </tr>
+  );
+}
+
+function SelectionHeaderCheckbox({
+  selection,
+}: {
+  selection: WholesaleClaimsTableSelection;
+}) {
+  const uiText = useTranslations(
+    "UiText.components_dashboard_wholesale_wholesale_claims_table",
+  );
+  const checkboxRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (checkboxRef.current) {
+      checkboxRef.current.indeterminate = selection.hasPartialSelection;
+    }
+  }, [selection.hasPartialSelection]);
+
+  return (
+    <input
+      aria-label={uiText("selectAll")}
+      checked={selection.allSelected}
+      className="size-4 cursor-pointer accent-[#486782]"
+      onChange={selection.onToggleAll}
+      ref={checkboxRef}
+      type="checkbox"
+    />
   );
 }
 function ClaimInlineSlot({
