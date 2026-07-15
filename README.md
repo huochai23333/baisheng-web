@@ -228,10 +228,10 @@ app/
 - `components/dashboard/admin-shell-client.tsx`：工作台登出等客户端动作。
 - `components/dashboard/admin-shell-nav.tsx`：工作台导航模式调度；桌面折叠展示、移动端下拉展示和账号偏好状态分别拆在 `admin-shell-desktop-nav.tsx`、`admin-shell-mobile-nav.tsx` 与 `use-workspace-navigation-preference.ts`，链接外观和图标映射位于 `admin-shell-nav-links.tsx`。
 - `components/dashboard/admin-shell-nav-types.ts`：工作台导航展示类型。
-- `components/dashboard/use-admin-shell-navigation.ts`：工作台导航点击、预取和失焦恢复后的整页跳转兜底。
+- `components/dashboard/use-admin-shell-navigation.ts`：工作台导航点击、按悬停或聚焦意图预取，以及页面长时间闲置后的整页跳转兜底；禁止在工作台打开时一次性预取全部登录后板块。
 - `lib/workspace-navigation-preferences.ts`：读取和保存当前账号的桌面业务分组展开偏好，并统一整理业务键顺序。
 - `lib/request-timeout.ts`：登录后页面共享的 Supabase 读取超时为 30 秒，避免本地并发或云端短暂变慢时误进入错误页；确实耗时的上传、审核等操作在对应 mutation 中单独设置更长时间。
-- `lib/use-stale-focus-recovery.ts`：页面长时间隐藏或窗口失焦后的跳转/刷新兜底判断。
+- `lib/use-stale-focus-recovery.ts`：页面持续可见但长时间未操作、页面隐藏、窗口失焦或浏览器从页面缓存恢复后的跳转/刷新兜底判断。
 
 ## 目录约定
 
@@ -387,7 +387,7 @@ baisheng-web/
 - 首页组件编辑态只保留必要操作：编辑组件、完成、添加、移除、移动和拖动改大小；小尺寸组件必须显示摘要内容，不把完整表单或长列表硬塞进 `1 x 1`、`2 x 1` 等小卡片。
 - 常用账号切换只在当前浏览器会话保存会话快照，不保存密码，不再写入长期本地存储；备用账号超过 8 小时未使用、关闭浏览器会话或会话失效时改为重新登录入口，界面保持单行轻量展示：无备用账号时显示加号入口，有备用账号时显示头像、角色、姓名、邮箱和切换按钮。
 - 账号中心的修改密码入口发送重置邮件后要显示再次发送倒计时，避免用户因为邮箱暂未收到而连续触发发信限制；成功提示只说明邮件已开始发送，不能承诺已经进入收件箱。
-- 页面长时间隐藏或窗口失焦后，涉及客户端跳转或刷新时要使用 `lib/use-stale-focus-recovery.ts` 做整页加载兜底。
+- 页面持续可见但长时间未操作、页面隐藏、窗口失焦或电脑休眠后，涉及客户端跳转或刷新时要使用 `lib/use-stale-focus-recovery.ts` 做整页加载兜底；登录后的工作台入口只在用户悬停或聚焦时预取，不在页面打开时批量保存全部板块数据。全局页面异常的主操作必须重新打开当前页面，不能只重绘已经出错的局部内容。
 - 移动端需要检查文字竖排、换行挤压、遮挡、横向溢出、按钮压缩和表格挤压；标题、备注、弹窗说明等用户可输入长文本要在组件内自然换行，不能撑出横向滚动。
 - 共享组件的响应式问题要从组件层修复，不只修截图里的单个位置。
 

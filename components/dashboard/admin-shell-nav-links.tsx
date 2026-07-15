@@ -77,6 +77,8 @@ export function DesktopAdminNavLink({
   const isActive = pathname === item.href;
   const isPending = resolvedPendingHref === item.href && !isActive;
 
+  // 登录后的板块只在用户悬停或聚焦时手动预载，
+  // 避免页面刚打开就长期保存所有板块的旧数据。
   return (
     <Link
       aria-busy={isPending || undefined}
@@ -94,7 +96,7 @@ export function DesktopAdminNavLink({
       onClick={(event) => handleNavClick(event, item.href)}
       onFocus={() => prefetchRoute(item.href)}
       onMouseEnter={() => prefetchRoute(item.href)}
-      prefetch
+      prefetch={false}
       tabIndex={isFocusable ? undefined : -1}
     >
       {isPending ? (
@@ -123,6 +125,8 @@ export function MobileAdminNavLink({
   const isActive = pathname === item.href;
   const isPending = resolvedPendingHref === item.href && !isActive;
 
+  // 移动端没有稳定的悬停动作，点击时直接读取最新页面，
+  // 避免复用长时间闲置前保存的页面内容。
   return (
     <Link
       aria-busy={isPending || undefined}
@@ -142,7 +146,7 @@ export function MobileAdminNavLink({
       }}
       onFocus={() => prefetchRoute(item.href)}
       onMouseEnter={() => prefetchRoute(item.href)}
-      prefetch
+      prefetch={false}
       tabIndex={isFocusable ? undefined : -1}
     >
       {isPending ? (

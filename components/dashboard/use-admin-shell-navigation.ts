@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 
 import { usePathname, useRouter } from "next/navigation";
@@ -39,12 +39,6 @@ export function useAdminShellNavigation(
     },
     [pathname, router],
   );
-
-  useEffect(() => {
-    items.forEach((item) => {
-      prefetchRoute(item.href);
-    });
-  }, [items, prefetchRoute]);
 
   const handleNavClick = useCallback(
     (event: ReactMouseEvent<HTMLAnchorElement>, href: string) => {

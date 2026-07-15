@@ -201,6 +201,8 @@ export function WorkspaceHeaderActions({
               {accountMenuItems.map((item) => {
                 const Icon = item.icon;
 
+                // 账号菜单不是高频跳转入口，点击时读取最新页面，
+                // 可以避免浏览器长期保存包含旧登录状态的页面内容。
                 return (
                   <Link
                     className="flex items-center gap-3 rounded-[16px] px-3 py-2.5 text-sm font-medium text-[#405a70] transition-colors hover:bg-[#f3f5f6]"
@@ -214,7 +216,7 @@ export function WorkspaceHeaderActions({
                         window.location.assign(item.href);
                       }
                     }}
-                    prefetch
+                    prefetch={false}
                   >
                     <Icon className="size-4 text-[#6e7f8d]" />
                     {item.label}
