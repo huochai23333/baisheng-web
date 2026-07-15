@@ -16,12 +16,11 @@ import { normalizeSearchText } from "@/lib/value-normalizers";
 import type {
   WholesaleCommission,
   WholesaleCustomer,
-  WholesaleLogisticsOrder,
   WholesaleOrder,
   WholesaleProfile,
   WholesaleReferral,
 } from "@/lib/wholesale";
-import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
+import type { WholesaleReferralWaybillCount } from "@/lib/wholesale-logistics-page";
 import {
   formatCurrency,
   getCustomerName,
@@ -42,8 +41,7 @@ type WholesaleCommissionSectionProps = {
   commissions: WholesaleCommission[];
   customersById: Map<string, WholesaleCustomer>;
   exchangeRates: ExchangeRateRow[];
-  logisticsOrders: WholesaleLogisticsOrder[];
-  logisticsStatuses: WholesaleLogisticsStatus[];
+  referralWaybillCounts: WholesaleReferralWaybillCount[];
   onSettleCommission: (commissionId: string) => void;
   orders: WholesaleOrder[];
   pendingKey: string | null;
@@ -58,8 +56,7 @@ export function WholesaleCommissionSection({
   commissions,
   customersById,
   exchangeRates,
-  logisticsOrders,
-  logisticsStatuses,
+  referralWaybillCounts,
   onSettleCommission,
   orders,
   pendingKey,
@@ -89,8 +86,7 @@ export function WholesaleCommissionSection({
         commissionRuleSettings,
         customersById,
         exchangeRates,
-        logisticsOrders,
-        logisticsStatuses,
+        waybillCounts: referralWaybillCounts,
         orders,
         referrals,
       }),
@@ -98,8 +94,7 @@ export function WholesaleCommissionSection({
       commissionRuleSettings,
       customersById,
       exchangeRates,
-      logisticsOrders,
-      logisticsStatuses,
+      referralWaybillCounts,
       orders,
       referrals,
     ],

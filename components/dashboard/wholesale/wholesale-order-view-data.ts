@@ -12,14 +12,6 @@ export function useWholesaleOrderViewData(page: WholesaleOrderPage | null) {
     const orders = page?.orders ?? [];
 
     return {
-      logisticsOrdersByOrderId: groupByOrderId(
-        page?.logisticsOrders ?? [],
-        (row) => row.wholesale_order_id,
-      ),
-      logisticsStatusesByOrderId: groupByOrderId(
-        page?.logisticsStatuses ?? [],
-        (row) => row.wholesale_order_id,
-      ),
       orderListAttachmentsByOrderId: groupByOrderId(
         page?.orderListAttachments ?? [],
         (row) => row.order_id,

@@ -12,11 +12,10 @@ import {
   type ExchangeRateRow,
 } from "./exchange-rates";
 import {
-  getWholesaleLogisticsStatuses,
-  type WholesaleLogisticsStatus,
-} from "./wholesale-logistics-statuses";
-import {
-  getInitialWholesaleLogisticsPageData,
+  getDefaultWholesaleLogisticsFilters,
+  getInitialWholesaleLogisticsData,
+  getWholesaleReferralWaybillCounts,
+  type WholesaleReferralWaybillCount,
 } from "./wholesale-logistics-page";
 import { scopeWholesaleRows } from "./wholesale-scope";
 import {
@@ -36,11 +35,9 @@ import type {
   Wholesale1688Order,
   WholesaleCommission,
   WholesaleCustomer,
-  WholesaleLogisticsOrder,
   WholesaleOrder,
   WholesaleOrderChangeLog,
   WholesaleOrderEditRequest,
-  WholesaleOrderLinkOption,
   WholesaleOrderSettlement,
   WholesalePageData,
   WholesaleProfile,
@@ -101,14 +98,12 @@ export async function getWholesalePageData(
       ...baseData,
       customers,
       exchangeRates,
-      logisticsOrders: orderPage?.logisticsOrders ?? [],
-      logisticsStatuses: orderPage?.logisticsStatuses ?? [],
       orderChangeLogs: orderPage?.orderChangeLogs ?? [],
       orderEditRequests: orderPage?.orderEditRequests ?? [],
       orderEditSettings,
       orderPage,
       orderPageError: orderPageResult.error,
-      // 订单列表使用单独的客户安全类型；这里的兼容字段仅供其他批发板块使用。
+      // 订单列表会按当前角色裁剪内部字段；只有具备内部查看权限时，其他批发板块才接收完整订单。
       orders: orderPage?.canViewInternalFields
         ? (orderPage.orders as WholesaleOrder[])
         : [],
@@ -119,19 +114,23 @@ export async function getWholesalePageData(
   }
 
   if (section === "logistics") {
-    const logisticsPageData = await getInitialWholesaleLogisticsPageData(
-      supabase,
+    const logisticsFilters = getDefaultWholesaleLogisticsFilters(
+      currentRole,
+      currentUserId,
     );
+    const [customers, profiles, logisticsData] = await Promise.all([
+      getWholesaleCustomers(supabase),
+      getWholesaleProfiles(supabase, false),
+      getInitialWholesaleLogisticsData(supabase, logisticsFilters),
+    ]);
 
-    // 任一核心列表失败时保留页面壳和清楚的重试提示，不把读取失败伪装成“暂无记录”。
-    if (
-      !logisticsPageData.logisticsStatusPage ||
-      !logisticsPageData.logisticsFeePage
-    ) {
-      return { ...baseData, ...logisticsPageData };
-    }
-
-    return { ...baseData, ...logisticsPageData };
+    return {
+      ...baseData,
+      ...logisticsData,
+      customers,
+      logisticsFilters,
+      profiles,
+    };
   }
 
   const rows = await getWholesaleSectionRows(supabase, section, currentRole);
@@ -155,8 +154,7 @@ type WholesaleSectionRows = {
   commissions: WholesaleCommission[];
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
-  logisticsOrders: WholesaleLogisticsOrder[];
-  logisticsStatuses: WholesaleLogisticsStatus[];
+  referralWaybillCounts: WholesaleReferralWaybillCount[];
   orderChangeLogs: WholesaleOrderChangeLog[];
   orderEditRequests: WholesaleOrderEditRequest[];
   orderEditSettings: WholesaleOrderEditSettings;
@@ -226,8 +224,7 @@ async function getWholesaleSectionRows(
     const [
       customers,
       orders,
-      logisticsOrders,
-      logisticsStatuses,
+      referralWaybillCounts,
       commissions,
       referrals,
       profiles,
@@ -236,17 +233,7 @@ async function getWholesaleSectionRows(
     ] = await Promise.all([
       getWholesaleCustomers(supabase),
       getAllWholesaleOrders(supabase, canViewInternalFields),
-      queryRows<WholesaleLogisticsOrder>(
-        supabase
-          .from("wholesale_logistics_orders")
-          .select("*")
-          .order("updated_at", { ascending: false }),
-        "批发物流记录",
-      ),
-      queryRows<WholesaleLogisticsStatus>(
-        getWholesaleLogisticsStatuses(supabase),
-        "物流状态",
-      ),
+      getWholesaleReferralWaybillCounts(supabase),
       queryRows<WholesaleCommission>(
         supabase
           .from("wholesale_commissions")
@@ -272,8 +259,7 @@ async function getWholesaleSectionRows(
       commissions,
       customers,
       exchangeRates,
-      logisticsOrders,
-      logisticsStatuses,
+      referralWaybillCounts,
       orders,
       profiles,
       referrals,
@@ -296,11 +282,12 @@ function createEmptyWholesalePageData({
     ...createEmptyWholesaleSectionRows(),
     currentRole,
     currentUserId,
-    logisticsFeePage: null,
-    logisticsStatusPage: null,
+    logisticsAssignments: [],
+    logisticsFilters: null,
+    logisticsPage: null,
+    logisticsStoreOptions: [],
     orderPage: null,
     orderPageError: null,
-    orderLinkOptions: [] as WholesaleOrderLinkOption[],
     section,
   };
 }
@@ -311,8 +298,7 @@ function createEmptyWholesaleSectionRows(): WholesaleSectionRows {
     commissions: [],
     customers: [],
     exchangeRates: [],
-    logisticsOrders: [],
-    logisticsStatuses: [],
+    referralWaybillCounts: [],
     orderChangeLogs: [],
     orderEditRequests: [],
     orderEditSettings: {

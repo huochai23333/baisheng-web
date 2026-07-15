@@ -6,12 +6,10 @@ import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { Button } from "@/components/ui/button";
 import type {
   Wholesale1688Order,
-  WholesaleLogisticsOrder,
   WholesaleOrderListItem,
   WholesaleOrderSettlement,
 } from "@/lib/wholesale";
 import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-attachments";
-import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
 import {
   formatCurrency,
   formatDate,
@@ -31,8 +29,6 @@ type WholesaleOrderDetailsDialogProps = {
   canViewInternalFields: boolean;
   customerName: string;
   editAction: WholesaleOrderEditAction | null;
-  logisticsOrders: WholesaleLogisticsOrder[];
-  logisticsStatuses: WholesaleLogisticsStatus[];
   onClose: () => void;
   onDeleteOrderListAttachment: (
     attachment: WholesaleOrderListAttachment,
@@ -54,8 +50,6 @@ export function WholesaleOrderDetailsDialog({
   canViewInternalFields,
   customerName,
   editAction,
-  logisticsOrders,
-  logisticsStatuses,
   onClose,
   onDeleteOrderListAttachment,
   onOpenOrderEdit,
@@ -236,19 +230,6 @@ export function WholesaleOrderDetailsDialog({
             emptyText={uiText("attribute006")}
             labels={purchaseOrders.map((item) => item.external_order_number)}
           />
-          <div className="mt-3">
-            <RecordLabels
-              emptyText={uiText("attribute007")}
-              labels={[
-                ...logisticsStatuses.map((item) => item.tracking_number),
-                ...logisticsOrders.map(
-                  (item) =>
-                    item.source_workflow_order_number ??
-                    item.international_tracking_number,
-                ),
-              ]}
-            />
-          </div>
         </DetailGroup>
 
         <DetailGroup title={orderListText("title")}>

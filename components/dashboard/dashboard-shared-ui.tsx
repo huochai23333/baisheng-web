@@ -56,7 +56,7 @@ export function PageBanner({
   children,
   tone,
 }: {
-  children: string;
+  children: ReactNode;
   tone: NoticeTone;
 }) {
   return (

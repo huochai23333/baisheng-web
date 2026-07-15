@@ -250,8 +250,6 @@ export function WholesaleOrdersSection({
                 canViewInternalFields={page.canViewInternalFields}
                 customersById={customersById}
                 getOrderEditAction={getOrderEditAction}
-                logisticsOrdersByOrderId={viewData.logisticsOrdersByOrderId}
-                logisticsStatusesByOrderId={viewData.logisticsStatusesByOrderId}
                 orderSettlementsByOrderId={viewData.orderSettlementsByOrderId}
                 onOpenOrderEdit={setSelectedEditOrder}
                 onOpenOrderSettlement={setSelectedSettlementOrder}
@@ -278,8 +276,6 @@ export function WholesaleOrdersSection({
               canViewInternalFields={page.canViewInternalFields}
               customersById={customersById}
               getOrderEditAction={getOrderEditAction}
-              logisticsOrdersByOrderId={viewData.logisticsOrdersByOrderId}
-              logisticsStatusesByOrderId={viewData.logisticsStatusesByOrderId}
               onOpenOrderEdit={setSelectedEditOrder}
               onOpenOrderSettlement={setSelectedSettlementOrder}
               onDeleteOrderListAttachment={

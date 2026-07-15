@@ -197,7 +197,6 @@ const adminWholesaleNavItems = createWholesaleNavItems([
 const salesWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
   ["order-claims", "orderClaims"],
-  ["logistics", "logistics"],
   ["customers", "customers"],
   ["people", "people"],
   ["vip", "vip"],
@@ -221,7 +220,6 @@ const salesmanWholesaleNavItems = createWholesaleNavItems([
 
 const clientWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
-  ["logistics", "logistics"],
   ["referrals", "referrals"],
   ["commission", "commission"],
 ]);
@@ -231,7 +229,6 @@ const financeWholesaleNavItems = salesmanWholesaleNavItems;
 
 const managerWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
-  ["logistics", "logistics"],
   ["referrals", "referrals"],
   ["commission", "commission"],
   ["incentives", "incentives"],
@@ -239,7 +236,6 @@ const managerWholesaleNavItems = createWholesaleNavItems([
 
 const operatorWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
-  ["logistics", "logistics"],
 ]);
 
 const recruiterWholesaleNavItems = createWholesaleNavItems([

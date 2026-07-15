@@ -3,7 +3,6 @@ import type {
   Wholesale1688Order,
   WholesaleCommission,
   WholesaleCustomer,
-  WholesaleLogisticsOrder,
   WholesaleOrderChangeLog,
   WholesaleOrderEditRequest,
   WholesaleOrder,
@@ -11,7 +10,7 @@ import type {
   WholesaleProfile,
   WholesaleReferral,
 } from "./wholesale";
-import type { WholesaleLogisticsStatus } from "./wholesale-logistics-statuses";
+import type { WholesaleReferralWaybillCount } from "./wholesale-logistics-page";
 import {
   scopeWholesaleCommissions,
   scopeWholesaleOrderChangeLogs,
@@ -32,8 +31,7 @@ type ScopeWholesaleRowsInput = {
   currentRole: AppRole | null;
   currentUserId: string | null;
   customers: WholesaleCustomer[];
-  logisticsOrders: WholesaleLogisticsOrder[];
-  logisticsStatuses: WholesaleLogisticsStatus[];
+  referralWaybillCounts: WholesaleReferralWaybillCount[];
   orderChangeLogs: WholesaleOrderChangeLog[];
   orderEditRequests: WholesaleOrderEditRequest[];
   orderSettlements: WholesaleOrderSettlement[];
@@ -49,8 +47,7 @@ export function scopeWholesaleRows({
   currentRole,
   currentUserId,
   customers,
-  logisticsOrders,
-  logisticsStatuses,
+  referralWaybillCounts,
   orderChangeLogs,
   orderEditRequests,
   orderSettlements,
@@ -79,20 +76,6 @@ export function scopeWholesaleRows({
     customerIds,
     orderIds,
     purchaseOrders,
-  });
-  const scopedLogisticsOrders = scopeWholesaleLogisticsOrders({
-    currentRole,
-    currentUserId,
-    customerIds,
-    logisticsOrders,
-    orderIds,
-  });
-  const scopedLogisticsStatuses = scopeWholesaleLogisticsStatuses({
-    currentRole,
-    currentUserId,
-    customerIds,
-    logisticsStatuses,
-    orderIds,
   });
   const scopedCommissions = scopeWholesaleCommissions({
     currentRole,
@@ -129,8 +112,6 @@ export function scopeWholesaleRows({
     currentRole,
     currentUserId,
     customers: scopedCustomers,
-    logisticsOrders: scopedLogisticsOrders,
-    logisticsStatuses: scopedLogisticsStatuses,
     orderChangeLogs: scopedOrderChangeLogs,
     orderEditRequests: scopedOrderEditRequests,
     orders: scopedOrders,
@@ -142,8 +123,7 @@ export function scopeWholesaleRows({
   return {
     commissions: scopedCommissions,
     customers: scopedCustomers,
-    logisticsOrders: scopedLogisticsOrders,
-    logisticsStatuses: scopedLogisticsStatuses,
+    referralWaybillCounts,
     orderChangeLogs: scopedOrderChangeLogs,
     orderEditRequests: scopedOrderEditRequests,
     orderSettlements: scopedOrderSettlements,
@@ -153,50 +133,6 @@ export function scopeWholesaleRows({
     referrals: scopedReferrals,
     registeredCandidates,
   };
-}
-
-function scopeWholesaleLogisticsStatuses({
-  currentRole,
-  currentUserId,
-  customerIds,
-  logisticsStatuses,
-  orderIds,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  customerIds: Set<string>;
-  logisticsStatuses: WholesaleLogisticsStatus[];
-  orderIds: Set<string>;
-}) {
-  if (
-    currentRole === "administrator" ||
-    currentRole === "finance" ||
-    currentRole === "salesman"
-  ) {
-    return logisticsStatuses;
-  }
-
-  if (!currentUserId) {
-    return [];
-  }
-
-  if (currentRole === "client") {
-    // 客户物流状态必须明确关联到自己可见的批发订单，不能只靠客户名称或创建人兜底。
-    return logisticsStatuses.filter(
-      (status) =>
-        status.wholesale_order_id !== null &&
-        orderIds.has(status.wholesale_order_id),
-    );
-  }
-
-  return logisticsStatuses.filter(
-    (status) =>
-      (status.customer_id ? customerIds.has(status.customer_id) : false) ||
-      (status.wholesale_order_id
-        ? orderIds.has(status.wholesale_order_id)
-        : false) ||
-      status.created_by_user_id === currentUserId,
-  );
 }
 
 function scopeWholesaleCustomers({
@@ -304,47 +240,4 @@ function scopeWholesalePurchaseOrders({
       (canUseWholesaleSalesScope(currentRole) && isUnclaimedHallOrder)
     );
   });
-}
-
-function scopeWholesaleLogisticsOrders({
-  currentRole,
-  currentUserId,
-  customerIds,
-  logisticsOrders,
-  orderIds,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  customerIds: Set<string>;
-  logisticsOrders: WholesaleLogisticsOrder[];
-  orderIds: Set<string>;
-}) {
-  if (
-    canReadFullWholesaleBackoffice(currentRole) ||
-    canCollaborateAcrossWholesale(currentRole)
-  ) {
-    return logisticsOrders;
-  }
-
-  if (!currentUserId) {
-    return [];
-  }
-
-  if (currentRole === "client") {
-    // 客户只能查看已经绑定到自己批发订单的物流费用记录。
-    return logisticsOrders.filter(
-      (order) =>
-        order.wholesale_order_id !== null &&
-        orderIds.has(order.wholesale_order_id),
-    );
-  }
-
-  return logisticsOrders.filter(
-    (order) =>
-      (order.customer_id ? customerIds.has(order.customer_id) : false) ||
-      (order.wholesale_order_id
-        ? orderIds.has(order.wholesale_order_id)
-        : false) ||
-      order.created_by_user_id === currentUserId,
-  );
 }

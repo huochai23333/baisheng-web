@@ -78,9 +78,6 @@ test.describe("wholesale order settlements", () => {
       }),
     ).toBeVisible();
     await expectLinkedPurchaseOrderDetailsDialog(page);
-    await page.getByLabel("搜索订单").fill("WF-LOCAL-001");
-    await expect(page.getByRole("button", { name: "WF-LOCAL-001" })).toBeVisible();
-    await expectLinkedLogisticsDetailsDialog(page);
     await expectNoDocumentHorizontalOverflow(page);
 
     await page.setViewportSize({ height: 844, width: 390 });
@@ -158,19 +155,6 @@ async function expectLinkedPurchaseOrderDetailsDialog(page: Page) {
     .getByRole("button", { name: /关闭弹窗|Close dialog/ })
     .click();
   await expect(purchaseDialog).toHaveCount(0);
-}
-
-async function expectLinkedLogisticsDetailsDialog(page: Page) {
-  await page.getByRole("button", { name: "WF-LOCAL-001" }).click();
-
-  const logisticsDialog = page.getByRole("dialog", { name: "物流订单详情" });
-  await expect(logisticsDialog).toBeVisible();
-  await expect(logisticsDialog.getByText("INTL-TRACK-LOCAL-001")).toBeVisible();
-  await expect(logisticsDialog.getByText("Arrived at destination sorting center")).toBeVisible();
-  await logisticsDialog
-    .getByRole("button", { name: /关闭弹窗|Close dialog/ })
-    .click();
-  await expect(logisticsDialog).toHaveCount(0);
 }
 
 async function expectLocalSeededWholesaleOrders(page: Page) {

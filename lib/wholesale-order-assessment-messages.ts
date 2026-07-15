@@ -30,14 +30,8 @@ export function buildWholesaleOrderAssessmentMessages({
     data.profiles.map((profile) => [profile.user_id, profile]),
   );
   const purchaseOrderCount = countLinkedRecords(data.purchaseOrders, orders);
-  const logisticsOrderCount = countDistinctLogisticsRecords({
-    logisticsOrders: data.logisticsOrders,
-    logisticsStatuses: data.logisticsStatuses,
-    orders,
-  });
   const summary = buildOrderSummary({
     fullSummary: data.orderPage?.summary ?? null,
-    logisticsOrderCount,
     orders,
     purchaseOrderCount,
   });
@@ -97,7 +91,6 @@ export function buildWholesaleOrderAssessmentMessages({
 
 function buildOrderSummary({
   fullSummary,
-  logisticsOrderCount,
   orders,
   purchaseOrderCount,
 }: {
@@ -106,7 +99,6 @@ function buildOrderSummary({
       ? Summary | null
       : null
     : null;
-  logisticsOrderCount: number;
   orders: WholesaleOrder[];
   purchaseOrderCount: number;
 }) {
@@ -149,7 +141,6 @@ function buildOrderSummary({
         sumOrders(orders, "referral_commission_fee"),
     ),
     "未结汇订单": unsettledCount,
-    "物流订单数量": logisticsOrderCount,
     "订单数量": fullSummary?.orderCount ?? orders.length,
     "采购订单数量": purchaseOrderCount,
     "产品采购金额合计": roundMoney(
@@ -200,31 +191,6 @@ function countLinkedRecords<Row extends { wholesale_order_id: string | null }>(
   return rows.filter(
     (row) => row.wholesale_order_id && orderIds.has(row.wholesale_order_id),
   ).length;
-}
-
-function countDistinctLogisticsRecords({
-  logisticsOrders,
-  logisticsStatuses,
-  orders,
-}: {
-  logisticsOrders: WholesaleOrderAssessmentData["logisticsOrders"];
-  logisticsStatuses: WholesaleOrderAssessmentData["logisticsStatuses"];
-  orders: WholesaleOrder[];
-}) {
-  const orderIds = new Set(orders.map((order) => order.id));
-  const trackingNumbers = new Set<string>();
-
-  for (const row of logisticsOrders) {
-    if (row.wholesale_order_id && orderIds.has(row.wholesale_order_id)) {
-      trackingNumbers.add(row.international_tracking_number.trim().toUpperCase());
-    }
-  }
-  for (const row of logisticsStatuses) {
-    if (row.wholesale_order_id && orderIds.has(row.wholesale_order_id)) {
-      trackingNumbers.add(row.tracking_number.trim().toUpperCase());
-    }
-  }
-  return trackingNumbers.size;
 }
 
 function sumOrders(orders: WholesaleOrder[], key: keyof WholesaleOrder) {

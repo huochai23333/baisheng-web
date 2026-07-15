@@ -693,7 +693,7 @@
       },
       "logistics": {
         "title": "物流管理",
-        "description": "记录国际订单号、目的地订单号、货代进度和物流费用，方便按客户查看每天的物流状态。"
+        "description": "永久保存店小秘物流订单，按店铺、业务员和日期查看国际运费及缺失情况。"
       },
       "customers": {
         "title": "客户管理",
@@ -806,15 +806,94 @@
         "connectionFailed": "当前无法连接系统，请刷新页面后再试。"
       }
     },
-    "logisticsUi": {
-      "notLinked": "未关联",
-      "notRecorded": "未记录",
-      "stoppedChecking": "已停止核对",
-      "statuses": {
-        "checking": "核对中",
-        "delivered": "已送达",
-        "exception": "异常",
-        "stopped": "已停止"
+    "logisticsArchive": {
+      "title": "物流管理",
+      "eyebrow": "店小秘物流档案",
+      "description": "按店铺和下单时间查看业务员负责的物流订单，并汇总各币种国际运费。",
+      "updating": "正在更新物流数据，现有记录可以继续查看。",
+      "missingCost": "缺少运费",
+      "actions": {
+        "settings": "店铺归属设置",
+        "dismiss": "关闭提示"
+      },
+      "filters": {
+        "sales": "业务员",
+        "allSales": "全部业务员",
+        "unassigned": "尚未分配",
+        "store": "店小秘店铺",
+        "allStores": "全部店铺",
+        "fromDate": "开始日期",
+        "toDate": "结束日期",
+        "costState": "运费记录",
+        "allCosts": "全部",
+        "recorded": "已有运费",
+        "missing": "缺少运费",
+        "search": "搜索",
+        "searchPlaceholder": "包裹号、物流号或店铺名称",
+        "clear": "清除筛选"
+      },
+      "summary": {
+        "orders": "订单总数",
+        "recorded": "已记录运费",
+        "missing": "缺少运费",
+        "lastUpdated": "最近更新时间",
+        "freight": "{currency} 国际运费"
+      },
+      "columns": {
+        "orderTime": "下单时间",
+        "sales": "业务员",
+        "customer": "批发客户",
+        "store": "店小秘店铺",
+        "package": "包裹号",
+        "tracking": "物流号",
+        "status": "物流状态",
+        "freight": "国际运费"
+      },
+      "fallbacks": {
+        "unnamedSales": "未命名业务员",
+        "unassigned": "尚未分配",
+        "noCustomer": "未关联客户",
+        "noStore": "未记录店铺"
+      },
+      "empty": {
+        "title": "暂无符合条件的物流订单",
+        "description": "可以调整业务员、店铺或日期范围后再查看。"
+      },
+      "list": {
+        "title": "物流订单",
+        "shown": "已显示 {shown} / {total} 笔",
+        "loading": "正在加载物流订单…",
+        "loadingMore": "正在继续加载…",
+        "loadMore": "继续加载"
+      },
+      "assignments": {
+        "title": "店铺归属设置",
+        "description": "一个业务员可以负责多个店铺；历史归属按订单下单时间保留。",
+        "newAssignment": "新增店铺归属",
+        "adjustStore": "调整 {store}",
+        "chooseStores": "选择店铺",
+        "searchStores": "搜索店铺名称",
+        "noStores": "没有可分配的店铺。",
+        "orderCount": "{count} 笔订单",
+        "sales": "负责业务员",
+        "chooseSales": "请选择业务员",
+        "customer": "批发客户（可选）",
+        "noCustomer": "暂不关联客户",
+        "wholeInterval": "调整整个归属区间",
+        "fromDate": "从指定日期开始调整",
+        "historyDefault": "新店铺默认从最早一笔订单开始归属；曾结束过的店铺从本次分配时间重新开始。",
+        "history": "归属历史",
+        "noHistory": "还没有店铺归属记录。",
+        "range": "生效范围：{from} 至 {to}",
+        "allHistory": "最早订单",
+        "current": "现在",
+        "adjust": "调整",
+        "end": "结束归属",
+        "ending": "正在结束…",
+        "confirmEnd": "确定结束店铺“{store}”的当前归属吗？",
+        "back": "返回",
+        "save": "保存归属",
+        "saving": "正在保存…"
       }
     },
     "referralsUi": {
@@ -3846,21 +3925,21 @@
     },
     "components_dashboard_wholesale_wholesale_customer_details": {
       "text002": " 删除客户 ",
-      "text003": " 这个客户已经和注册账号合并，客户登录后会看到自己名下的批发订单、物流和佣金。 ",
+      "text003": " 这个客户已经和注册账号合并，客户登录后会看到自己名下的批发订单和佣金。 ",
       "attribute003": "暂无可合并账号",
       "text005": "选择要合并的账号",
       "attribute001": "选择客户注册账号",
       "text006": " 合并账号 ",
       "text004": " 关联合并注册账号 ",
       "text001": " 编辑客户 ",
-      "text007": " 合并后，这个注册账号会承接当前客户名下已有和后续的批发订单、物流、佣金。 ",
+      "text007": " 合并后，这个注册账号会承接当前客户名下已有和后续的批发订单及佣金。 ",
       "attribute002": "当前没有未合并的客户注册账号。客户完成注册后，就可以在这里选择并合并。"
     },
     "components_dashboard_wholesale_wholesale_customer_dialogs": {
       "attribute002": "新增批发客户",
       "attribute004": "编辑批发客户",
       "attribute003": "修改客户唯一名称、联系方式、来源、其他名称、关联业务员和备注。",
-      "attribute001": "客户唯一标识名称用于认领 1688 订单和物流归属，其他名称可填写客户常用昵称或店铺名。"
+      "attribute001": "客户唯一标识名称用于认领 1688 订单，其他名称可填写客户常用昵称或店铺名。"
     },
     "components_dashboard_wholesale_wholesale_customer_form": {
       "attribute005": "联系方式",
@@ -3886,82 +3965,6 @@
       "attribute003": "客户管理",
       "text001": " 新增客户档案 ",
       "attribute001": "单独管理批发客户档案、联系方式、来源、关联业务员和注册账号合并状态。"
-    },
-    "components_dashboard_wholesale_wholesale_logistics_section": {
-      "attribute002": "批发业务",
-      "attribute011": "关联批发订单",
-      "text005": "客户",
-      "text013": "客户",
-      "attribute003": "物流管理",
-      "attribute008": "客户名",
-      "attribute007": "填写需要核对的物流号",
-      "text007": "当前状态",
-      "text006": "批发订单",
-      "attribute001": "系统会每天同步物流进度；你也可以把自动同步和历史费用记录关联到对应批发订单。",
-      "text012": " 运单号 ",
-      "text015": "批发订单",
-      "text020": " 目的地 ",
-      "text019": "更新时间",
-      "attribute015": "暂无物流核对记录",
-      "text008": "核对结果",
-      "attribute013": "每日核对列表",
-      "text010": "下次核对",
-      "text009": "上次核对",
-      "attribute017": "物流费用记录",
-      "text004": " 物流号 ",
-      "attribute009": "填写客户常用名称",
-      "attribute010": "归属客户",
-      "attribute006": "物流号",
-      "text014": "来源订单",
-      "text016": "货代",
-      "text018": "物流费用",
-      "text017": "最新进度",
-      "text011": " 暂时没有查到新进展 ",
-      "attribute014": "还没有同步到物流记录。同步后，这里会显示客户、当前状态和最近核对时间。",
-      "actions": "操作",
-      "adjustDialogTitle": "调整关联订单",
-      "adjustLink": "调整关联",
-      "allCustomers": "全部客户",
-      "allLinkStates": "全部关联情况",
-      "allStatuses": "全部物流状态",
-      "associateOrder": "关联订单",
-      "cancel": "取消",
-      "clearFilters": "清除筛选",
-      "confirmUnlink": "确认解除关联",
-      "createButton": "创建物流记录",
-      "createDialogDescription": "填写物流号和来源客户名；如需关联订单，请先选择归属客户。",
-      "createDialogTitle": "创建物流记录",
-      "createSubmit": "创建记录",
-      "feeEmptyDescription": "还没有物流费用记录。录入费用后会显示在这里。",
-      "feeEmptyTitle": "暂无物流费用记录",
-      "feeListDescription": "按最近更新时间查看全部历史费用记录，可按物流号、来源订单、客户、货代或进度筛选。",
-      "feeSearchPlaceholder": "搜索运单号、来源订单、客户、货代或进度",
-      "filterCustomer": "客户",
-      "filteredEmpty": "当前筛选条件下没有记录，请调整筛选条件后再试。",
-      "filterKeyword": "搜索",
-      "filterLinkState": "关联情况",
-      "filterStatus": "物流状态",
-      "linkedOnly": "仅已关联",
-      "linkDialogDescription": "为物流号 {trackingNumber} 选择归属客户和对应批发订单。",
-      "linkDialogTitle": "关联批发订单",
-      "loadMore": "继续加载",
-      "loading": "正在读取符合条件的记录…",
-      "noCustomer": "暂不匹配客户",
-      "noOrder": "暂不关联订单",
-      "retry": "重新加载",
-      "saveLink": "保存关联",
-      "selectCustomer": "请选择客户",
-      "selectCustomerFirst": "请先选择客户",
-      "selectOrder": "请选择该客户的订单",
-      "showingCount": "已显示 {shown} 条，共 {total} 条",
-      "statusListDescription": "未结束的记录优先显示，可在全部同步记录中按物流号、客户、关联情况和状态筛选。",
-      "statusSearchPlaceholder": "搜索物流号、客户、订单号或当前状态",
-      "unlink": "解除关联",
-      "unlinkDialogDescription": "确定解除物流号 {trackingNumber} 与批发订单的关联吗？",
-      "unlinkDialogTitle": "解除订单关联",
-      "unlinkVisibilityWarning": "解除后会保留当前客户和来源客户名，但客户将看不到这条物流记录。",
-      "unlinkedOnly": "仅未关联",
-      "viewOnly": "仅查看"
     },
     "components_dashboard_wholesale_wholesale_order_assessment_panel": {
       "text004": " 当前筛选条件下没有订单，调整日期或筛选条件后再生成评估。 ",
@@ -4004,12 +4007,11 @@
       "attribute006": "尚未关联 1688 采购订单。",
       "text005": "尚未登记结汇记录。",
       "text003": "， 剩余",
-      "attribute005": "关联采购和物流",
+      "attribute005": "关联采购记录",
       "attribute004": "结汇记录",
       "attribute003": "费用和利润",
       "text001": " 登记结汇 ",
-      "attribute001": "分组查看费用、利润、结汇、关联采购物流和备注。",
-      "attribute007": "尚未关联物流记录。"
+      "attribute001": "分组查看费用、利润、结汇、关联采购记录和备注。"
     },
     "components_dashboard_wholesale_wholesale_order_edit_dialog": {
       "attribute001": "客户名",
@@ -4042,8 +4044,8 @@
       "attribute003": "订单状态",
       "text008": "全部客户",
       "text001": "查找订单",
-      "text002": " 可以按订单、关联单号、客户、业务员、状态和日期查找。 ",
-      "attribute002": "订单号、客户、1688 单号或物流号",
+      "text002": " 可以按订单、1688 单号、客户、业务员、状态和日期查找。 ",
+      "attribute002": "订单号、客户或 1688 单号",
       "attribute007": "下单日期到",
       "attribute006": "下单日期从",
       "text007": "已结汇",
@@ -4073,12 +4075,9 @@
       "attribute001": "订单编号会自动生成。录入阶段只记录客户支付和成本，结汇时再确认汇率并计算人民币金额、毛利和提成。"
     },
     "components_dashboard_wholesale_wholesale_order_linked_records": {
-      "text002": "未关联",
       "text001": "未关联",
       "attribute001": "查看这条 1688 订单的商品、金额和认领信息。",
-      "attribute003": "查看这条关联物流的状态、费用和时间信息。",
-      "attribute002": "1688 订单详情",
-      "attribute004": "物流订单详情"
+      "attribute002": "1688 订单详情"
     },
     "components_dashboard_wholesale_wholesale_order_rate_dialogs": {
       "dialogDescription": "登记每一次实际结汇的金额和日期。系统会使用所选日期的汇率，累计结汇金额达到订单金额后自动变为已结汇。",
@@ -4148,7 +4147,6 @@
       "text024": " 关联 1688 采购订单 ",
       "text012": "平均结汇汇率",
       "text006": "打包费",
-      "text025": " 关联物流订单 ",
       "text015": "人民币金额",
       "text019": "单位毛利"
     },

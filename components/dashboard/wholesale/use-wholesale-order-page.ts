@@ -133,11 +133,6 @@ function mergeWholesaleOrderPages(
 ): WholesaleOrderPage {
   return {
     ...next,
-    logisticsOrders: mergeRows(current.logisticsOrders, next.logisticsOrders),
-    logisticsStatuses: mergeRows(
-      current.logisticsStatuses,
-      next.logisticsStatuses,
-    ),
     orderChangeLogs: mergeRows(current.orderChangeLogs, next.orderChangeLogs),
     orderEditRequests: mergeRows(
       current.orderEditRequests,

@@ -63,7 +63,7 @@ test.describe("wholesale order pagination", () => {
     await expect(detailsDialog.getByRole("heading", { name: "结汇记录" }))
       .toBeVisible();
     await expect(
-      detailsDialog.getByRole("heading", { name: "关联采购和物流" }),
+      detailsDialog.getByRole("heading", { name: "关联采购记录" }),
     ).toBeVisible();
     await expect(detailsDialog.getByRole("heading", { name: "备注" }))
       .toBeVisible();
@@ -252,11 +252,6 @@ test.describe("wholesale order pagination", () => {
       await expect(purchaseDialog).toBeVisible();
       await expect(purchaseDialog.getByText("采购金额", { exact: true })).toHaveCount(0);
       await purchaseDialog.getByRole("button", { name: "关闭" }).click();
-
-      await clientPage.goto("/client/wholesale/logistics");
-      await expect(clientPage.getByText("INTL-TRACK-LOCAL-001").first()).toBeVisible();
-      await expect(clientPage.getByText("CLIENT-UNLINKED-LOGISTICS-ORDER")).toHaveCount(0);
-      await expect(clientPage.getByText("CLIENT-UNLINKED-LOGISTICS-STATUS")).toHaveCount(0);
 
       await clientPage.setViewportSize({ height: 844, width: 390 });
       await clientPage.goto("/client/wholesale/orders");

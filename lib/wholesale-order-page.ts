@@ -2,14 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type {
   Wholesale1688Order,
-  WholesaleLogisticsOrder,
   WholesaleOrder,
   WholesaleOrderListItem,
   WholesaleOrderChangeLog,
   WholesaleOrderEditRequest,
   WholesaleOrderSettlement,
 } from "./wholesale";
-import type { WholesaleLogisticsStatus } from "./wholesale-logistics-statuses";
 import type { WholesaleOrderListAttachment } from "./wholesale-order-list-attachments";
 
 export type WholesaleOrderFilters = {
@@ -27,7 +25,7 @@ export type WholesaleOrderCursor = {
 };
 
 export type WholesaleOrderPageWarning = {
-  area: "attachments" | "changes" | "logistics" | "purchases" | "settlements";
+  area: "attachments" | "changes" | "purchases" | "settlements";
   message: string;
 };
 
@@ -48,8 +46,6 @@ export type WholesaleOrderPageSummary = {
 
 export type WholesaleOrderPage = {
   canViewInternalFields: boolean;
-  logisticsOrders: WholesaleLogisticsOrder[];
-  logisticsStatuses: WholesaleLogisticsStatus[];
   nextCursor: WholesaleOrderCursor | null;
   orderChangeLogs: WholesaleOrderChangeLog[];
   orderEditRequests: WholesaleOrderEditRequest[];
@@ -100,8 +96,6 @@ export async function getWholesaleOrderPage(
   if (orderIds.length === 0) {
     return {
       canViewInternalFields,
-      logisticsOrders: [],
-      logisticsStatuses: [],
       nextCursor: readCursor(core.nextCursor),
       orderChangeLogs: [],
       orderEditRequests: [],
@@ -121,8 +115,6 @@ export async function getWholesaleOrderPage(
   const [
     settlementsResult,
     purchaseOrdersResult,
-    logisticsOrdersResult,
-    logisticsStatusesResult,
     editRequestsResult,
     changeLogsResult,
     attachmentsResult,
@@ -138,16 +130,6 @@ export async function getWholesaleOrderPage(
       .select(purchaseOrderColumns)
       .in("wholesale_order_id", orderIds)
       .order("created_at", { ascending: false }),
-    supabase
-      .from("wholesale_logistics_orders")
-      .select("*")
-      .in("wholesale_order_id", orderIds)
-      .order("updated_at", { ascending: false }),
-    supabase
-      .from("wholesale_logistics_statuses")
-      .select("*")
-      .in("wholesale_order_id", orderIds)
-      .order("updated_at", { ascending: false }),
     canViewInternalFields
       ? supabase
           .from("wholesale_order_edit_requests")
@@ -171,18 +153,6 @@ export async function getWholesaleOrderPage(
 
   return {
     canViewInternalFields,
-    logisticsOrders: readRelatedRows<WholesaleLogisticsOrder>(
-      logisticsOrdersResult,
-      warnings,
-      "logistics",
-      "部分关联物流暂时没有加载成功。",
-    ),
-    logisticsStatuses: readRelatedRows<WholesaleLogisticsStatus>(
-      logisticsStatusesResult,
-      warnings,
-      "logistics",
-      "部分物流状态暂时没有加载成功。",
-    ),
     nextCursor: readCursor(core.nextCursor),
     orderChangeLogs: readRelatedRows<WholesaleOrderChangeLog>(
       changeLogsResult,

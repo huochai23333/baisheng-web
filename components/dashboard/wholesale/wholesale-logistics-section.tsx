@@ -1,200 +1,171 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { useState } from "react";
+import { Settings2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
+import type { AppRole } from "@/lib/auth-routing";
 import type {
   WholesaleCustomer,
-  WholesaleOrderLinkOption,
+  WholesaleProfile,
 } from "@/lib/wholesale";
 import type {
-  WholesaleLogisticsFeePage,
-  WholesaleLogisticsStatusPage,
+  WholesaleLogisticsFilters,
+  WholesaleLogisticsPage,
+  WholesaleLogisticsStoreAssignment,
+  WholesaleLogisticsStoreOption,
 } from "@/lib/wholesale-logistics-page";
 
-import {
-  WholesaleLogisticsCreateDialog,
-  WholesaleLogisticsLinkDialog,
-  WholesaleLogisticsUnlinkDialog,
-  type WholesaleLogisticsLinkTarget,
-} from "./wholesale-logistics-dialogs";
-import { WholesaleLogisticsFeeSection } from "./wholesale-logistics-fee-section";
-import type { WholesaleLogisticsRecordType } from "./wholesale-logistics-mutations";
-import { WholesaleLogisticsStatusSection } from "./wholesale-logistics-status-section";
+import { WholesaleLogisticsAssignmentDialog } from "./wholesale-logistics-assignment-dialog";
+import { WholesaleLogisticsFiltersPanel } from "./wholesale-logistics-filters";
+import { WholesaleLogisticsRecords } from "./wholesale-logistics-records";
+import { WholesaleLogisticsSummary } from "./wholesale-logistics-summary";
 import { WholesalePageShell } from "./wholesale-ui";
-import { useWholesaleLogisticsLists } from "./use-wholesale-logistics-lists";
+import { useWholesaleLogisticsPage } from "./use-wholesale-logistics-page";
 
 type WholesaleLogisticsSectionProps = {
-  canEdit: boolean;
+  currentRole: AppRole | null;
   customers: WholesaleCustomer[];
-  initialFeePage: WholesaleLogisticsFeePage;
-  initialStatusPage: WholesaleLogisticsStatusPage;
-  onCreateLogisticsStatus: (formData: FormData) => Promise<boolean>;
-  onSetLogisticsOrderLink: (
-    recordType: WholesaleLogisticsRecordType,
-    recordId: string,
-    wholesaleOrderId: string | null,
-  ) => Promise<boolean>;
-  orders: WholesaleOrderLinkOption[];
-  pendingKey: string | null;
+  initialAssignments: WholesaleLogisticsStoreAssignment[];
+  initialFilters: WholesaleLogisticsFilters;
+  initialPage: WholesaleLogisticsPage;
+  initialStoreOptions: WholesaleLogisticsStoreOption[];
+  profiles: WholesaleProfile[];
 };
 
 /**
- * 物流页面协调组件只组装两个列表和三个弹窗。
- * 查询、筛选、mutation、表单状态及表格渲染均由同层模块分别负责。
+ * 页面协调组件只负责组装标题、汇总、筛选、记录列表和设置弹窗。
+ * 查询、同步、mutation、表单状态及桌面/移动渲染均由同层模块分别承担。
  */
 export function WholesaleLogisticsSection({
-  canEdit,
+  currentRole,
   customers,
-  initialFeePage,
-  initialStatusPage,
-  onCreateLogisticsStatus,
-  onSetLogisticsOrderLink,
-  orders,
-  pendingKey,
+  initialAssignments,
+  initialFilters,
+  initialPage,
+  initialStoreOptions,
+  profiles,
 }: WholesaleLogisticsSectionProps) {
-  const uiText = useTranslations(
-    "UiText.components_dashboard_wholesale_wholesale_logistics_section",
-  );
-  const [createOpen, setCreateOpen] = useState(false);
-  const [linkTarget, setLinkTarget] =
-    useState<WholesaleLogisticsLinkTarget | null>(null);
-  const [unlinkTarget, setUnlinkTarget] =
-    useState<WholesaleLogisticsLinkTarget | null>(null);
-  const lists = useWholesaleLogisticsLists({
-    initialFeePage,
-    initialStatusPage,
+  const t = useTranslations("WholesaleBusiness.logisticsArchive");
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const logistics = useWholesaleLogisticsPage({
+    initialAssignments,
+    initialFilters,
+    initialPage,
+    initialStoreOptions,
   });
-  const customersById = new Map(
-    customers.map((customer) => [customer.id, customer]),
+  const canManage = currentRole === "administrator" || currentRole === "salesman";
+  const profilesById = useMemo(
+    () => new Map(profiles.map((profile) => [profile.user_id, profile])),
+    [profiles],
   );
-  const ordersById = new Map(orders.map((order) => [order.id, order]));
-
-  const refreshAffectedList = async (recordType: WholesaleLogisticsRecordType) => {
-    if (recordType === "status") {
-      await lists.statusList.reload();
-    } else {
-      await lists.feeList.reload();
-    }
-  };
-
-  const handleSaveLink = async (
-    recordType: WholesaleLogisticsRecordType,
-    recordId: string,
-    wholesaleOrderId: string | null,
-  ) => {
-    const succeeded = await onSetLogisticsOrderLink(
-      recordType,
-      recordId,
-      wholesaleOrderId,
-    );
-    if (succeeded) await refreshAffectedList(recordType);
-    return succeeded;
-  };
+  const customersById = useMemo(
+    () => new Map(customers.map((customer) => [customer.id, customer])),
+    [customers],
+  );
 
   return (
     <WholesalePageShell
       actions={
-        canEdit ? (
+        canManage ? (
           <Button
-            className="h-auto min-h-10 whitespace-normal rounded-full bg-[#486782] px-4 py-2 text-center leading-5 text-white hover:bg-[#3e5f79]"
-            onClick={() => setCreateOpen(true)}
+            className="min-h-10 whitespace-normal rounded-full bg-[#486782] px-4 py-2 text-white hover:bg-[#3e5f79]"
+            onClick={() => setSettingsOpen(true)}
             type="button"
           >
-            <Plus className="size-4" />
-            {uiText("createButton")}
+            <Settings2 className="size-4 shrink-0" />
+            {t("actions.settings")}
           </Button>
         ) : null
       }
-      description={uiText("attribute001")}
-      eyebrow={uiText("attribute002")}
-      title={uiText("attribute003")}
+      description={t("description")}
+      eyebrow={t("eyebrow")}
+      title={t("title")}
     >
-      <WholesaleLogisticsStatusSection
-        canEdit={canEdit}
-        customers={customers}
-        customersById={customersById}
-        filters={lists.statusFilters}
-        loadError={lists.statusList.loadError}
-        loading={lists.statusList.loading}
-        loadingMore={lists.statusList.loadingMore}
-        onAssociate={setLinkTarget}
-        onClearFilters={lists.clearStatusFilters}
-        onFiltersChange={lists.setStatusFilters}
-        onLoadMore={lists.statusList.loadMore}
-        onReload={lists.statusList.reload}
-        onUnlink={setUnlinkTarget}
-        ordersById={ordersById}
-        page={lists.statusList.page}
-        pendingKey={pendingKey}
-      />
-
-      <WholesaleLogisticsFeeSection
-        canEdit={canEdit}
-        customers={customers}
-        customersById={customersById}
-        filters={lists.feeFilters}
-        loadError={lists.feeList.loadError}
-        loading={lists.feeList.loading}
-        loadingMore={lists.feeList.loadingMore}
-        onAssociate={setLinkTarget}
-        onClearFilters={lists.clearFeeFilters}
-        onFiltersChange={lists.setFeeFilters}
-        onLoadMore={lists.feeList.loadMore}
-        onReload={lists.feeList.reload}
-        onUnlink={setUnlinkTarget}
-        ordersById={ordersById}
-        page={lists.feeList.page}
-        pendingKey={pendingKey}
-      />
-
-      {canEdit ? (
-        <WholesaleLogisticsCreateDialog
-          customers={customers}
-          onCreate={onCreateLogisticsStatus}
-          onOpenChange={setCreateOpen}
-          onSucceeded={lists.statusList.reload}
-          open={createOpen}
-          orders={orders}
-          pending={pendingKey === "logistics-status:create"}
-        />
+      {logistics.feedback?.scope === "page" ? (
+        <PageBanner tone={logistics.feedback.tone}>
+          <div className="flex min-w-0 items-start justify-between gap-3">
+            <span className="min-w-0 break-words">{logistics.feedback.message}</span>
+            <button
+              className="shrink-0 text-xs font-semibold underline underline-offset-2"
+              onClick={logistics.dismissFeedback}
+              type="button"
+            >
+              {t("actions.dismiss")}
+            </button>
+          </div>
+        </PageBanner>
       ) : null}
 
-      <WholesaleLogisticsLinkDialog
-        customers={customers}
-        onOpenChange={(open) => {
-          if (!open) setLinkTarget(null);
-        }}
-        onSave={handleSaveLink}
-        open={Boolean(linkTarget)}
-        orders={orders}
-        pending={
-          linkTarget
-            ? pendingKey ===
-              `logistics-link:${linkTarget.recordType}:${linkTarget.recordId}`
-            : false
-        }
-        target={linkTarget}
+      {logistics.updatingSource ? (
+        <p className="rounded-[18px] border border-[#dce6ec] bg-[#f3f8fa] px-4 py-3 text-sm text-[#526b7d]">
+          {t("updating")}
+        </p>
+      ) : null}
+
+      <WholesaleLogisticsSummary page={logistics.page} />
+
+      <WholesaleLogisticsFiltersPanel
+        filters={logistics.filters}
+        onChange={logistics.setFilters}
+        onClear={logistics.clearFilters}
+        profiles={profiles}
+        storeOptions={logistics.storeOptions}
       />
 
-      <WholesaleLogisticsUnlinkDialog
-        onConfirm={(recordType, recordId) =>
-          handleSaveLink(recordType, recordId, null)
-        }
-        onOpenChange={(open) => {
-          if (!open) setUnlinkTarget(null);
-        }}
-        open={Boolean(unlinkTarget)}
-        pending={
-          unlinkTarget
-            ? pendingKey ===
-              `logistics-link:${unlinkTarget.recordType}:${unlinkTarget.recordId}`
-            : false
-        }
-        target={unlinkTarget}
-      />
+      <section className="space-y-3">
+        <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <h3 className="text-xl font-bold tracking-tight text-[#23313a]">
+              {t("list.title")}
+            </h3>
+            <p className="mt-1 break-words text-sm text-[#6f7b85]">
+              {t("list.shown", {
+                shown: logistics.page.rows.length,
+                total: logistics.page.totalCount,
+              })}
+            </p>
+          </div>
+          {logistics.loading ? (
+            <span className="text-sm text-[#6f7b85]">{t("list.loading")}</span>
+          ) : null}
+        </div>
+
+        {logistics.loadError ? (
+          <PageBanner tone="error">{logistics.loadError}</PageBanner>
+        ) : null}
+
+        <WholesaleLogisticsRecords
+          customersById={customersById}
+          loadingMore={logistics.loadingMore}
+          onLoadMore={() => void logistics.loadMore()}
+          page={logistics.page}
+          profilesById={profilesById}
+        />
+      </section>
+
+      {canManage ? (
+        <WholesaleLogisticsAssignmentDialog
+          assignments={logistics.assignments}
+          customers={customers}
+          feedback={
+            logistics.feedback?.scope === "assignment"
+              ? logistics.feedback
+              : null
+          }
+          onAssign={logistics.assignStores}
+          onChange={logistics.changeAssignment}
+          onDismissFeedback={logistics.dismissFeedback}
+          onEnd={logistics.endAssignment}
+          onOpenChange={setSettingsOpen}
+          open={settingsOpen}
+          pendingKey={logistics.pendingKey}
+          profiles={profiles}
+          storeOptions={logistics.storeOptions}
+        />
+      ) : null}
     </WholesalePageShell>
   );
 }

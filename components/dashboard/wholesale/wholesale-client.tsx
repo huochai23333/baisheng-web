@@ -125,16 +125,15 @@ export function WholesaleClient({
       ) : null}
 
       {initialData.section === "logistics" ? (
-        initialData.logisticsFeePage && initialData.logisticsStatusPage ? (
+        initialData.logisticsPage && initialData.logisticsFilters ? (
           <WholesaleLogisticsSection
-            canEdit={canEdit}
+            currentRole={initialData.currentRole}
             customers={initialData.customers}
-            initialFeePage={initialData.logisticsFeePage}
-            initialStatusPage={initialData.logisticsStatusPage}
-            onCreateLogisticsStatus={actions.createLogisticsStatus}
-            onSetLogisticsOrderLink={actions.setLogisticsOrderLink}
-            orders={initialData.orderLinkOptions}
-            pendingKey={actions.pendingKey}
+            initialAssignments={initialData.logisticsAssignments}
+            initialFilters={initialData.logisticsFilters}
+            initialPage={initialData.logisticsPage}
+            initialStoreOptions={initialData.logisticsStoreOptions}
+            profiles={initialData.profiles}
           />
         ) : (
           <PageBanner tone="error">{uiText("text002")}</PageBanner>
@@ -187,8 +186,7 @@ export function WholesaleClient({
           commissions={initialData.commissions}
           customersById={customersById}
           exchangeRates={initialData.exchangeRates}
-          logisticsOrders={initialData.logisticsOrders}
-          logisticsStatuses={initialData.logisticsStatuses}
+          referralWaybillCounts={initialData.referralWaybillCounts}
           onSettleCommission={actions.settleCommission}
           orders={initialData.orders}
           pendingKey={actions.pendingKey}

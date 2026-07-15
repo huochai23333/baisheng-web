@@ -149,17 +149,6 @@ export function toWholesaleActionErrorMessage(error: unknown) {
     return "这个币种的汇率还没有准备好，请先到汇率设置中补充。";
   }
 
-  if (normalized.includes("wholesale_logistics_statuses_tracking_unique_idx")) {
-    return "这个物流号已经在核对列表里。";
-  }
-
-  if (
-    normalized.includes("logistics link not permitted") ||
-    normalized.includes("row-level security")
-  ) {
-    return "你暂时不能调整这条物流记录，请刷新后查看最新状态。";
-  }
-
   if (
     normalized.includes("daily order counter exceeded") ||
     normalized.includes("duplicate key")

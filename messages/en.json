@@ -693,7 +693,7 @@
       },
       "logistics": {
         "title": "Logistics",
-        "description": "Track international order numbers, destination order numbers, freight forwarder progress, and logistics costs so each customer can review daily shipment status."
+        "description": "Permanently archive Dianxiaomi logistics orders and review international freight or missing costs by store, salesperson, and date."
       },
       "customers": {
         "title": "Customer Management",
@@ -806,15 +806,94 @@
         "connectionFailed": "The system cannot be reached right now. Refresh the page and try again."
       }
     },
-    "logisticsUi": {
-      "notLinked": "Not linked",
-      "notRecorded": "Not recorded",
-      "stoppedChecking": "Checking stopped",
-      "statuses": {
-        "checking": "Checking",
-        "delivered": "Delivered",
-        "exception": "Exception",
-        "stopped": "Stopped"
+    "logisticsArchive": {
+      "title": "Logistics Management",
+      "eyebrow": "Dianxiaomi Logistics Archive",
+      "description": "Review logistics orders by store and order date, then total international freight by salesperson and currency.",
+      "updating": "Logistics data is being updated. Existing records remain available.",
+      "missingCost": "Missing freight",
+      "actions": {
+        "settings": "Store Assignment Settings",
+        "dismiss": "Dismiss"
+      },
+      "filters": {
+        "sales": "Salesperson",
+        "allSales": "All Salespeople",
+        "unassigned": "Unassigned",
+        "store": "Dianxiaomi Store",
+        "allStores": "All Stores",
+        "fromDate": "Start Date",
+        "toDate": "End Date",
+        "costState": "Freight Record",
+        "allCosts": "All",
+        "recorded": "Recorded",
+        "missing": "Missing Freight",
+        "search": "Search",
+        "searchPlaceholder": "Package, tracking number, or store",
+        "clear": "Clear Filters"
+      },
+      "summary": {
+        "orders": "Total Orders",
+        "recorded": "Freight Recorded",
+        "missing": "Missing Freight",
+        "lastUpdated": "Last Updated",
+        "freight": "{currency} International Freight"
+      },
+      "columns": {
+        "orderTime": "Order Date",
+        "sales": "Salesperson",
+        "customer": "Wholesale Customer",
+        "store": "Dianxiaomi Store",
+        "package": "Package Number",
+        "tracking": "Tracking Number",
+        "status": "Logistics Status",
+        "freight": "International Freight"
+      },
+      "fallbacks": {
+        "unnamedSales": "Unnamed Salesperson",
+        "unassigned": "Unassigned",
+        "noCustomer": "No Customer",
+        "noStore": "Store Not Recorded"
+      },
+      "empty": {
+        "title": "No logistics orders match these filters",
+        "description": "Try changing the salesperson, store, or date range."
+      },
+      "list": {
+        "title": "Logistics Orders",
+        "shown": "Showing {shown} of {total}",
+        "loading": "Loading logistics orders…",
+        "loadingMore": "Loading more…",
+        "loadMore": "Load More"
+      },
+      "assignments": {
+        "title": "Store Assignment Settings",
+        "description": "A salesperson can manage multiple stores. Historical ownership follows each order date.",
+        "newAssignment": "Add Store Assignment",
+        "adjustStore": "Adjust {store}",
+        "chooseStores": "Choose Stores",
+        "searchStores": "Search store names",
+        "noStores": "No stores are available for assignment.",
+        "orderCount": "{count} orders",
+        "sales": "Responsible Salesperson",
+        "chooseSales": "Choose a salesperson",
+        "customer": "Wholesale Customer (Optional)",
+        "noCustomer": "Do Not Link a Customer",
+        "wholeInterval": "Adjust the entire assignment period",
+        "fromDate": "Adjust from a selected date",
+        "historyDefault": "A store's first assignment begins with its earliest order. A previously ended store begins again when reassigned.",
+        "history": "Assignment History",
+        "noHistory": "No store assignment history yet.",
+        "range": "Effective: {from} to {to}",
+        "allHistory": "Earliest Order",
+        "current": "Current",
+        "adjust": "Adjust",
+        "end": "End Assignment",
+        "ending": "Ending…",
+        "confirmEnd": "End the current assignment for “{store}”?",
+        "back": "Back",
+        "save": "Save Assignment",
+        "saving": "Saving…"
       }
     },
     "referralsUi": {
@@ -3846,21 +3925,21 @@
     },
     "components_dashboard_wholesale_wholesale_customer_details": {
       "text002": " Delete customer ",
-      "text003": " This customer has been merged with the registered account. After logging in, the customer will see the wholesale orders, logistics and commissions under their name. ",
+      "text003": " This customer has been merged with the registered account. After signing in, the customer will see their wholesale orders and commissions. ",
       "attribute003": "There is currently no merged account",
       "text005": "Select the accounts to merge",
       "attribute001": "Select customer registration account",
       "text006": " Merge accounts ",
       "text004": " Associate and merge registered accounts ",
       "text001": " Edit customer ",
-      "text007": " After the merger, this registered account will take over existing and subsequent wholesale orders, logistics, and commissions under the current customer's name. ",
+      "text007": " After the merge, this registered account will receive the customer's existing and future wholesale orders and commissions. ",
       "attribute002": "There are currently no unmerged customer registration accounts. Once the customer has completed registration, they can select and merge here."
     },
     "components_dashboard_wholesale_wholesale_customer_dialogs": {
       "attribute002": "Add new wholesale customers",
       "attribute004": "Edit wholesale customers",
       "attribute003": "Modify the customer's unique name, contact information, source, other names, associated salesperson and remarks.",
-      "attribute001": "The customer's unique identification name is used to claim 1688 orders and logistics ownership. Other names can be filled in with the customer's common nickname or store name."
+      "attribute001": "The customer's unique name is used to claim 1688 orders. Other names can contain common nicknames or store names."
     },
     "components_dashboard_wholesale_wholesale_customer_form": {
       "attribute005": "Contact information",
@@ -3886,82 +3965,6 @@
       "attribute003": "Customer management",
       "text001": " Add new customer profile ",
       "attribute001": "Separately manage wholesale customer files, contact information, sources, associated salespersons and registered account merger status."
-    },
-    "components_dashboard_wholesale_wholesale_logistics_section": {
-      "attribute002": "Wholesale business",
-      "attribute011": "Associated wholesale orders",
-      "text005": "Client",
-      "text013": "Client",
-      "attribute003": "Logistics management",
-      "attribute008": "Customer name",
-      "attribute007": "Fill in the logistics number that needs to be verified",
-      "text007": "Current status",
-      "text006": "Wholesale order",
-      "attribute001": "The system syncs logistics progress every day. You can also link auto-synced and historical fee records to the matching wholesale order.",
-      "text012": " Waybill number ",
-      "text015": "Wholesale order",
-      "text020": " Destination ",
-      "text019": "Update time",
-      "attribute015": "No logistics verification record yet",
-      "text008": "Check results",
-      "attribute013": "Daily checklist",
-      "text010": "Check next time",
-      "text009": "Last checked",
-      "attribute017": "Logistics cost record",
-      "text004": " Logistics number ",
-      "attribute009": "Fill in the customer's common name",
-      "attribute010": "Belong to customers",
-      "attribute006": "Logistics number",
-      "text014": "Source order",
-      "text016": "Freight forwarding",
-      "text018": "Logistics costs",
-      "text017": "Latest progress",
-      "text011": " No new progress found yet ",
-      "attribute014": "It has not been synced to the logistics record yet. After synchronization, the customer, current status and last check time will be displayed here.",
-      "actions": "Actions",
-      "adjustDialogTitle": "Change linked order",
-      "adjustLink": "Change link",
-      "allCustomers": "All customers",
-      "allLinkStates": "All link states",
-      "allStatuses": "All logistics statuses",
-      "associateOrder": "Link order",
-      "cancel": "Cancel",
-      "clearFilters": "Clear filters",
-      "confirmUnlink": "Confirm unlink",
-      "createButton": "Create logistics record",
-      "createDialogDescription": "Enter the tracking number and source customer name. To link an order, select the customer first.",
-      "createDialogTitle": "Create logistics record",
-      "createSubmit": "Create record",
-      "feeEmptyDescription": "There are no logistics fee records yet. New fee records will appear here.",
-      "feeEmptyTitle": "No logistics fee records",
-      "feeListDescription": "View all historical fee records by latest update, and filter by tracking number, source order, customer, forwarder, or progress.",
-      "feeSearchPlaceholder": "Search tracking, source order, customer, forwarder, or progress",
-      "filterCustomer": "Customer",
-      "filteredEmpty": "No records match the current filters. Adjust the filters and try again.",
-      "filterKeyword": "Search",
-      "filterLinkState": "Link state",
-      "filterStatus": "Logistics status",
-      "linkedOnly": "Linked only",
-      "linkDialogDescription": "Select the customer and wholesale order for tracking number {trackingNumber}.",
-      "linkDialogTitle": "Link wholesale order",
-      "loadMore": "Load more",
-      "loading": "Loading matching records…",
-      "noCustomer": "No customer match",
-      "noOrder": "Do not link an order",
-      "retry": "Try again",
-      "saveLink": "Save link",
-      "selectCustomer": "Select a customer",
-      "selectCustomerFirst": "Select a customer first",
-      "selectOrder": "Select this customer's order",
-      "showingCount": "Showing {shown} of {total}",
-      "statusListDescription": "Unfinished records are shown first. Filter all synced records by tracking number, customer, link state, or status.",
-      "statusSearchPlaceholder": "Search tracking, customer, order number, or status",
-      "unlink": "Unlink",
-      "unlinkDialogDescription": "Unlink tracking number {trackingNumber} from its wholesale order?",
-      "unlinkDialogTitle": "Unlink order",
-      "unlinkVisibilityWarning": "The current customer and source customer name will be kept, but the customer will no longer see this logistics record.",
-      "unlinkedOnly": "Unlinked only",
-      "viewOnly": "View only"
     },
     "components_dashboard_wholesale_wholesale_order_assessment_panel": {
       "text004": " There are no orders under the current filter conditions. Adjust the date or filter conditions before generating an evaluation. ",
@@ -4004,12 +4007,11 @@
       "attribute006": "The 1688 purchase order has not been associated yet.",
       "text005": "The foreign exchange settlement record has not been registered yet.",
       "text003": ", remaining",
-      "attribute005": "Linked Procurement and Logistics",
+      "attribute005": "Linked Procurement",
       "attribute004": "Foreign exchange settlement records",
       "attribute003": "Expenses and profits",
       "text001": " Register for foreign exchange settlement ",
-      "attribute001": "View expenses, profits, foreign exchange settlement, related procurement logistics and remarks in groups.",
-      "attribute007": "Logistics records have not been associated yet."
+      "attribute001": "View expenses, profits, foreign exchange settlement, linked procurement records, and remarks in groups."
     },
     "components_dashboard_wholesale_wholesale_order_edit_dialog": {
       "attribute001": "Customer name",
@@ -4042,8 +4044,8 @@
       "attribute003": "Order status",
       "text008": "All customers",
       "text001": "Find order",
-      "text002": " You can search by order, associated order number, customer, salesperson, status and date. ",
-      "attribute002": "Order number, customer, 1688 order number or logistics number",
+      "text002": " Search by order, 1688 order number, customer, salesperson, status, or date. ",
+      "attribute002": "Order number, customer, or 1688 order number",
       "attribute007": "Order date arrives",
       "attribute006": "Order date from",
       "text007": "Exchange settled",
@@ -4073,12 +4075,9 @@
       "attribute001": "An order number is automatically generated. In the entry stage, only customer payments and costs are recorded. During foreign exchange settlement, the exchange rate is confirmed and the RMB amount, gross profit and commission are calculated."
     },
     "components_dashboard_wholesale_wholesale_order_linked_records": {
-      "text002": "Not associated",
       "text001": "Not associated",
       "attribute001": "Check the product, amount and claim information of this 1688 order.",
-      "attribute003": "View the status, cost and time information of this associated logistics.",
-      "attribute002": "1688 Order details",
-      "attribute004": "Logistics order details"
+      "attribute002": "1688 Order details"
     },
     "components_dashboard_wholesale_wholesale_order_rate_dialogs": {
       "dialogDescription": "Record each settled amount and date. The selected date's exchange rate is used, and the order becomes settled once the accumulated amount reaches the order total.",
@@ -4148,7 +4147,6 @@
       "text024": " Associated 1688 Purchase Order ",
       "text012": "Average foreign exchange settlement rate",
       "text006": "Packing fee",
-      "text025": " Associated logistics orders ",
       "text015": "RMB amount",
       "text019": "Gross profit per unit"
     },

@@ -8,13 +8,11 @@ import { MOTION_DURATION, MOTION_EASING, getMotionStaggerDelay } from "@/lib/mot
 import type {
   Wholesale1688Order,
   WholesaleCustomer,
-  WholesaleLogisticsOrder,
   WholesaleOrderListItem,
   WholesaleOrderSettlement,
   WholesaleProfile,
 } from "@/lib/wholesale";
 import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-attachments";
-import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
 import {
   formatCurrency,
   formatDate,
@@ -26,10 +24,7 @@ import {
   getCustomerName,
   getProfileName,
 } from "./wholesale-display";
-import {
-  LinkedLogisticsOrders,
-  LinkedPurchaseOrders,
-} from "./wholesale-order-linked-records";
+import { LinkedPurchaseOrders } from "./wholesale-order-linked-records";
 import { WholesaleOrderListAttachments } from "./wholesale-order-list-attachments";
 import { WholesaleOrderSettlementRecordsCell } from "./wholesale-order-settlement-records-cell";
 import {
@@ -51,8 +46,6 @@ type WholesaleOrdersTableProps = {
   getOrderEditAction: (
     order: WholesaleOrderListItem,
   ) => WholesaleOrderEditAction | null;
-  logisticsOrdersByOrderId: Map<string, WholesaleLogisticsOrder[]>;
-  logisticsStatusesByOrderId: Map<string, WholesaleLogisticsStatus[]>;
   orderSettlementsByOrderId: Map<string, WholesaleOrderSettlement[]>;
   onDeleteOrderListAttachment: (
     attachment: WholesaleOrderListAttachment,
@@ -75,8 +68,6 @@ export function WholesaleOrdersTable({
   canViewInternalFields,
   customersById,
   getOrderEditAction,
-  logisticsOrdersByOrderId,
-  logisticsStatusesByOrderId,
   onDeleteOrderListAttachment,
   orderSettlementsByOrderId,
   onOpenOrderEdit,
@@ -90,7 +81,7 @@ export function WholesaleOrdersTable({
 }: WholesaleOrdersTableProps) {
   const t = useTranslations("WholesaleBusiness.ordersUi");
   return (
-    <WholesaleTable minWidth={canViewInternalFields ? 3860 : 2780}>
+    <WholesaleTable minWidth={canViewInternalFields ? 3540 : 2460}>
       <thead>
         <tr>
           <WholesaleTh className={wholesaleStickyFirstThClassName}>
@@ -174,9 +165,6 @@ export function WholesaleOrdersTable({
           </WholesaleTh>
           <WholesaleTh className="min-w-[320px] whitespace-normal">
             <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text024" />
-          </WholesaleTh>
-          <WholesaleTh className="min-w-[320px] whitespace-normal">
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text025" />
           </WholesaleTh>
           <WholesaleTh className="min-w-[260px] whitespace-normal">
             {t("orderList.title")}
@@ -364,14 +352,6 @@ export function WholesaleOrdersTable({
                   canViewInternalFields={canViewInternalFields}
                   profilesById={profilesById}
                   purchaseOrders={purchaseOrdersByOrderId.get(order.id) ?? []}
-                />
-              </WholesaleTd>
-              <WholesaleTd className="min-w-[320px] whitespace-normal">
-                <LinkedLogisticsOrders
-                  logisticsOrders={logisticsOrdersByOrderId.get(order.id) ?? []}
-                  logisticsStatuses={
-                    logisticsStatusesByOrderId.get(order.id) ?? []
-                  }
                 />
               </WholesaleTd>
               <WholesaleTd className="min-w-[260px] whitespace-normal">

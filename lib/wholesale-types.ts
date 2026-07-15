@@ -2,10 +2,12 @@ import type { UserStatus } from "./auth-metadata";
 import type { AppRole } from "./auth-routing";
 import type { CommissionRuleSetting } from "./commission-settings";
 import type { ExchangeRateRow } from "./exchange-rates";
-import type { WholesaleLogisticsStatus } from "./wholesale-logistics-statuses";
 import type {
-  WholesaleLogisticsFeePage,
-  WholesaleLogisticsStatusPage,
+  WholesaleLogisticsFilters,
+  WholesaleLogisticsPage,
+  WholesaleLogisticsStoreAssignment,
+  WholesaleLogisticsStoreOption,
+  WholesaleReferralWaybillCount,
 } from "./wholesale-logistics-page";
 import type { WholesaleOrderEditSettings } from "./wholesale-order-edit-settings";
 import type { WholesaleOrderPage } from "./wholesale-order-page";
@@ -173,24 +175,6 @@ export type Wholesale1688Order = {
   created_at: string;
 };
 
-export type WholesaleLogisticsOrder = {
-  id: string;
-  batch_id: string | null;
-  customer_id: string | null;
-  wholesale_order_id: string | null;
-  source_workflow_order_number: string | null;
-  international_tracking_number: string;
-  destination_tracking_number: string | null;
-  freight_forwarder: string | null;
-  latest_status: string | null;
-  latest_checkpoint_at: string | null;
-  logistics_fee: number;
-  currency: string;
-  created_by_user_id: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
 export type WholesaleCommission = {
   id: string;
   order_id: string;
@@ -235,14 +219,14 @@ export type WholesalePageData = {
   orderEditSettings: WholesaleOrderEditSettings;
   orderPage: WholesaleOrderPage | null;
   orderPageError: string | null;
-  orderLinkOptions: WholesaleOrderLinkOption[];
   orders: WholesaleOrder[];
   orderSettlements: WholesaleOrderSettlement[];
   purchaseOrders: Wholesale1688Order[];
-  logisticsOrders: WholesaleLogisticsOrder[];
-  logisticsStatuses: WholesaleLogisticsStatus[];
-  logisticsFeePage: WholesaleLogisticsFeePage | null;
-  logisticsStatusPage: WholesaleLogisticsStatusPage | null;
+  logisticsAssignments: WholesaleLogisticsStoreAssignment[];
+  logisticsFilters: WholesaleLogisticsFilters | null;
+  logisticsPage: WholesaleLogisticsPage | null;
+  logisticsStoreOptions: WholesaleLogisticsStoreOption[];
+  referralWaybillCounts: WholesaleReferralWaybillCount[];
   commissions: WholesaleCommission[];
   referrals: WholesaleReferral[];
   profiles: WholesaleProfile[];

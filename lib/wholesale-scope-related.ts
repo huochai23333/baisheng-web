@@ -3,7 +3,6 @@ import type {
   Wholesale1688Order,
   WholesaleCommission,
   WholesaleCustomer,
-  WholesaleLogisticsOrder,
   WholesaleOrder,
   WholesaleOrderChangeLog,
   WholesaleOrderEditRequest,
@@ -11,7 +10,6 @@ import type {
   WholesaleProfile,
   WholesaleReferral,
 } from "./wholesale-types";
-import type { WholesaleLogisticsStatus } from "./wholesale-logistics-statuses";
 import {
   canReadFullWholesaleBackoffice,
   canReadFullWholesaleDirectory,
@@ -139,8 +137,6 @@ export function scopeWholesaleProfiles({
   currentRole,
   currentUserId,
   customers,
-  logisticsOrders,
-  logisticsStatuses,
   orderChangeLogs,
   orderEditRequests,
   orders,
@@ -151,8 +147,6 @@ export function scopeWholesaleProfiles({
   currentRole: AppRole | null;
   currentUserId: string | null;
   customers: WholesaleCustomer[];
-  logisticsOrders: WholesaleLogisticsOrder[];
-  logisticsStatuses: WholesaleLogisticsStatus[];
   orderChangeLogs: WholesaleOrderChangeLog[];
   orderEditRequests: WholesaleOrderEditRequest[];
   orders: WholesaleOrder[];
@@ -179,14 +173,6 @@ export function scopeWholesaleProfiles({
   for (const order of purchaseOrders) {
     addOptionalId(visibleProfileIds, order.claimed_by_user_id);
     addOptionalId(visibleProfileIds, order.imported_by_user_id);
-  }
-
-  for (const order of logisticsOrders) {
-    addOptionalId(visibleProfileIds, order.created_by_user_id);
-  }
-
-  for (const status of logisticsStatuses) {
-    addOptionalId(visibleProfileIds, status.created_by_user_id);
   }
 
   for (const request of orderEditRequests) {

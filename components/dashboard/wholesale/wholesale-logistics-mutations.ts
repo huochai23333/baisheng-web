@@ -1,59 +1,60 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import {
-  optionalString,
-  requiredString,
-} from "./wholesale-action-utils";
+export type ChangeWholesaleLogisticsAssignmentInput = {
+  assignmentId: string;
+  customerId: string | null;
+  effectiveFrom: string | null;
+  salesUserId: string;
+};
 
-export type WholesaleLogisticsRecordType = "fee" | "status";
-
-export async function createWholesaleLogisticsStatus(
+/** 初次分配可一次选择多个真实店小秘店铺，并默认覆盖这些店铺的全部历史订单。 */
+export async function assignWholesaleLogisticsStores(
   supabase: SupabaseClient,
-  formData: FormData,
+  input: {
+    customerId: string | null;
+    salesUserId: string;
+    storeNames: string[];
+  },
 ) {
-  const trackingNumber = requiredString(formData.get("tracking_number"));
-  const customerName = requiredString(formData.get("customer_name"));
-
-  // 新增时只登记核对所需的最小资料；每日同步任务负责补齐后续物流状态。
-  // next_check_at 设置为当前时间，表示这条物流号可以在下一次定时任务中立即核对。
-  const { error } = await supabase.from("wholesale_logistics_statuses").insert({
-    customer_id: optionalString(formData.get("customer_id")),
-    customer_name: customerName,
-    next_check_at: new Date().toISOString(),
-    status_kind: "checking",
-    status_text: "等待查询",
-    tracking_number: trackingNumber,
-    wholesale_order_id: optionalString(formData.get("wholesale_order_id")),
+  const { error } = await supabase.rpc("assign_wholesale_logistics_stores", {
+    p_customer_id: input.customerId,
+    p_sales_user_id: input.salesUserId,
+    p_store_names: input.storeNames,
   });
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 }
 
-export async function setWholesaleLogisticsOrderLink(
+/** 不传日期时更新整个当前区间；传入日期时由数据库拆分前后历史区间。 */
+export async function changeWholesaleLogisticsAssignment(
   supabase: SupabaseClient,
-  recordType: WholesaleLogisticsRecordType,
-  recordId: string,
-  wholesaleOrderId: string | null,
+  input: ChangeWholesaleLogisticsAssignmentInput,
 ) {
-  // 只提交订单 ID：数据库触发器会根据订单自动校正客户，解除时则保留现有客户。
-  const query =
-    recordType === "status"
-      ? supabase
-          .from("wholesale_logistics_statuses")
-          .update({ wholesale_order_id: wholesaleOrderId })
-          .eq("id", recordId)
-          .select("id")
-          .maybeSingle()
-      : supabase
-          .from("wholesale_logistics_orders")
-          .update({ wholesale_order_id: wholesaleOrderId })
-          .eq("id", recordId)
-          .select("id")
-          .maybeSingle();
-  const { data, error } = await query;
+  const { error } = await supabase.rpc(
+    "change_wholesale_logistics_store_assignment",
+    {
+      p_assignment_id: input.assignmentId,
+      p_customer_id: input.customerId,
+      p_effective_from: input.effectiveFrom,
+      p_sales_user_id: input.salesUserId,
+    },
+  );
 
   if (error) throw error;
-  if (!data) throw new Error("logistics link not permitted");
+}
+
+export async function endWholesaleLogisticsAssignment(
+  supabase: SupabaseClient,
+  assignmentId: string,
+  effectiveTo: string,
+) {
+  const { error } = await supabase.rpc(
+    "end_wholesale_logistics_store_assignment",
+    {
+      p_assignment_id: assignmentId,
+      p_effective_to: effectiveTo,
+    },
+  );
+
+  if (error) throw error;
 }

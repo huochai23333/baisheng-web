@@ -1,239 +1,179 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import {
+  expectForbiddenPage,
   expectNotForbiddenPage,
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
-import {
-  createLocalLogisticsPaginationFixture,
-  hasLocalLogisticsFixtureSupport,
-} from "./helpers/local-logistics-fixture";
+import { chooseSelectOption } from "./helpers/select-control";
 
 test.describe.configure({ mode: "serial" });
 
-test.describe("批发物流关联、筛选和权限", () => {
-  test("管理员可使用创建弹窗、独立筛选并关联两类记录", async ({ page }) => {
+test.describe("店小秘物流永久档案", () => {
+  test("管理员可筛选业务员、店铺、日期与运费并查看分币种汇总", async ({
+    page,
+  }) => {
     test.setTimeout(120_000);
     await page.setViewportSize({ height: 900, width: 1440 });
     await loginAs(page, "administrator");
     await page.goto("/admin/wholesale/logistics");
     await expectWorkspaceShell(page);
     await expectNotForbiddenPage(page);
+    await expect(page.getByRole("heading", { name: "物流管理" })).toBeVisible();
+    await page.waitForLoadState("networkidle");
+    await expect(page.getByText("最近更新时间")).toBeVisible();
 
-    // 顶部只保留创建按钮，客户选定后订单下拉只展示该客户的订单。
-    await page.getByRole("button", { name: "创建物流记录" }).click();
-    const createDialog = page.getByRole("dialog", { name: "创建物流记录" });
-    await expect(createDialog).toBeVisible();
-    const createCustomer = createDialog.getByLabel("归属客户");
-    const createOrder = createDialog.getByLabel("关联批发订单");
-    await expect(createOrder).toBeDisabled();
-    await createCustomer.selectOption({ label: "Wholesale Alpha" });
-    await expect(createOrder).toBeEnabled();
-    const firstCreateOrder = createOrder.locator("option").nth(1);
-    await expect(firstCreateOrder).toContainText("WH-LOCAL-");
-    await expect(firstCreateOrder).toContainText(" · ");
-    await createOrder.selectOption(
-      (await firstCreateOrder.getAttribute("value")) ?? "",
+    // 店铺筛选会同时收窄列表和汇总；RMB 必须合入 CNY，USD 仍单独显示。
+    const storeFilter = page.getByLabel("店小秘店铺");
+    await chooseSelectOption(storeFilter, { label: "Local Shop Alpha" });
+    await expect(storeFilter).toHaveValue("Local Shop Alpha");
+    await expect(page.getByText("已显示 3 / 3 笔")).toBeVisible();
+    await expect(page.getByText("CNY 国际运费")).toBeVisible();
+    await expect(page.getByText(/CNY\s*150\.50/).first()).toBeVisible();
+    await expect(page.getByText("USD 国际运费")).toBeVisible();
+    await expect(page.getByText(/USD\s*20\.00/).first()).toBeVisible();
+
+    // 搜索使用延迟值，请求完成后只保留目标包裹；更换业务员也会查询完整档案。
+    await page.getByLabel("搜索").fill("LOCAL-TRACK-003");
+    await expect(page.getByText("已显示 1 / 1 笔")).toBeVisible();
+    await expect(page.getByText("LOCAL-PKG-003").filter({ visible: true })).toBeVisible();
+    await page.getByRole("button", { name: "清除筛选" }).click();
+    await chooseSelectOption(page.getByLabel("业务员"), {
+      label: "本地协作业务员",
+    });
+    await expect(page.getByText("LOCAL-PKG-004").filter({ visible: true })).toBeVisible();
+    await expect(page.getByText("LOCAL-PKG-006").filter({ visible: true })).toBeVisible();
+
+    // NULL 和 0 都是缺少运费；桌面行和移动卡片都必须有显眼的红色提示。
+    await page.getByRole("button", { name: "清除筛选" }).click();
+    await chooseSelectOption(page.getByLabel("运费记录"), { value: "missing" });
+    await expect(page.getByText("已显示 2 / 2 笔")).toBeVisible();
+    const missingDesktopRow = page
+      .getByText("LOCAL-PKG-004")
+      .filter({ visible: true })
+      .locator("xpath=ancestor::tr[1]");
+    await expect(missingDesktopRow).toHaveClass(/bg-\[#fff3f2\]/);
+    await expect(missingDesktopRow.getByText("缺少运费")).toBeVisible();
+
+    await expectResponsiveLayout(page);
+    const missingMobileCard = page
+      .getByText("LOCAL-PKG-004")
+      .filter({ visible: true })
+      .locator("xpath=ancestor::article[1]");
+    await expect(missingMobileCard).toHaveClass(/border-\[#d94841\]/);
+    await expect(missingMobileCard.getByText("缺少运费")).toBeVisible();
+  });
+
+  test("管理员可调整店铺历史归属并恢复原设置", async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await loginAs(page, "administrator");
+    await page.goto("/admin/wholesale/logistics");
+    await page.getByRole("button", { name: "店铺归属设置" }).click();
+    const dialog = page.getByRole("dialog", { name: "店铺归属设置" });
+    await expect(dialog).toBeVisible();
+
+    const alphaHistory = dialog.locator("article").filter({
+      hasText: "Local Shop Alpha",
+    });
+    await expect(alphaHistory).toContainText("本地业务员");
+    await alphaHistory.getByRole("button", { name: "调整" }).click();
+    await expect(dialog.getByLabel("负责业务员")).toHaveValue(
+      "55555555-5555-4555-8555-555555555555",
     );
-    await createCustomer.selectOption({ label: "Wholesale Beta" });
-    await expect(createOrder).toHaveValue("");
-    await createDialog.getByRole("button", { name: "取消" }).click();
-
-    const statusSection = sectionByHeading(page, "每日核对列表");
-    const feeSection = sectionByHeading(page, "物流费用记录");
-
-    // 两张列表拥有独立筛选状态，修改费用筛选不会清空每日核对条件。
-    await statusSection.getByLabel("搜索").fill("UNMATCHED-LOCAL-ASSERT-001");
-    const statusRow = statusSection.getByRole("row").filter({
-      hasText: "UNMATCHED-LOCAL-ASSERT-001",
+    await chooseSelectOption(dialog.getByLabel("负责业务员"), {
+      label: "本地协作业务员",
     });
-    await expect(statusRow).toBeVisible();
-    await ensureUnlinked(page, statusRow);
-    await statusSection.getByLabel("关联情况").selectOption("unlinked");
-    await statusSection.getByLabel("物流状态").selectOption("checking");
-
-    await feeSection
-      .getByLabel("搜索")
-      .fill("CLIENT-UNLINKED-LOGISTICS-ORDER");
-    await expect(statusSection.getByLabel("搜索")).toHaveValue(
-      "UNMATCHED-LOCAL-ASSERT-001",
-    );
-    const feeRow = feeSection.getByRole("row").filter({
-      hasText: "CLIENT-UNLINKED-LOGISTICS-ORDER",
+    await chooseSelectOption(dialog.getByLabel("批发客户（可选）"), {
+      label: "Wholesale Alpha",
     });
-    await expect(feeRow).toBeVisible();
-    await ensureUnlinked(page, feeRow);
+    await dialog.getByRole("button", { name: "保存归属" }).click();
+    await expect(alphaHistory).toContainText("本地协作业务员");
 
-    // 自动同步记录支持关联、改绑和解除；每次成功只刷新当前列表。
-    await statusRow.getByRole("button", { name: "关联订单" }).click();
-    await saveLinkDialog(page, "Wholesale Alpha");
-    await statusSection.getByLabel("关联情况").selectOption("all");
-    const linkedStatusRow = statusSection.getByRole("row").filter({
-      hasText: "UNMATCHED-LOCAL-ASSERT-001",
+    // 测试结束前恢复固定种子归属，保证本用例可重复执行且不影响后续角色测试。
+    await alphaHistory.getByRole("button", { name: "调整" }).click();
+    await chooseSelectOption(dialog.getByLabel("负责业务员"), {
+      label: "本地业务员",
     });
-    await expect(linkedStatusRow).toContainText("WH-LOCAL-");
-
-    await linkedStatusRow.getByRole("button", { name: "调整关联" }).click();
-    await expect(
-      page
-        .getByRole("dialog", { name: "调整关联订单" })
-        .getByLabel("关联批发订单"),
-    ).not.toHaveValue("");
-    await saveLinkDialog(page, "Wholesale Beta");
-    await expect(linkedStatusRow).toContainText("WH-LOCAL-");
-
-    await linkedStatusRow.getByRole("button", { name: "解除关联" }).click();
-    const statusUnlinkDialog = page.getByRole("dialog", {
-      name: "解除订单关联",
+    await chooseSelectOption(dialog.getByLabel("批发客户（可选）"), {
+      label: "Wholesale Beta",
     });
-    await expect(statusUnlinkDialog).toContainText("客户将看不到这条物流记录");
-    await statusUnlinkDialog
-      .getByRole("button", { name: "确认解除关联" })
-      .click();
-    await expect(linkedStatusRow).toContainText("未关联");
-
-    // 历史费用记录使用相同交互，但刷新和筛选状态与每日核对列表互不影响。
-    await feeRow.getByRole("button", { name: "关联订单" }).click();
-    await saveLinkDialog(page, "Wholesale Alpha");
-    await expect(feeRow).toContainText("WH-LOCAL-");
-    await feeRow.getByRole("button", { name: "解除关联" }).click();
-    await page
-      .getByRole("dialog", { name: "解除订单关联" })
-      .getByRole("button", { name: "确认解除关联" })
-      .click();
-    await expect(feeRow).toContainText("未关联");
-
+    await dialog.getByRole("button", { name: "保存归属" }).click();
+    await expect(alphaHistory).toContainText("本地业务员");
     await expectResponsiveLayout(page);
   });
 
-  test("两张列表固定显示 50 条并可稳定继续加载", async ({ page }) => {
-    test.skip(
-      !hasLocalLogisticsFixtureSupport(),
-      "分页临时数据只在本地 Docker 回归中创建",
-    );
+  test("永久档案每页 50 条并可稳定继续加载", async ({ page }) => {
     test.setTimeout(120_000);
-    const fixture = await createLocalLogisticsPaginationFixture();
-
-    try {
-      await page.setViewportSize({ height: 900, width: 1440 });
-      await loginAs(page, "administrator");
-      await page.goto("/admin/wholesale/logistics");
-      const statusSection = sectionByHeading(page, "每日核对列表");
-      const feeSection = sectionByHeading(page, "物流费用记录");
-
-      await expect(statusSection.getByText(/已显示 50 条，共 \d+ 条/)).toBeVisible();
-      await statusSection.getByRole("button", { name: "继续加载" }).click();
-      await expect
-        .poll(() => statusSection.locator("tbody tr").count())
-        .toBeGreaterThan(50);
-
-      await expect(feeSection.getByText(/已显示 50 条，共 \d+ 条/)).toBeVisible();
-      await feeSection.getByRole("button", { name: "继续加载" }).click();
-      await expect
-        .poll(() => feeSection.locator("tbody tr").count())
-        .toBeGreaterThan(50);
-      await expectResponsiveLayout(page);
-    } finally {
-      await fixture.cleanup();
-    }
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await loginAs(page, "administrator");
+    await page.goto("/admin/wholesale/logistics");
+    await chooseSelectOption(page.getByLabel("店小秘店铺"), {
+      label: "Local Paging Shop",
+    });
+    await expect(page.getByText("已显示 50 / 55 笔").first()).toBeVisible();
+    await page.getByRole("button", { name: "继续加载" }).click();
+    await expect(page.getByText("已显示 55 / 55 笔")).toBeVisible();
+    await expect(page.locator("tbody tr")).toHaveCount(55);
+    await expectResponsiveLayout(page);
   });
 
-  test("业务员保留完整物流协作入口", async ({ page }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await loginAs(page, "salesman");
-    await page.goto("/salesman/wholesale/logistics");
-    await expect(page.getByRole("button", { name: "创建物流记录" })).toBeVisible();
-    const salesmanStatusSection = sectionByHeading(page, "每日核对列表");
-    await salesmanStatusSection
-      .getByLabel("搜索")
-      .fill("UNMATCHED-LOCAL-ASSERT-001");
+  test("业务员可查看全部并设置归属，财务只读", async ({ browser }) => {
+    const salesmanPage = await browser.newPage({
+      viewport: { height: 900, width: 1440 },
+    });
+    await loginAs(salesmanPage, "salesman");
+    await salesmanPage.goto("/salesman/wholesale/logistics");
+    await expectNotForbiddenPage(salesmanPage);
     await expect(
-      salesmanStatusSection
-        .getByRole("button", { name: "关联订单" })
-        .first(),
+      salesmanPage.getByRole("button", { name: "店铺归属设置" }),
+    ).toBeVisible();
+    await expect(
+      salesmanPage.getByText("LOCAL-PKG-001").filter({ visible: true }),
+    ).toBeVisible();
+    await chooseSelectOption(salesmanPage.getByLabel("业务员"), { value: "all" });
+    await chooseSelectOption(salesmanPage.getByLabel("店小秘店铺"), {
+      label: "Local Shop Peer",
+    });
+    await expect(
+      salesmanPage.getByText("LOCAL-PKG-004").filter({ visible: true }),
     ).toBeVisible();
 
-    await expectResponsiveLayout(page);
-  });
-
-  test("财务按记录范围显示物流操作", async ({ page }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await loginAs(page, "finance");
-    await page.goto("/finance/wholesale/logistics");
-    await expect(page.getByRole("button", { name: "创建物流记录" })).toBeVisible();
-    const financeFeeSection = sectionByHeading(page, "物流费用记录");
-    await financeFeeSection
-      .getByLabel("搜索")
-      .fill("CLIENT-UNLINKED-LOGISTICS-ORDER");
-    await expect(financeFeeSection.getByText("仅查看").first()).toBeVisible();
-    await expectResponsiveLayout(page);
-  });
-
-  test("客户只能筛选和查看已关联到自己的物流记录", async ({ page }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await loginAs(page, "client");
-    await page.goto("/client/wholesale/logistics");
-    await expectWorkspaceShell(page);
-    await expectNotForbiddenPage(page);
+    const financePage = await browser.newPage({
+      viewport: { height: 900, width: 1440 },
+    });
+    await loginAs(financePage, "finance");
+    await financePage.goto("/finance/wholesale/logistics");
+    await expectNotForbiddenPage(financePage);
     await expect(
-      page.getByRole("button", { name: "创建物流记录" }),
+      financePage.getByRole("button", { name: "店铺归属设置" }),
     ).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "关联订单" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "调整关联" })).toHaveCount(0);
+    await chooseSelectOption(financePage.getByLabel("店小秘店铺"), {
+      label: "Local Shop Peer",
+    });
+    await expect(
+      financePage.getByText("LOCAL-PKG-004").filter({ visible: true }),
+    ).toBeVisible();
+    await expectResponsiveLayout(financePage);
 
-    const statusSection = sectionByHeading(page, "每日核对列表");
-    await statusSection
-      .getByLabel("搜索")
-      .fill("CLIENT-UNLINKED-LOGISTICS-STATUS");
-    await expect(statusSection.getByText("已显示 0 条，共 0 条")).toBeVisible();
-
-    const feeSection = sectionByHeading(page, "物流费用记录");
-    await feeSection
-      .getByLabel("搜索")
-      .fill("CLIENT-UNLINKED-LOGISTICS-ORDER");
-    await expect(feeSection.getByText("已显示 0 条，共 0 条")).toBeVisible();
-    await expectResponsiveLayout(page);
+    await salesmanPage.close();
+    await financePage.close();
   });
+
+  for (const [role, path] of [
+    ["client", "/client/wholesale/logistics"],
+    ["manager", "/manager/wholesale/logistics"],
+    ["operator", "/operator/wholesale/logistics"],
+    ["promoter", "/promoter/wholesale/logistics"],
+  ] as const) {
+    test(`${role} 不显示物流入口`, async ({ page }) => {
+      await loginAs(page, role);
+      await page.goto(path);
+      await expectForbiddenPage(page);
+    });
+  }
 });
-
-async function saveLinkDialog(page: Page, customerName: string) {
-  const dialog = page.getByRole("dialog", {
-    name: /关联批发订单|调整关联订单/,
-  });
-  const customerSelect = dialog.getByLabel("归属客户");
-  const orderSelect = dialog.getByLabel("关联批发订单");
-  await customerSelect.selectOption({ label: customerName });
-  await orderSelect.selectOption(await firstNonEmptyOptionValue(orderSelect));
-  await dialog.getByRole("button", { name: "保存关联" }).click();
-  await expect(dialog).toBeHidden();
-}
-
-async function ensureUnlinked(page: Page, row: Locator) {
-  const unlinkButton = row.getByRole("button", { name: "解除关联" });
-  if ((await unlinkButton.count()) === 0) return;
-
-  // 上一次调试中断也可能留下关联；先恢复到可重复执行的未关联状态。
-  await unlinkButton.click();
-  await page
-    .getByRole("dialog", { name: "解除订单关联" })
-    .getByRole("button", { name: "确认解除关联" })
-    .click();
-  await expect(row).toContainText("未关联");
-}
-
-function sectionByHeading(page: Page, heading: string) {
-  return page
-    .getByRole("heading", { name: heading })
-    .locator("xpath=ancestor::section[1]");
-}
-
-async function firstNonEmptyOptionValue(select: Locator) {
-  const value = await select.locator("option").nth(1).getAttribute("value");
-  expect(value).not.toBeNull();
-  expect(value).not.toBe("");
-  return value ?? "";
-}
 
 async function expectResponsiveLayout(page: Page) {
   await expectNoDocumentHorizontalOverflow(page);
@@ -241,7 +181,6 @@ async function expectResponsiveLayout(page: Page) {
   await page.setViewportSize({ height: 844, width: 390 });
   await expectNoDocumentHorizontalOverflow(page);
   await expectNoCompressedText(page);
-  await page.setViewportSize({ height: 900, width: 1440 });
 }
 
 async function expectNoDocumentHorizontalOverflow(page: Page) {
@@ -254,7 +193,7 @@ async function expectNoDocumentHorizontalOverflow(page: Page) {
 async function expectNoCompressedText(page: Page) {
   const compressedText = await page.evaluate(() => {
     const candidates = Array.from(
-      document.querySelectorAll<HTMLElement>("button, label, th, td"),
+      document.querySelectorAll<HTMLElement>("button, label, th, td, dt, dd"),
     );
     return candidates
       .filter((element) => {

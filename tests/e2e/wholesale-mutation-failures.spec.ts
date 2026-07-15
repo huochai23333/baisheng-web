@@ -5,6 +5,7 @@ import {
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
+import { chooseSelectOption } from "./helpers/select-control";
 
 const FORCED_ERROR_MESSAGE = "操作没有成功，请检查内容和权限后再试。";
 const FIRST_ORDER_ID = "c2000000-0000-4000-8000-000000000001";
@@ -160,53 +161,38 @@ test.describe("批发写入失败保留表单", () => {
     await expectResponsiveLayout(page);
   });
 
-  test("物流号和推荐关系失败时不清空表单", async ({ page }) => {
+  test("店铺归属和推荐关系失败时不清空表单", async ({ page }) => {
     await page.setViewportSize({ height: 900, width: 1440 });
     await loginAs(page, "administrator");
 
     await page.goto("/admin/wholesale/logistics");
     await failJsonRequest(
       page,
-      "**/rest/v1/wholesale_logistics_statuses*",
-      "POST",
+      "**/rest/v1/rpc/change_wholesale_logistics_store_assignment",
     );
-    await page.getByRole("button", { name: "创建物流记录" }).click();
+    await page.getByRole("button", { name: "店铺归属设置" }).click();
     const logisticsDialog = page.getByRole("dialog", {
-      name: "创建物流记录",
+      name: "店铺归属设置",
     });
-    const trackingInput = logisticsDialog.getByLabel("物流号");
-    const customerNameInput = logisticsDialog.getByLabel("客户名");
-    await trackingInput.fill("FAIL-TRACKING-001");
-    await customerNameInput.fill("失败后保留的物流客户");
-    await logisticsDialog.getByRole("button", { name: "创建记录" }).click();
-    await expectFailureNotice(page);
-    await expect(logisticsDialog).toBeVisible();
-    await expect(trackingInput).toHaveValue("FAIL-TRACKING-001");
-    await expect(customerNameInput).toHaveValue("失败后保留的物流客户");
-    await expectResponsiveLayout(page);
-    await page.keyboard.press("Escape");
-
-    await failJsonRequest(
-      page,
-      "**/rest/v1/wholesale_logistics_statuses*",
-      "PATCH",
+    await logisticsDialog
+      .locator("article")
+      .filter({ hasText: "Local Shop Alpha" })
+      .getByRole("button", { name: "调整" })
+      .click();
+    const salesSelect = logisticsDialog.getByLabel("负责业务员");
+    const customerSelect = logisticsDialog.getByLabel("批发客户（可选）");
+    await chooseSelectOption(salesSelect, { label: "本地协作业务员" });
+    await chooseSelectOption(customerSelect, { label: "Wholesale Alpha" });
+    const salesValue = await salesSelect.inputValue();
+    const customerValue = await customerSelect.inputValue();
+    await logisticsDialog.getByRole("button", { name: "保存归属" }).click();
+    await expect(logisticsDialog.getByRole("alert")).toContainText(
+      "店铺归属暂时没有保存成功，请稍后重试。",
     );
-    const statusRow = page.getByRole("row").filter({
-      hasText: "UNMATCHED-LOCAL-ASSERT-001",
-    });
-    await statusRow.getByRole("button", { name: "关联订单" }).click();
-    const linkDialog = page.getByRole("dialog", { name: "关联批发订单" });
-    const linkCustomer = linkDialog.getByLabel("归属客户");
-    const linkOrder = linkDialog.getByLabel("关联批发订单");
-    await linkCustomer.selectOption({ label: "Wholesale Alpha" });
-    await linkOrder.selectOption(await firstNonEmptyOptionValue(linkOrder));
-    const linkCustomerValue = await linkCustomer.inputValue();
-    const linkOrderValue = await linkOrder.inputValue();
-    await linkDialog.getByRole("button", { name: "保存关联" }).click();
-    await expectFailureNotice(page);
-    await expect(linkDialog).toBeVisible();
-    await expect(linkCustomer).toHaveValue(linkCustomerValue);
-    await expect(linkOrder).toHaveValue(linkOrderValue);
+    await expect(logisticsDialog).toBeVisible();
+    await expect(salesSelect).toHaveValue(salesValue);
+    await expect(customerSelect).toHaveValue(customerValue);
+    await expectResponsiveLayout(page);
     await page.keyboard.press("Escape");
 
     await page.goto("/admin/wholesale/referrals");

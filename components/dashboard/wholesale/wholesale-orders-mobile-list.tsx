@@ -4,13 +4,11 @@ import { useState } from "react";
 import type {
   Wholesale1688Order,
   WholesaleCustomer,
-  WholesaleLogisticsOrder,
   WholesaleOrderListItem,
   WholesaleOrderSettlement,
   WholesaleProfile,
 } from "@/lib/wholesale";
 import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-attachments";
-import type { WholesaleLogisticsStatus } from "@/lib/wholesale-logistics-statuses";
 import {
   formatCurrency,
   formatDateTime,
@@ -28,8 +26,6 @@ type WholesaleOrdersMobileListProps = {
   getOrderEditAction: (
     order: WholesaleOrderListItem,
   ) => WholesaleOrderEditAction | null;
-  logisticsOrdersByOrderId: Map<string, WholesaleLogisticsOrder[]>;
-  logisticsStatusesByOrderId: Map<string, WholesaleLogisticsStatus[]>;
   onDeleteOrderListAttachment: (
     attachment: WholesaleOrderListAttachment,
   ) => void | Promise<void>;
@@ -52,8 +48,6 @@ export function WholesaleOrdersMobileList({
   canViewInternalFields,
   customersById,
   getOrderEditAction,
-  logisticsOrdersByOrderId,
-  logisticsStatusesByOrderId,
   onDeleteOrderListAttachment,
   onOpenOrderEdit,
   onOpenOrderSettlement,
@@ -141,10 +135,6 @@ export function WholesaleOrdersMobileList({
             selectedOrder.customer_id,
           )}
           editAction={getOrderEditAction(selectedOrder)}
-          logisticsOrders={logisticsOrdersByOrderId.get(selectedOrder.id) ?? []}
-          logisticsStatuses={
-            logisticsStatusesByOrderId.get(selectedOrder.id) ?? []
-          }
           onClose={() => setSelectedOrder(null)}
           onDeleteOrderListAttachment={onDeleteOrderListAttachment}
           onOpenOrderEdit={() => {

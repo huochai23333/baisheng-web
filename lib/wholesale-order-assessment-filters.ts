@@ -44,12 +44,6 @@ export function filterWholesaleOrdersForAssessment(
   const purchaseOrdersByOrderId = groupByWholesaleOrderId(
     data.purchaseOrders,
   );
-  const logisticsOrdersByOrderId = groupByWholesaleOrderId(
-    data.logisticsOrders,
-  );
-  const logisticsStatusesByOrderId = groupByWholesaleOrderId(
-    data.logisticsStatuses,
-  );
   const searchValue = normalizeSearchText(filters.searchText);
   const orderedFromTime = getDateBoundaryTime(filters.orderedFromDate, "start");
   const orderedToTime = getDateBoundaryTime(filters.orderedToDate, "end");
@@ -77,9 +71,6 @@ export function filterWholesaleOrdersForAssessment(
       : null;
     const salesName = salesProfile?.name || salesProfile?.email || "未分配";
     const linkedPurchaseOrders = purchaseOrdersByOrderId.get(order.id) ?? [];
-    const linkedLogisticsOrders = logisticsOrdersByOrderId.get(order.id) ?? [];
-    const linkedLogisticsStatuses =
-      logisticsStatusesByOrderId.get(order.id) ?? [];
 
     return [
       order.order_number,
@@ -92,17 +83,6 @@ export function filterWholesaleOrdersForAssessment(
         row.external_order_number,
         row.item_summary ?? "",
         row.seller_name ?? "",
-      ]),
-      ...linkedLogisticsOrders.flatMap((row) => [
-        row.international_tracking_number,
-        row.destination_tracking_number ?? "",
-        row.freight_forwarder ?? "",
-        row.latest_status ?? "",
-      ]),
-      ...linkedLogisticsStatuses.flatMap((row) => [
-        row.tracking_number,
-        row.customer_name,
-        row.status_text,
       ]),
     ].some((text) => normalizeSearchText(text).includes(searchValue));
   });
