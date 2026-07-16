@@ -1,20 +1,15 @@
 "use client";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
-import { useId, useState } from "react";
+import { useState } from "react";
 import { FileSpreadsheet } from "lucide-react";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
+import { DashboardFilePicker } from "@/components/dashboard/dashboard-framework-primitives";
 import { DashboardFilterField } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
 import type { Wholesale1688IngestRow } from "@/lib/wholesale-1688-ingest";
 import { parseWholesale1688Csv } from "@/lib/wholesale-1688-ingest";
 import { parseWholesale1688Xlsx } from "@/lib/wholesale-1688-xlsx";
-import type { WholesaleCustomer, WholesaleOrder } from "@/lib/wholesale";
-import type { WholesaleClaimRow } from "./wholesale-claims-view-model";
-import {
-  WholesaleClaimTargetFields,
-  useWholesaleClaimTarget,
-} from "./wholesale-claim-target-fields";
 export function Wholesale1688UploadDialog({
   onImportRows,
   onOpenChange,
@@ -32,8 +27,7 @@ export function Wholesale1688UploadDialog({
   const uiText = useTranslations(
     "UiText.components_dashboard_wholesale_wholesale_claims_dialogs",
   );
-  const fileInputId = useId();
-  const [fileName, setFileName] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [parsedRows, setParsedRows] = useState<Wholesale1688IngestRow[]>([]);
   const [parseError, setParseError] = useState<string | null>(null);
   const rowsWithRecipient = parsedRows.filter(
@@ -48,14 +42,14 @@ export function Wholesale1688UploadDialog({
     >
       <div className="space-y-4">
         <DashboardFilterField label={uiText("attribute003")}>
-          <input
+          <DashboardFilePicker
             accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            className="sr-only"
-            id={fileInputId}
-            onChange={(event) => {
-              const file = event.currentTarget.files?.[0];
+            files={selectedFile ? [selectedFile] : []}
+            label={<UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text001" />}
+            onFiles={(files) => {
+              const file = files[0];
               if (!file) return;
-              setFileName(file.name);
+              setSelectedFile(file);
               setParseError(null);
               setParsedRows([]);
               parseWholesale1688File(file)
@@ -72,20 +66,7 @@ export function Wholesale1688UploadDialog({
                   setParseError("订单表格没有读取成功，请重新选择。");
                 });
             }}
-            type="file"
           />
-          <div className="flex min-h-[52px] items-center gap-3 rounded-[18px] border border-[#dfe5ea] bg-white px-3 py-2">
-            <label
-              className="inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full bg-[#486782] px-4 text-sm font-semibold whitespace-nowrap text-white hover:bg-[#3e5f79]"
-              htmlFor={fileInputId}
-            >
-              <FileSpreadsheet className="size-4" />
-              <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text001" />
-            </label>
-            <span className="min-w-0 flex-1 truncate text-sm text-[#23313a]">
-              {fileName || "未选择订单表格"}
-            </span>
-          </div>
         </DashboardFilterField>
         {parseError ? (
           <p className="text-sm text-[#b13d3d]">{parseError}</p>
@@ -103,7 +84,7 @@ export function Wholesale1688UploadDialog({
             className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79] disabled:opacity-60"
             disabled={parsedRows.length === 0 || pending}
             onClick={async () => {
-              const succeeded = await onImportRows(fileName, parsedRows);
+              const succeeded = await onImportRows(selectedFile?.name ?? "", parsedRows);
               // 导入失败时继续展示已经解析好的表格，不要求用户重新选文件。
               if (!succeeded) return;
               onOpenChange(false);
@@ -127,137 +108,4 @@ async function parseWholesale1688File(file: File) {
     return parseWholesale1688Csv(await file.text());
   }
   throw new Error("unsupported_file");
-}
-export function WholesaleClaimDialog({
-  claimTarget,
-  customers,
-  onClaim,
-  onOpenChange,
-  orders,
-  pending,
-}: {
-  claimTarget: WholesaleClaimRow | null;
-  customers: WholesaleCustomer[];
-  onClaim: (formData: FormData) => Promise<boolean>;
-  onOpenChange: (open: boolean) => void;
-  orders: WholesaleOrder[];
-  pending: boolean;
-}) {
-  const uiText = useTranslations(
-    "UiText.components_dashboard_wholesale_wholesale_claims_dialogs",
-  );
-  return (
-    <DashboardDialog
-      description={uiText("attribute004")}
-      onOpenChange={onOpenChange}
-      open={Boolean(claimTarget)}
-      title={claimTarget?.purchaseOrder.external_order_number ?? "认领采购订单"}
-    >
-      {claimTarget ? (
-        <WholesaleClaimDialogForm
-          claimTarget={claimTarget}
-          customers={customers}
-          key={claimTarget.purchaseOrder.id}
-          onClaim={onClaim}
-          onOpenChange={onOpenChange}
-          orders={orders}
-          pending={pending}
-        />
-      ) : null}
-    </DashboardDialog>
-  );
-}
-function WholesaleClaimDialogForm({
-  claimTarget,
-  customers,
-  onClaim,
-  onOpenChange,
-  orders,
-  pending,
-}: {
-  claimTarget: WholesaleClaimRow;
-  customers: WholesaleCustomer[];
-  onClaim: (formData: FormData) => Promise<boolean>;
-  onOpenChange: (open: boolean) => void;
-  orders: WholesaleOrder[];
-  pending: boolean;
-}) {
-  const defaultCustomerId =
-    claimTarget.purchaseOrder.assisted_customer_id ??
-    claimTarget.purchaseOrder.customer_id ??
-    "";
-  const target = useWholesaleClaimTarget({
-    initialCustomerId: defaultCustomerId,
-    initialOrderId: getCurrentWholesaleOrderId(
-      orders,
-      defaultCustomerId,
-      claimTarget,
-    ),
-    orders,
-  });
-  return (
-    <form
-      className="grid gap-4"
-      onSubmit={async (event) => {
-        event.preventDefault();
-        const succeeded = await onClaim(new FormData(event.currentTarget));
-        // 认领失败时保留客户与订单选择，方便用户检查后重新提交。
-        if (!succeeded) return;
-        onOpenChange(false);
-      }}
-    >
-      <input
-        name="purchase_order_id"
-        type="hidden"
-        value={claimTarget.purchaseOrder.id}
-      />
-      {claimTarget.purchaseOrder.assisted_customer_id ? (
-        <div className="rounded-[18px] bg-[#f6f8f9] px-4 py-3 text-sm leading-6 text-[#61717e]">
-          <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text006" />
-          {claimTarget.recipientName}
-          <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text007" />
-          {claimTarget.assistedCustomerName}
-          <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text008" />
-        </div>
-      ) : null}
-      <WholesaleClaimTargetFields
-        customers={customers}
-        matchingOrders={target.matchingOrders}
-        onCustomerChange={target.setSelectedCustomerId}
-        onOrderChange={target.setSelectedOrderId}
-        selectedCustomerId={target.selectedCustomerId}
-        selectedOrderId={target.selectedOrderId}
-      />
-      <div className="flex justify-end">
-        <Button
-          className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79] disabled:opacity-60"
-          disabled={pending || !target.canSubmit}
-          type="submit"
-        >
-          <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text011" />
-        </Button>
-      </div>
-    </form>
-  );
-}
-function getCurrentWholesaleOrderId(
-  orders: WholesaleOrder[],
-  customerId: string,
-  claimTarget: WholesaleClaimRow,
-) {
-  if (!customerId) {
-    return "";
-  }
-  const targetOrderId = claimTarget.purchaseOrder.wholesale_order_id;
-  if (
-    targetOrderId &&
-    orders.some(
-      (order) => order.id === targetOrderId && order.customer_id === customerId,
-    )
-  ) {
-    return targetOrderId;
-  }
-
-  // 新认领不能因为客户只有一笔订单就自动选中，避免用户未确认便误关联。
-  return "";
 }

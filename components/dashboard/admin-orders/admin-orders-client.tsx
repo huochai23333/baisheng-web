@@ -2,12 +2,14 @@
 
 import { useMemo } from "react";
 
-import { ReceiptText, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { type AdminOrdersPageData } from "@/lib/admin-orders";
 
-import { EmptyState, PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import {
+  DashboardAccessState,
+  DashboardPageShell,
+} from "@/components/dashboard/dashboard-page-shell";
 
 import {
   OrdersHeaderSection,
@@ -39,40 +41,27 @@ export function AdminOrdersClient({
   );
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      {viewModel.pageFeedback ? (
-        <PageBanner tone={viewModel.pageFeedback.tone}>
-          {viewModel.pageFeedback.message}
-        </PageBanner>
-      ) : null}
-
-      <OrdersHeaderSection
-        badge={viewModel.viewConfig.badge}
-        canCreateOrders={viewModel.canCreateOrders}
-        canOpenCreateDialog={viewModel.canOpenCreateDialog}
-        createTitle={viewModel.viewConfig.createTitle}
-        description={viewModel.viewConfig.description}
-        noCreateTargetHint={viewModel.viewConfig.noCreateTargetHint}
-        onCreate={viewModel.openCreateDialog}
-        title={viewModel.viewConfig.title}
-      />
-
+    <DashboardPageShell
+      feedback={viewModel.pageFeedback}
+      header={
+        <OrdersHeaderSection
+          badge={viewModel.viewConfig.badge}
+          canCreateOrders={viewModel.canCreateOrders}
+          canOpenCreateDialog={viewModel.canOpenCreateDialog}
+          createTitle={viewModel.viewConfig.createTitle}
+          description={viewModel.viewConfig.description}
+          noCreateTargetHint={viewModel.viewConfig.noCreateTargetHint}
+          onCreate={viewModel.openCreateDialog}
+          title={viewModel.viewConfig.title}
+        />
+      }
+    >
       {viewModel.canViewOrders === false ? (
-        <section className="rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8">
-          <EmptyState
-            description={viewModel.viewConfig.noPermissionDescription}
-            icon={<ShieldAlert className="size-6" />}
-            title={t("states.noViewPermissionTitle")}
-          />
-        </section>
-      ) : viewModel.totalOrdersCount === 0 ? (
-        <section className="rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8">
-          <EmptyState
-            description={viewModel.viewConfig.emptyDescription}
-            icon={<ReceiptText className="size-6" />}
-            title={t("states.emptyTitle")}
-          />
-        </section>
+        <DashboardAccessState
+          description={viewModel.viewConfig.noPermissionDescription}
+          kind="permission"
+          title={t("states.noViewPermissionTitle")}
+        />
       ) : (
         <OrdersTableSection
           canViewOrderCosts={viewModel.canViewOrderCosts}
@@ -81,9 +70,12 @@ export function AdminOrdersClient({
           onClearFilters={viewModel.clearFilters}
           onCreatedFromDateChange={viewModel.handleCreatedFromDateChange}
           onCreatedToDateChange={viewModel.handleCreatedToDateChange}
+          onDatePresetChange={viewModel.handleDatePresetChange}
+          onExitExactAllTimeSearch={viewModel.exitExactAllTimeSearch}
           onOrderEntryUserChange={viewModel.handleOrderEntryUserChange}
           onOrderNumberChange={viewModel.handleOrderNumberChange}
           onOrderingUserChange={viewModel.handleOrderingUserChange}
+          onSearchExactOrderAllTime={viewModel.searchExactOrderAllTime}
           onSelectOrder={viewModel.handleSelectOrder}
           orderTypeMetaById={viewModel.orderTypeMetaById}
           pagination={viewModel.ordersPaginationState}
@@ -93,6 +85,7 @@ export function AdminOrdersClient({
           showOrderEntryFilter={viewModel.viewConfig.showOrderEntryFilter}
           showOrderingColumn={viewModel.viewConfig.showOrderingColumn}
           showOrderingFilter={viewModel.viewConfig.showOrderingFilter}
+          summary={viewModel.summary}
           totalOrdersCount={viewModel.totalOrdersCount}
           userLabelById={viewModel.userLabelById}
         />
@@ -168,6 +161,6 @@ export function AdminOrdersClient({
         supabase={viewModel.supabase}
         userLabelById={viewModel.userLabelById}
       />
-    </section>
+    </DashboardPageShell>
   );
 }

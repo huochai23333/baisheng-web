@@ -13,6 +13,7 @@ import type { getBrowserSupabaseClient } from "@/lib/supabase";
 import type { TaskCommissionRow } from "@/lib/task-commissions";
 
 import type { NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 
 import { toCommissionErrorMessage } from "./commission-display";
 
@@ -30,6 +31,8 @@ export function useManagedCommissionSettlement({
   refreshCommissionBoard: () => Promise<void>;
   supabase: ReturnType<typeof getBrowserSupabaseClient>;
 }) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const t = useTranslations("Commission");
   const [settlingKey, setSettlingKey] = useState<string | null>(null);
 
@@ -39,16 +42,14 @@ export function useManagedCommissionSettlement({
         return;
       }
 
-      if (typeof window !== "undefined") {
-        const confirmed = window.confirm(
-          t("actions.confirmMarkOrderPaid", {
-            orderNumber: commission.orderNumber,
-          }),
-        );
-
-        if (!confirmed) {
-          return;
-        }
+      if (!(await confirm({
+        description: t("actions.confirmMarkOrderPaid", {
+          orderNumber: commission.orderNumber,
+        }),
+        title: confirmT("title"),
+        tone: "warning",
+      }))) {
+        return;
       }
 
       setSettlingKey(`order:${commission.id}`);
@@ -73,7 +74,7 @@ export function useManagedCommissionSettlement({
         setSettlingKey(null);
       }
     },
-    [onPageFeedback, refreshCommissionBoard, settlingKey, supabase, t],
+    [confirm, confirmT, onPageFeedback, refreshCommissionBoard, settlingKey, supabase, t],
   );
 
   const handleMarkTaskCommissionAsPaid = useCallback(
@@ -82,16 +83,14 @@ export function useManagedCommissionSettlement({
         return;
       }
 
-      if (typeof window !== "undefined") {
-        const confirmed = window.confirm(
-          t("actions.confirmMarkTaskPaid", {
-            taskName: taskCommission.taskName,
-          }),
-        );
-
-        if (!confirmed) {
-          return;
-        }
+      if (!(await confirm({
+        description: t("actions.confirmMarkTaskPaid", {
+          taskName: taskCommission.taskName,
+        }),
+        title: confirmT("title"),
+        tone: "warning",
+      }))) {
+        return;
       }
 
       setSettlingKey(`task:${taskCommission.id}`);
@@ -116,7 +115,7 @@ export function useManagedCommissionSettlement({
         setSettlingKey(null);
       }
     },
-    [onPageFeedback, refreshCommissionBoard, settlingKey, supabase, t],
+    [confirm, confirmT, onPageFeedback, refreshCommissionBoard, settlingKey, supabase, t],
   );
 
   return {

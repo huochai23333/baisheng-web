@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
+
+import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 
 import {
   deleteAdminOrder,
@@ -38,6 +41,8 @@ export function useAdminOrderDeleteActions({
   supabase: ReturnType<typeof getBrowserSupabaseClient>;
   t: OrdersTranslator;
 }) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const [deletePending, setDeletePending] = useState(false);
   const [forceDeletePending, setForceDeletePending] = useState(false);
 
@@ -54,12 +59,13 @@ export function useAdminOrderDeleteActions({
 
     const targetOrder = selectedOrder;
 
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        t("feedback.deleteConfirm", { orderNumber: targetOrder.order_number }),
-      )
-    ) {
+    if (!(await confirm({
+      description: t("feedback.deleteConfirm", {
+        orderNumber: targetOrder.order_number,
+      }),
+      title: confirmT("title"),
+      tone: "danger",
+    }))) {
       return;
     }
 
@@ -87,6 +93,8 @@ export function useAdminOrderDeleteActions({
   }, [
     canDeleteOrders,
     clearSelectedOrder,
+    confirm,
+    confirmT,
     deletePending,
     forceDeletePending,
     ordersUiCopy,
@@ -111,14 +119,13 @@ export function useAdminOrderDeleteActions({
 
     const targetOrder = selectedOrder;
 
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        t("feedback.forceDeleteConfirm", {
-          orderNumber: targetOrder.order_number,
-        }),
-      )
-    ) {
+    if (!(await confirm({
+      description: t("feedback.forceDeleteConfirm", {
+        orderNumber: targetOrder.order_number,
+      }),
+      title: confirmT("title"),
+      tone: "danger",
+    }))) {
       return;
     }
 
@@ -146,6 +153,8 @@ export function useAdminOrderDeleteActions({
   }, [
     canDeleteOrders,
     clearSelectedOrder,
+    confirm,
+    confirmT,
     deletePending,
     forceDeletePending,
     ordersUiCopy,

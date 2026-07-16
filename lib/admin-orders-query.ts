@@ -8,9 +8,10 @@ export const ADMIN_ORDER_SELECT =
 
 export type AdminOrderOverviewFilters = {
   createdFrom?: string;
-  createdTo?: string;
+  createdToExclusive?: string;
   orderEntryUserIds?: string[];
   orderNumber?: string;
+  orderNumberExact?: string;
   orderStatus?: string;
   orderTypeIds?: string[];
   orderingUserIds?: string[];
@@ -29,7 +30,7 @@ type AdminOrderFilterQuery<TQuery> = {
   gte(column: string, value: string): TQuery;
   ilike(column: string, value: string): TQuery;
   in(column: string, values: string[]): TQuery;
-  lte(column: string, value: string): TQuery;
+  lt(column: string, value: string): TQuery;
 };
 
 export async function queryAdminOrders(
@@ -101,12 +102,16 @@ function applyAdminOrderOverviewFilters<TQuery extends AdminOrderFilterQuery<TQu
     nextQuery = nextQuery.ilike("order_number", `%${filters.orderNumber}%`);
   }
 
+  if (filters?.orderNumberExact) {
+    nextQuery = nextQuery.eq("order_number", filters.orderNumberExact);
+  }
+
   if (filters?.createdFrom) {
     nextQuery = nextQuery.gte("created_at", filters.createdFrom);
   }
 
-  if (filters?.createdTo) {
-    nextQuery = nextQuery.lte("created_at", filters.createdTo);
+  if (filters?.createdToExclusive) {
+    nextQuery = nextQuery.lt("created_at", filters.createdToExclusive);
   }
 
   if (filters?.orderEntryUserIds && filters.orderEntryUserIds.length > 0) {

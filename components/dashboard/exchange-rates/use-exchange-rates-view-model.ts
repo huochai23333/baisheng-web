@@ -20,6 +20,7 @@ import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useDashboardPagination } from "@/lib/use-dashboard-pagination";
 import { normalizeSearchText, type NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "@/components/dashboard/workspace-session-provider";
+import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 
 import {
   createExchangeRateCopy,
@@ -47,6 +48,8 @@ export function useExchangeRatesViewModel({
   initialData: ExchangeRatesPageData;
   mode: "manage" | "readonly";
 }) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const supabase = getBrowserSupabaseClient();
   const t = useTranslations("ExchangeRates");
   const copy = useMemo(() => createExchangeRateCopy(t), [t]);
@@ -249,7 +252,11 @@ export function useExchangeRatesViewModel({
     async (row: ExchangeRateRow) => {
       if (!supabase || !canManage || deletePendingId) return;
       const pairLabel = getExchangeRatePairLabel(row.original_currency, row.target_currency);
-      if (typeof window !== "undefined" && !window.confirm(t("feedback.deleteConfirm", { pairLabel }))) {
+      if (!(await confirm({
+        description: t("feedback.deleteConfirm", { pairLabel }),
+        title: confirmT("title"),
+        tone: "danger",
+      }))) {
         return;
       }
 
@@ -266,7 +273,7 @@ export function useExchangeRatesViewModel({
         setDeletePendingId(null);
       }
     },
-    [canManage, copy, deletePendingId, supabase, t],
+    [canManage, confirm, confirmT, copy, deletePendingId, supabase, t],
   );
 
   const setCreateDialogVisibility = useCallback(

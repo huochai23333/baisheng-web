@@ -19,7 +19,7 @@ import type { ExchangeRateLatestRow, ExchangeRateRow } from "@/lib/exchange-rate
 import { normalizeCurrencyCode } from "@/lib/exchange-rates";
 
 import { Button } from "../../ui/button";
-import { DashboardPaginationControls } from "../dashboard-pagination-controls";
+import { DashboardPaginationFooter } from "../dashboard-collection-section";
 import { DashboardSectionHeader } from "../dashboard-section-header";
 import {
   DashboardFilterField,
@@ -157,7 +157,7 @@ export const ExchangeRatesLatestSection = memo(function ExchangeRatesLatestSecti
         </div>
       )}
 
-      <DashboardPaginationControls
+      <DashboardPaginationFooter
         endIndex={pagination.endIndex}
         hasNextPage={pagination.hasNextPage}
         hasPreviousPage={pagination.hasPreviousPage}
@@ -262,7 +262,7 @@ export const ExchangeRatesHistorySection = memo(function ExchangeRatesHistorySec
       ) : (
         <DashboardTableFrame
           footer={
-            <DashboardPaginationControls
+            <DashboardPaginationFooter
               endIndex={pagination.endIndex}
               hasNextPage={pagination.hasNextPage}
               hasPreviousPage={pagination.hasPreviousPage}

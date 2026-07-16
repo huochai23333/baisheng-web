@@ -2,7 +2,6 @@
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { LoaderCircle, PencilLine, Save } from "lucide-react";
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -12,7 +11,7 @@ import {
   PageBanner,
   type NoticeTone,
 } from "@/components/dashboard/dashboard-shared-ui";
-import { Button } from "@/components/ui/button";
+import { DashboardInlineEditActions } from "@/components/dashboard/dashboard-framework-primitives";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import {
   updateWholesaleOrderEditSettings,
@@ -32,12 +31,14 @@ export function WholesaleOrderEditSettingsSection({
   const uiText = useTranslations(
     "UiText.components_dashboard_business_settings_wholesale_order_edit_settings_section",
   );
+  const actionsT = useTranslations("DashboardFramework.actions");
   const supabase = getBrowserSupabaseClient();
   const [settings, setSettings] = useState(initialSettings);
   const [draftDays, setDraftDays] = useState(
     String(initialSettings?.directEditWindowDays ?? 30),
   );
   const [pending, setPending] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [feedback, setFeedback] = useState<PageFeedback>(null);
   async function saveSettings() {
     if (!supabase || pending) {
@@ -60,6 +61,7 @@ export function WholesaleOrderEditSettingsSection({
       );
       setSettings(nextSettings);
       setDraftDays(String(nextSettings.directEditWindowDays));
+      setEditing(false);
       onSettingsChange?.(nextSettings);
       setFeedback({ tone: "success", message: "批发订单修改天数已保存。" });
     } catch (error) {
@@ -82,9 +84,9 @@ export function WholesaleOrderEditSettingsSection({
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <DashboardFilterField label={uiText("attribute002")}>
           <div className="relative">
-            <PencilLine className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#7d8890]" />
             <input
-              className={`${dashboardFilterInputClassName} pl-10`}
+              className={dashboardFilterInputClassName}
+              disabled={!editing || pending}
               min={0}
               max={3650}
               onChange={(event) => setDraftDays(event.target.value)}
@@ -97,19 +99,24 @@ export function WholesaleOrderEditSettingsSection({
           </p>
         </DashboardFilterField>
 
-        <Button
-          className="h-11 w-full rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79] lg:w-auto"
-          disabled={pending}
-          onClick={() => void saveSettings()}
-          type="button"
-        >
-          {pending ? (
-            <LoaderCircle className="size-4 animate-spin" />
-          ) : (
-            <Save className="size-4" />
-          )}
-          <UiMessage id="components_dashboard_business_settings_wholesale_order_edit_settings_section.text002" />
-        </Button>
+        <DashboardInlineEditActions
+          cancelLabel={actionsT("cancel")}
+          editLabel={actionsT("edit")}
+          editing={editing}
+          onCancel={() => {
+            setDraftDays(String(currentDays));
+            setFeedback(null);
+            setEditing(false);
+          }}
+          onEdit={() => {
+            setDraftDays(String(currentDays));
+            setFeedback(null);
+            setEditing(true);
+          }}
+          onSave={() => void saveSettings()}
+          pending={pending}
+          saveLabel={actionsT("save")}
+        />
       </div>
     </DashboardListSection>
   );

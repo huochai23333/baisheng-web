@@ -19,7 +19,7 @@ import {
 } from "@/lib/admin-tasks";
 
 import { Button } from "@/components/ui/button";
-import { DashboardPaginationControls } from "@/components/dashboard/dashboard-pagination-controls";
+import { DashboardPaginationFooter } from "@/components/dashboard/dashboard-collection-section";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import {
   DashboardFilterPanel,
@@ -241,7 +241,7 @@ export function AdminTasksListSection({
         )}
       </PresenceSwap>
 
-      <DashboardPaginationControls
+      <DashboardPaginationFooter
         endIndex={tasksPagination.endIndex}
         hasNextPage={tasksPagination.hasNextPage}
         hasPreviousPage={tasksPagination.hasPreviousPage}

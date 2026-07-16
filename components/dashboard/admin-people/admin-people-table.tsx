@@ -3,9 +3,12 @@ import { UiMessage } from "@/components/i18n/ui-message";
 import { StickyNote } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
+import {
+  DashboardStatusBadge,
+} from "@/components/dashboard/dashboard-framework-primitives";
+import { DashboardResponsiveCollection } from "@/components/dashboard/dashboard-collection-section";
 import { Button } from "@/components/ui/button";
 import type { AdminPersonRow } from "@/lib/admin-people";
-import { cn } from "@/lib/utils";
 import {
   getPersonContact,
   getPersonDisplayName,
@@ -31,8 +34,8 @@ export function PeopleTable({
   const t = useTranslations("AdminPeople");
   const fallback = t("fallback.notProvided");
   return (
-    <>
-      <div className="hidden md:block">
+    <DashboardResponsiveCollection
+      desktop={
         <DashboardTableFrame>
           <table className="w-full min-w-[860px] table-fixed text-left text-sm">
             <colgroup>
@@ -83,13 +86,12 @@ export function PeopleTable({
                     </td>
                     <td className="px-3 py-4">
                       <div className="flex min-w-0 flex-col items-start gap-2">
-                        <span className="inline-flex rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
+                        <DashboardStatusBadge tone="info">
                           {getRoleLabel(person.role, roleLabels, fallback)}
-                        </span>
-                        <StatusChip
-                          label={statusLabels[person.status]}
-                          status={person.status}
-                        />
+                        </DashboardStatusBadge>
+                        <DashboardStatusBadge tone={getPersonStatusTone(person.status)}>
+                          {statusLabels[person.status]}
+                        </DashboardStatusBadge>
                       </div>
                     </td>
                     <td className="px-3 py-4 text-[#53616d]">
@@ -126,8 +128,9 @@ export function PeopleTable({
             </tbody>
           </table>
         </DashboardTableFrame>
-      </div>
-      <div className="grid gap-3 md:hidden">
+      }
+      mobile={
+        <>
         {people.map((person) => {
           const isCurrentViewer = person.user_id === currentViewerId;
           const displayName = getPersonDisplayName(
@@ -155,18 +158,17 @@ export function PeopleTable({
                     {getPersonContact(person, fallback)}
                   </span>
                 </button>
-                <StatusChip
-                  label={statusLabels[person.status]}
-                  status={person.status}
-                />
+                <DashboardStatusBadge tone={getPersonStatusTone(person.status)}>
+                  {statusLabels[person.status]}
+                </DashboardStatusBadge>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="inline-flex rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
+                <DashboardStatusBadge tone="info">
                   {getRoleLabel(person.role, roleLabels, fallback)}
-                </span>
-                <span className="inline-flex rounded-full bg-[#f6f4f0] px-3 py-1 text-xs font-semibold text-[#66727d]">
+                </DashboardStatusBadge>
+                <DashboardStatusBadge>
                   {person.city ?? fallback}
-                </span>
+                </DashboardStatusBadge>
               </div>
               <p className="mt-3 line-clamp-3 break-words text-sm text-[#6f7b85]">
                 <UiMessage id="components_dashboard_admin_people_admin_people_table.text001" />
@@ -193,21 +195,16 @@ export function PeopleTable({
             </article>
           );
         })}
-      </div>
-    </>
+        </>
+      }
+    />
   );
 }
-function StatusChip({ label, status }: { label: string; status: string }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
-        status === "active" && "bg-[#e8f4ec] text-[#4c7259]",
-        status === "inactive" && "bg-[#fff5db] text-[#9a6a07]",
-        status === "suspended" && "bg-[#fbe6e6] text-[#b13d3d]",
-      )}
-    >
-      {label}
-    </span>
-  );
+
+function getPersonStatusTone(status: string) {
+  // 领域状态只决定语义色，标签布局、边框和字号全部由共享状态标签负责。
+  if (status === "active") return "success" as const;
+  if (status === "inactive") return "warning" as const;
+  if (status === "suspended") return "danger" as const;
+  return "neutral" as const;
 }

@@ -7,8 +7,6 @@ export type Wholesale1688IngestRow = {
   order_status: string | null;
   purchased_at: string | null;
   recipient_name: string | null;
-  customer_id?: string | null;
-  wholesale_order_id?: string | null;
   raw_payload: Record<string, unknown>;
 };
 
@@ -68,12 +66,6 @@ export function normalizeWholesale1688Row(
 
   return {
     external_order_number: externalOrderNumber,
-    customer_id: pickString(value, [
-      "customer_id",
-      "customerId",
-      "批发客户id",
-      "客户id",
-    ]),
     item_summary: pickString(value, [
       "item_summary",
       "item",
@@ -144,11 +136,6 @@ export function normalizeWholesale1688Row(
       "卖家会员名",
       "店铺",
     ]),
-    wholesale_order_id: pickString(value, [
-      "wholesale_order_id",
-      "wholesaleOrderId",
-      "批发订单id",
-    ]),
   };
 }
 
@@ -184,11 +171,7 @@ export function normalizeWholesale1688TableRows(
     const normalized = normalizeWholesale1688Row(rawPayload);
 
     if (normalized) {
-      parsedRows.push({
-        ...normalized,
-        customer_id: null,
-        wholesale_order_id: null,
-      });
+      parsedRows.push(normalized);
     }
   }
 

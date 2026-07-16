@@ -35,6 +35,11 @@ import {
 } from "./dashboard-pagination";
 import { getLatestCnyExchangeRates } from "./exchange-rates";
 import {
+  getShanghaiOrderDateBounds,
+  normalizeOrderDateRange,
+  type OrderSearchMode,
+} from "./order-date-range";
+import {
   normalizeOptionalString,
   normalizePositiveInteger,
   normalizeSearchText,
@@ -49,12 +54,19 @@ import type { AppRole, UserStatus } from "./user-self-service";
 export function normalizeAdminOrdersFilters(
   filters?: Partial<AdminOrdersFilters> | null,
 ): AdminOrdersFilters {
+  const dateRange = normalizeOrderDateRange({
+    fromDate: filters?.createdFromDate,
+    toDate: filters?.createdToDate,
+  });
+  const orderNumber = normalizeOptionalString(filters?.orderNumber) ?? "";
+
   return {
-    createdFromDate: normalizeDateFilter(filters?.createdFromDate),
-    createdToDate: normalizeDateFilter(filters?.createdToDate),
+    createdFromDate: dateRange.fromDate,
+    createdToDate: dateRange.toDate,
     orderEntryUser: normalizeOptionalString(filters?.orderEntryUser) ?? "",
-    orderNumber: normalizeOptionalString(filters?.orderNumber) ?? "",
+    orderNumber,
     orderingUser: normalizeOptionalString(filters?.orderingUser) ?? "",
+    searchMode: normalizeOrderSearchMode(filters?.searchMode, orderNumber),
   };
 }
 
@@ -68,6 +80,9 @@ export function parseAdminOrdersSearchParams(
       orderEntryUser: getSingleSearchParam(searchParams.orderEntryUser),
       orderNumber: getSingleSearchParam(searchParams.orderNumber),
       orderingUser: getSingleSearchParam(searchParams.orderingUser),
+      searchMode: getSingleSearchParam(searchParams.searchMode) as
+        | OrderSearchMode
+        | undefined,
     }),
     page: normalizePositiveInteger(getSingleSearchParam(searchParams.page), 1),
   };
@@ -178,18 +193,34 @@ export async function getAdminOrdersPageData(
           orderTypeIds: businessOrderTypeIds,
         }
       : {};
+  const dateBounds = getShanghaiOrderDateBounds({
+    fromDate: filters.createdFromDate,
+    toDate: filters.createdToDate,
+  });
+  const dateRangeFilter: Pick<
+    AdminOrderOverviewFilters,
+    "createdFrom" | "createdToExclusive"
+  > = {
+    createdFrom: dateBounds.fromInclusive,
+    createdToExclusive: dateBounds.toExclusive,
+  };
   const [
     totalOrdersCount,
     pendingOrdersCount,
     completedOrdersCount,
   ] = await Promise.all([
-    getAdminOrderCount(supabase, businessOrderFilter),
     getAdminOrderCount(supabase, {
       ...businessOrderFilter,
+      ...dateRangeFilter,
+    }),
+    getAdminOrderCount(supabase, {
+      ...businessOrderFilter,
+      ...dateRangeFilter,
       orderStatus: "pending",
     }),
     getAdminOrderCount(supabase, {
       ...businessOrderFilter,
+      ...dateRangeFilter,
       orderStatus: "completed",
     }),
   ]);
@@ -204,14 +235,18 @@ export async function getAdminOrdersPageData(
   );
 
   const filterHasNoMatches =
-    orderEntryUserFilter.hasNoMatches || orderingUserFilter.hasNoMatches;
+    filters.searchMode === "date_range" &&
+    (orderEntryUserFilter.hasNoMatches || orderingUserFilter.hasNoMatches);
   const orderFilters: AdminOrderOverviewFilters = {
     ...businessOrderFilter,
-    createdFrom: toDateBoundary(filters.createdFromDate, "start"),
-    createdTo: toDateBoundary(filters.createdToDate, "end"),
-    orderEntryUserIds: orderEntryUserFilter.userIds,
-    orderNumber: filters.orderNumber,
-    orderingUserIds: orderingUserFilter.userIds,
+    ...(filters.searchMode === "date_range" ? dateRangeFilter : {}),
+    ...(filters.searchMode === "exact_all_time"
+      ? { orderNumberExact: filters.orderNumber }
+      : {
+          orderEntryUserIds: orderEntryUserFilter.userIds,
+          orderNumber: filters.orderNumber,
+          orderingUserIds: orderingUserFilter.userIds,
+        }),
   };
   const matchedOrdersCount = filterHasNoMatches
     ? 0
@@ -383,20 +418,11 @@ function getSingleSearchParam(value: string | string[] | undefined) {
   return value;
 }
 
-function normalizeDateFilter(value: unknown) {
-  const normalized = normalizeOptionalString(value);
-
-  return normalized && /^\d{4}-\d{2}-\d{2}$/.test(normalized)
-    ? normalized
-    : "";
-}
-
-function toDateBoundary(value: string, boundary: "start" | "end") {
-  if (!value) {
-    return undefined;
-  }
-
-  return boundary === "start"
-    ? `${value}T00:00:00.000+08:00`
-    : `${value}T23:59:59.999+08:00`;
+function normalizeOrderSearchMode(
+  value: unknown,
+  orderNumber: string,
+): OrderSearchMode {
+  return value === "exact_all_time" && orderNumber
+    ? "exact_all_time"
+    : "date_range";
 }

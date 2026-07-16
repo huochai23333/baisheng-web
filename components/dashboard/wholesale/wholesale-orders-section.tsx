@@ -2,9 +2,7 @@
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
-import { LoaderCircle, Plus, ReceiptText } from "lucide-react";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
-import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { hasWholesaleOrderInternalFields } from "@/lib/wholesale";
 import type {
@@ -25,13 +23,10 @@ import { WholesaleOrderFormDialog } from "./wholesale-order-form-dialog";
 import { WholesaleOrderSettlementDialog } from "./wholesale-order-rate-dialogs";
 import { WholesaleOrderSummary } from "./wholesale-order-summary";
 import { useWholesaleOrderViewData } from "./wholesale-order-view-data";
-import { WholesaleOrdersMobileList } from "./wholesale-orders-mobile-list";
-import {
-  WholesaleOrdersTable,
-  type WholesaleOrderEditAction,
-} from "./wholesale-orders-table";
+import { WholesaleOrdersListSection } from "./wholesale-orders-list-section";
+import type { WholesaleOrderEditAction } from "./wholesale-orders-table";
 import type { WholesaleOrdersSectionProps } from "./wholesale-orders-section-types";
-import { WholesaleEmptyState, WholesalePageShell } from "./wholesale-ui";
+import { WholesalePageShell } from "./wholesale-ui";
 export function WholesaleOrdersSection({
   canBypassEditWindow,
   canEdit,
@@ -180,139 +175,50 @@ export function WholesaleOrdersSection({
         filters={filterState.filters}
         hasActiveFilters={filterState.hasActiveFilters}
         onClear={filterState.clearFilters}
+        onExactSearch={filterState.activateExactSearch}
+        onExitExactSearch={filterState.exitExactSearch}
+        onSelectDatePreset={filterState.applyDatePreset}
         onUpdate={filterState.updateFilter}
         salesAccounts={salesAccounts}
       />
 
       {page ? <WholesaleOrderSummary summary={page.summary} /> : null}
 
-      {pageState.loadError ? (
-        <div className="space-y-3">
-          <PageBanner tone="error">{pageState.loadError}</PageBanner>
-          <Button
-            className="rounded-full border border-[#d8dde2] bg-white text-[#486782]"
-            onClick={() => void pageState.refreshFirstPage()}
-            type="button"
-            variant="outline"
-          >
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_section.text002" />
-          </Button>
-        </div>
-      ) : null}
-
-      {page?.warnings.map((warning) => (
-        <PageBanner key={`${warning.area}:${warning.message}`} tone="info">
-          {warning.message}
-        </PageBanner>
-      ))}
-
-      <DashboardListSection
-        description={
-          page
-            ? t("listCount", {
-                shown: page.orders.length,
-                total: page.totalCount,
-              })
-            : t("loadingList")
-        }
-        title={uiText("attribute004")}
-      >
-        {page ? (
-          <div className="mb-5">
-            {page.canViewInternalFields ? (
-              <WholesaleOrderAssessmentPanel
-                filters={assessmentFilters}
-                matchedOrderCount={page.totalCount}
-              />
-            ) : null}
-          </div>
-        ) : null}
-
-        {pageState.loading ? (
-          <div className="flex min-h-40 items-center justify-center gap-2 text-sm text-[#71808d]">
-            <LoaderCircle className="size-4 animate-spin" />
-            <UiMessage id="components_dashboard_wholesale_wholesale_orders_section.text003" />
-          </div>
-        ) : page && page.orders.length === 0 ? (
-          <WholesaleEmptyState
-            description={uiText("attribute005")}
-            icon={<ReceiptText className="size-5" />}
-            title={uiText("attribute006")}
-          />
-        ) : page ? (
-          <>
-            <div className="hidden md:block">
-              <WholesaleOrdersTable
-                canMarkOrderSettled={canMarkOrderSettled}
-                canManageOrderListAttachments={
-                  orderListHandlers.canManageOrderListAttachments
-                }
-                canViewInternalFields={page.canViewInternalFields}
-                customersById={customersById}
-                getOrderEditAction={getOrderEditAction}
-                orderSettlementsByOrderId={viewData.orderSettlementsByOrderId}
-                onOpenOrderEdit={setSelectedEditOrder}
-                onOpenOrderSettlement={setSelectedSettlementOrder}
-                onDeleteOrderListAttachment={
-                  orderListHandlers.deleteOrderListAttachment
-                }
-                onUploadOrderListAttachments={
-                  orderListHandlers.uploadOrderListAttachments
-                }
-                orders={page.orders}
-                orderListAttachmentsByOrderId={
-                  viewData.orderListAttachmentsByOrderId
-                }
-                pendingKey={pendingKey}
-                profilesById={profilesById}
-                purchaseOrdersByOrderId={viewData.purchaseOrdersByOrderId}
-              />
-            </div>
-            <WholesaleOrdersMobileList
-              canMarkOrderSettled={canMarkOrderSettled}
-              canManageOrderListAttachments={
-                orderListHandlers.canManageOrderListAttachments
-              }
-              canViewInternalFields={page.canViewInternalFields}
-              customersById={customersById}
-              getOrderEditAction={getOrderEditAction}
-              onOpenOrderEdit={setSelectedEditOrder}
-              onOpenOrderSettlement={setSelectedSettlementOrder}
-              onDeleteOrderListAttachment={
-                orderListHandlers.deleteOrderListAttachment
-              }
-              onUploadOrderListAttachments={
-                orderListHandlers.uploadOrderListAttachments
-              }
-              orders={page.orders}
-              orderListAttachmentsByOrderId={
-                viewData.orderListAttachmentsByOrderId
-              }
-              orderSettlementsByOrderId={viewData.orderSettlementsByOrderId}
-              profilesById={profilesById}
-              purchaseOrdersByOrderId={viewData.purchaseOrdersByOrderId}
-              pendingKey={pendingKey}
+      <WholesaleOrdersListSection
+        assessmentPanel={
+          page?.canViewInternalFields ? (
+            <WholesaleOrderAssessmentPanel
+              filters={assessmentFilters}
+              matchedOrderCount={page.totalCount}
             />
-          </>
-        ) : null}
-
-        {page?.nextCursor ? (
-          <div className="mt-5 flex justify-center">
-            <Button
-              className="min-h-11 rounded-full border border-[#d8dde2] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
-              disabled={pageState.loadingMore}
-              onClick={() => void pageState.loadMore()}
-              type="button"
-              variant="outline"
-            >
-              {pageState.loadingMore ? (
-                <LoaderCircle className="size-4 animate-spin" />
-              ) : null}
-              <UiMessage id="components_dashboard_wholesale_wholesale_orders_section.text004" />
-            </Button>
-          </div>
-        ) : null}
-      </DashboardListSection>
+          ) : undefined
+        }
+        loadError={pageState.loadError}
+        loading={pageState.loading}
+        loadingMore={pageState.loadingMore}
+        onLoadMore={() => void pageState.loadMore()}
+        onRetry={() => void pageState.refreshFirstPage()}
+        page={page}
+        renderProps={{
+          canMarkOrderSettled,
+          canManageOrderListAttachments:
+            orderListHandlers.canManageOrderListAttachments,
+          customersById,
+          getOrderEditAction,
+          onDeleteOrderListAttachment:
+            orderListHandlers.deleteOrderListAttachment,
+          onOpenOrderEdit: setSelectedEditOrder,
+          onOpenOrderSettlement: setSelectedSettlementOrder,
+          onUploadOrderListAttachments:
+            orderListHandlers.uploadOrderListAttachments,
+          orderListAttachmentsByOrderId:
+            viewData.orderListAttachmentsByOrderId,
+          orderSettlementsByOrderId: viewData.orderSettlementsByOrderId,
+          pendingKey,
+          profilesById,
+          purchaseOrdersByOrderId: viewData.purchaseOrdersByOrderId,
+        }}
+      />
 
       {page?.canViewInternalFields ? (
         <WholesaleOrderChangeSections

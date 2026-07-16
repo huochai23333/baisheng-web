@@ -1,5 +1,8 @@
 import { normalizeSearchText } from "@/lib/value-normalizers";
 import type {
+  Wholesale1688ClaimGroup,
+  Wholesale1688ClaimGroupOrder,
+  Wholesale1688ClaimGroupPurchase,
   Wholesale1688Order,
   WholesaleCustomer,
   WholesaleOrder,
@@ -24,14 +27,22 @@ export const EMPTY_WHOLESALE_CLAIM_FILTERS: WholesaleClaimFilters = {
   searchText: "",
 };
 
+/** 待认领板块仍以单笔 1688 采购订单为一行。 */
 export type WholesaleClaimRow = {
   assistedCustomerName: string;
-  board: WholesaleClaimBoardKey;
-  claimerName: string;
-  customerName: string;
-  orderNumber: string;
+  board: "assisted" | "hall";
   purchaseOrder: Wholesale1688Order;
   recipientName: string;
+};
+
+/** 已认领板块以认领组为一行，避免同一组的客户和批发订单重复展示。 */
+export type WholesaleClaimGroupRow = {
+  claimGroup: Wholesale1688ClaimGroup;
+  claimerName: string;
+  customerName: string;
+  purchaseOrders: Wholesale1688Order[];
+  updaterName: string;
+  wholesaleOrders: WholesaleOrder[];
 };
 
 export const WHOLESALE_CLAIM_BOARDS: Array<{
@@ -52,43 +63,84 @@ export const WHOLESALE_CLAIM_BOARDS: Array<{
   {
     key: "claimed",
     label: "已认领",
-    description: "已经确认客户和批发订单的采购订单。",
+    description: "按认领组查看已经确认的采购订单和批发订单。",
   },
 ];
 
 export function buildWholesaleClaimRows({
+  claimGroupPurchases,
+  customersById,
+  purchaseOrders,
+}: {
+  claimGroupPurchases: Wholesale1688ClaimGroupPurchase[];
+  customersById: Map<string, WholesaleCustomer>;
+  purchaseOrders: Wholesale1688Order[];
+}): WholesaleClaimRow[] {
+  const claimedPurchaseIds = new Set(
+    claimGroupPurchases.map((link) => link.purchase_order_id),
+  );
+
+  return purchaseOrders
+    .filter((purchaseOrder) => !claimedPurchaseIds.has(purchaseOrder.id))
+    .map((purchaseOrder) => ({
+      assistedCustomerName: getCustomerName(
+        customersById,
+        purchaseOrder.assisted_customer_id,
+      ),
+      board: purchaseOrder.assisted_customer_id
+        ? ("assisted" as const)
+        : ("hall" as const),
+      purchaseOrder,
+      recipientName: purchaseOrder.recipient_name ?? "未记录",
+    }));
+}
+
+export function buildWholesaleClaimGroupRows({
+  claimGroupOrders,
+  claimGroupPurchases,
+  claimGroups,
   customersById,
   ordersById,
   profilesById,
-  purchaseOrders,
+  purchaseOrdersById,
 }: {
+  claimGroupOrders: Wholesale1688ClaimGroupOrder[];
+  claimGroupPurchases: Wholesale1688ClaimGroupPurchase[];
+  claimGroups: Wholesale1688ClaimGroup[];
   customersById: Map<string, WholesaleCustomer>;
   ordersById: Map<string, WholesaleOrder>;
   profilesById: Map<string, WholesaleProfile>;
-  purchaseOrders: Wholesale1688Order[];
-}): WholesaleClaimRow[] {
-  return purchaseOrders.map((purchaseOrder) => {
-    const assistedCustomerName = getCustomerName(
-      customersById,
-      purchaseOrder.assisted_customer_id,
-    );
+  purchaseOrdersById: Map<string, Wholesale1688Order>;
+}): WholesaleClaimGroupRow[] {
+  const purchaseIdsByGroupId = groupLinkIds(
+    claimGroupPurchases,
+    (link) => link.claim_group_id,
+    (link) => link.purchase_order_id,
+  );
+  const orderIdsByGroupId = groupLinkIds(
+    claimGroupOrders,
+    (link) => link.claim_group_id,
+    (link) => link.wholesale_order_id,
+  );
 
-    return {
-      assistedCustomerName,
-      board: getWholesaleClaimBoard(purchaseOrder),
-      claimerName: getProfileName(
-        profilesById,
-        purchaseOrder.claimed_by_user_id,
-      ),
-      customerName: getCustomerName(customersById, purchaseOrder.customer_id),
-      orderNumber: purchaseOrder.wholesale_order_id
-        ? ordersById.get(purchaseOrder.wholesale_order_id)?.order_number ??
-          "未关联"
-        : "未关联",
-      purchaseOrder,
-      recipientName: purchaseOrder.recipient_name ?? "未记录",
-    };
-  });
+  return claimGroups.map((claimGroup) => ({
+    claimGroup,
+    claimerName: getProfileName(
+      profilesById,
+      claimGroup.claimed_by_user_id,
+    ),
+    customerName: getCustomerName(customersById, claimGroup.customer_id),
+    purchaseOrders: (purchaseIdsByGroupId.get(claimGroup.id) ?? [])
+      .map((purchaseOrderId) => purchaseOrdersById.get(purchaseOrderId))
+      .filter((row): row is Wholesale1688Order => Boolean(row)),
+    updaterName: getProfileName(
+      profilesById,
+      claimGroup.updated_by_user_id,
+    ),
+    wholesaleOrders: (orderIdsByGroupId.get(claimGroup.id) ?? [])
+      .map((orderId) => ordersById.get(orderId))
+      .filter((row): row is WholesaleOrder => Boolean(row)),
+  }));
 }
 
 export function filterWholesaleClaimRows(
@@ -96,11 +148,13 @@ export function filterWholesaleClaimRows(
   board: WholesaleClaimBoardKey,
   filters: WholesaleClaimFilters,
 ) {
+  if (board === "claimed") return [];
+
   const searchValue = normalizeSearchText(filters.searchText);
   const recipientValue = normalizeSearchText(filters.recipientName);
 
   return rows.filter((row) => {
-    if (row.board !== board) {
+    if (row.board !== board || !matchesPurchaseFilters(row.purchaseOrder, filters)) {
       return false;
     }
 
@@ -111,59 +165,104 @@ export function filterWholesaleClaimRows(
       return false;
     }
 
-    if (filters.purchasedFromDate || filters.purchasedToDate) {
-      const purchaseDate = getShanghaiDateKey(row.purchaseOrder.purchased_at);
-
-      // 选择了日期条件时，没有有效采购时间的记录无法确定是否命中，因此不展示。
-      if (!purchaseDate) {
-        return false;
-      }
-
-      if (
-        filters.purchasedFromDate &&
-        purchaseDate < filters.purchasedFromDate
-      ) {
-        return false;
-      }
-
-      if (filters.purchasedToDate && purchaseDate > filters.purchasedToDate) {
-        return false;
-      }
-    }
-
-    if (!searchValue) {
-      return true;
-    }
-
-    const { purchaseOrder } = row;
+    if (!searchValue) return true;
 
     return [
-      purchaseOrder.external_order_number,
-      purchaseOrder.item_summary ?? "",
-      purchaseOrder.order_status ?? "",
-      purchaseOrder.seller_name ?? "",
+      row.purchaseOrder.external_order_number,
+      row.purchaseOrder.item_summary ?? "",
+      row.purchaseOrder.order_status ?? "",
+      row.purchaseOrder.seller_name ?? "",
       row.assistedCustomerName,
-      row.claimerName,
-      row.customerName,
-      row.orderNumber,
       row.recipientName,
     ].some((value) => normalizeSearchText(value).includes(searchValue));
   });
 }
 
-/**
- * 把数据库时间转成上海业务日期，再与日期输入框的 YYYY-MM-DD 比较。
- * 使用 formatToParts 而不是依赖浏览器拼出的日期字符串，可以避免不同语言环境顺序不一致。
- */
-function getShanghaiDateKey(value: string | null | undefined) {
-  if (!value) {
-    return null;
+export function filterWholesaleClaimGroupRows(
+  rows: WholesaleClaimGroupRow[],
+  filters: WholesaleClaimFilters,
+) {
+  const searchValue = normalizeSearchText(filters.searchText);
+  const recipientValue = normalizeSearchText(filters.recipientName);
+
+  return rows.filter((row) => {
+    const matchingPurchases = row.purchaseOrders.filter((purchaseOrder) =>
+      matchesPurchaseFilters(purchaseOrder, filters),
+    );
+
+    if (
+      (filters.purchasedFromDate || filters.purchasedToDate) &&
+      matchingPurchases.length === 0
+    ) {
+      return false;
+    }
+
+    if (
+      recipientValue &&
+      !row.purchaseOrders.some((purchaseOrder) =>
+        normalizeSearchText(purchaseOrder.recipient_name ?? "").includes(
+          recipientValue,
+        ),
+      )
+    ) {
+      return false;
+    }
+
+    if (!searchValue) return true;
+
+    return [
+      row.customerName,
+      row.claimerName,
+      row.updaterName,
+      ...row.wholesaleOrders.map((order) => order.order_number),
+      ...row.purchaseOrders.flatMap((purchaseOrder) => [
+        purchaseOrder.external_order_number,
+        purchaseOrder.item_summary ?? "",
+        purchaseOrder.order_status ?? "",
+        purchaseOrder.seller_name ?? "",
+        purchaseOrder.recipient_name ?? "",
+      ]),
+    ].some((value) => normalizeSearchText(value).includes(searchValue));
+  });
+}
+
+export function countWholesaleClaimBoards(
+  rows: WholesaleClaimRow[],
+  groupRows: WholesaleClaimGroupRow[],
+) {
+  return {
+    assisted: rows.filter((row) => row.board === "assisted").length,
+    claimed: groupRows.reduce(
+      (count, groupRow) => count + groupRow.purchaseOrders.length,
+      0,
+    ),
+    hall: rows.filter((row) => row.board === "hall").length,
+  } satisfies Record<WholesaleClaimBoardKey, number>;
+}
+
+function matchesPurchaseFilters(
+  purchaseOrder: Wholesale1688Order,
+  filters: WholesaleClaimFilters,
+) {
+  if (!filters.purchasedFromDate && !filters.purchasedToDate) return true;
+
+  const purchaseDate = getShanghaiDateKey(purchaseOrder.purchased_at);
+  if (!purchaseDate) return false;
+  if (filters.purchasedFromDate && purchaseDate < filters.purchasedFromDate) {
+    return false;
   }
+  if (filters.purchasedToDate && purchaseDate > filters.purchasedToDate) {
+    return false;
+  }
+  return true;
+}
+
+/** 把数据库时间转成上海业务日期，避免浏览器所在时区改变筛选结果。 */
+function getShanghaiDateKey(value: string | null | undefined) {
+  if (!value) return null;
 
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
+  if (Number.isNaN(date.getTime())) return null;
 
   const parts = new Intl.DateTimeFormat("en-US", {
     day: "2-digit",
@@ -179,30 +278,17 @@ function getShanghaiDateKey(value: string | null | undefined) {
   return year && month && day ? `${year}-${month}-${day}` : null;
 }
 
-export function countWholesaleClaimBoards(rows: WholesaleClaimRow[]) {
-  return rows.reduce<Record<WholesaleClaimBoardKey, number>>(
-    (counts, row) => {
-      counts[row.board] += 1;
-      return counts;
-    },
-    {
-      assisted: 0,
-      claimed: 0,
-      hall: 0,
-    },
-  );
-}
+function groupLinkIds<Row>(
+  rows: Row[],
+  getGroupId: (row: Row) => string,
+  getLinkedId: (row: Row) => string,
+) {
+  const grouped = new Map<string, string[]>();
 
-function getWholesaleClaimBoard(
-  purchaseOrder: Wholesale1688Order,
-): WholesaleClaimBoardKey {
-  if (purchaseOrder.claimed_at) {
-    return "claimed";
+  for (const row of rows) {
+    const groupId = getGroupId(row);
+    grouped.set(groupId, [...(grouped.get(groupId) ?? []), getLinkedId(row)]);
   }
 
-  if (purchaseOrder.assisted_customer_id) {
-    return "assisted";
-  }
-
-  return "hall";
+  return grouped;
 }

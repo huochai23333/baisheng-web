@@ -17,9 +17,9 @@ import type {
 } from "@/lib/announcements";
 
 import { DashboardSectionHeader } from "../dashboard-section-header";
+import { DashboardResourceFilterSection } from "../dashboard-resource-filter-section";
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   DashboardListSection,
   dashboardFilterInputClassName,
 } from "../dashboard-section-panel";
@@ -50,6 +50,7 @@ type AnnouncementsFilterSectionProps = {
     statusOptions: Record<AnnouncementStatus, string>;
   };
   onAudienceFilterChange: (value: AnnouncementAudience | "all") => void;
+  onReset: () => void;
   onStatusFilterChange: (value: AnnouncementStatus | "all") => void;
   statusFilter: AnnouncementStatus | "all";
 };
@@ -110,11 +111,16 @@ export function AnnouncementsFilterSection({
   audienceFilter,
   copy,
   onAudienceFilterChange,
+  onReset,
   onStatusFilterChange,
   statusFilter,
 }: AnnouncementsFilterSectionProps) {
   return (
-    <DashboardFilterPanel gridClassName="md:grid-cols-2" variant="standalone">
+    <DashboardResourceFilterSection
+      gridClassName="md:grid-cols-2"
+      onReset={onReset}
+      resetDisabled={audienceFilter === "all" && statusFilter === "all"}
+    >
         <DashboardFilterField label={copy.statusLabel}>
           <select
             className={dashboardFilterInputClassName}
@@ -150,7 +156,7 @@ export function AnnouncementsFilterSection({
             ))}
           </select>
         </DashboardFilterField>
-    </DashboardFilterPanel>
+    </DashboardResourceFilterSection>
   );
 }
 

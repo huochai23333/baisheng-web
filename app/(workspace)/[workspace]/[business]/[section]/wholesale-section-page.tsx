@@ -106,6 +106,8 @@ export async function renderWholesaleSectionPage(
       namespaces={[
         "ClientBusinessAccess",
         "DashboardShared",
+        // 批发订单、1688 认领和物流页面共用同一套订单列表框架文案。
+        "OrderListFramework",
         "WholesaleBusiness",
       ]}
     >

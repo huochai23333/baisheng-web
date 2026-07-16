@@ -1,9 +1,12 @@
 "use client";
 
-import { Plus, ShieldAlert } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { EmptyState, PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import {
+  DashboardAccessState,
+  DashboardPageShell,
+} from "@/components/dashboard/dashboard-page-shell";
 import { Button } from "@/components/ui/button";
 import type { ExchangeRatesPageData } from "@/lib/exchange-rates";
 
@@ -72,21 +75,15 @@ export function ExchangeRatesClient({
   };
 
   return (
-    <section
-      className={
-        embedded
-          ? "flex w-full flex-col gap-8"
-          : "mx-auto flex w-full max-w-[1320px] flex-col gap-8"
+    <DashboardPageShell
+      className={embedded ? "max-w-none" : undefined}
+      feedback={pageFeedback}
+      header={
+        !embedded ? (
+          <ExchangeRatesHeaderSection canManage={canManage} onCreate={openCreateDialog} />
+        ) : undefined
       }
     >
-      {pageFeedback ? (
-        <PageBanner tone={pageFeedback.tone}>{pageFeedback.message}</PageBanner>
-      ) : null}
-
-      {!embedded ? (
-        <ExchangeRatesHeaderSection canManage={canManage} onCreate={openCreateDialog} />
-      ) : null}
-
       {embedded && canManage ? (
         <div className="flex justify-end">
           <Button
@@ -101,17 +98,15 @@ export function ExchangeRatesClient({
       ) : null}
 
       {hasPermission === false ? (
-        <section className="rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8">
-          <EmptyState
-            description={
-              mode === "manage"
-                ? t("states.noManageDescription")
-                : t("states.noViewDescription")
-            }
-            icon={<ShieldAlert className="size-6" />}
-            title={mode === "manage" ? t("states.noManageTitle") : t("states.noViewTitle")}
-          />
-        </section>
+        <DashboardAccessState
+          description={
+            mode === "manage"
+              ? t("states.noManageDescription")
+              : t("states.noViewDescription")
+          }
+          kind="permission"
+          title={mode === "manage" ? t("states.noManageTitle") : t("states.noViewTitle")}
+        />
       ) : (
         <>
           {canManage ? (
@@ -183,6 +178,6 @@ export function ExchangeRatesClient({
         onOpenChange={viewModel.setEditDialogVisibility}
         onSubmit={handleEditRate}
       />
-    </section>
+    </DashboardPageShell>
   );
 }

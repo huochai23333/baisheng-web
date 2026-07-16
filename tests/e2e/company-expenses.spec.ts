@@ -57,10 +57,25 @@ test.describe("company expenses", () => {
     await expect(expenseCard).toBeVisible();
     await expect(expenseCard.getByText("¥123.45")).toBeVisible();
 
-    page.once("dialog", (confirmDialog) => {
-      void confirmDialog.accept();
+    const deleteButton = expenseCard.getByRole("button", { name: "删除" });
+    await deleteButton.click();
+
+    const confirmDialog = page.getByRole("dialog", {
+      name: "请确认这项操作",
     });
-    await expenseCard.getByRole("button", { name: "删除" }).click();
+    await expect(confirmDialog).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(confirmDialog).toBeHidden();
+    await expect(expenseCard).toBeVisible();
+    await expect(deleteButton).toBeFocused();
+
+    // 取消确认不能触发删除；再次打开后只有明确确认才继续领域操作。
+    await deleteButton.click();
+    await confirmDialog.getByRole("button", { name: "暂不操作" }).click();
+    await expect(expenseCard).toBeVisible();
+
+    await deleteButton.click();
+    await confirmDialog.getByRole("button", { name: "确认操作" }).click();
 
     await expect(page.getByText("费用已删除。")).toBeVisible();
     await expect(expenseCard).toHaveCount(0);

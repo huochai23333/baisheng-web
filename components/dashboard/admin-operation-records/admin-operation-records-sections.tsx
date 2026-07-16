@@ -10,11 +10,11 @@ import { useTranslations } from "next-intl";
 
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   DashboardListSection,
   DashboardTableFrame,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
+import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import type { AdminOperationRecord } from "@/lib/admin-operation-records";
@@ -74,6 +74,7 @@ export function OperationRecordsFilterSection({
   categoryOptions,
   onActionFilterChange,
   onCategoryFilterChange,
+  onReset,
   onSearchTextChange,
   searchText,
 }: {
@@ -85,14 +86,17 @@ export function OperationRecordsFilterSection({
   categoryOptions: OperationRecordsViewModel["categoryOptions"];
   onActionFilterChange: (value: string) => void;
   onCategoryFilterChange: (value: string) => void;
+  onReset: () => void;
   onSearchTextChange: (value: string) => void;
   searchText: string;
 }) {
   const t = useTranslations("OperationRecords");
 
   return (
-    <DashboardFilterPanel
+    <DashboardResourceFilterSection
       gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"
+      onReset={onReset}
+      resetDisabled={!searchText && categoryFilter === "all" && actionFilter === "all"}
     >
       <DashboardFilterField label={t("filters.search")}>
         <div className="relative">
@@ -135,7 +139,7 @@ export function OperationRecordsFilterSection({
           ))}
         </select>
       </DashboardFilterField>
-    </DashboardFilterPanel>
+    </DashboardResourceFilterSection>
   );
 }
 

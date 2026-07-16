@@ -52,6 +52,8 @@ export function getSectionNamespaces(
       "OrdersUI",
       "DashboardPagination",
       "DashboardShared",
+      // 普通订单的筛选卡、日期工具条和列表底栏统一读取这一组共享文案。
+      "OrderListFramework",
     );
   }
 

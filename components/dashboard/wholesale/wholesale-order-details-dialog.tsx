@@ -5,7 +5,7 @@ import { CheckCircle2, PencilLine, Send } from "lucide-react";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { Button } from "@/components/ui/button";
 import type {
-  Wholesale1688Order,
+  WholesaleLinked1688Order,
   WholesaleOrderListItem,
   WholesaleOrderSettlement,
 } from "@/lib/wholesale";
@@ -40,7 +40,7 @@ type WholesaleOrderDetailsDialogProps = {
   order: WholesaleOrderListItem;
   orderListAttachments: WholesaleOrderListAttachment[];
   pendingKey: string | null;
-  purchaseOrders: Wholesale1688Order[];
+  purchaseOrders: WholesaleLinked1688Order[];
   salesName: string;
   settlements: WholesaleOrderSettlement[];
 };

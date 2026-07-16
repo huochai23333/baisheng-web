@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+
+import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 
 import { markBrowserCloudSyncActivity } from "@/lib/browser-sync-recovery";
 import {
@@ -56,6 +59,8 @@ export function useOperatorReimbursementsViewModel({
   copy,
   initialData,
 }: UseOperatorReimbursementsViewModelOptions) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const supabase = getBrowserSupabaseClient();
   const [reimbursements, setReimbursements] = useState(
     initialData.reimbursements,
@@ -164,6 +169,12 @@ export function useOperatorReimbursementsViewModel({
     [currentPeriod, reimbursements],
   );
 
+  const resetFilters = useCallback(() => {
+    setPeriodFilter("all");
+    setSearchQuery("");
+    setStatusFilter("all");
+  }, []);
+
   const openCreateDialog = useCallback(() => {
     setFormState(createEmptyOperatorReimbursementForm());
     setDialogFeedback(null);
@@ -240,7 +251,13 @@ export function useOperatorReimbursementsViewModel({
         return;
       }
 
-      if (!window.confirm(copy.deleteConfirm(reimbursement.content))) {
+      if (
+        !(await confirm({
+          description: copy.deleteConfirm(reimbursement.content),
+          title: confirmT("title"),
+          tone: "danger",
+        }))
+      ) {
         return;
       }
 
@@ -264,7 +281,7 @@ export function useOperatorReimbursementsViewModel({
         setPendingAction(null);
       }
     },
-    [copy, pendingAction, supabase],
+    [confirm, confirmT, copy, pendingAction, supabase],
   );
 
   const handleReimburseCurrent = useCallback(async () => {
@@ -323,6 +340,7 @@ export function useOperatorReimbursementsViewModel({
     periodOptions,
     reimbursePending,
     reimbursements,
+    resetFilters,
     searchQuery,
     setPeriodFilter,
     setSearchQuery,

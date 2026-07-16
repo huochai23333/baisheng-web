@@ -2,10 +2,9 @@
 
 import type { ReactNode } from "react";
 
-import { LoaderCircle, PencilLine, Save, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
+import { DashboardInlineEditActions } from "@/components/dashboard/dashboard-framework-primitives";
 
 export type ServiceOrderSettingsEditingTarget =
   | { kind: "discount"; id: string }
@@ -54,25 +53,17 @@ export function ServiceOrderActionButtons({
   const t = useTranslations("Orders");
 
   return (
-    <div className="flex flex-wrap gap-2 md:justify-end">
-      {isEditing ? (
-        <>
-          <Button disabled={pendingAction !== null} onClick={onSave} type="button" variant="outline">
-            {isSaving ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
-            {t("settings.serviceOrders.save")}
-          </Button>
-          <Button disabled={pendingAction !== null} onClick={onCancel} type="button" variant="outline">
-            <X className="size-4" />
-            {t("settings.serviceOrders.cancel")}
-          </Button>
-        </>
-      ) : (
-        <Button disabled={pendingAction !== null} onClick={onEdit} type="button" variant="outline">
-          <PencilLine className="size-4" />
-          {t("settings.serviceOrders.edit")}
-        </Button>
-      )}
-    </div>
+    <DashboardInlineEditActions
+      cancelLabel={t("settings.serviceOrders.cancel")}
+      editLabel={t("settings.serviceOrders.edit")}
+      editing={isEditing}
+      onCancel={onCancel}
+      onEdit={onEdit}
+      onSave={onSave}
+      pending={pendingAction !== null}
+      saveLabel={t("settings.serviceOrders.save")}
+      saving={isSaving}
+    />
   );
 }
 

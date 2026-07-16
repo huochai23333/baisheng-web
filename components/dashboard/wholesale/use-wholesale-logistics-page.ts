@@ -11,6 +11,11 @@ import {
 
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import {
+  getOrderDatePresetRange,
+  isOrderDateValue,
+  type OrderDatePreset,
+} from "@/lib/order-date-range";
+import {
   getInitialWholesaleLogisticsData,
   getWholesaleLogisticsPage,
   requestWholesaleLogisticsRefresh,
@@ -47,7 +52,13 @@ export function useWholesaleLogisticsPage({
   const [filters, setFilters] = useState(initialFilters);
   const deferredSearchText = useDeferredValue(filters.searchText);
   const queryFilters = useMemo(
-    () => ({ ...filters, searchText: deferredSearchText }),
+    () => ({
+      ...filters,
+      searchText:
+        filters.searchMode === "exact_all_time"
+          ? filters.searchText.trim()
+          : deferredSearchText.trim(),
+    }),
     [deferredSearchText, filters],
   );
   const [page, setPage] = useState(initialPage);
@@ -184,6 +195,23 @@ export function useWholesaleLogisticsPage({
   );
 
   return {
+    activateExactSearch: () => {
+      if (!filters.searchText.trim()) return;
+      setFilters((current) => ({
+        ...current,
+        searchMode: "exact_all_time",
+        searchText: current.searchText.trim(),
+      }));
+    },
+    applyDatePreset: (preset: Exclude<OrderDatePreset, "custom">) => {
+      const range = getOrderDatePresetRange(preset);
+      setFilters((current) => ({
+        ...current,
+        fromDate: range.fromDate,
+        searchMode: "date_range",
+        toDate: range.toDate,
+      }));
+    },
     assignments,
     feedback,
     filters,
@@ -196,10 +224,16 @@ export function useWholesaleLogisticsPage({
     updatingSource,
     clearFilters: () => setFilters(initialFilters),
     dismissFeedback: () => setFeedback(null),
+    exitExactSearch: () =>
+      setFilters((current) => ({
+        ...current,
+        searchMode: "date_range",
+        searchText: "",
+      })),
     loadMore,
     reloadPage,
     setFilters: (changes: Partial<WholesaleLogisticsFilters>) =>
-      setFilters((current) => ({ ...current, ...changes })),
+      setFilters((current) => applyFilterChanges(current, changes)),
     assignStores: (
       storeNames: string[],
       salesUserId: string,
@@ -226,6 +260,36 @@ export function useWholesaleLogisticsPage({
         );
       }),
   };
+}
+
+function applyFilterChanges(
+  current: WholesaleLogisticsFilters,
+  changes: Partial<WholesaleLogisticsFilters>,
+): WholesaleLogisticsFilters {
+  const nextFromDate = changes.fromDate ?? current.fromDate;
+  const nextToDate = changes.toDate ?? current.toDate;
+
+  if (
+    (changes.fromDate !== undefined && !isOrderDateValue(changes.fromDate)) ||
+    (changes.toDate !== undefined && !isOrderDateValue(changes.toDate))
+  ) {
+    return current;
+  }
+
+  const next = {
+    ...current,
+    ...changes,
+    searchMode: "date_range" as const,
+  };
+
+  if (changes.fromDate !== undefined && nextFromDate > nextToDate) {
+    next.toDate = nextFromDate;
+  }
+  if (changes.toDate !== undefined && nextToDate < nextFromDate) {
+    next.fromDate = nextToDate;
+  }
+
+  return next;
 }
 
 function requireBrowserClient() {

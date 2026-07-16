@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+
+import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 
 import { markBrowserCloudSyncActivity } from "@/lib/browser-sync-recovery";
 import {
@@ -55,6 +58,8 @@ export function useAdminAnnouncementsViewModel({
   copy,
   initialData,
 }: UseAdminAnnouncementsViewModelOptions) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const supabase = getBrowserSupabaseClient();
   const [announcements, setAnnouncements] = useState(initialData.announcements);
   const [hasPermission, setHasPermission] = useState(initialData.hasPermission);
@@ -119,6 +124,11 @@ export function useAdminAnnouncementsViewModel({
       return statusMatches && audienceMatches;
     });
   }, [announcements, audienceFilter, statusFilter]);
+
+  const resetFilters = useCallback(() => {
+    setAudienceFilter("all");
+    setStatusFilter("all");
+  }, []);
 
   const openCreateDialog = useCallback(() => {
     setEditingAnnouncement(null);
@@ -289,7 +299,13 @@ export function useAdminAnnouncementsViewModel({
         return;
       }
 
-      if (!window.confirm(copy.deleteConfirm(announcement.title))) {
+      if (
+        !(await confirm({
+          description: copy.deleteConfirm(announcement.title),
+          title: confirmT("title"),
+          tone: "danger",
+        }))
+      ) {
         return;
       }
 
@@ -313,7 +329,7 @@ export function useAdminAnnouncementsViewModel({
         setPendingAction(null);
       }
     },
-    [copy, pendingAction, supabase],
+    [confirm, confirmT, copy, pendingAction, supabase],
   );
 
   return {
@@ -333,6 +349,7 @@ export function useAdminAnnouncementsViewModel({
     openEditDialog,
     pageFeedback,
     pendingAction,
+    resetFilters,
     setAudienceFilter,
     setStatusFilter,
     statusFilter,

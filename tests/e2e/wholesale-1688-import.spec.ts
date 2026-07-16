@@ -10,6 +10,24 @@ import {
 } from "./helpers/auth";
 
 test.describe("wholesale 1688 import", () => {
+  test("salesman can open claim creation and group adjustment", async ({
+    page,
+  }) => {
+    await loginAs(page, "salesman");
+    await page.goto("/salesman/wholesale/order-claims");
+
+    await expect(page.getByRole("button", { name: "上传 1688 文件" })).toBeVisible();
+    await page.getByRole("button", { name: /认领大厅/ }).click();
+    const hallRow = page.getByRole("row").filter({ hasText: "1688-LOCAL-004" });
+    await hallRow.getByRole("button", { name: "认领" }).click();
+    await expect(page.getByRole("dialog", { name: "认领采购订单" })).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    await page.getByRole("button", { name: /已认领/ }).click();
+    await page.getByRole("button", { name: "调整关联" }).first().click();
+    await expect(page.getByRole("dialog", { name: "调整关联" })).toBeVisible();
+  });
+
   test("hall claim button stays beside the order number", async ({ page }) => {
     await loginAs(page, "administrator");
     await page.goto("/admin/wholesale/order-claims");
@@ -46,19 +64,20 @@ test.describe("wholesale 1688 import", () => {
     });
     await hallClaimRow.getByRole("button", { name: "认领" }).click();
 
-    const dialog = page.getByRole("dialog", { name: "1688-LOCAL-004" });
+    const dialog = page.getByRole("dialog", { name: "认领采购订单" });
     const customerSelect = dialog.getByLabel("客户");
-    const orderSelect = dialog.getByLabel("关联批发订单");
-    await expect(orderSelect).toBeDisabled();
+    const orderSearch = dialog.getByLabel("搜索批发订单");
+    await expect(orderSearch).toBeDisabled();
 
     await customerSelect.selectOption({ label: "Wholesale Alpha" });
-    await expect(orderSelect).toBeEnabled();
-    await expect(orderSelect).toHaveValue("");
-    await expect(orderSelect.locator("option").nth(1)).toContainText(" · ");
+    await expect(orderSearch).toBeEnabled();
+    const firstOrderCheckbox = dialog.getByRole("checkbox").first();
+    await expect(firstOrderCheckbox.locator("xpath=..")).toContainText(" · ");
 
-    await orderSelect.selectOption(await firstNonEmptyOptionValue(orderSelect));
+    await firstOrderCheckbox.check();
+    await expect(dialog.getByText("已选择 1 笔")).toBeVisible();
     await customerSelect.selectOption({ label: "Wholesale Beta" });
-    await expect(orderSelect).toHaveValue("");
+    await expect(dialog.getByText("已选择 0 笔")).toBeVisible();
 
     await expectNoDocumentHorizontalOverflow(page);
     await page.setViewportSize({ height: 844, width: 390 });
@@ -99,61 +118,85 @@ test.describe("wholesale 1688 import", () => {
 
     await page.getByRole("button", { name: /认领大厅/ }).click();
     await page.getByLabel("收货人名字").fill(`收货人${suffix}`);
-    await expect(page.getByText(orderNumbers[0])).toBeVisible();
-    await expect(page.getByText(orderNumbers[1])).toBeVisible();
+    await expect(page.getByText(orderNumbers[0]).first()).toBeVisible();
+    await expect(page.getByText(orderNumbers[1]).first()).toBeVisible();
     await expect(page.getByText(orderNumbers[2])).toBeVisible();
 
     await page.getByLabel("采购开始日期").fill(shanghaiDateDaysAgo(3));
     await page.getByLabel("采购结束日期").fill(shanghaiDateDaysAgo(0));
-    await expect(page.getByText(orderNumbers[0])).toBeVisible();
-    await expect(page.getByText(orderNumbers[1])).toBeVisible();
-    await expect(page.getByText(orderNumbers[2])).toHaveCount(0);
+    await expect(page.getByText(orderNumbers[0]).first()).toBeVisible();
+    await expect(page.getByText(orderNumbers[1]).first()).toBeVisible();
+    await expect(page.getByText(orderNumbers[2]).first()).toBeVisible();
 
     await page
       .getByRole("checkbox", {
         name: "选择当前筛选结果中的全部采购订单",
       })
       .check();
-    await expect(page.getByText("已选择 2 条采购订单")).toBeVisible();
+    await expect(page.getByText("已选择 3 条采购订单")).toBeVisible();
 
     await page.setViewportSize({ height: 844, width: 390 });
     await expectNoDocumentHorizontalOverflow(page);
     await expectNoCompressedText(page);
     await page.getByRole("button", { name: "批量认领" }).click();
 
-    const bulkDialog = page.getByRole("dialog", {
-      name: "批量认领采购订单",
-    });
+    const bulkDialog = page.getByRole("dialog", { name: "认领采购订单" });
     await bulkDialog.getByLabel("客户").selectOption({
       label: "Wholesale Alpha",
     });
-    const orderSelect = bulkDialog.getByLabel("关联批发订单");
-    await orderSelect.selectOption(await firstNonEmptyOptionValue(orderSelect));
+    await bulkDialog.getByRole("checkbox").first().check();
     await expectNoDocumentHorizontalOverflow(page);
     await expectNoCompressedText(page);
-    await bulkDialog.getByRole("button", { name: "确认批量认领" }).click();
-    await expect(page.getByText("已认领 2 条采购订单。")).toBeVisible();
+    await bulkDialog.getByRole("button", { name: "确认认领" }).click();
+    await expect(page.getByText("已认领 3 条采购订单。")).toBeVisible();
 
     await page.setViewportSize({ height: 900, width: 1440 });
     await page.getByRole("button", { name: /已认领/ }).click();
-    await expect(page.getByText(orderNumbers[0])).toBeVisible();
-    await expect(page.getByText(orderNumbers[1])).toBeVisible();
+    await expect(page.getByText(orderNumbers[0]).first()).toBeVisible();
+    await expect(page.getByText(orderNumbers[1]).first()).toBeVisible();
     await expect(
       page.getByRole("checkbox", {
         name: "选择当前筛选结果中的全部采购订单",
       }),
     ).toHaveCount(0);
 
-    // 清理本用例写入的数据，避免串行回归的后续用例受到额外订单影响。
+    // 调整时增加第二笔批发订单，并把误选的第二笔 1688 订单移出认领组。
+    let claimedGroupRow = page.getByRole("row").filter({
+      hasText: orderNumbers[0],
+    });
+    await claimedGroupRow.getByRole("button", { name: "调整关联" }).click();
+    let editDialog = page.getByRole("dialog", { name: "调整关联" });
+    await expect(editDialog.getByRole("checkbox").first()).toBeVisible();
+    expect(await editDialog.getByRole("checkbox").count()).toBeGreaterThan(1);
+    await editDialog.getByRole("checkbox").nth(1).check();
+    await editDialog
+      .getByRole("button", { name: `从本组移出 ${orderNumbers[1]}` })
+      .click();
+    await editDialog.getByRole("button", { name: "保存调整" }).click();
+    await expect(page.getByText("认领关系已更新。")).toBeVisible();
+    await expect(page.getByText(orderNumbers[1])).toHaveCount(0);
+
+    // 刷新后确认调整结果持久存在，再撤销整组，让采购订单回到待认领列表。
+    await page.reload();
+    await page.getByRole("button", { name: /已认领/ }).click();
+    claimedGroupRow = page.getByRole("row").filter({
+      hasText: orderNumbers[0],
+    });
+    await expect(claimedGroupRow).toBeVisible();
+    await expect(page.getByText(orderNumbers[1])).toHaveCount(0);
+    await claimedGroupRow.getByRole("button", { name: "调整关联" }).click();
+    editDialog = page.getByRole("dialog", { name: "调整关联" });
+    await editDialog.getByRole("button", { name: "撤销整组关联" }).click();
+    await editDialog.getByRole("button", { name: "确认撤销" }).click();
+    await expect(page.getByText("认领已撤销。")).toBeVisible();
+
+    await page.getByRole("button", { name: /认领大厅/ }).click();
+    await page.getByLabel("收货人名字").fill(`收货人${suffix}`);
     for (const orderNumber of orderNumbers.slice(0, 2)) {
       const row = page.getByRole("row").filter({ hasText: orderNumber });
       await row.getByRole("button", { name: "移出" }).click();
       await expect(row).toHaveCount(0);
     }
-
-    await page.getByRole("button", { name: /认领大厅/ }).click();
-    await page.getByRole("button", { name: "清空筛选" }).click();
-    await page.getByLabel("收货人名字").fill(`收货人${suffix}`);
     const noDateRow = page.getByRole("row").filter({
       hasText: orderNumbers[2],
     });
@@ -290,13 +333,6 @@ async function expectNoDocumentHorizontalOverflow(page: Page) {
   );
 
   expect(overflowPixels).toBeLessThanOrEqual(2);
-}
-
-async function firstNonEmptyOptionValue(select: ReturnType<Page["locator"]>) {
-  const value = await select.locator("option").nth(1).getAttribute("value");
-  expect(value).not.toBeNull();
-  expect(value).not.toBe("");
-  return value ?? "";
 }
 
 async function expectNoCompressedText(page: Page) {

@@ -1,58 +1,82 @@
 "use client";
 
-import { RefreshCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { DashboardOrderFilterSection } from "@/components/dashboard/dashboard-order-filter-section";
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import {
+  getDefaultOrderDateRange,
+  type OrderDatePreset,
+} from "@/lib/order-date-range";
+import type { WholesaleClaimFilters } from "@/lib/wholesale-claims-page";
 
-import type { WholesaleClaimFilters } from "./wholesale-claims-view-model";
+type QuickOrderDatePreset = Exclude<OrderDatePreset, "custom">;
 
 export function WholesaleClaimsFiltersPanel({
   filters,
-  hasActiveFilters,
   onChange,
   onClear,
+  onExactSearch,
+  onExitExactSearch,
+  onPreset,
 }: {
   filters: WholesaleClaimFilters;
-  hasActiveFilters: boolean;
   onChange: (changes: Partial<WholesaleClaimFilters>) => void;
   onClear: () => void;
+  onExactSearch: () => void;
+  onExitExactSearch: () => void;
+  onPreset: (preset: QuickOrderDatePreset) => void;
 }) {
   const uiText = useTranslations(
     "UiText.components_dashboard_wholesale_wholesale_claims_section",
   );
+  const frameworkT = useTranslations("OrderListFramework");
+  const defaultRange = getDefaultOrderDateRange();
+  const resetDisabled =
+    filters.searchText === "" &&
+    filters.recipientName === "" &&
+    filters.searchMode === "date_range" &&
+    filters.fromDate === defaultRange.fromDate &&
+    filters.toDate === defaultRange.toDate;
 
   return (
-    <DashboardFilterPanel
-      footer={
-        <div className="flex justify-end">
+    <DashboardOrderFilterSection
+      customInputId="wholesale-claims-date-from"
+      dateRange={{ fromDate: filters.fromDate, toDate: filters.toDate }}
+      exactOrderNumber={
+        filters.searchMode === "exact_all_time"
+          ? filters.exactOrderNumber
+          : null
+      }
+      gridClassName="sm:grid-cols-2 xl:grid-cols-4"
+      onExitExactSearch={onExitExactSearch}
+      onPresetChange={onPreset}
+      onReset={onClear}
+      resetDisabled={resetDisabled}
+    >
+      <DashboardFilterField label={uiText("attribute005")}>
+        <div className="grid gap-2">
+          <input
+            className={dashboardFilterInputClassName}
+            onChange={(event) => onChange({ searchText: event.target.value })}
+            placeholder={uiText("attribute006")}
+            type="search"
+            value={filters.searchText}
+          />
           <Button
-            className="min-h-10 whitespace-normal rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
-            disabled={!hasActiveFilters}
-            onClick={onClear}
+            className="min-h-9 rounded-full"
+            disabled={!filters.searchText.trim()}
+            onClick={onExactSearch}
             type="button"
             variant="outline"
           >
-            <RefreshCcw className="size-4 shrink-0" />
-            {uiText("clearFilters")}
+            {frameworkT("exactSearch.action")}
           </Button>
         </div>
-      }
-      gridClassName="sm:grid-cols-2 xl:grid-cols-4"
-    >
-      <DashboardFilterField label={uiText("attribute005")}>
-        <input
-          className={dashboardFilterInputClassName}
-          onChange={(event) => onChange({ searchText: event.target.value })}
-          placeholder={uiText("attribute006")}
-          type="search"
-          value={filters.searchText}
-        />
       </DashboardFilterField>
       <DashboardFilterField label={uiText("recipientFilterLabel")}>
         <input
@@ -65,34 +89,44 @@ export function WholesaleClaimsFiltersPanel({
       </DashboardFilterField>
       <DashboardFilterField label={uiText("purchaseFromLabel")}>
         <input
+          id="wholesale-claims-date-from"
           className={dashboardFilterInputClassName}
           onChange={(event) => {
             const nextDate = event.target.value;
+            if (!nextDate) return;
             onChange({
-              purchasedFromDate: nextDate,
-              ...(filters.purchasedToDate &&
-              nextDate &&
-              filters.purchasedToDate < nextDate
-                ? { purchasedToDate: nextDate }
+              fromDate: nextDate,
+              exactOrderNumber: "",
+              searchMode: "date_range",
+              ...(filters.toDate < nextDate
+                ? { toDate: nextDate }
                 : {}),
             });
           }}
+          required
           type="date"
-          value={filters.purchasedFromDate}
+          value={filters.fromDate}
         />
       </DashboardFilterField>
       <DashboardFilterField label={uiText("purchaseToLabel")}>
         <input
           className={dashboardFilterInputClassName}
-          min={filters.purchasedFromDate || undefined}
-          onChange={(event) =>
-            onChange({ purchasedToDate: event.target.value })
-          }
+          min={filters.fromDate}
+          onChange={(event) => {
+            const nextDate = event.target.value;
+            if (!nextDate) return;
+            onChange({
+              exactOrderNumber: "",
+              searchMode: "date_range",
+              toDate: nextDate,
+            });
+          }}
+          required
           type="date"
-          value={filters.purchasedToDate}
+          value={filters.toDate}
         />
       </DashboardFilterField>
-    </DashboardFilterPanel>
+    </DashboardOrderFilterSection>
   );
 }
 

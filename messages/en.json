@@ -27,6 +27,60 @@
     "page": "Page {page} of {pageCount}",
     "range": "{start}-{end} of {total}"
   },
+  "DashboardFramework": {
+    "filters": {
+      "title": "Filter content",
+      "description": "Choose filters to quickly find the content you need.",
+      "reset": "Restore default filters"
+    },
+    "confirm": {
+      "title": "Confirm this action",
+      "cancel": "Not now",
+      "accept": "Confirm"
+    },
+    "files": {
+      "select": "Choose files"
+    },
+    "actions": {
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel"
+    }
+  },
+  "OrderListFramework": {
+    "filters": {
+      "title": "Filter Orders",
+      "description": "Use dates and other filters to find the orders you need.",
+      "reset": "Restore Default Range"
+    },
+    "datePresets": {
+      "label": "Date range presets",
+      "last30Days": "Last 30 Days",
+      "currentMonth": "This Month",
+      "previousMonth": "Previous Month",
+      "last3Months": "Last 3 Months",
+      "custom": "Custom"
+    },
+    "exactSearch": {
+      "action": "Find This Order Across Dates",
+      "active": "Exact all-time search: {orderNumber}",
+      "exit": "Exit All-Time Search"
+    },
+    "list": {
+      "title": "Order List",
+      "description": "Orders matching the current filters are shown here.",
+      "loaded": "Showing {shown} / {total} {unit}",
+      "range": "Showing {start}–{end} / {total} {unit}",
+      "loadMore": "Load More",
+      "loadingMore": "Loading more…"
+    },
+    "units": {
+      "orders": "orders",
+      "purchaseOrders": "1688 orders",
+      "claimGroups": "claim groups",
+      "logisticsOrders": "logistics orders"
+    }
+  },
   "AuthShell": {
     "brandTitle": "Management System",
     "brandSubtitle": "Curated Admin Console",
@@ -766,8 +820,6 @@
         "edit": "Edit Order",
         "requestEdit": "Request Edit"
       },
-      "listCount": "Showing {shown} of {total} orders.",
-      "loadingList": "Loading orders that match the current filters.",
       "statuses": {
         "unsettled": "Unsettled",
         "partial_settled": "Partially Settled",
@@ -829,8 +881,7 @@
         "recorded": "Recorded",
         "missing": "Missing Freight",
         "search": "Search",
-        "searchPlaceholder": "Package, tracking number, or store",
-        "clear": "Clear Filters"
+        "searchPlaceholder": "Package, tracking number, or store"
       },
       "summary": {
         "orders": "Total Orders",
@@ -861,10 +912,7 @@
       },
       "list": {
         "title": "Logistics Orders",
-        "shown": "Showing {shown} of {total}",
-        "loading": "Loading logistics orders…",
-        "loadingMore": "Loading more…",
-        "loadMore": "Load More"
+        "loading": "Loading logistics orders…"
       },
       "assignments": {
         "title": "Store Assignment Settings",
@@ -1735,9 +1783,9 @@
       "forceDeleteSuccess": "Order {orderNumber} was permanently deleted."
     },
     "summary": {
-      "total": "Total Orders",
-      "pending": "Pending Orders",
-      "completed": "Completed Orders"
+      "total": "Orders in Current Range",
+      "pending": "Pending in Current Range",
+      "completed": "Completed in Current Range"
     },
     "states": {
       "noViewPermissionTitle": "No Access",
@@ -1754,8 +1802,7 @@
       "orderingUserPlaceholder": "Search by client name or email",
       "createdFromDateLabel": "Order Date From",
       "createdToDateLabel": "Order Date To",
-      "resultSummary": "{total} total, {matched} matched",
-      "clear": "Clear Filters"
+      "resultSummary": "{total} in the current range, {matched} matched"
     },
     "table": {
       "orderNumber": "Order Number",
@@ -3837,16 +3884,47 @@
       "text010": " This customer does not have a wholesale order that can be associated. Please create a new order before claiming it. ",
       "attribute001": "Select the order form exported from 1688 and confirm it is correct before receiving it and entering the claim list. The system will sort your items to be sorted first according to the name of the consignee.",
       "attribute004": "After confirming the customer and wholesale orders, this purchase order will enter claimed.",
+      "noMatchingOrders": "No wholesale orders match your search",
+      "orderSearchLabel": "Search wholesale orders",
+      "orderSearchPlaceholder": "Enter an order number or amount",
       "selectCustomerFirst": "Select a customer first",
       "selectOrder": "Select this customer's order",
+      "selectedOrderCount": "{count} selected",
+      "exactSearchAction": "Find This Order Across Dates",
+      "exactSearchActive": "Exact all-time search is active",
+      "exitExactSearch": "Exit All-Time Search",
+      "loadingOrders": "Loading wholesale orders…",
+      "loadMoreOrders": "Load More Wholesale Orders",
       "text006": " The system “based on the consignee’s name”",
       "text008": "”, please confirm the wholesale order to be associated. "
     },
-    "components_dashboard_wholesale_wholesale_bulk_claim_dialog": {
-      "title": "Claim purchase orders together",
-      "description": "Assign the {count} selected purchase orders to the same client and wholesale order.",
-      "selectionSummary": "You selected {count} purchase orders. Confirm that they belong to the same client and wholesale order.",
-      "submit": "Confirm batch claim"
+    "components_dashboard_wholesale_wholesale_claim_group_dialog": {
+      "cancelGroup": "Remove all links",
+      "cancelWarning": "After removal, every 1688 order in this group will return to the waiting list. The wholesale orders will not be deleted.",
+      "confirmCancel": "Confirm removal",
+      "create": "Confirm claim",
+      "createDescription": "Confirm the client for the {count} selected 1688 orders, then select one or more wholesale orders.",
+      "createTitle": "Claim purchase orders",
+      "editDescription": "You can change the client, update wholesale orders, or remove a mistakenly selected 1688 order.",
+      "editTitle": "Adjust links",
+      "keepGroup": "Keep links",
+      "purchaseOrdersLabel": "1688 orders in this group",
+      "removePurchaseOrder": "Remove {orderNumber} from this group",
+      "save": "Save changes",
+      "selectionSummary": "This link includes {count} 1688 orders"
+    },
+    "components_dashboard_wholesale_wholesale_claim_groups_table": {
+      "actions": "Actions",
+      "adjust": "Adjust links",
+      "claimedBy": "First claimed",
+      "claimedSummary": "First claimed by {name}, {time}",
+      "customer": "Client",
+      "group": "Claim group",
+      "groupNumber": "Claim group {number}",
+      "purchaseOrders": "1688 orders",
+      "updatedBy": "Last adjusted",
+      "updatedSummary": "Last adjusted by {name}, {time}",
+      "wholesaleOrders": "Wholesale orders"
     },
     "components_dashboard_wholesale_wholesale_claims_section": {
       "text003": " Strip ",
@@ -3859,9 +3937,14 @@
       "attribute003": "Order claim",
       "attribute004": "Purchase order claim",
       "attribute007": "No purchase order yet",
+      "assistedEmptyDescription": "There are no 1688 orders waiting for client confirmation.",
       "bulkClaim": "Claim selected orders",
-      "clearFilters": "Clear filters",
+      "claimedBoardCount": "{groupCount} groups · {purchaseCount} 1688 orders",
+      "claimedEmptyDescription": "Claimed orders will appear here in groups with both sides of the link.",
+      "claimedEmptyTitle": "No claimed orders",
       "clearSelection": "Clear selection",
+      "hallEmptyDescription": "There are no 1688 orders waiting to be claimed.",
+      "purchaseBoardCount": "{count} 1688 orders",
       "purchaseFromLabel": "Purchase start date",
       "purchaseToLabel": "Purchase end date",
       "recipientFilterLabel": "Recipient name",
@@ -3892,12 +3975,16 @@
       "text003": "Auxiliary classification",
       "text023": " Adjust assignment ",
       "text001": " 1688 order number ",
+      "missingItem": "Item not recorded",
+      "missingStatus": "Status not recorded",
+      "notMatched": "Client not matched",
       "selectAll": "Select all purchase orders in the current results",
       "selectOrder": "Select purchase order {orderNumber}"
     },
     "components_dashboard_wholesale_wholesale_client": {
       "text001": " Reload ",
-      "text002": "Logistics records could not be loaded. Please try again later."
+      "text002": "Logistics records could not be loaded. Please try again later.",
+      "claimsLoadError": "1688 orders could not be loaded. Please try again later."
     },
     "components_dashboard_wholesale_wholesale_commission_records": {
       "text002": "Client",
@@ -4051,7 +4138,6 @@
       "attribute014": "Application instructions"
     },
     "components_dashboard_wholesale_wholesale_order_filters": {
-      "text003": " Clear filter ",
       "text004": "All status",
       "attribute004": "Client",
       "attribute005": "Salesman",
@@ -4059,8 +4145,6 @@
       "attribute001": "Search orders",
       "attribute003": "Order status",
       "text008": "All customers",
-      "text001": "Find order",
-      "text002": " Search by order, 1688 order number, customer, salesperson, status, or date. ",
       "attribute002": "Order number, customer, or 1688 order number",
       "attribute007": "Order date arrives",
       "attribute006": "Order date from",
@@ -4126,7 +4210,6 @@
       "attribute002": "Wholesale business",
       "attribute003": "Wholesale order",
       "text002": " Reload ",
-      "text004": " Continue loading ",
       "attribute004": "Order list",
       "text001": " Create new order ",
       "attribute006": "No matching orders yet",

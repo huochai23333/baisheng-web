@@ -90,6 +90,7 @@ export async function POST(request: Request) {
         orderedToDate: filters.orderedToDate,
         salesUserId: filters.salesUserId === "all" ? "" : filters.salesUserId,
         searchText: filters.searchText,
+        searchMode: "date_range",
         status:
           filters.status === "settled" ||
           filters.status === "partial_settled" ||

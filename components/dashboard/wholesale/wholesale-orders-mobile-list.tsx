@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type {
-  Wholesale1688Order,
+  WholesaleLinked1688Order,
   WholesaleCustomer,
   WholesaleOrderListItem,
   WholesaleOrderSettlement,
@@ -39,7 +39,7 @@ type WholesaleOrdersMobileListProps = {
   orders: WholesaleOrderListItem[];
   orderSettlementsByOrderId: Map<string, WholesaleOrderSettlement[]>;
   profilesById: Map<string, WholesaleProfile>;
-  purchaseOrdersByOrderId: Map<string, Wholesale1688Order[]>;
+  purchaseOrdersByOrderId: Map<string, WholesaleLinked1688Order[]>;
   pendingKey: string | null;
 };
 export function WholesaleOrdersMobileList({

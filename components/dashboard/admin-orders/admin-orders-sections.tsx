@@ -6,18 +6,16 @@ import { useTranslations } from "next-intl";
 import { ClipboardList, Plus } from "lucide-react";
 
 import { useLocale } from "@/components/i18n/locale-provider";
-import { type AdminOrderRow } from "@/lib/admin-orders";
+import { type AdminOrderRow, type AdminOrdersFilters } from "@/lib/admin-orders";
+import { type OrderDatePreset } from "@/lib/order-date-range";
 
 import { Button } from "../../ui/button";
-import { DashboardSectionHeader } from "../dashboard-section-header";
 import {
-  DashboardFilterField,
-  DashboardFilterPanel,
-  DashboardSectionPanel,
-  DashboardTableFrame,
-  dashboardFilterInputClassName,
-} from "../dashboard-section-panel";
-import { DashboardPaginationControls } from "../dashboard-pagination-controls";
+  DashboardOrderListSection,
+  DashboardOrderPaginationActions,
+} from "../dashboard-order-list-section";
+import { DashboardSectionHeader } from "../dashboard-section-header";
+import { DashboardTableFrame } from "../dashboard-section-panel";
 import { EmptyState, formatDateTime } from "../dashboard-shared-ui";
 import {
   OrderHeaderCell,
@@ -32,6 +30,7 @@ import {
   resolveOrderTypeMeta,
   resolveOrderUserLabel,
 } from "./admin-orders-utils";
+import { AdminOrdersFilterPanel } from "./admin-orders-filters";
 
 type OrdersHeaderSectionProps = {
   badge: string;
@@ -58,20 +57,17 @@ type OrdersPaginationState = {
 
 type OrdersTableSectionProps = {
   canViewOrderCosts: boolean;
-  filters: {
-    orderEntryUser: string;
-    orderNumber: string;
-    orderingUser: string;
-    createdFromDate: string;
-    createdToDate: string;
-  };
+  filters: AdminOrdersFilters;
   matchedOrdersCount: number;
   onClearFilters: () => void;
   onCreatedFromDateChange: (value: string) => void;
   onCreatedToDateChange: (value: string) => void;
+  onDatePresetChange: (preset: Exclude<OrderDatePreset, "custom">) => void;
+  onExitExactAllTimeSearch: () => void;
   onOrderEntryUserChange: (value: string) => void;
   onOrderNumberChange: (value: string) => void;
   onOrderingUserChange: (value: string) => void;
+  onSearchExactOrderAllTime: () => void;
   onSelectOrder: (order: AdminOrderRow) => void;
   orderTypeMetaById: Map<string, ReturnType<typeof getOrderTypeMetaFromCategory>>;
   pagination: OrdersPaginationState;
@@ -81,6 +77,11 @@ type OrdersTableSectionProps = {
   showOrderEntryFilter: boolean;
   showOrderingColumn: boolean;
   showOrderingFilter: boolean;
+  summary: {
+    completed: number;
+    pending: number;
+    total: number;
+  };
   totalOrdersCount: number;
   userLabelById: Map<string, string>;
 };
@@ -130,9 +131,12 @@ export const OrdersTableSection = memo(function OrdersTableSection({
   onClearFilters,
   onCreatedFromDateChange,
   onCreatedToDateChange,
+  onDatePresetChange,
+  onExitExactAllTimeSearch,
   onOrderEntryUserChange,
   onOrderNumberChange,
   onOrderingUserChange,
+  onSearchExactOrderAllTime,
   onSelectOrder,
   orderTypeMetaById,
   pagination,
@@ -142,126 +146,82 @@ export const OrdersTableSection = memo(function OrdersTableSection({
   showOrderEntryFilter,
   showOrderingColumn,
   showOrderingFilter,
+  summary,
   totalOrdersCount,
   userLabelById,
 }: OrdersTableSectionProps) {
   const t = useTranslations("Orders");
   const ordersUiT = useTranslations("OrdersUI");
+  const frameworkT = useTranslations("OrderListFramework");
   const { locale } = useLocale();
   const orderUiCopy = createOrdersUiCopy(ordersUiT);
-  const hasActiveFilters = Boolean(
-    filters.orderNumber ||
-      filters.orderEntryUser ||
-      filters.orderingUser ||
-      filters.createdFromDate ||
-      filters.createdToDate,
-  );
 
   return (
-    <DashboardSectionPanel className="p-4 sm:p-6 xl:p-8">
-      <DashboardFilterPanel
-        className="mb-5"
-        gridClassName={
-          showOrderEntryFilter && showOrderingFilter
-            ? "md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_auto]"
-            : showOrderingFilter
-              ? "md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_auto]"
-              : "md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_auto]"
-        }
-      >
-        <DashboardFilterField label={t("filters.orderNumberLabel")}>
-          <input
-            className={dashboardFilterInputClassName}
-            onChange={(event) => onOrderNumberChange(event.target.value)}
-            placeholder={t("filters.orderNumberPlaceholder")}
-            type="text"
-            value={filters.orderNumber}
-          />
-        </DashboardFilterField>
+    <>
+      <AdminOrdersFilterPanel
+        filters={filters}
+        matchedOrdersCount={matchedOrdersCount}
+        onClearFilters={onClearFilters}
+        onCreatedFromDateChange={onCreatedFromDateChange}
+        onCreatedToDateChange={onCreatedToDateChange}
+        onDatePresetChange={onDatePresetChange}
+        onExitExactAllTimeSearch={onExitExactAllTimeSearch}
+        onOrderEntryUserChange={onOrderEntryUserChange}
+        onOrderNumberChange={onOrderNumberChange}
+        onOrderingUserChange={onOrderingUserChange}
+        onSearchExactOrderAllTime={onSearchExactOrderAllTime}
+        showOrderEntryFilter={showOrderEntryFilter}
+        showOrderingFilter={showOrderingFilter}
+        totalOrdersCount={totalOrdersCount}
+      />
 
-        {showOrderEntryFilter ? (
-          <DashboardFilterField label={t("filters.orderEntryUserLabel")}>
-            <input
-              className={dashboardFilterInputClassName}
-              onChange={(event) => onOrderEntryUserChange(event.target.value)}
-              placeholder={t("filters.orderEntryUserPlaceholder")}
-              type="text"
-              value={filters.orderEntryUser}
-            />
-          </DashboardFilterField>
-        ) : null}
-
-        {showOrderingFilter ? (
-          <DashboardFilterField label={t("filters.orderingUserLabel")}>
-            <input
-              className={dashboardFilterInputClassName}
-              onChange={(event) => onOrderingUserChange(event.target.value)}
-              placeholder={t("filters.orderingUserPlaceholder")}
-              type="text"
-              value={filters.orderingUser}
-            />
-          </DashboardFilterField>
-        ) : null}
-
-        <DashboardFilterField label={t("filters.createdFromDateLabel")}>
-          <input
-            className={dashboardFilterInputClassName}
-            onChange={(event) => onCreatedFromDateChange(event.target.value)}
-            type="date"
-            value={filters.createdFromDate}
-          />
-        </DashboardFilterField>
-
-        <DashboardFilterField label={t("filters.createdToDateLabel")}>
-          <input
-            className={dashboardFilterInputClassName}
-            min={filters.createdFromDate || undefined}
-            onChange={(event) => onCreatedToDateChange(event.target.value)}
-            type="date"
-            value={filters.createdToDate}
-          />
-        </DashboardFilterField>
-
-        <div className="flex flex-col justify-end gap-3 lg:items-end">
-          <p className="text-sm text-[#69747d]">
-            {t("filters.resultSummary", {
-              total: totalOrdersCount,
-              matched: matchedOrdersCount,
-            })}
-          </p>
-          <Button
-            disabled={!hasActiveFilters}
-            onClick={onClearFilters}
-            type="button"
-            variant="outline"
-          >
-            {t("filters.clear")}
-          </Button>
-        </div>
-      </DashboardFilterPanel>
-
-      {matchedOrdersCount === 0 ? (
-        <EmptyState
-          description={t("states.noMatchDescription")}
-          icon={<ClipboardList className="size-6" />}
-          title={t("states.noMatchTitle")}
-        />
-      ) : (
-        <DashboardTableFrame
-          footer={
-            <DashboardPaginationControls
-              endIndex={pagination.endIndex}
+      <DashboardOrderListSection
+        controls={
+          matchedOrdersCount > 0 ? (
+            <DashboardOrderPaginationActions
               hasNextPage={pagination.hasNextPage}
               hasPreviousPage={pagination.hasPreviousPage}
               onNextPage={pagination.onNextPage}
               onPreviousPage={pagination.onPreviousPage}
               page={pagination.page}
               pageCount={pagination.pageCount}
-              startIndex={pagination.startIndex}
-              totalItems={pagination.totalItems}
             />
-          }
-        >
+          ) : undefined
+        }
+        description={frameworkT("list.description")}
+        progress={
+          matchedOrdersCount > 0
+            ? {
+                end: pagination.endIndex,
+                kind: "range",
+                start: pagination.startIndex,
+                total: pagination.totalItems,
+                unit: "orders",
+              }
+            : null
+        }
+        title={frameworkT("list.title")}
+      >
+        <div className="mb-5 grid gap-2 text-sm sm:grid-cols-3">
+          <p className="rounded-xl bg-[#f7f5f2] px-3 py-2 text-[#69747d]">
+            {t("summary.total")}: <strong className="text-[#2b3942]">{summary.total}</strong>
+          </p>
+          <p className="rounded-xl bg-[#f7f5f2] px-3 py-2 text-[#69747d]">
+            {t("summary.pending")}: <strong className="text-[#2b3942]">{summary.pending}</strong>
+          </p>
+          <p className="rounded-xl bg-[#f7f5f2] px-3 py-2 text-[#69747d]">
+            {t("summary.completed")}: <strong className="text-[#2b3942]">{summary.completed}</strong>
+          </p>
+        </div>
+
+        {matchedOrdersCount === 0 ? (
+          <EmptyState
+            description={t("states.noMatchDescription")}
+            icon={<ClipboardList className="size-6" />}
+            title={t("states.noMatchTitle")}
+          />
+        ) : (
+          <DashboardTableFrame>
             <table className="min-w-[1120px] w-full table-fixed border-collapse">
               <thead className="bg-[#f7f5f2]">
                 <tr className="border-b border-[#efebe5]">
@@ -331,8 +291,9 @@ export const OrdersTableSection = memo(function OrdersTableSection({
                 ))}
               </tbody>
             </table>
-        </DashboardTableFrame>
-      )}
-    </DashboardSectionPanel>
+          </DashboardTableFrame>
+        )}
+      </DashboardOrderListSection>
+    </>
   );
 });

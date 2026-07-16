@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 
-import { ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useLocale } from "@/components/i18n/locale-provider";
@@ -11,7 +10,10 @@ import type {
   CompanyExpensesPageData,
 } from "@/lib/company-expenses";
 
-import { EmptyState, PageBanner } from "../dashboard-shared-ui";
+import {
+  DashboardAccessState,
+  DashboardPageShell,
+} from "../dashboard-page-shell";
 import { CompanyExpenseFormDialog } from "./company-expense-form-dialog";
 import {
   CompanyExpensesFilterSection,
@@ -38,29 +40,27 @@ export function CompanyExpensesClient({
 
   if (!viewModel.hasPermission) {
     return (
-      <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-6">
-        <EmptyState
+      <DashboardPageShell className="gap-6">
+        <DashboardAccessState
           description={copy.noPermissionDescription}
-          icon={<ShieldAlert className="size-6" />}
+          kind="permission"
           title={copy.noPermissionTitle}
         />
-      </section>
+      </DashboardPageShell>
     );
   }
 
   return (
     <>
-      <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-        {viewModel.pageFeedback ? (
-          <PageBanner tone={viewModel.pageFeedback.tone}>
-            {viewModel.pageFeedback.message}
-          </PageBanner>
-        ) : null}
-
-        <CompanyExpensesHeaderSection
-          copy={copy.header}
-          onCreate={viewModel.openCreateDialog}
-        />
+      <DashboardPageShell
+        feedback={viewModel.pageFeedback}
+        header={
+          <CompanyExpensesHeaderSection
+            copy={copy.header}
+            onCreate={viewModel.openCreateDialog}
+          />
+        }
+      >
         <CompanyExpensesFilterSection
           categoryFilter={viewModel.categoryFilter}
           copy={copy.filters}
@@ -71,6 +71,7 @@ export function CompanyExpensesClient({
           onCategoryFilterChange={viewModel.setCategoryFilter}
           onCurrencyFilterChange={viewModel.setCurrencyFilter}
           onMonthFilterChange={viewModel.setMonthFilter}
+          onReset={viewModel.resetFilters}
           onSearchQueryChange={viewModel.setSearchQuery}
           searchQuery={viewModel.searchQuery}
         />
@@ -87,7 +88,7 @@ export function CompanyExpensesClient({
           onEdit={viewModel.openEditDialog}
           pendingAction={viewModel.pendingAction}
         />
-      </section>
+      </DashboardPageShell>
 
       <CompanyExpenseFormDialog
         copy={copy.dialog}

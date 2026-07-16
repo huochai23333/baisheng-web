@@ -38,7 +38,7 @@ test.describe("店小秘物流永久档案", () => {
     await page.getByLabel("搜索").fill("LOCAL-TRACK-003");
     await expect(page.getByText("已显示 1 / 1 笔")).toBeVisible();
     await expect(page.getByText("LOCAL-PKG-003").filter({ visible: true })).toBeVisible();
-    await page.getByRole("button", { name: "清除筛选" }).click();
+    await page.getByRole("button", { name: "恢复默认范围" }).click();
     await chooseSelectOption(page.getByLabel("业务员"), {
       label: "本地协作业务员",
     });
@@ -46,7 +46,7 @@ test.describe("店小秘物流永久档案", () => {
     await expect(page.getByText("LOCAL-PKG-006").filter({ visible: true })).toBeVisible();
 
     // NULL 和 0 都是缺少运费；桌面行和移动卡片都必须有显眼的红色提示。
-    await page.getByRole("button", { name: "清除筛选" }).click();
+    await page.getByRole("button", { name: "恢复默认范围" }).click();
     await chooseSelectOption(page.getByLabel("运费记录"), { value: "missing" });
     await expect(page.getByText("已显示 2 / 2 笔")).toBeVisible();
     const missingDesktopRow = page

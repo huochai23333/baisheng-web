@@ -144,7 +144,7 @@ async function expectCompactLocalSeededOrderRows(page: Page) {
 }
 
 async function expectLinkedPurchaseOrderDetailsDialog(page: Page) {
-  await page.getByRole("button", { name: "1688-LOCAL-001" }).click();
+  await page.getByRole("button", { name: "1688-LOCAL-001" }).first().click();
 
   const purchaseDialog = page.getByRole("dialog", { name: "1688 订单详情" });
   await expect(purchaseDialog).toBeVisible();

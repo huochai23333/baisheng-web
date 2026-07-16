@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { AppRole } from "./auth-routing";
-import { getBeijingDateString } from "./exchange-rates";
+import {
+  getDefaultOrderDateRange,
+  normalizeOrderDateRange,
+  type OrderSearchMode,
+} from "./order-date-range";
 
 export type WholesaleLogisticsCostState = "all" | "missing" | "recorded";
 
@@ -10,6 +14,7 @@ export type WholesaleLogisticsFilters = {
   fromDate: string;
   salesUserId: string;
   searchText: string;
+  searchMode: OrderSearchMode;
   storeName: string;
   toDate: string;
 };
@@ -78,20 +83,21 @@ export type WholesaleReferralWaybillCount = {
 
 export const WHOLESALE_LOGISTICS_PAGE_SIZE = 50;
 
-/** 默认显示本月；业务员进入时只看自己，管理员和财务默认查看全部。 */
+/** 默认显示最近 30 天；业务员进入时只看自己，管理员和财务默认查看全部。 */
 export function getDefaultWholesaleLogisticsFilters(
   role: AppRole | null,
   currentUserId: string | null,
 ): WholesaleLogisticsFilters {
-  const today = getBeijingDateString();
+  const range = getDefaultOrderDateRange();
 
   return {
     costState: "all",
-    fromDate: `${today.slice(0, 7)}-01`,
+    fromDate: range.fromDate,
     salesUserId: role === "salesman" && currentUserId ? currentUserId : "all",
     searchText: "",
+    searchMode: "date_range",
     storeName: "",
-    toDate: today,
+    toDate: range.toDate,
   };
 }
 
@@ -137,9 +143,18 @@ export async function getWholesaleLogisticsPage(
   cursor: WholesaleLogisticsCursor | null = null,
   limit = WHOLESALE_LOGISTICS_PAGE_SIZE,
 ): Promise<WholesaleLogisticsPage> {
+  const dateRange = normalizeOrderDateRange({
+    fromDate: filters.fromDate,
+    toDate: filters.toDate,
+  });
   const { data, error } = await supabase.rpc("get_wholesale_logistics_page", {
     p_cursor: cursor,
-    p_filters: filters,
+    p_filters: {
+      ...filters,
+      fromDate: dateRange.fromDate,
+      searchText: filters.searchText.trim(),
+      toDate: dateRange.toDate,
+    },
     p_limit: limit,
   });
 

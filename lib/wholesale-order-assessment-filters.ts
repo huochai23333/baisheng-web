@@ -42,7 +42,7 @@ export function filterWholesaleOrdersForAssessment(
     data.profiles.map((profile) => [profile.user_id, profile]),
   );
   const purchaseOrdersByOrderId = groupByWholesaleOrderId(
-    data.purchaseOrders,
+    data.orderPage?.purchaseOrders ?? [],
   );
   const searchValue = normalizeSearchText(filters.searchText);
   const orderedFromTime = getDateBoundaryTime(filters.orderedFromDate, "start");

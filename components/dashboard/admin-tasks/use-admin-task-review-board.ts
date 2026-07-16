@@ -27,6 +27,7 @@ import {
   toErrorMessage,
 } from "../dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "../workspace-session-provider";
+import { useDashboardConfirm } from "../dashboard-confirm-provider";
 import type {
   AdminTaskFilePreviewItem,
 } from "./admin-task-file-preview-dialog";
@@ -39,6 +40,8 @@ type PreviewTaskReviewAsset = AdminTaskFilePreviewItem & {
 };
 
 export function useAdminTaskReviewBoard(initialData: AdminTaskReviewBoardData) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const t = useTranslations("Tasks.admin");
   const reviewsT = useTranslations("ReviewsUI");
   const sharedT = useTranslations("DashboardShared");
@@ -137,10 +140,11 @@ export function useAdminTaskReviewBoard(initialData: AdminTaskReviewBoardData) {
         return;
       }
 
-      if (
-        typeof window !== "undefined" &&
-        !window.confirm(t("reviewBoard.confirm", { action: actionLabel }))
-      ) {
+      if (!(await confirm({
+        description: t("reviewBoard.confirm", { action: actionLabel }),
+        title: confirmT("title"),
+        tone: action === "reject" ? "warning" : "normal",
+      }))) {
         return;
       }
 
@@ -188,7 +192,7 @@ export function useAdminTaskReviewBoard(initialData: AdminTaskReviewBoardData) {
         setRowBusyState(rowKey, null);
       }
     },
-    [busyRows, reviewsT, setRowBusyState, sharedCopy, supabase, t],
+    [busyRows, confirm, confirmT, reviewsT, setRowBusyState, sharedCopy, supabase, t],
   );
 
   const handleOpenAsset = useCallback(

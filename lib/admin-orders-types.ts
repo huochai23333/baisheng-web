@@ -1,5 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 
+import type { OrderSearchMode } from "./order-date-range";
+
 import type { DashboardPaginationState } from "./dashboard-pagination";
 import type { ExchangeRateRow } from "./exchange-rates";
 import type { ServiceFeeTypeOption } from "./service-fee-types";
@@ -170,6 +172,7 @@ export type AdminOrdersFilters = {
   orderEntryUser: string;
   orderNumber: string;
   orderingUser: string;
+  searchMode: OrderSearchMode;
 };
 
 export type AdminOrdersPageData = {

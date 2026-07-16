@@ -1,6 +1,5 @@
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
-import { optionalString, requiredString } from "./wholesale-action-utils";
 import type { RunWholesaleAction } from "./use-wholesale-action-runner";
 
 type Imported1688Row = {
@@ -12,8 +11,6 @@ type Imported1688Row = {
   order_status?: string | null;
   purchased_at?: string | null;
   recipient_name?: string | null;
-  customer_id?: string | null;
-  wholesale_order_id?: string | null;
   raw_payload: Record<string, unknown>;
 };
 
@@ -37,54 +34,74 @@ export function createWholesaleClaimsActions(runAction: RunWholesaleAction) {
         rows.map((row) => ({
           ...row,
           batch_id: batch.id,
-          customer_id: null,
-          wholesale_order_id: null,
         })),
         { ignoreDuplicates: true, onConflict: "external_order_number" },
       );
       if (error) throw error;
     });
 
-  const claim1688Order = (formData: FormData) =>
-    runAction("1688:claim", "采购订单已归属客户。", async () => {
-      const supabase = getBrowserSupabaseClient();
-      if (!supabase) throw new Error("client unavailable");
-
-      const { error } = await supabase.rpc("claim_wholesale_1688_order", {
-        p_1688_order_id: requiredString(formData.get("purchase_order_id")),
-        p_customer_id: requiredString(formData.get("customer_id")),
-        p_wholesale_order_id: optionalString(
-          formData.get("wholesale_order_id"),
-        ),
-      });
-      if (error) throw error;
-    });
-
-  const bulkClaim1688Orders = (
+  const create1688ClaimGroup = (
     purchaseOrderIds: string[],
     customerId: string,
-    wholesaleOrderId: string,
+    wholesaleOrderIds: string[],
   ) =>
     runAction(
-      "1688:bulk-claim",
+      "1688:create-claim-group",
       `已认领 ${purchaseOrderIds.length} 条采购订单。`,
       async () => {
-        if (purchaseOrderIds.length === 0) {
+        if (purchaseOrderIds.length === 0 || wholesaleOrderIds.length === 0) {
           throw new Error("empty bulk claim");
         }
 
         const supabase = getBrowserSupabaseClient();
         if (!supabase) throw new Error("client unavailable");
 
-        // 整批编号一次交给数据库函数，数据库会在同一事务中校验和更新，避免只成功一部分。
-        const { error } = await supabase.rpc("claim_wholesale_1688_orders", {
-          p_1688_order_ids: purchaseOrderIds,
+        // 两侧编号一次性交给数据库，数据库会在同一事务中校验并建立认领组。
+        const { error } = await supabase.rpc(
+          "create_wholesale_1688_claim_group",
+          {
+          p_purchase_order_ids: purchaseOrderIds,
           p_customer_id: customerId,
-          p_wholesale_order_id: wholesaleOrderId,
-        });
+          p_wholesale_order_ids: wholesaleOrderIds,
+          },
+        );
         if (error) throw error;
       },
     );
+
+  const update1688ClaimGroup = (
+    claimGroupId: string,
+    purchaseOrderIds: string[],
+    customerId: string,
+    wholesaleOrderIds: string[],
+  ) =>
+    runAction("1688:update-claim-group", "认领关系已更新。", async () => {
+      const supabase = getBrowserSupabaseClient();
+      if (!supabase) throw new Error("client unavailable");
+
+      const { error } = await supabase.rpc(
+        "update_wholesale_1688_claim_group",
+        {
+          p_claim_group_id: claimGroupId,
+          p_customer_id: customerId,
+          p_purchase_order_ids: purchaseOrderIds,
+          p_wholesale_order_ids: wholesaleOrderIds,
+        },
+      );
+      if (error) throw error;
+    });
+
+  const cancel1688ClaimGroup = (claimGroupId: string) =>
+    runAction("1688:cancel-claim-group", "认领已撤销。", async () => {
+      const supabase = getBrowserSupabaseClient();
+      if (!supabase) throw new Error("client unavailable");
+
+      const { error } = await supabase.rpc(
+        "cancel_wholesale_1688_claim_group",
+        { p_claim_group_id: claimGroupId },
+      );
+      if (error) throw error;
+    });
 
   const delete1688Order = (purchaseOrderId: string) =>
     runAction("1688:delete", "采购订单已移出当前认领列表。", async () => {
@@ -98,9 +115,10 @@ export function createWholesaleClaimsActions(runAction: RunWholesaleAction) {
     });
 
   return {
-    bulkClaim1688Orders,
-    claim1688Order,
+    cancel1688ClaimGroup,
+    create1688ClaimGroup,
     delete1688Order,
     import1688Rows,
+    update1688ClaimGroup,
   };
 }

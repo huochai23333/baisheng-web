@@ -10,7 +10,7 @@ import type { DashboardPaginationSlice } from "@/lib/dashboard-pagination";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
-import { DashboardPaginationControls } from "@/components/dashboard/dashboard-pagination-controls";
+import { DashboardPaginationFooter } from "@/components/dashboard/dashboard-collection-section";
 import {
   DashboardListSection,
   DashboardTableFrame,
@@ -180,7 +180,7 @@ export function AdminCommissionTableSection({
       ) : (
         <DashboardTableFrame
           footer={
-            <DashboardPaginationControls
+            <DashboardPaginationFooter
               endIndex={pagination.endIndex}
               hasNextPage={pagination.hasNextPage}
               hasPreviousPage={pagination.hasPreviousPage}

@@ -4,6 +4,10 @@ import { Settings2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import {
+  DashboardOrderListSection,
+  DashboardOrderLoadMoreButton,
+} from "@/components/dashboard/dashboard-order-list-section";
 import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { AppRole } from "@/lib/auth-routing";
@@ -49,6 +53,7 @@ export function WholesaleLogisticsSection({
   profiles,
 }: WholesaleLogisticsSectionProps) {
   const t = useTranslations("WholesaleBusiness.logisticsArchive");
+  const frameworkT = useTranslations("OrderListFramework");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const logistics = useWholesaleLogisticsPage({
     initialAssignments,
@@ -111,40 +116,48 @@ export function WholesaleLogisticsSection({
         filters={logistics.filters}
         onChange={logistics.setFilters}
         onClear={logistics.clearFilters}
+        onExactSearch={logistics.activateExactSearch}
+        onExitExactSearch={logistics.exitExactSearch}
+        onSelectDatePreset={logistics.applyDatePreset}
         profiles={profiles}
         storeOptions={logistics.storeOptions}
       />
 
-      <section className="space-y-3">
-        <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div className="min-w-0">
-            <h3 className="text-xl font-bold tracking-tight text-[#23313a]">
-              {t("list.title")}
-            </h3>
-            <p className="mt-1 break-words text-sm text-[#6f7b85]">
-              {t("list.shown", {
+      <DashboardOrderListSection
+        controls={
+          logistics.page.nextCursor ? (
+            <DashboardOrderLoadMoreButton
+              loading={logistics.loadingMore}
+              onClick={() => void logistics.loadMore()}
+            />
+          ) : undefined
+        }
+        description={frameworkT("list.description")}
+        progress={
+          logistics.page.rows.length > 0
+            ? {
+                kind: "loaded",
                 shown: logistics.page.rows.length,
                 total: logistics.page.totalCount,
-              })}
-            </p>
-          </div>
-          {logistics.loading ? (
-            <span className="text-sm text-[#6f7b85]">{t("list.loading")}</span>
-          ) : null}
-        </div>
-
+                unit: "logisticsOrders",
+              }
+            : null
+        }
+        title={t("list.title")}
+      >
+        {logistics.loading ? (
+          <p className="mb-3 text-sm text-[#6f7b85]">{t("list.loading")}</p>
+        ) : null}
         {logistics.loadError ? (
           <PageBanner tone="error">{logistics.loadError}</PageBanner>
         ) : null}
 
         <WholesaleLogisticsRecords
           customersById={customersById}
-          loadingMore={logistics.loadingMore}
-          onLoadMore={() => void logistics.loadMore()}
           page={logistics.page}
           profilesById={profilesById}
         />
-      </section>
+      </DashboardOrderListSection>
 
       {canManage ? (
         <WholesaleLogisticsAssignmentDialog

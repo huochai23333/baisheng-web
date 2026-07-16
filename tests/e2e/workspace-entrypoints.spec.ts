@@ -28,12 +28,18 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
       "/admin/tourism/orders",
       "/admin/tourism/customers",
       "/admin/tourism/people",
+      "/admin/tourism/vip",
+      "/admin/tourism/referrals",
+      "/admin/tourism/commission",
       "/admin/tourism/records",
       "/admin/wholesale/orders",
       "/admin/wholesale/settlement-releases",
       "/admin/wholesale/logistics",
       "/admin/wholesale/customers",
       "/admin/wholesale/people",
+      "/admin/wholesale/vip",
+      "/admin/wholesale/referrals",
+      "/admin/wholesale/commission",
     ],
     role: "administrator",
   },
@@ -44,6 +50,9 @@ const workspaceEntries: readonly WorkspaceEntry[] = [
       "/salesman/wholesale/order-claims",
       "/salesman/wholesale/logistics",
       "/salesman/wholesale/customers",
+      "/salesman/wholesale/vip",
+      "/salesman/wholesale/referrals",
+      "/salesman/wholesale/commission",
       "/salesman/wholesale/incentives",
     ],
     role: "salesman",
@@ -178,7 +187,9 @@ test.describe("workspace entrypoint regression", () => {
 
     const orderedFromInput = page.getByLabel("下单日期从");
     const orderedToInput = page.getByLabel("下单日期到");
-    const clearFiltersButton = page.getByRole("button", { name: "清空筛选" });
+    const clearFiltersButton = page.getByRole("button", {
+      name: "恢复默认范围",
+    });
     const assessmentButton = page.getByRole("button", {
       name: "生成当前范围评估",
     });
@@ -188,11 +199,11 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByText("AI订单评估")).toBeVisible();
     await expect(assessmentButton).toBeVisible();
 
-    const currentMonthRange = getCurrentMonthDateRange();
+    const defaultRange = getLast30DaysDateRange();
 
-    await expect(orderedFromInput).toHaveValue(currentMonthRange.from);
-    await expect(orderedToInput).toHaveValue(currentMonthRange.to);
-    await expect(clearFiltersButton).toBeEnabled();
+    await expect(orderedFromInput).toHaveValue(defaultRange.from);
+    await expect(orderedToInput).toHaveValue(defaultRange.to);
+    await expect(clearFiltersButton).toBeDisabled();
 
     await fillDateInput(orderedFromInput, "2099-01-01");
     await fillDateInput(orderedToInput, "2099-01-31");
@@ -207,8 +218,8 @@ test.describe("workspace entrypoint regression", () => {
 
     await clearFiltersButton.click();
 
-    await expect(orderedFromInput).toHaveValue("");
-    await expect(orderedToInput).toHaveValue("");
+    await expect(orderedFromInput).toHaveValue(defaultRange.from);
+    await expect(orderedToInput).toHaveValue(defaultRange.to);
 
     await page.route("**/api/wholesale/order-assessment", async (route) => {
       await route.fulfill({
@@ -239,8 +250,14 @@ test.describe("workspace entrypoint regression", () => {
     await expectNotForbiddenPage(page);
 
     await expect(page.getByRole("heading", { name: "订单修改规则" })).toBeVisible();
-    await expect(page.getByLabel("可直接修改天数")).toBeVisible();
-    await expect(page.getByRole("button", { name: "保存规则" })).toBeVisible();
+    const editWindowInput = page.getByLabel("可直接修改天数");
+    await expect(editWindowInput).toBeVisible();
+    await expect(editWindowInput).toBeDisabled();
+    await page.getByRole("button", { name: "编辑", exact: true }).first().click();
+    await expect(editWindowInput).toBeEnabled();
+    await expect(page.getByRole("button", { name: "保存", exact: true }).first()).toBeVisible();
+    await page.getByRole("button", { name: "取消", exact: true }).first().click();
+    await expect(editWindowInput).toBeDisabled();
     await expect(visibleExactText(page, "批发订单业务员佣金")).toHaveCount(1);
     await expect(visibleExactText(page, "批发推荐月订单金额佣金")).toHaveCount(1);
     await expect(page.getByText("采购订单业务员佣金", { exact: true })).toHaveCount(0);
@@ -277,6 +294,7 @@ test.describe("workspace entrypoint regression", () => {
     await page.goto("/admin/wholesale/settings");
     await expect(page.getByRole("heading", { name: "订单修改规则" })).toBeVisible();
     await expect(page.getByLabel("可直接修改天数")).toBeVisible();
+    await expect(page.getByRole("button", { name: "编辑", exact: true }).first()).toBeVisible();
     await expectNoDocumentHorizontalOverflow(page);
 
     await page.goto("/admin/wholesale/orders");
@@ -339,18 +357,20 @@ test.describe("workspace entrypoint regression", () => {
     await expect(page.getByText("Unknown Buyer")).toBeVisible();
 
     await page.getByRole("button", { name: /已认领/ }).click();
-    await expect(page.getByText("1688-LOCAL-001")).toBeVisible();
-    await expect(page.getByText("1688-LOCAL-002")).toBeVisible();
+    await expect(page.getByText("1688-LOCAL-001").first()).toBeVisible();
+    await expect(page.getByText("1688-LOCAL-002").first()).toBeVisible();
 
     await page.getByRole("button", { name: /待分类/ }).click();
-    await page.getByRole("button", { name: "确认归属" }).first().click();
-    await expect(
-      page.getByText("请确认要关联的批发订单。"),
-    ).toBeVisible();
-    await expect(page.getByLabel("客户")).toHaveValue(
+    await page
+      .getByRole("button", { exact: true, name: "认领" })
+      .first()
+      .click();
+    const claimDialog = page.getByRole("dialog", { name: "认领采购订单" });
+    await expect(claimDialog.getByLabel("客户")).toHaveValue(
       "c1000000-0000-4000-8000-000000000002",
     );
-    await expect(page.getByLabel("关联批发订单")).toBeEnabled();
+    await expect(claimDialog.getByLabel("搜索批发订单")).toBeEnabled();
+    expect(await claimDialog.getByRole("checkbox").count()).toBeGreaterThan(0);
   });
 
   test("salesman wholesale customer page shares customers but hides people management", async ({
@@ -388,10 +408,15 @@ test.describe("workspace entrypoint regression", () => {
 
     const createdFromInput = page.getByLabel("下单日期从");
     const createdToInput = page.getByLabel("下单日期到");
-    const clearFiltersButton = page.getByRole("button", { name: "清空筛选" });
+    const clearFiltersButton = page.getByRole("button", {
+      name: /清空筛选|恢复默认范围/,
+    });
+    const defaultRange = getLast30DaysDateRange();
 
     await expect(createdFromInput).toBeVisible();
     await expect(createdToInput).toBeVisible();
+    await expect(createdFromInput).toHaveValue(defaultRange.from);
+    await expect(createdToInput).toHaveValue(defaultRange.to);
     await page.waitForTimeout(1000);
 
     await fillDateInput(createdFromInput, "2099-01-01");
@@ -404,8 +429,11 @@ test.describe("workspace entrypoint regression", () => {
 
     await clearFiltersButton.click();
 
-    await expect(createdFromInput).toHaveValue("");
-    await expect(createdToInput).toHaveValue("");
+    await expect(createdFromInput).toHaveValue(defaultRange.from);
+    await expect(createdToInput).toHaveValue(defaultRange.to);
+
+    await fillDateInput(createdFromInput, "");
+    await expect(createdFromInput).toHaveValue(defaultRange.from);
   });
 });
 
@@ -440,18 +468,14 @@ async function fillDateInput(locator: Locator, value: string) {
   }, value);
 }
 
-function getCurrentMonthDateRange() {
-  const today = new Date(Date.now() + 8 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
-  const year = Number(today.slice(0, 4));
-  const month = Number(today.slice(5, 7));
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const monthText = String(month).padStart(2, "0");
+function getLast30DaysDateRange() {
+  const today = new Date(Date.now() + 8 * 60 * 60 * 1000);
+  const to = today.toISOString().slice(0, 10);
+  today.setUTCDate(today.getUTCDate() - 29);
 
   return {
-    from: `${year}-${monthText}-01`,
-    to: `${year}-${monthText}-${String(lastDay).padStart(2, "0")}`,
+    from: today.toISOString().slice(0, 10),
+    to,
   };
 }
 

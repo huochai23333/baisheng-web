@@ -10,11 +10,11 @@ import { useTranslations } from "next-intl";
 
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   DashboardListSection,
   DashboardTableFrame,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
+import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import type { Locale } from "@/lib/locale";
@@ -67,6 +67,7 @@ export function AdminFeedbackNoPermissionSection() {
 
 export function AdminFeedbackFilterSection({
   onSearchTextChange,
+  onReset,
   onStatusFilterChange,
   onTypeFilterChange,
   searchText,
@@ -78,6 +79,7 @@ export function AdminFeedbackFilterSection({
   typeOptions,
 }: {
   onSearchTextChange: (value: string) => void;
+  onReset: () => void;
   onStatusFilterChange: (value: string) => void;
   onTypeFilterChange: (value: string) => void;
   searchText: string;
@@ -91,8 +93,10 @@ export function AdminFeedbackFilterSection({
   const t = useTranslations("WorkspaceFeedback");
 
   return (
-    <DashboardFilterPanel
+    <DashboardResourceFilterSection
       gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"
+      onReset={onReset}
+      resetDisabled={!searchText && statusFilter === "all" && typeFilter === "all"}
     >
       <DashboardFilterField label={t("filters.search")}>
         <div className="relative">
@@ -135,7 +139,7 @@ export function AdminFeedbackFilterSection({
           ))}
         </select>
       </DashboardFilterField>
-    </DashboardFilterPanel>
+    </DashboardResourceFilterSection>
   );
 }
 

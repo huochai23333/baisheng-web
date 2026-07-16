@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "@/components/i18n/locale-provider";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 import { PersonPrivateNoteDialog } from "@/components/dashboard/person-notes/person-private-note-dialog";
 import type { AdminPeoplePageData } from "@/lib/admin-people";
 
@@ -23,15 +23,10 @@ export function AdminPeopleClient({
   const viewModel = useAdminPeopleViewModel({ initialData });
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      {viewModel.feedback ? (
-        <PageBanner tone={viewModel.feedback.tone}>
-          {viewModel.feedback.message}
-        </PageBanner>
-      ) : null}
-
-      <AdminPeopleHeaderSection summary={viewModel.summary} />
-
+    <DashboardPageShell
+      feedback={viewModel.feedback}
+      header={<AdminPeopleHeaderSection summary={viewModel.summary} />}
+    >
       {!viewModel.hasPermission ? (
         <AdminPeopleNoPermissionSection />
       ) : (
@@ -41,6 +36,11 @@ export function AdminPeopleClient({
             filteredPeople={viewModel.filteredPeople}
             onAdjustPerson={viewModel.openAccountDialog}
             onEditPersonNote={viewModel.personNoteEditor.openNoteDialog}
+            onReset={() => {
+              viewModel.setSearchText("");
+              viewModel.handleRoleFilterChange("all");
+              viewModel.handleStatusFilterChange("all");
+            }}
             onRoleFilterChange={viewModel.handleRoleFilterChange}
             onSearchTextChange={viewModel.setSearchText}
             onStatusFilterChange={viewModel.handleStatusFilterChange}
@@ -100,6 +100,6 @@ export function AdminPeopleClient({
           />
         </>
       )}
-    </section>
+    </DashboardPageShell>
   );
 }

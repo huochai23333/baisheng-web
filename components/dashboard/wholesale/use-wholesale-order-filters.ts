@@ -2,22 +2,24 @@
 
 import { useDeferredValue, useMemo, useState } from "react";
 
-import { getBeijingDateString } from "@/lib/exchange-rates";
+import {
+  getDefaultOrderDateRange,
+  getOrderDatePresetRange,
+  isOrderDateValue,
+  type OrderDatePreset,
+} from "@/lib/order-date-range";
 import type { WholesaleOrderFilters } from "@/lib/wholesale-order-page";
 
 export function createDefaultWholesaleOrderFilters(): WholesaleOrderFilters {
-  const today = getBeijingDateString();
-  const year = Number(today.slice(0, 4));
-  const month = Number(today.slice(5, 7));
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const monthText = String(month).padStart(2, "0");
+  const range = getDefaultOrderDateRange();
 
   return {
     customerId: "",
-    orderedFromDate: `${year}-${monthText}-01`,
-    orderedToDate: `${year}-${monthText}-${String(lastDay).padStart(2, "0")}`,
+    orderedFromDate: range.fromDate,
+    orderedToDate: range.toDate,
     salesUserId: "",
     searchText: "",
+    searchMode: "date_range",
     status: "all",
   };
 }
@@ -31,30 +33,74 @@ export function useWholesaleOrderFilters() {
   );
   const deferredSearchText = useDeferredValue(filters.searchText);
   const queryFilters = useMemo(
-    () => ({ ...filters, searchText: deferredSearchText.trim() }),
+    () => ({
+      ...filters,
+      searchText:
+        filters.searchMode === "exact_all_time"
+          ? filters.searchText.trim()
+          : deferredSearchText.trim(),
+    }),
     [deferredSearchText, filters],
   );
-  const hasActiveFilters = Object.values(filters).some((value) =>
-    typeof value === "string" ? value.length > 0 && value !== "all" : false,
+  const hasActiveFilters = useMemo(
+    () => JSON.stringify(filters) !== JSON.stringify(createDefaultWholesaleOrderFilters()),
+    [filters],
   );
 
   const updateFilter = <Key extends keyof WholesaleOrderFilters>(
     key: Key,
     value: WholesaleOrderFilters[Key],
   ) => {
-    setFilters((current) => ({ ...current, [key]: value }));
+    setFilters((current) => {
+      if (
+        (key === "orderedFromDate" || key === "orderedToDate") &&
+        !isOrderDateValue(value)
+      ) {
+        return current;
+      }
+
+      const next = {
+        ...current,
+        [key]: value,
+        ...(key === "searchMode" ? {} : { searchMode: "date_range" as const }),
+      };
+
+      if (key === "orderedFromDate" && next.orderedFromDate > next.orderedToDate) {
+        next.orderedToDate = next.orderedFromDate;
+      }
+      if (key === "orderedToDate" && next.orderedToDate < next.orderedFromDate) {
+        next.orderedFromDate = next.orderedToDate;
+      }
+
+      return next;
+    });
   };
 
   return {
-    clearFilters: () =>
-      setFilters({
-        customerId: "",
-        orderedFromDate: "",
-        orderedToDate: "",
-        salesUserId: "",
+    activateExactSearch: () => {
+      if (!filters.searchText.trim()) return;
+      setFilters((current) => ({
+        ...current,
+        searchMode: "exact_all_time",
+        searchText: current.searchText.trim(),
+      }));
+    },
+    applyDatePreset: (preset: Exclude<OrderDatePreset, "custom">) => {
+      const range = getOrderDatePresetRange(preset);
+      setFilters((current) => ({
+        ...current,
+        orderedFromDate: range.fromDate,
+        orderedToDate: range.toDate,
+        searchMode: "date_range",
+      }));
+    },
+    clearFilters: () => setFilters(createDefaultWholesaleOrderFilters()),
+    exitExactSearch: () =>
+      setFilters((current) => ({
+        ...current,
+        searchMode: "date_range",
         searchText: "",
-        status: "all",
-      }),
+      })),
     filters,
     hasActiveFilters,
     queryFilters,

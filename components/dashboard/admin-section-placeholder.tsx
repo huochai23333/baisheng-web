@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { DashboardPageShell } from "./dashboard-page-shell";
 
 type AdminSectionPlaceholderProps = {
   title: string;
@@ -18,7 +19,7 @@ export function AdminSectionPlaceholder({
   const t = useTranslations("AdminSectionPlaceholder");
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-6">
+    <DashboardPageShell className="gap-6">
       <div className="rounded-[28px] border border-white/80 bg-white/72 p-8 shadow-[0_18px_45px_rgba(96,113,128,0.08)] backdrop-blur">
         <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eef3ef] text-[#4c7259]">
           <Sparkles className="size-6" />
@@ -39,6 +40,6 @@ export function AdminSectionPlaceholder({
           </div>
         </div>
       </div>
-    </section>
+    </DashboardPageShell>
   );
 }

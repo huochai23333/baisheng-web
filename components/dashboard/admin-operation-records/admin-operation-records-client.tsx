@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale } from "@/components/i18n/locale-provider";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 import type { AdminOperationRecordsPageData } from "@/lib/admin-operation-records";
 
 import {
@@ -20,9 +21,7 @@ export function AdminOperationRecordsClient({
   const viewModel = useAdminOperationRecordsViewModel({ initialData });
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      <OperationRecordsHeaderSection />
-
+    <DashboardPageShell header={<OperationRecordsHeaderSection />}>
       {!viewModel.hasPermission ? (
         <OperationRecordsNoPermissionSection />
       ) : (
@@ -36,6 +35,11 @@ export function AdminOperationRecordsClient({
             categoryOptions={viewModel.categoryOptions}
             onActionFilterChange={viewModel.setActionFilter}
             onCategoryFilterChange={viewModel.setCategoryFilter}
+            onReset={() => {
+              viewModel.setSearchText("");
+              viewModel.setCategoryFilter("all");
+              viewModel.setActionFilter("all");
+            }}
             onSearchTextChange={viewModel.setSearchText}
             searchText={viewModel.searchText}
           />
@@ -51,6 +55,6 @@ export function AdminOperationRecordsClient({
           />
         </>
       )}
-    </section>
+    </DashboardPageShell>
   );
 }

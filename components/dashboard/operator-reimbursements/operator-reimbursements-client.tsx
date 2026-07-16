@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 
-import { ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useLocale } from "@/components/i18n/locale-provider";
@@ -11,7 +10,10 @@ import type {
   OperatorReimbursementsPageData,
 } from "@/lib/operator-reimbursements";
 
-import { EmptyState, PageBanner } from "../dashboard-shared-ui";
+import {
+  DashboardAccessState,
+  DashboardPageShell,
+} from "../dashboard-page-shell";
 import { OperatorReimbursementFormDialog } from "./operator-reimbursement-form-dialog";
 import {
   OperatorReimbursementsFilterSection,
@@ -39,38 +41,37 @@ export function OperatorReimbursementsClient({
 
   if (!viewModel.hasPermission) {
     return (
-      <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-6">
-        <EmptyState
+      <DashboardPageShell className="gap-6">
+        <DashboardAccessState
           description={copy.noPermissionDescription}
-          icon={<ShieldAlert className="size-6" />}
+          kind="permission"
           title={copy.noPermissionTitle}
         />
-      </section>
+      </DashboardPageShell>
     );
   }
 
   return (
     <>
-      <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-        {viewModel.pageFeedback ? (
-          <PageBanner tone={viewModel.pageFeedback.tone}>
-            {viewModel.pageFeedback.message}
-          </PageBanner>
-        ) : null}
-
-        <OperatorReimbursementsHeaderSection
-          copy={copy.header}
-          currentPeriod={viewModel.currentPeriod}
-          currentUnreimbursedCount={viewModel.currentUnreimbursedCount}
-          locale={locale}
-          onCreate={viewModel.openCreateDialog}
-          onReimburseCurrent={viewModel.handleReimburseCurrent}
-          reimbursePending={viewModel.reimbursePending}
-        />
+      <DashboardPageShell
+        feedback={viewModel.pageFeedback}
+        header={
+          <OperatorReimbursementsHeaderSection
+            copy={copy.header}
+            currentPeriod={viewModel.currentPeriod}
+            currentUnreimbursedCount={viewModel.currentUnreimbursedCount}
+            locale={locale}
+            onCreate={viewModel.openCreateDialog}
+            onReimburseCurrent={viewModel.handleReimburseCurrent}
+            reimbursePending={viewModel.reimbursePending}
+          />
+        }
+      >
         <OperatorReimbursementsFilterSection
           copy={copy.filters}
           locale={locale}
           onPeriodFilterChange={viewModel.setPeriodFilter}
+          onReset={viewModel.resetFilters}
           onSearchQueryChange={viewModel.setSearchQuery}
           onStatusFilterChange={viewModel.setStatusFilter}
           periodFilter={viewModel.periodFilter}
@@ -91,7 +92,7 @@ export function OperatorReimbursementsClient({
           pendingAction={viewModel.pendingAction}
           reimbursements={viewModel.filteredReimbursements}
         />
-      </section>
+      </DashboardPageShell>
 
       <OperatorReimbursementFormDialog
         copy={copy.dialog}

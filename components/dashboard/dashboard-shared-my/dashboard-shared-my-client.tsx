@@ -1,15 +1,13 @@
 ﻿"use client";
 
-import { LoaderCircle, RefreshCw, Search } from "lucide-react";
-
 import type { CurrentUserBundle } from "@/lib/user-self-service";
 
+import { LoadingState } from "@/components/dashboard/dashboard-shared-ui";
 import {
-  EmptyState,
-  LoadingState,
-  PageBanner,
-} from "@/components/dashboard/dashboard-shared-ui";
-import { Button } from "@/components/ui/button";
+  DashboardAccessState,
+  DashboardPageShell,
+} from "@/components/dashboard/dashboard-page-shell";
+import { DashboardFilePicker } from "@/components/dashboard/dashboard-framework-primitives";
 import { useDashboardMyCopy } from "./dashboard-shared-my-copy";
 import { DashboardSharedMyDialogs } from "./dashboard-shared-my-dialogs";
 import { DashboardSharedMySections } from "./dashboard-shared-my-sections";
@@ -44,77 +42,57 @@ export function DashboardSharedMyClient({
 
   if (!bundle) {
     return (
-      <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-6">
-        <PageBanner tone="error">
-          {page.error ?? copy.bundleUnavailable}
-        </PageBanner>
-        <section className="rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8">
-          <EmptyState
-            description={copy.bundleSyncDescription}
-            icon={<Search className="size-6" />}
-            title={copy.bundleSyncTitle}
-          />
-          <div className="mt-6 flex justify-center">
-            <Button
-              className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-              disabled={ui.busyKey !== null}
-              onClick={page.recoverCloudSync}
-            >
-              {ui.busyKey === "refresh" ? (
-                <LoaderCircle className="size-4 animate-spin" />
-              ) : (
-                <RefreshCw className="size-4" />
-              )}
-              {copy.retrySync}
-            </Button>
-          </div>
-        </section>
-      </section>
+      <DashboardPageShell
+        className="gap-6"
+        feedback={{ tone: "error", message: page.error ?? copy.bundleUnavailable }}
+      >
+        <DashboardAccessState
+          actionLabel={copy.retrySync}
+          description={copy.bundleSyncDescription}
+          kind="error"
+          onAction={page.recoverCloudSync}
+          title={copy.bundleSyncTitle}
+        />
+      </DashboardPageShell>
     );
   }
 
   return (
     <>
-      <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-        {page.error ? (
-          <PageBanner tone="error">{page.error}</PageBanner>
-        ) : page.notice ? (
-          <PageBanner tone={page.notice.tone}>{page.notice.message}</PageBanner>
-        ) : null}
-
+      <DashboardPageShell
+        feedback={
+          page.error
+            ? { tone: "error", message: page.error }
+            : page.notice
+        }
+      >
         <DashboardSharedMySections
           copy={copy}
           state={{ account, accountSwitcher, assetDialog, page, profileDialog, ui }}
         />
-      </section>
+      </DashboardPageShell>
 
-      <input
-        ref={photoInputRef}
+      <DashboardFilePicker
         accept="image/*"
-        className="hidden"
+        inputRef={photoInputRef}
         multiple
-        onChange={(event) => {
-          const files = Array.from(event.target.files ?? []);
-          event.target.value = "";
+        onFiles={(files) => {
           if (files.length > 0) {
             void assetDialog.uploadPhotos(files);
           }
         }}
-        type="file"
+        triggerHidden
       />
-      <input
-        ref={videoInputRef}
+      <DashboardFilePicker
         accept="video/*"
-        className="hidden"
+        inputRef={videoInputRef}
         multiple
-        onChange={(event) => {
-          const files = Array.from(event.target.files ?? []);
-          event.target.value = "";
+        onFiles={(files) => {
           if (files.length > 0) {
             void assetDialog.uploadVideos(files);
           }
         }}
-        type="file"
+        triggerHidden
       />
 
       <DashboardSharedMyDialogs

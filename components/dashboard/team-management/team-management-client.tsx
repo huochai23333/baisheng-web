@@ -1,6 +1,6 @@
 "use client";
 
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 
 import {
   AdminCreateTeamSection,
@@ -28,20 +28,17 @@ export function TeamManagementClient({
   });
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      {viewModel.pageFeedback ? (
-        <PageBanner tone={viewModel.pageFeedback.tone}>
-          {viewModel.pageFeedback.message}
-        </PageBanner>
-      ) : null}
-
-      <TeamManagementHeroSection
-        canManageSelectedTeam={viewModel.canManageSelectedTeam}
-        busyKey={viewModel.busyKey}
-        onRefresh={() => void viewModel.handleRefresh()}
-        viewerRole={viewModel.viewerRole}
-      />
-
+    <DashboardPageShell
+      feedback={viewModel.pageFeedback}
+      header={
+        <TeamManagementHeroSection
+          canManageSelectedTeam={viewModel.canManageSelectedTeam}
+          busyKey={viewModel.busyKey}
+          onRefresh={() => void viewModel.handleRefresh()}
+          viewerRole={viewModel.viewerRole}
+        />
+      }
+    >
       {viewModel.canView && viewModel.viewerRole === "administrator" ? (
         <AdminCreateTeamSection
           busyKey={viewModel.busyKey}
@@ -130,6 +127,6 @@ export function TeamManagementClient({
           ) : null}
         </>
       )}
-    </section>
+    </DashboardPageShell>
   );
 }

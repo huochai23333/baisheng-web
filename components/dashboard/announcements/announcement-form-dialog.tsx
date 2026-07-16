@@ -1,9 +1,10 @@
 "use client";
 
-import { LoaderCircle } from "lucide-react";
-
-import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
-import { Button } from "@/components/ui/button";
+import {
+  DashboardFormDialog,
+  DashboardFormTextarea,
+  dashboardFormInputClassName,
+} from "@/components/dashboard/dashboard-form-dialog";
 import type { AnnouncementAudience, AnnouncementRow } from "@/lib/announcements";
 
 import type { NoticeTone } from "../dashboard-shared-ui";
@@ -41,10 +42,6 @@ type AnnouncementFormDialogProps = {
   pending: boolean;
 };
 
-const inputClassName =
-  "min-h-11 rounded-2xl border border-[#d8dee3] bg-white px-4 text-sm text-[#23313a] outline-none transition focus:border-[#86a5ba] focus:ring-4 focus:ring-[#dbe8f0]";
-const textareaClassName = `${inputClassName} min-h-[180px] resize-y py-3 leading-7`;
-
 export function AnnouncementFormDialog({
   copy,
   editingAnnouncement,
@@ -58,44 +55,22 @@ export function AnnouncementFormDialog({
 }: AnnouncementFormDialogProps) {
   const createMode = !editingAnnouncement;
 
-  return open ? (
-    <DashboardDialog
-      actions={
-        <>
-          <Button
-            className="h-11 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
-            disabled={pending}
-            onClick={() => onOpenChange(false)}
-            variant="outline"
-          >
-            {copy.cancel}
-          </Button>
-          <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-            disabled={pending}
-            onClick={onSubmit}
-          >
-            {pending ? <LoaderCircle className="size-4 animate-spin" /> : null}
-            {createMode ? copy.createSubmit : copy.editSubmit}
-          </Button>
-        </>
-      }
+  return (
+    <DashboardFormDialog
+      cancelLabel={copy.cancel}
       description={createMode ? copy.createDescription : copy.editDescription}
+      feedback={feedback}
       onOpenChange={onOpenChange}
+      onSubmit={onSubmit}
       open={open}
+      pending={pending}
+      submitLabel={createMode ? copy.createSubmit : copy.editSubmit}
       title={createMode ? copy.createTitle : copy.editTitle}
     >
-      <div className="space-y-5">
-        {feedback ? (
-          <p className="rounded-[20px] border border-[#f1d1d1] bg-[#fff2f2] px-4 py-3 text-sm leading-7 text-[#9f3535]">
-            {feedback.message}
-          </p>
-        ) : null}
-
         <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
           {copy.titleLabel}
           <input
-            className={inputClassName}
+            className={dashboardFormInputClassName}
             onChange={(event) => onUpdateField("title", event.target.value)}
             placeholder={copy.titlePlaceholder}
             type="text"
@@ -106,7 +81,7 @@ export function AnnouncementFormDialog({
         <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
           {copy.audienceLabel}
           <select
-            className={inputClassName}
+            className={dashboardFormInputClassName}
             onChange={(event) =>
               onUpdateField(
                 "audience",
@@ -125,14 +100,13 @@ export function AnnouncementFormDialog({
 
         <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
           {copy.contentLabel}
-          <textarea
-            className={textareaClassName}
+          <DashboardFormTextarea
+            className="min-h-[180px]"
             onChange={(event) => onUpdateField("content", event.target.value)}
             placeholder={copy.contentPlaceholder}
             value={formState.content}
           />
         </label>
-      </div>
-    </DashboardDialog>
-  ) : null;
+    </DashboardFormDialog>
+  );
 }

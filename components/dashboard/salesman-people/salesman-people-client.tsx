@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "@/components/i18n/locale-provider";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 import { PersonPrivateNoteDialog } from "@/components/dashboard/person-notes/person-private-note-dialog";
 import type { SalesmanPeoplePageData } from "@/lib/salesman-people";
 
@@ -22,18 +22,15 @@ export function SalesmanPeopleClient({
   const viewModel = useSalesmanPeopleViewModel({ initialData });
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      {viewModel.feedback ? (
-        <PageBanner tone={viewModel.feedback.tone}>
-          {viewModel.feedback.message}
-        </PageBanner>
-      ) : null}
-
-      <SalesmanPeopleHeaderSection
-        businessBoards={viewModel.businessBoards}
-        summary={viewModel.summary}
-      />
-
+    <DashboardPageShell
+      feedback={viewModel.feedback}
+      header={
+        <SalesmanPeopleHeaderSection
+          businessBoards={viewModel.businessBoards}
+          summary={viewModel.summary}
+        />
+      }
+    >
       {!viewModel.hasPermission ? (
         <SalesmanPeopleNoPermissionSection />
       ) : (
@@ -44,6 +41,7 @@ export function SalesmanPeopleClient({
             locale={locale}
             onAdjustCustomerType={viewModel.openCustomerTypeDialog}
             onEditCustomerNote={viewModel.personNoteEditor.openNoteDialog}
+            onReset={() => viewModel.setSearchText("")}
             onSearchTextChange={viewModel.setSearchText}
             searchText={viewModel.searchText}
           />
@@ -75,6 +73,6 @@ export function SalesmanPeopleClient({
           />
         </>
       )}
-    </section>
+    </DashboardPageShell>
   );
 }

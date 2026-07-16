@@ -8,11 +8,15 @@ import {
   type AdminOrdersFilters,
   type AdminOrdersPageData,
 } from "@/lib/admin-orders";
+import {
+  getOrderDatePresetRange,
+  type OrderDatePreset,
+} from "@/lib/order-date-range";
 import { useWorkspaceSyncEffect } from "@/components/dashboard/workspace-session-provider";
 
 import {
   areOrderFiltersEqual,
-  EMPTY_ORDER_FILTERS,
+  createDefaultAdminOrderFilters,
 } from "./admin-orders-client-config";
 
 export function useAdminOrdersRouteState({
@@ -69,6 +73,12 @@ export function useAdminOrdersRouteState({
         nextParams.set("orderingUser", nextFilters.orderingUser);
       } else {
         nextParams.delete("orderingUser");
+      }
+
+      if (nextFilters.searchMode === "exact_all_time") {
+        nextParams.set("searchMode", nextFilters.searchMode);
+      } else {
+        nextParams.delete("searchMode");
       }
 
       if (nextPage > 1) {
@@ -151,6 +161,7 @@ export function useAdminOrdersRouteState({
     setFilters((current) => ({
       ...current,
       orderNumber: value,
+      searchMode: "date_range",
     }));
   }, []);
 
@@ -171,34 +182,86 @@ export function useAdminOrdersRouteState({
   const handleCreatedFromDateChange = useCallback((value: string) => {
     setFilters((current) => ({
       ...current,
-      createdFromDate: value,
+      createdFromDate: value || current.createdFromDate,
       createdToDate:
-        current.createdToDate && value && current.createdToDate < value
+        value && current.createdToDate < value
           ? value
           : current.createdToDate,
+      searchMode: "date_range",
     }));
   }, []);
 
   const handleCreatedToDateChange = useCallback((value: string) => {
-    setFilters((current) => ({
-      ...current,
-      createdToDate: value,
-    }));
+    setFilters((current) => {
+      const nextValue = value || current.createdToDate;
+
+      return {
+        ...current,
+        createdFromDate:
+          nextValue < current.createdFromDate
+            ? nextValue
+            : current.createdFromDate,
+        createdToDate: nextValue,
+        searchMode: "date_range",
+      };
+    });
   }, []);
 
   const clearFilters = useCallback(() => {
-    setFilters(EMPTY_ORDER_FILTERS);
+    setFilters(createDefaultAdminOrderFilters());
+  }, []);
+
+  const handleDatePresetChange = useCallback(
+    (preset: Exclude<OrderDatePreset, "custom">) => {
+      const range = getOrderDatePresetRange(preset);
+
+      setFilters((current) => ({
+        ...current,
+        createdFromDate: range.fromDate,
+        createdToDate: range.toDate,
+        searchMode: "date_range",
+      }));
+    },
+    [],
+  );
+
+  const searchExactOrderAllTime = useCallback(() => {
+    setFilters((current) => {
+      const orderNumber = current.orderNumber.trim();
+
+      if (!orderNumber) {
+        return current;
+      }
+
+      return {
+        ...current,
+        orderEntryUser: "",
+        orderNumber,
+        orderingUser: "",
+        searchMode: "exact_all_time",
+      };
+    });
+  }, []);
+
+  const exitExactAllTimeSearch = useCallback(() => {
+    setFilters((current) => ({
+      ...current,
+      searchMode: "date_range",
+    }));
   }, []);
 
   return {
     clearFilters,
     filters,
+    exitExactAllTimeSearch,
     handleCreatedFromDateChange,
     handleCreatedToDateChange,
+    handleDatePresetChange,
     handleOrderEntryUserChange,
     handleOrderNumberChange,
     handleOrderingUserChange,
     ordersPaginationState,
     refreshOrdersRoute,
+    searchExactOrderAllTime,
   };
 }

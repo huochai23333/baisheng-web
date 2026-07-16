@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, History, ShieldAlert } from "lucide-react";
+import { ClipboardList, History } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type {
@@ -9,13 +9,17 @@ import type {
   SalesmanTasksSearchParams,
 } from "@/lib/salesman-tasks";
 import { Button } from "@/components/ui/button";
-import { DashboardPaginationControls } from "@/components/dashboard/dashboard-pagination-controls";
+import { DashboardPaginationFooter } from "@/components/dashboard/dashboard-collection-section";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
+import {
+  DashboardAccessState,
+  DashboardPageShell,
+} from "@/components/dashboard/dashboard-page-shell";
 import {
   DashboardFilterPanel,
   DashboardListSection,
 } from "@/components/dashboard/dashboard-section-panel";
-import { EmptyState, PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 
 import { SalesmanTaskSubmitDialog } from "./salesman-task-submit-dialog";
 import {
@@ -36,38 +40,37 @@ export function SalesmanTasksClient({
   const viewModel = useSalesmanTasksPage({ initialData, initialView });
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      {viewModel.pageFeedback ? (
-        <PageBanner tone={viewModel.pageFeedback.tone}>{viewModel.pageFeedback.message}</PageBanner>
-      ) : null}
-
-      <DashboardSectionHeader
-        actions={
-          <Button
-            className="h-11 rounded-full border border-[#d8e2e8] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
-            disabled={!viewModel.canView}
-            onClick={() =>
-              viewModel.updateFilter(
-                "focus",
-                viewModel.filters.focus === "completed" ? "all" : "completed",
-              )
-            }
-            type="button"
-          >
-            <History className="size-4" />
-            {viewModel.filters.focus === "completed" ? t("header.allTasks") : t("header.history")}
-          </Button>
-        }
-        badge={t("header.badge")}
-        badgeClassName="bg-[#e6edf2]"
-        description={t("header.description")}
-        title={t("header.title")}
-      />
-
+    <DashboardPageShell
+      feedback={viewModel.pageFeedback}
+      header={
+        <DashboardSectionHeader
+          actions={
+            <Button
+              className="h-11 rounded-full border border-[#d8e2e8] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
+              disabled={!viewModel.canView}
+              onClick={() =>
+                viewModel.updateFilter(
+                  "focus",
+                  viewModel.filters.focus === "completed" ? "all" : "completed",
+                )
+              }
+              type="button"
+            >
+              <History className="size-4" />
+              {viewModel.filters.focus === "completed" ? t("header.allTasks") : t("header.history")}
+            </Button>
+          }
+          badge={t("header.badge")}
+          badgeClassName="bg-[#e6edf2]"
+          description={t("header.description")}
+          title={t("header.title")}
+        />
+      }
+    >
       {!viewModel.canView ? (
-        <EmptyState
+        <DashboardAccessState
           description={t("states.noPermissionDescription")}
-          icon={<ShieldAlert className="size-6" />}
+          kind="permission"
           title={t("states.noPermissionTitle")}
         />
       ) : (
@@ -125,7 +128,7 @@ export function SalesmanTasksClient({
               </div>
             )}
 
-            <DashboardPaginationControls
+            <DashboardPaginationFooter
               endIndex={viewModel.tasksPagination.endIndex}
               hasNextPage={viewModel.tasksPagination.hasNextPage}
               hasPreviousPage={viewModel.tasksPagination.hasPreviousPage}
@@ -159,6 +162,6 @@ export function SalesmanTasksClient({
         pending={viewModel.submitDialogPending}
         task={viewModel.submitDialogTask}
       />
-    </section>
+    </DashboardPageShell>
   );
 }

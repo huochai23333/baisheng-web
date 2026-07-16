@@ -9,10 +9,10 @@ import type {
 
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   DashboardSearchInput,
   dashboardFilterInputClassName,
 } from "../dashboard-section-panel";
+import { DashboardResourceFilterSection } from "../dashboard-resource-filter-section";
 import { formatOperatorReimbursementPeriod } from "./operator-reimbursements-display";
 
 type OperatorReimbursementsFilterSectionProps = {
@@ -26,6 +26,7 @@ type OperatorReimbursementsFilterSectionProps = {
   };
   locale: string;
   onPeriodFilterChange: (value: string) => void;
+  onReset: () => void;
   onSearchQueryChange: (value: string) => void;
   onStatusFilterChange: (value: OperatorReimbursementStatus | "all") => void;
   periodFilter: string;
@@ -38,6 +39,7 @@ export function OperatorReimbursementsFilterSection({
   copy,
   locale,
   onPeriodFilterChange,
+  onReset,
   onSearchQueryChange,
   onStatusFilterChange,
   periodFilter,
@@ -46,7 +48,13 @@ export function OperatorReimbursementsFilterSection({
   statusFilter,
 }: OperatorReimbursementsFilterSectionProps) {
   return (
-    <DashboardFilterPanel gridClassName="lg:grid-cols-[1.4fr_repeat(2,minmax(0,0.8fr))]" variant="standalone">
+    <DashboardResourceFilterSection
+      gridClassName="lg:grid-cols-[1.4fr_repeat(2,minmax(0,0.8fr))]"
+      onReset={onReset}
+      resetDisabled={
+        !searchQuery && periodFilter === "all" && statusFilter === "all"
+      }
+    >
       <DashboardSearchInput
         icon={<Search className="size-4 text-[#7c8a96]" />}
         onChange={onSearchQueryChange}
@@ -87,6 +95,6 @@ export function OperatorReimbursementsFilterSection({
           <option value="reimbursed">{copy.statusOptions.reimbursed}</option>
         </select>
       </DashboardFilterField>
-    </DashboardFilterPanel>
+    </DashboardResourceFilterSection>
   );
 }

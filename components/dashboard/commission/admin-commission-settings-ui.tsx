@@ -2,14 +2,13 @@
 
 import type { ReactNode } from "react";
 
-import { LoaderCircle, PencilLine, Save, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type {
   CommissionRuleCode,
   CommissionRuleSetting,
 } from "@/lib/commission-settings";
-import { Button } from "@/components/ui/button";
+import { DashboardInlineEditActions } from "@/components/dashboard/dashboard-framework-primitives";
 import {
   DashboardTableFrame,
   dashboardFilterInputClassName,
@@ -333,30 +332,17 @@ function RuleActionButtons({
   const t = useTranslations("Commission");
 
   return (
-    <div className="flex flex-wrap gap-2 md:justify-end">
-      {isEditing ? (
-        <>
-          <Button disabled={pendingRule !== null} onClick={onSave} type="button" variant="outline">
-            {isSaving ? <LoaderCircle className="size-4 animate-spin" /> : <Save className="size-4" />}
-            {t("settings.actions.save")}
-          </Button>
-          <Button disabled={pendingRule !== null} onClick={onCancel} type="button" variant="outline">
-            <X className="size-4" />
-            {t("settings.actions.cancel")}
-          </Button>
-        </>
-      ) : (
-        <Button
-          disabled={pendingRule !== null || row === null}
-          onClick={onEdit}
-          type="button"
-          variant="outline"
-        >
-          <PencilLine className="size-4" />
-          {t("settings.actions.edit")}
-        </Button>
-      )}
-    </div>
+    <DashboardInlineEditActions
+      cancelLabel={t("settings.actions.cancel")}
+      editLabel={t("settings.actions.edit")}
+      editing={isEditing}
+      onCancel={onCancel}
+      onEdit={onEdit}
+      onSave={onSave}
+      pending={pendingRule !== null || row === null}
+      saveLabel={t("settings.actions.save")}
+      saving={isSaving}
+    />
   );
 }
 

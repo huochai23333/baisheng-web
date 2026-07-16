@@ -3,7 +3,6 @@
 import {
   FileBadge2,
   ImageIcon,
-  ShieldAlert,
   UserRound,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -12,8 +11,11 @@ import type { AdminReviewsPageData } from "@/lib/admin-reviews";
 
 import { DashboardSegmentedTabs } from "@/components/dashboard/dashboard-segmented-tabs";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
+import {
+  DashboardAccessState,
+  DashboardPageShell,
+} from "@/components/dashboard/dashboard-page-shell";
 import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
-import { EmptyState, PageBanner } from "@/components/dashboard/dashboard-shared-ui";
 import { PrivacyReviewList } from "./admin-reviews-ui";
 import { MediaPreviewDialog, MediaReviewList } from "./media-review-list";
 import { ProfileChangeReviewList } from "./profile-change-review-list";
@@ -46,25 +48,22 @@ export function AdminReviewsClient({ initialData }: { initialData: AdminReviewsP
   } = useAdminReviewsPage(initialData);
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      {pageFeedback ? (
-        <PageBanner tone={pageFeedback.tone}>{pageFeedback.message}</PageBanner>
-      ) : null}
-
-      <DashboardSectionHeader
-        badge={t("header.badge")}
-        contentClassName="max-w-2xl"
-        title={t("header.title")}
-      />
-
+    <DashboardPageShell
+      feedback={pageFeedback}
+      header={
+        <DashboardSectionHeader
+          badge={t("header.badge")}
+          contentClassName="max-w-2xl"
+          title={t("header.title")}
+        />
+      }
+    >
       {hasPermission === false ? (
-        <section className="rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8">
-          <EmptyState
-            description={t("states.noPermissionDescription")}
-            icon={<ShieldAlert className="size-6" />}
-            title={t("states.noPermissionTitle")}
-          />
-        </section>
+        <DashboardAccessState
+          description={t("states.noPermissionDescription")}
+          kind="permission"
+          title={t("states.noPermissionTitle")}
+        />
       ) : (
         <DashboardListSection className="p-4 sm:p-6 xl:p-8">
           <DashboardSegmentedTabs
@@ -112,6 +111,6 @@ export function AdminReviewsClient({ initialData }: { initialData: AdminReviewsP
       )}
 
       <MediaPreviewDialog asset={previewAsset} onOpenChange={closePreviewDialog} />
-    </section>
+    </DashboardPageShell>
   );
 }

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   WholesaleClaimBoardKey,
   WholesaleClaimRow,
-} from "./wholesale-claims-view-model";
+} from "@/lib/wholesale-claims-page";
 
 /**
  * 勾选状态只保存当前筛选结果里的待认领订单。

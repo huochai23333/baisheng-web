@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { Button } from "@/components/ui/button";
 import type {
-  Wholesale1688Order,
+  WholesaleLinked1688Order,
   WholesaleProfile,
 } from "@/lib/wholesale";
 
@@ -29,13 +29,13 @@ export function LinkedPurchaseOrders({
 }: {
   canViewInternalFields: boolean;
   profilesById: Map<string, WholesaleProfile>;
-  purchaseOrders: Wholesale1688Order[];
+  purchaseOrders: WholesaleLinked1688Order[];
 }) {
   const uiText = useTranslations(
     "UiText.components_dashboard_wholesale_wholesale_order_linked_records",
   );
   const [selectedPurchaseOrder, setSelectedPurchaseOrder] =
-    useState<Wholesale1688Order | null>(null);
+    useState<WholesaleLinked1688Order | null>(null);
 
   if (purchaseOrders.length === 0) {
     return <span className="text-[#71808d]">{uiText("text001")}</span>;
@@ -82,7 +82,7 @@ export function LinkedPurchaseOrders({
 }
 
 function getLinkedPurchaseOrderDetailRows(
-  purchaseOrder: Wholesale1688Order,
+  purchaseOrder: WholesaleLinked1688Order,
   profilesById: Map<string, WholesaleProfile>,
   canViewInternalFields: boolean,
 ): WholesaleDetailGridRow[] {

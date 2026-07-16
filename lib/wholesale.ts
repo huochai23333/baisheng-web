@@ -7,10 +7,14 @@ import {
 } from "./commission-settings";
 import { getCurrentSessionContext } from "./current-session-context";
 import {
-  getBeijingDateString,
   getExchangeRates,
   type ExchangeRateRow,
 } from "./exchange-rates";
+import { getDefaultOrderDateRange } from "./order-date-range";
+import {
+  getWholesaleClaimPage,
+  type WholesaleClaimFilters,
+} from "./wholesale-claims-page";
 import {
   getDefaultWholesaleLogisticsFilters,
   getInitialWholesaleLogisticsData,
@@ -32,6 +36,9 @@ import {
 } from "./wholesale-profiles";
 import type { WorkspaceWholesaleSectionKey } from "./workspace-config";
 import type {
+  Wholesale1688ClaimGroup,
+  Wholesale1688ClaimGroupOrder,
+  Wholesale1688ClaimGroupPurchase,
   Wholesale1688Order,
   WholesaleCommission,
   WholesaleCustomer,
@@ -133,6 +140,29 @@ export async function getWholesalePageData(
     };
   }
 
+  if (section === "order-claims") {
+    const dateRange = getDefaultOrderDateRange();
+    const filters: WholesaleClaimFilters = {
+      ...dateRange,
+      exactOrderNumber: "",
+      recipientName: "",
+      searchMode: "date_range",
+      searchText: "",
+    };
+    const [customers, profileResult, claimPage] = await Promise.all([
+      getWholesaleCustomers(supabase),
+      getWholesaleProfilesWithCandidates(supabase, false),
+      getWholesaleClaimPage(supabase, "assisted", filters),
+    ]);
+
+    return {
+      ...baseData,
+      claimPage,
+      customers,
+      ...profileResult,
+    };
+  }
+
   const rows = await getWholesaleSectionRows(supabase, section, currentRole);
   const scopedRows = scopeWholesaleRows({
     ...rows,
@@ -161,6 +191,9 @@ type WholesaleSectionRows = {
   orderSettlements: WholesaleOrderSettlement[];
   orders: WholesaleOrder[];
   profiles: WholesaleProfile[];
+  purchaseClaimGroups: Wholesale1688ClaimGroup[];
+  purchaseClaimGroupOrders: Wholesale1688ClaimGroupOrder[];
+  purchaseClaimGroupPurchases: Wholesale1688ClaimGroupPurchase[];
   purchaseOrders: Wholesale1688Order[];
   referrals: WholesaleReferral[];
   registeredCandidates: WholesaleProfile[];
@@ -173,24 +206,6 @@ async function getWholesaleSectionRows(
 ): Promise<WholesaleSectionRows> {
   const rows = createEmptyWholesaleSectionRows();
   const canViewInternalFields = currentRole !== "client";
-
-  if (section === "order-claims") {
-    const [customers, orders, purchaseOrders, profileResult] =
-      await Promise.all([
-        getWholesaleCustomers(supabase),
-        getAllWholesaleOrders(supabase, canViewInternalFields),
-        queryRows<Wholesale1688Order>(
-          supabase
-            .from("wholesale_1688_orders")
-            .select("*")
-            .order("created_at", { ascending: false }),
-          "1688 采购订单",
-        ),
-        getWholesaleProfilesWithCandidates(supabase, false),
-      ]);
-
-    return { ...rows, customers, orders, purchaseOrders, ...profileResult };
-  }
 
   if (section === "customers") {
     const [customers, profileResult] = await Promise.all([
@@ -279,6 +294,7 @@ function createEmptyWholesalePageData({
   section: WorkspaceWholesaleSectionKey;
 }): WholesalePageData {
   return {
+    claimPage: null,
     ...createEmptyWholesaleSectionRows(),
     currentRole,
     currentUserId,
@@ -309,6 +325,9 @@ function createEmptyWholesaleSectionRows(): WholesaleSectionRows {
     orderSettlements: [],
     orders: [],
     profiles: [],
+    purchaseClaimGroups: [],
+    purchaseClaimGroupOrders: [],
+    purchaseClaimGroupPurchases: [],
     purchaseOrders: [],
     referrals: [],
     registeredCandidates: [],
@@ -359,18 +378,15 @@ async function queryRows<T>(
 }
 
 function getInitialWholesaleOrderFilters(): WholesaleOrderFilters {
-  const today = getBeijingDateString();
-  const year = Number(today.slice(0, 4));
-  const month = Number(today.slice(5, 7));
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  const monthText = String(month).padStart(2, "0");
+  const range = getDefaultOrderDateRange();
 
   return {
     customerId: "",
-    orderedFromDate: `${year}-${monthText}-01`,
-    orderedToDate: `${year}-${monthText}-${String(lastDay).padStart(2, "0")}`,
+    orderedFromDate: range.fromDate,
+    orderedToDate: range.toDate,
     salesUserId: "",
     searchText: "",
+    searchMode: "date_range",
     status: "all",
   };
 }

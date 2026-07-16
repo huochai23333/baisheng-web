@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 import { useWorkspaceCustomizationSidebar } from "@/components/dashboard/workspace-customization-sidebar";
 import type { DashboardHomePageData } from "@/lib/dashboard-home";
 import { cn } from "@/lib/utils";
@@ -133,7 +134,7 @@ export function DashboardHomeCustomizer({
   ]);
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-5">
+    <DashboardPageShell className="gap-5">
       <div className="flex justify-end">
         {editing ? (
           <Button
@@ -235,6 +236,6 @@ export function DashboardHomeCustomizer({
           />
         </div>
       ) : null}
-    </section>
+    </DashboardPageShell>
   );
 }

@@ -1,19 +1,28 @@
 "use client";
-import { UiMessage } from "@/components/i18n/ui-message";
+
+import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { RefreshCcw } from "lucide-react";
+
 import {
   DashboardFilterField,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
+import { DashboardOrderFilterSection } from "@/components/dashboard/dashboard-order-filter-section";
+import { UiMessage } from "@/components/i18n/ui-message";
 import { Button } from "@/components/ui/button";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import type { WholesaleOrderFilters } from "@/lib/wholesale-order-page";
+
 type WholesaleOrderFiltersProps = {
   customers: WholesaleCustomer[];
   filters: WholesaleOrderFilters;
   hasActiveFilters: boolean;
   onClear: () => void;
+  onExactSearch: () => void;
+  onExitExactSearch: () => void;
+  onSelectDatePreset: (
+    preset: "last_30_days" | "current_month" | "previous_month" | "last_3_months",
+  ) => void;
   onUpdate: <Key extends keyof WholesaleOrderFilters>(
     key: Key,
     value: WholesaleOrderFilters[Key],
@@ -25,44 +34,60 @@ export function WholesaleOrderFiltersPanel({
   filters,
   hasActiveFilters,
   onClear,
+  onExactSearch,
+  onExitExactSearch,
+  onSelectDatePreset,
   onUpdate,
   salesAccounts,
 }: WholesaleOrderFiltersProps) {
   const uiText = useTranslations(
     "UiText.components_dashboard_wholesale_wholesale_order_filters",
   );
+  const frameworkT = useTranslations("OrderListFramework");
   return (
-    <section className="rounded-[24px] border border-[#e7e2db] bg-white/90 p-4 shadow-sm sm:p-5">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-[#253640]">
-            <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text001" />
-          </h2>
-          <p className="mt-1 text-sm text-[#71808d]">
-            <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text002" />
-          </p>
-        </div>
-        <Button
-          className="rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
-          disabled={!hasActiveFilters}
-          onClick={onClear}
-          type="button"
-          variant="outline"
-        >
-          <RefreshCcw className="size-4" />
-          <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text003" />
-        </Button>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <DashboardOrderFilterSection
+      customInputId="wholesale-order-date-from"
+      dateRange={{
+        fromDate: filters.orderedFromDate,
+        toDate: filters.orderedToDate,
+      }}
+      exactOrderNumber={
+        filters.searchMode === "exact_all_time"
+          ? filters.searchText.trim()
+          : null
+      }
+      gridClassName="md:grid-cols-2 xl:grid-cols-3"
+      onExitExactSearch={onExitExactSearch}
+      onPresetChange={onSelectDatePreset}
+      onReset={onClear}
+      resetDisabled={!hasActiveFilters}
+    >
         <DashboardFilterField label={uiText("attribute001")}>
-          <input
-            className={dashboardFilterInputClassName}
-            onChange={(event) => onUpdate("searchText", event.target.value)}
-            placeholder={uiText("attribute002")}
-            type="search"
-            value={filters.searchText}
-          />
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
+            <input
+              className={`${dashboardFilterInputClassName} min-w-0`}
+              onChange={(event) => onUpdate("searchText", event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && filters.searchText.trim()) {
+                  event.preventDefault();
+                  onExactSearch();
+                }
+              }}
+              placeholder={uiText("attribute002")}
+              type="search"
+              value={filters.searchText}
+            />
+            <Button
+              className="min-h-10 shrink-0 rounded-full px-3"
+              disabled={!filters.searchText.trim()}
+              onClick={onExactSearch}
+              type="button"
+              variant="outline"
+            >
+              <Search className="size-4" />
+              {frameworkT("exactSearch.action")}
+            </Button>
+          </div>
         </DashboardFilterField>
         <DashboardFilterField label={uiText("attribute003")}>
           <select
@@ -123,6 +148,7 @@ export function WholesaleOrderFiltersPanel({
         </DashboardFilterField>
         <DashboardFilterField label={uiText("attribute006")}>
           <input
+            id="wholesale-order-date-from"
             className={dashboardFilterInputClassName}
             onChange={(event) => {
               const nextDate = event.target.value;
@@ -135,6 +161,7 @@ export function WholesaleOrderFiltersPanel({
                 onUpdate("orderedToDate", nextDate);
               }
             }}
+            required
             type="date"
             value={filters.orderedFromDate}
           />
@@ -144,11 +171,11 @@ export function WholesaleOrderFiltersPanel({
             className={dashboardFilterInputClassName}
             min={filters.orderedFromDate || undefined}
             onChange={(event) => onUpdate("orderedToDate", event.target.value)}
+            required
             type="date"
             value={filters.orderedToDate}
           />
         </DashboardFilterField>
-      </div>
-    </section>
+    </DashboardOrderFilterSection>
   );
 }

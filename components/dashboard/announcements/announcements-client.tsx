@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 
-import { ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useLocale } from "@/components/i18n/locale-provider";
@@ -12,7 +11,10 @@ import type {
   AnnouncementStatus,
 } from "@/lib/announcements";
 
-import { EmptyState, PageBanner } from "../dashboard-shared-ui";
+import {
+  DashboardAccessState,
+  DashboardPageShell,
+} from "../dashboard-page-shell";
 import { AnnouncementFormDialog } from "./announcement-form-dialog";
 import {
   AnnouncementsFilterSection,
@@ -38,33 +40,32 @@ export function AdminAnnouncementsClient({
 
   if (!viewModel.hasPermission) {
     return (
-      <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-6">
-        <EmptyState
+      <DashboardPageShell className="gap-6">
+        <DashboardAccessState
           description={copy.noPermissionDescription}
-          icon={<ShieldAlert className="size-6" />}
+          kind="permission"
           title={copy.noPermissionTitle}
         />
-      </section>
+      </DashboardPageShell>
     );
   }
 
   return (
     <>
-      <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-        {viewModel.pageFeedback ? (
-          <PageBanner tone={viewModel.pageFeedback.tone}>
-            {viewModel.pageFeedback.message}
-          </PageBanner>
-        ) : null}
-
-        <AnnouncementsHeaderSection
-          copy={copy.header}
-          onCreate={viewModel.openCreateDialog}
-        />
+      <DashboardPageShell
+        feedback={viewModel.pageFeedback}
+        header={
+          <AnnouncementsHeaderSection
+            copy={copy.header}
+            onCreate={viewModel.openCreateDialog}
+          />
+        }
+      >
         <AnnouncementsFilterSection
           audienceFilter={viewModel.audienceFilter}
           copy={copy.filters}
           onAudienceFilterChange={viewModel.setAudienceFilter}
+          onReset={viewModel.resetFilters}
           onStatusFilterChange={viewModel.setStatusFilter}
           statusFilter={viewModel.statusFilter}
         />
@@ -78,7 +79,7 @@ export function AdminAnnouncementsClient({
           onPublish={viewModel.handlePublish}
           pendingAction={viewModel.pendingAction}
         />
-      </section>
+      </DashboardPageShell>
 
       <AnnouncementFormDialog
         copy={copy.dialog}

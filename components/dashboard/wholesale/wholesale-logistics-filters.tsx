@@ -1,14 +1,15 @@
 "use client";
 
-import { RefreshCcw, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { DashboardOrderFilterSection } from "@/components/dashboard/dashboard-order-filter-section";
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import { getDefaultOrderDateRange } from "@/lib/order-date-range";
 import type { WholesaleProfile } from "@/lib/wholesale";
 import type {
   WholesaleLogisticsFilters,
@@ -21,34 +22,50 @@ export function WholesaleLogisticsFiltersPanel({
   filters,
   onChange,
   onClear,
+  onExactSearch,
+  onExitExactSearch,
+  onSelectDatePreset,
   profiles,
   storeOptions,
 }: {
   filters: WholesaleLogisticsFilters;
   onChange: (changes: Partial<WholesaleLogisticsFilters>) => void;
   onClear: () => void;
+  onExactSearch: () => void;
+  onExitExactSearch: () => void;
+  onSelectDatePreset: (
+    preset: "last_30_days" | "current_month" | "previous_month" | "last_3_months",
+  ) => void;
   profiles: WholesaleProfile[];
   storeOptions: WholesaleLogisticsStoreOption[];
 }) {
   const t = useTranslations("WholesaleBusiness.logisticsArchive");
+  const frameworkT = useTranslations("OrderListFramework");
   const salesProfiles = getActiveSalesProfiles(profiles);
+  const defaultRange = getDefaultOrderDateRange();
+  const resetDisabled =
+    filters.salesUserId === "all" &&
+    filters.storeName === "" &&
+    filters.costState === "all" &&
+    filters.searchText === "" &&
+    filters.searchMode === "date_range" &&
+    filters.fromDate === defaultRange.fromDate &&
+    filters.toDate === defaultRange.toDate;
 
   return (
-    <DashboardFilterPanel
-      footer={
-        <div className="flex justify-end">
-          <Button
-            className="min-h-10 whitespace-normal rounded-full"
-            onClick={onClear}
-            type="button"
-            variant="outline"
-          >
-            <RefreshCcw className="size-4 shrink-0" />
-            {t("filters.clear")}
-          </Button>
-        </div>
+    <DashboardOrderFilterSection
+      customInputId="wholesale-logistics-date-from"
+      dateRange={{ fromDate: filters.fromDate, toDate: filters.toDate }}
+      exactOrderNumber={
+        filters.searchMode === "exact_all_time"
+          ? filters.searchText.trim()
+          : null
       }
       gridClassName="sm:grid-cols-2 xl:grid-cols-6"
+      onExitExactSearch={onExitExactSearch}
+      onPresetChange={onSelectDatePreset}
+      onReset={onClear}
+      resetDisabled={resetDisabled}
     >
       <DashboardFilterField label={t("filters.sales")}> 
         <select
@@ -83,8 +100,10 @@ export function WholesaleLogisticsFiltersPanel({
 
       <DashboardFilterField label={t("filters.fromDate")}>
         <input
+          id="wholesale-logistics-date-from"
           className={dashboardFilterInputClassName}
           onChange={(event) => onChange({ fromDate: event.currentTarget.value })}
+          required
           type="date"
           value={filters.fromDate}
         />
@@ -93,7 +112,9 @@ export function WholesaleLogisticsFiltersPanel({
       <DashboardFilterField label={t("filters.toDate")}>
         <input
           className={dashboardFilterInputClassName}
+          min={filters.fromDate}
           onChange={(event) => onChange({ toDate: event.currentTarget.value })}
+          required
           type="date"
           value={filters.toDate}
         />
@@ -116,17 +137,35 @@ export function WholesaleLogisticsFiltersPanel({
       </DashboardFilterField>
 
       <DashboardFilterField label={t("filters.search")}>
-        <label className="relative block">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#8a949c]" />
-          <input
-            className={`${dashboardFilterInputClassName} pl-10`}
-            onChange={(event) => onChange({ searchText: event.currentTarget.value })}
-            placeholder={t("filters.searchPlaceholder")}
-            type="search"
-            value={filters.searchText}
-          />
-        </label>
+        <div className="flex min-w-0 flex-col gap-2">
+          <label className="relative block min-w-0">
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#8a949c]" />
+            <input
+              className={`${dashboardFilterInputClassName} min-w-0 pl-10`}
+              onChange={(event) => onChange({ searchText: event.currentTarget.value })}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && filters.searchText.trim()) {
+                  event.preventDefault();
+                  onExactSearch();
+                }
+              }}
+              placeholder={t("filters.searchPlaceholder")}
+              type="search"
+              value={filters.searchText}
+            />
+          </label>
+          <Button
+            className="min-h-10 rounded-full px-3"
+            disabled={!filters.searchText.trim()}
+            onClick={onExactSearch}
+            type="button"
+            variant="outline"
+          >
+            <Search className="size-4" />
+            {frameworkT("exactSearch.action")}
+          </Button>
+        </div>
       </DashboardFilterField>
-    </DashboardFilterPanel>
+    </DashboardOrderFilterSection>
   );
 }

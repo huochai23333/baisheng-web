@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+
+import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 
 import { markBrowserCloudSyncActivity } from "@/lib/browser-sync-recovery";
 import {
@@ -53,6 +56,8 @@ export function useCompanyExpensesViewModel({
   copy,
   initialData,
 }: UseCompanyExpensesViewModelOptions) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const supabase = getBrowserSupabaseClient();
   const [expenses, setExpenses] = useState(initialData.expenses);
   const [hasPermission, setHasPermission] = useState(initialData.hasPermission);
@@ -151,6 +156,13 @@ export function useCompanyExpensesViewModel({
     });
   }, [categoryFilter, currencyFilter, expenses, monthFilter, searchQuery]);
 
+  const resetFilters = useCallback(() => {
+    setCategoryFilter("all");
+    setCurrencyFilter("all");
+    setMonthFilter("all");
+    setSearchQuery("");
+  }, []);
+
   const openCreateDialog = useCallback(() => {
     setEditingExpense(null);
     setFormState(createEmptyCompanyExpenseForm());
@@ -244,7 +256,13 @@ export function useCompanyExpensesViewModel({
         return;
       }
 
-      if (!window.confirm(copy.deleteConfirm(expense.title))) {
+      if (
+        !(await confirm({
+          description: copy.deleteConfirm(expense.title),
+          title: confirmT("title"),
+          tone: "danger",
+        }))
+      ) {
         return;
       }
 
@@ -268,7 +286,7 @@ export function useCompanyExpensesViewModel({
         setPendingAction(null);
       }
     },
-    [copy, pendingAction, supabase],
+    [confirm, confirmT, copy, pendingAction, supabase],
   );
 
   return {
@@ -290,6 +308,7 @@ export function useCompanyExpensesViewModel({
     openEditDialog,
     pageFeedback,
     pendingAction,
+    resetFilters,
     searchQuery,
     setCategoryFilter,
     setCurrencyFilter,

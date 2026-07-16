@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
+import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
+import { DashboardFilePicker } from "@/components/dashboard/dashboard-framework-primitives";
 import { Button } from "@/components/ui/button";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import {
@@ -167,6 +169,8 @@ function WholesaleOrderListAttachmentDialog({
   orderNumber: string;
   pendingKey: string | null;
 }) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const t = useTranslations("WholesaleBusiness.ordersUi.orderList");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const uploadPending = pendingKey === `order-list:upload:${orderId}`;
@@ -194,17 +198,17 @@ function WholesaleOrderListAttachmentDialog({
             });
           }}
         >
-          <label className="block text-sm font-semibold text-[#354650]" htmlFor={`order-list-${orderNumber}`}>
+          <p className="block text-sm font-semibold text-[#354650]">
             {t("choose")}
-          </label>
-          <input
+          </p>
+          <div className="mt-3">
+          <DashboardFilePicker
             accept=".csv,.xls,.xlsx"
-            className="mt-3 block w-full min-w-0 text-sm text-[#4f606b] file:mr-3 file:rounded-full file:border-0 file:bg-[#eaf0f4] file:px-4 file:py-2 file:font-semibold file:text-[#486782]"
-            id={`order-list-${orderNumber}`}
+            files={selectedFiles}
             multiple
-            onChange={(event) => setSelectedFiles(Array.from(event.target.files ?? []))}
-            type="file"
+            onFiles={setSelectedFiles}
           />
+          </div>
           <p className="mt-3 text-xs leading-5 text-[#71808d]">
             {t("help", { count: WHOLESALE_ORDER_LIST_MAX_FILES })}
           </p>
@@ -261,14 +265,15 @@ function WholesaleOrderListAttachmentDialog({
                   <Button
                     className="self-end rounded-full border border-[#f0d6d6] bg-white text-[#a64b4b] hover:bg-[#fff5f5] sm:self-auto"
                     disabled={deletePending}
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          t("confirmDelete", { name: attachment.original_name }),
-                        )
-                      ) {
-                        void onDelete(attachment);
-                      }
+                    onClick={async () => {
+                      if (!(await confirm({
+                        description: t("confirmDelete", {
+                          name: attachment.original_name,
+                        }),
+                        title: confirmT("title"),
+                        tone: "danger",
+                      }))) return;
+                      await onDelete(attachment);
                     }}
                     type="button"
                     variant="outline"

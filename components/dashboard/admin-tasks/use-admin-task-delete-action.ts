@@ -13,6 +13,7 @@ import { type getBrowserSupabaseClient } from "@/lib/supabase";
 import { toAdminTaskErrorMessage } from "@/components/dashboard/tasks/tasks-display";
 
 import { type PageFeedbackValue } from "./admin-tasks-view-model-shared";
+import { useDashboardConfirm } from "../dashboard-confirm-provider";
 
 export function useAdminTaskDeleteAction({
   onPageFeedback,
@@ -23,6 +24,8 @@ export function useAdminTaskDeleteAction({
   refreshTaskBoard: () => void;
   supabase: ReturnType<typeof getBrowserSupabaseClient>;
 }) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const t = useTranslations("Tasks.admin");
   const sharedT = useTranslations("Tasks.shared");
   const [deletePendingTaskId, setDeletePendingTaskId] = useState<string | null>(null);
@@ -33,16 +36,16 @@ export function useAdminTaskDeleteAction({
         return;
       }
 
-      if (typeof window !== "undefined") {
-        const confirmMessage =
-          task.status === "to_be_accepted" && task.accepted_count === 0
-            ? t("confirmDelete", { taskName: task.task_name })
-            : t("confirmDeleteWithHistory", { taskName: task.task_name });
-        const confirmed = window.confirm(confirmMessage);
-
-        if (!confirmed) {
-          return;
-        }
+      const confirmMessage =
+        task.status === "to_be_accepted" && task.accepted_count === 0
+          ? t("confirmDelete", { taskName: task.task_name })
+          : t("confirmDeleteWithHistory", { taskName: task.task_name });
+      if (!(await confirm({
+        description: confirmMessage,
+        title: confirmT("title"),
+        tone: "danger",
+      }))) {
+        return;
       }
 
       setDeletePendingTaskId(task.id);
@@ -65,7 +68,7 @@ export function useAdminTaskDeleteAction({
         setDeletePendingTaskId(null);
       }
     },
-    [deletePendingTaskId, onPageFeedback, refreshTaskBoard, sharedT, supabase, t],
+    [confirm, confirmT, deletePendingTaskId, onPageFeedback, refreshTaskBoard, sharedT, supabase, t],
   );
 
   return {

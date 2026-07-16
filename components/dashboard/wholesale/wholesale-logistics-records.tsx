@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
 import { useLocale } from "@/components/i18n/locale-provider";
-import { Button } from "@/components/ui/button";
 import type {
   WholesaleCustomer,
   WholesaleProfile,
@@ -24,14 +23,10 @@ import { WholesaleEmptyState } from "./wholesale-ui";
 
 export function WholesaleLogisticsRecords({
   customersById,
-  loadingMore,
-  onLoadMore,
   page,
   profilesById,
 }: {
   customersById: Map<string, WholesaleCustomer>;
-  loadingMore: boolean;
-  onLoadMore: () => void;
   page: WholesaleLogisticsPage;
   profilesById: Map<string, WholesaleProfile>;
 }) {
@@ -48,27 +43,10 @@ export function WholesaleLogisticsRecords({
     );
   }
 
-  const footer = page.nextCursor ? (
-    <div className="flex flex-col items-center justify-between gap-3 pt-4 sm:flex-row">
-      <p className="text-sm text-[#6f7b85]">
-        {t("list.shown", { shown: page.rows.length, total: page.totalCount })}
-      </p>
-      <Button
-        className="min-h-10 w-full whitespace-normal rounded-full sm:w-auto"
-        disabled={loadingMore}
-        onClick={onLoadMore}
-        type="button"
-        variant="outline"
-      >
-        {loadingMore ? t("list.loadingMore") : t("list.loadMore")}
-      </Button>
-    </div>
-  ) : null;
-
   return (
     <>
       <div className="hidden md:block">
-        <DashboardTableFrame footer={footer}>
+        <DashboardTableFrame>
           <table className="min-w-[1180px] w-full text-left text-sm">
             <thead className="bg-[#f7f5f1] text-[11px] tracking-[0.12em] text-[#75818a] uppercase">
               <tr>
@@ -207,7 +185,6 @@ export function WholesaleLogisticsRecords({
             </article>
           );
         })}
-        {footer}
       </div>
     </>
   );

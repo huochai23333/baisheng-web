@@ -29,7 +29,10 @@ export function buildWholesaleOrderAssessmentMessages({
   const profilesById = new Map(
     data.profiles.map((profile) => [profile.user_id, profile]),
   );
-  const purchaseOrderCount = countLinkedRecords(data.purchaseOrders, orders);
+  const purchaseOrderCount = countLinkedRecords(
+    data.orderPage?.purchaseOrders ?? [],
+    orders,
+  );
   const summary = buildOrderSummary({
     fullSummary: data.orderPage?.summary ?? null,
     orders,

@@ -1,5 +1,8 @@
 import type { AppRole } from "./auth-routing";
 import type {
+  Wholesale1688ClaimGroup,
+  Wholesale1688ClaimGroupOrder,
+  Wholesale1688ClaimGroupPurchase,
   Wholesale1688Order,
   WholesaleCommission,
   WholesaleCustomer,
@@ -37,6 +40,9 @@ type ScopeWholesaleRowsInput = {
   orderSettlements: WholesaleOrderSettlement[];
   orders: WholesaleOrder[];
   profiles: WholesaleProfile[];
+  purchaseClaimGroups: Wholesale1688ClaimGroup[];
+  purchaseClaimGroupOrders: Wholesale1688ClaimGroupOrder[];
+  purchaseClaimGroupPurchases: Wholesale1688ClaimGroupPurchase[];
   purchaseOrders: Wholesale1688Order[];
   referrals: WholesaleReferral[];
   registeredCandidates: WholesaleProfile[];
@@ -53,6 +59,9 @@ export function scopeWholesaleRows({
   orderSettlements,
   orders,
   profiles,
+  purchaseClaimGroups,
+  purchaseClaimGroupOrders,
+  purchaseClaimGroupPurchases,
   purchaseOrders,
   referrals,
   registeredCandidates,
@@ -70,13 +79,15 @@ export function scopeWholesaleRows({
     orders,
   });
   const orderIds = new Set(scopedOrders.map((order) => order.id));
-  const scopedPurchaseOrders = scopeWholesalePurchaseOrders({
-    currentRole,
-    currentUserId,
-    customerIds,
-    orderIds,
-    purchaseOrders,
-  });
+  // 采购订单和认领组已经由数据库 RLS 按角色裁剪，这里只处理未登录的空状态。
+  const scopedPurchaseOrders = currentUserId ? purchaseOrders : [];
+  const scopedPurchaseClaimGroups = currentUserId ? purchaseClaimGroups : [];
+  const scopedPurchaseClaimGroupOrders = currentUserId
+    ? purchaseClaimGroupOrders
+    : [];
+  const scopedPurchaseClaimGroupPurchases = currentUserId
+    ? purchaseClaimGroupPurchases
+    : [];
   const scopedCommissions = scopeWholesaleCommissions({
     currentRole,
     currentUserId,
@@ -116,6 +127,7 @@ export function scopeWholesaleRows({
     orderEditRequests: scopedOrderEditRequests,
     orders: scopedOrders,
     profiles,
+    purchaseClaimGroups: scopedPurchaseClaimGroups,
     purchaseOrders: scopedPurchaseOrders,
     registeredCandidates,
   });
@@ -129,6 +141,9 @@ export function scopeWholesaleRows({
     orderSettlements: scopedOrderSettlements,
     orders: scopedOrders,
     profiles: scopedProfiles,
+    purchaseClaimGroups: scopedPurchaseClaimGroups,
+    purchaseClaimGroupOrders: scopedPurchaseClaimGroupOrders,
+    purchaseClaimGroupPurchases: scopedPurchaseClaimGroupPurchases,
     purchaseOrders: scopedPurchaseOrders,
     referrals: scopedReferrals,
     registeredCandidates,
@@ -200,44 +215,4 @@ function scopeWholesaleOrders({
       order.sales_user_id === currentUserId ||
       order.created_by_user_id === currentUserId,
   );
-}
-
-function scopeWholesalePurchaseOrders({
-  currentRole,
-  currentUserId,
-  customerIds,
-  orderIds,
-  purchaseOrders,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  customerIds: Set<string>;
-  orderIds: Set<string>;
-  purchaseOrders: Wholesale1688Order[];
-}) {
-  if (
-    canReadFullWholesaleBackoffice(currentRole) ||
-    canCollaborateAcrossWholesale(currentRole)
-  ) {
-    return purchaseOrders;
-  }
-
-  if (!currentUserId) {
-    return [];
-  }
-
-  return purchaseOrders.filter((order) => {
-    const isUnclaimedHallOrder =
-      !order.customer_id && !order.wholesale_order_id;
-
-    return (
-      (order.customer_id ? customerIds.has(order.customer_id) : false) ||
-      (order.wholesale_order_id
-        ? orderIds.has(order.wholesale_order_id)
-        : false) ||
-      order.claimed_by_user_id === currentUserId ||
-      order.imported_by_user_id === currentUserId ||
-      (canUseWholesaleSalesScope(currentRole) && isUnclaimedHallOrder)
-    );
-  });
 }

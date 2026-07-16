@@ -13,6 +13,7 @@ import {
   type TeamManagementPageData,
 } from "@/lib/team-management";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
+import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 
 import { toTeamManagementErrorMessage } from "./team-management-display";
 import {
@@ -33,6 +34,8 @@ export function useTeamManagementActions({
   setPageFeedback: Dispatch<SetStateAction<PageFeedback>>;
   supabase: ReturnType<typeof getBrowserSupabaseClient>;
 }) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const t = useTranslations("TeamManagement");
   const currentTeamId = currentData.detail.team?.team_id ?? null;
 
@@ -271,18 +274,16 @@ export function useTeamManagementActions({
       return;
     }
 
-    if (typeof window !== "undefined") {
-      const confirmed = window.confirm(
-        t("confirmDelete", {
-          teamName:
-            currentData.detail.team.team_name?.trim() ||
-            t("shared.fallback.unnamedTeam"),
-        }),
-      );
-
-      if (!confirmed) {
-        return;
-      }
+    if (!(await confirm({
+      description: t("confirmDelete", {
+        teamName:
+          currentData.detail.team.team_name?.trim() ||
+          t("shared.fallback.unnamedTeam"),
+      }),
+      title: confirmT("title"),
+      tone: "danger",
+    }))) {
+      return;
     }
 
     setBusyKey("delete-team");
@@ -303,6 +304,8 @@ export function useTeamManagementActions({
       setBusyKey(null);
     }
   }, [
+    confirm,
+    confirmT,
     currentData.detail.team,
     currentData.viewerRole,
     refreshQuietly,

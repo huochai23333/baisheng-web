@@ -87,7 +87,6 @@ export function DashboardSharedMySections({
 
   return (
     <>
-      <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
         <SectionNavigation copy={copy} />
 
         <PersonalCenterSection
@@ -127,7 +126,6 @@ export function DashboardSharedMySections({
           <p>{copy.copyright}</p>
           <LegalFooterLinks className="gap-6" copy={copy} />
         </footer>
-      </section>
     </>
   );
 }

@@ -4,10 +4,13 @@ import { UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
+import {
+  DashboardStatusBadge,
+} from "@/components/dashboard/dashboard-framework-primitives";
+import { DashboardResponsiveCollection } from "@/components/dashboard/dashboard-collection-section";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import type { AdminPersonRow } from "@/lib/admin-people";
 import type { Locale } from "@/lib/locale";
-import { cn } from "@/lib/utils";
 
 import {
   formatTourismPeopleDate,
@@ -47,8 +50,8 @@ export function TourismPeopleTable({
   }
 
   return (
-    <>
-      <div className="hidden md:block">
+    <DashboardResponsiveCollection
+      desktop={
         <DashboardTableFrame>
           <table className="w-full min-w-[860px] table-fixed text-left text-sm">
             <colgroup>
@@ -84,10 +87,9 @@ export function TourismPeopleTable({
                     <RoleChip>{t(`roles.${tab}`)}</RoleChip>
                   </td>
                   <td className="px-3 py-4">
-                    <StatusChip
-                      label={t(`statuses.${person.status}`)}
-                      status={person.status}
-                    />
+                    <DashboardStatusBadge tone={getPersonStatusTone(person.status)}>
+                      {t(`statuses.${person.status}`)}
+                    </DashboardStatusBadge>
                   </td>
                   <td className="px-3 py-4 text-[#53616d]">
                     <p>
@@ -124,9 +126,9 @@ export function TourismPeopleTable({
             </tbody>
           </table>
         </DashboardTableFrame>
-      </div>
-
-      <div className="grid gap-3 md:hidden">
+      }
+      mobile={
+        <>
         {people.map((person) => (
           <button
             className="rounded-[18px] border border-[#ebe7e1] bg-white p-4 text-left shadow-[0_10px_24px_rgba(96,113,128,0.05)]"
@@ -143,10 +145,9 @@ export function TourismPeopleTable({
                   {getTourismPersonContact(person, contactFallback)}
                 </p>
               </div>
-              <StatusChip
-                label={t(`statuses.${person.status}`)}
-                status={person.status}
-              />
+              <DashboardStatusBadge tone={getPersonStatusTone(person.status)}>
+                {t(`statuses.${person.status}`)}
+              </DashboardStatusBadge>
             </div>
             <p className="mt-3 text-sm text-[#6f7b85]">
               {t("referralCode", {
@@ -163,36 +164,23 @@ export function TourismPeopleTable({
             </p>
           </button>
         ))}
-      </div>
-    </>
+        </>
+      }
+    />
   );
 }
 
 function RoleChip({ children }: { children: string }) {
   return (
-    <span className="mt-2 inline-flex rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
+    <DashboardStatusBadge className="mt-2" tone="info">
       {children}
-    </span>
+    </DashboardStatusBadge>
   );
 }
 
-function StatusChip({
-  label,
-  status,
-}: {
-  label: string;
-  status: AdminPersonRow["status"];
-}) {
-  return (
-    <span
-      className={cn(
-        "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
-        status === "active" && "bg-[#e8f4ec] text-[#4c7259]",
-        status === "inactive" && "bg-[#fff5db] text-[#9a6a07]",
-        status === "suspended" && "bg-[#fbe6e6] text-[#b13d3d]",
-      )}
-    >
-      {label}
-    </span>
-  );
+function getPersonStatusTone(status: AdminPersonRow["status"]) {
+  // 人员页面仅映射状态语义，视觉细节统一由 DashboardStatusBadge 管理。
+  if (status === "active") return "success" as const;
+  if (status === "inactive") return "warning" as const;
+  return "danger" as const;
 }

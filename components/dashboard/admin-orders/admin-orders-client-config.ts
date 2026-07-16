@@ -1,4 +1,5 @@
 import { type AdminOrdersFilters } from "@/lib/admin-orders";
+import { getDefaultOrderDateRange } from "@/lib/order-date-range";
 
 import {
   deriveRmbAmountValue,
@@ -13,13 +14,18 @@ type OrdersTranslator = (
 
 export type OrdersClientMode = "admin" | "salesman" | "client";
 
-export const EMPTY_ORDER_FILTERS: AdminOrdersFilters = {
-  createdFromDate: "",
-  createdToDate: "",
-  orderEntryUser: "",
-  orderNumber: "",
-  orderingUser: "",
-};
+export function createDefaultAdminOrderFilters(): AdminOrdersFilters {
+  const dateRange = getDefaultOrderDateRange();
+
+  return {
+    createdFromDate: dateRange.fromDate,
+    createdToDate: dateRange.toDate,
+    orderEntryUser: "",
+    orderNumber: "",
+    orderingUser: "",
+    searchMode: "date_range",
+  };
+}
 
 export type OrdersViewConfig = {
   badge: string;
@@ -174,6 +180,7 @@ export function areOrderFiltersEqual(
     left.createdToDate === right.createdToDate &&
     left.orderEntryUser === right.orderEntryUser &&
     left.orderNumber === right.orderNumber &&
-    left.orderingUser === right.orderingUser
+    left.orderingUser === right.orderingUser &&
+    left.searchMode === right.searchMode
   );
 }

@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type {
+  Wholesale1688ClaimGroup,
+  Wholesale1688ClaimGroupOrder,
+  Wholesale1688ClaimGroupPurchase,
   Wholesale1688Order,
+  WholesaleLinked1688Order,
   WholesaleOrder,
   WholesaleOrderListItem,
   WholesaleOrderChangeLog,
@@ -9,6 +13,10 @@ import type {
   WholesaleOrderSettlement,
 } from "./wholesale";
 import type { WholesaleOrderListAttachment } from "./wholesale-order-list-attachments";
+import {
+  normalizeOrderDateRange,
+  type OrderSearchMode,
+} from "./order-date-range";
 
 export type WholesaleOrderFilters = {
   customerId: string;
@@ -16,6 +24,7 @@ export type WholesaleOrderFilters = {
   orderedToDate: string;
   salesUserId: string;
   searchText: string;
+  searchMode: OrderSearchMode;
   status: "all" | WholesaleOrder["status"];
 };
 
@@ -52,7 +61,7 @@ export type WholesaleOrderPage = {
   orderListAttachments: WholesaleOrderListAttachment[];
   orders: WholesaleOrderListItem[];
   orderSettlements: WholesaleOrderSettlement[];
-  purchaseOrders: Wholesale1688Order[];
+  purchaseOrders: WholesaleLinked1688Order[];
   summary: WholesaleOrderPageSummary;
   totalCount: number;
   warnings: WholesaleOrderPageWarning[];
@@ -70,9 +79,18 @@ export async function getWholesaleOrderPage(
   cursor: WholesaleOrderCursor | null = null,
   limit = WHOLESALE_ORDER_PAGE_SIZE,
 ): Promise<WholesaleOrderPage> {
+  const dateRange = normalizeOrderDateRange({
+    fromDate: filters.orderedFromDate,
+    toDate: filters.orderedToDate,
+  });
   const { data, error } = await supabase.rpc("get_wholesale_order_page", {
     p_cursor: cursor,
-    p_filters: filters,
+    p_filters: {
+      ...filters,
+      orderedFromDate: dateRange.fromDate,
+      orderedToDate: dateRange.toDate,
+      searchText: filters.searchText.trim(),
+    },
     p_limit: limit,
   });
 
@@ -109,9 +127,6 @@ export async function getWholesaleOrderPage(
     };
   }
 
-  const purchaseOrderColumns = canViewInternalFields
-    ? "*"
-    : "id,batch_id,external_order_number,seller_name,item_summary,quantity,order_status,purchased_at,recipient_name,assisted_customer_id,assisted_at,customer_id,wholesale_order_id,claimed_by_user_id,claimed_at,imported_by_user_id,created_at";
   const [
     settlementsResult,
     purchaseOrdersResult,
@@ -125,11 +140,7 @@ export async function getWholesaleOrderPage(
       .in("order_id", orderIds)
       .order("settled_on", { ascending: false })
       .order("created_at", { ascending: false }),
-    supabase
-      .from("wholesale_1688_orders")
-      .select(purchaseOrderColumns)
-      .in("wholesale_order_id", orderIds)
-      .order("created_at", { ascending: false }),
+    getLinkedPurchaseOrders(supabase, orderIds, canViewInternalFields),
     canViewInternalFields
       ? supabase
           .from("wholesale_order_edit_requests")
@@ -179,7 +190,7 @@ export async function getWholesaleOrderPage(
       "settlements",
       "部分结汇记录暂时没有加载成功。",
     ),
-    purchaseOrders: readRelatedRows<Wholesale1688Order>(
+    purchaseOrders: readRelatedRows<WholesaleLinked1688Order>(
       purchaseOrdersResult,
       warnings,
       "purchases",
@@ -195,6 +206,112 @@ type RelatedQueryResult = {
   data: unknown[] | null;
   error: { message?: string } | null;
 };
+
+/**
+ * 批发订单和 1688 订单之间现在需要经过认领组查找。
+ * 这里把三段关系整理成页面原来易于消费的扁平记录，但不会把同一采购订单重复挂到同一批发订单下。
+ */
+async function getLinkedPurchaseOrders(
+  supabase: SupabaseClient,
+  orderIds: string[],
+  canViewInternalFields: boolean,
+): Promise<RelatedQueryResult> {
+  const groupOrdersResult = await supabase
+    .from("wholesale_1688_claim_group_orders")
+    .select("claim_group_id,wholesale_order_id")
+    .in("wholesale_order_id", orderIds);
+
+  if (groupOrdersResult.error) return groupOrdersResult;
+
+  const groupOrders = (groupOrdersResult.data ?? []) as Wholesale1688ClaimGroupOrder[];
+  const groupIds = [...new Set(groupOrders.map((row) => row.claim_group_id))];
+  if (groupIds.length === 0) return { data: [], error: null };
+
+  const [groupsResult, groupPurchasesResult] = await Promise.all([
+    supabase
+      .from("wholesale_1688_claim_groups")
+      .select("*")
+      .in("id", groupIds),
+    supabase
+      .from("wholesale_1688_claim_group_purchases")
+      .select("claim_group_id,purchase_order_id")
+      .in("claim_group_id", groupIds),
+  ]);
+
+  if (groupsResult.error) return groupsResult;
+  if (groupPurchasesResult.error) return groupPurchasesResult;
+
+  const groups = (groupsResult.data ?? []) as Wholesale1688ClaimGroup[];
+  const groupPurchases = (groupPurchasesResult.data ?? []) as Wholesale1688ClaimGroupPurchase[];
+  const purchaseOrderIds = [
+    ...new Set(groupPurchases.map((row) => row.purchase_order_id)),
+  ];
+  if (purchaseOrderIds.length === 0) return { data: [], error: null };
+
+  // 客户页面不读取采购金额和导入原文，避免把内部采购信息带到浏览器。
+  const purchaseOrdersResult = canViewInternalFields
+    ? await supabase
+        .from("wholesale_1688_orders")
+        .select("*")
+        .in("id", purchaseOrderIds)
+        .order("created_at", { ascending: false })
+    : await supabase
+        .from("wholesale_1688_orders")
+        .select(
+          "id,batch_id,external_order_number,seller_name,item_summary,quantity,order_status,purchased_at,recipient_name,assisted_customer_id,assisted_at,imported_by_user_id,created_at",
+        )
+        .in("id", purchaseOrderIds)
+        .order("created_at", { ascending: false });
+
+  if (purchaseOrdersResult.error) return purchaseOrdersResult;
+
+  const groupsById = new Map(groups.map((group) => [group.id, group]));
+  const purchaseOrdersById = new Map(
+    ((purchaseOrdersResult.data ?? []) as Wholesale1688Order[]).map((order) => [
+      order.id,
+      order,
+    ]),
+  );
+  const groupOrdersByGroupId = groupByClaimGroup(groupOrders);
+  const linkedOrders: WholesaleLinked1688Order[] = [];
+  const seenLinks = new Set<string>();
+
+  for (const purchaseLink of groupPurchases) {
+    const claimGroup = groupsById.get(purchaseLink.claim_group_id);
+    const purchaseOrder = purchaseOrdersById.get(purchaseLink.purchase_order_id);
+    if (!claimGroup || !purchaseOrder) continue;
+
+    for (const orderLink of groupOrdersByGroupId.get(claimGroup.id) ?? []) {
+      const linkKey = `${orderLink.wholesale_order_id}:${purchaseOrder.id}`;
+      if (seenLinks.has(linkKey)) continue;
+      seenLinks.add(linkKey);
+      linkedOrders.push({
+        ...purchaseOrder,
+        claim_group_id: claimGroup.id,
+        wholesale_order_id: orderLink.wholesale_order_id,
+        claimed_by_user_id: claimGroup.claimed_by_user_id,
+        claimed_at: claimGroup.claimed_at,
+        updated_by_user_id: claimGroup.updated_by_user_id,
+        updated_at: claimGroup.updated_at,
+      });
+    }
+  }
+
+  return { data: linkedOrders, error: null };
+}
+
+function groupByClaimGroup(rows: Wholesale1688ClaimGroupOrder[]) {
+  const grouped = new Map<string, Wholesale1688ClaimGroupOrder[]>();
+
+  for (const row of rows) {
+    grouped.set(row.claim_group_id, [
+      ...(grouped.get(row.claim_group_id) ?? []),
+      row,
+    ]);
+  }
+
+  return grouped;
+}
 
 function emptyRelatedQuery(): Promise<RelatedQueryResult> {
   return Promise.resolve({ data: [], error: null });

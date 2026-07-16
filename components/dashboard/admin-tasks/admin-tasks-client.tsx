@@ -12,7 +12,7 @@ import {
   type AdminTasksSearchParams,
 } from "@/lib/admin-tasks";
 
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 
 import {
   AssignmentDialog,
@@ -103,21 +103,24 @@ export function AdminTasksClient({
   );
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      <AdminTasksBoardTabs
-        activeBoard={activeBoard}
-        onBoardChange={handleBoardChange}
-        pendingBoard={isBoardSwitchPending ? activeBoard : null}
-      />
-
+    <DashboardPageShell
+      feedback={
+        activeBoard === "reviews"
+          ? reviewBoard.pageFeedback
+          : activeBoard === "mediaLibrary"
+            ? mediaLibrary.pageFeedback
+            : viewModel.pageFeedback
+      }
+      header={
+        <AdminTasksBoardTabs
+          activeBoard={activeBoard}
+          onBoardChange={handleBoardChange}
+          pendingBoard={isBoardSwitchPending ? activeBoard : null}
+        />
+      }
+    >
       {activeBoard === "reviews" ? (
         <>
-          {reviewBoard.pageFeedback ? (
-            <PageBanner tone={reviewBoard.pageFeedback.tone}>
-              {reviewBoard.pageFeedback.message}
-            </PageBanner>
-          ) : null}
-
           <AdminTaskReviewSection
             assetBusyKey={reviewBoard.assetBusyKey}
             busyRows={reviewBoard.busyRows}
@@ -138,12 +141,6 @@ export function AdminTasksClient({
         </>
       ) : activeBoard === "mediaLibrary" ? (
         <>
-          {mediaLibrary.pageFeedback ? (
-            <PageBanner tone={mediaLibrary.pageFeedback.tone}>
-              {mediaLibrary.pageFeedback.message}
-            </PageBanner>
-          ) : null}
-
           <AdminTaskMediaLibrarySection
             busyItemId={mediaLibrary.busyItemId}
             canView={mediaLibrary.canView}
@@ -168,12 +165,6 @@ export function AdminTasksClient({
         </>
       ) : (
         <>
-          {viewModel.pageFeedback ? (
-            <PageBanner tone={viewModel.pageFeedback.tone}>
-              {viewModel.pageFeedback.message}
-            </PageBanner>
-          ) : null}
-
           <AdminTasksHeroSection
             canView={viewModel.canView}
             isRefreshing={viewModel.isRefreshing}
@@ -302,6 +293,6 @@ export function AdminTasksClient({
           />
         </>
       )}
-    </section>
+    </DashboardPageShell>
   );
 }

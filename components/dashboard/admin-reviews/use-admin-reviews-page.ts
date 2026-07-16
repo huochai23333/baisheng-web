@@ -24,12 +24,15 @@ import {
   type NoticeTone,
 } from "../dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "../workspace-session-provider";
+import { useDashboardConfirm } from "../dashboard-confirm-provider";
 
 import type { BusyAction, ReviewTab } from "./types";
 
 type PageFeedback = { tone: NoticeTone; message: string } | null;
 
 export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const t = useTranslations("Reviews");
   const sharedT = useTranslations("DashboardShared");
   const sharedCopy = useMemo(() => createDashboardSharedCopy(sharedT), [sharedT]);
@@ -115,10 +118,11 @@ export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
         return;
       }
 
-      if (
-        typeof window !== "undefined" &&
-        !window.confirm(t("confirm.privacy", { action: actionLabel }))
-      ) {
+      if (!(await confirm({
+        description: t("confirm.privacy", { action: actionLabel }),
+        title: confirmT("title"),
+        tone: action === "reject" ? "warning" : "normal",
+      }))) {
         return;
       }
 
@@ -149,7 +153,7 @@ export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
         setRowBusyState(rowKey, null);
       }
     },
-    [busyRows, setRowBusyState, sharedCopy, supabase, t],
+    [busyRows, confirm, confirmT, setRowBusyState, sharedCopy, supabase, t],
   );
 
   const handleMediaReview = useCallback(
@@ -166,10 +170,11 @@ export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
         return;
       }
 
-      if (
-        typeof window !== "undefined" &&
-        !window.confirm(t("confirm.media", { action: actionLabel }))
-      ) {
+      if (!(await confirm({
+        description: t("confirm.media", { action: actionLabel }),
+        title: confirmT("title"),
+        tone: action === "reject" ? "warning" : "normal",
+      }))) {
         return;
       }
 
@@ -200,7 +205,7 @@ export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
         setRowBusyState(rowKey, null);
       }
     },
-    [busyRows, setRowBusyState, sharedCopy, supabase, t],
+    [busyRows, confirm, confirmT, setRowBusyState, sharedCopy, supabase, t],
   );
 
   const handleProfileChangeReview = useCallback(
@@ -217,10 +222,11 @@ export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
         return;
       }
 
-      if (
-        typeof window !== "undefined" &&
-        !window.confirm(t("confirm.profile", { action: actionLabel }))
-      ) {
+      if (!(await confirm({
+        description: t("confirm.profile", { action: actionLabel }),
+        title: confirmT("title"),
+        tone: action === "reject" ? "warning" : "normal",
+      }))) {
         return;
       }
 
@@ -253,7 +259,7 @@ export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
         setRowBusyState(rowKey, null);
       }
     },
-    [busyRows, setRowBusyState, sharedCopy, supabase, t],
+    [busyRows, confirm, confirmT, setRowBusyState, sharedCopy, supabase, t],
   );
 
   const closePreviewDialog = useCallback((open: boolean) => {

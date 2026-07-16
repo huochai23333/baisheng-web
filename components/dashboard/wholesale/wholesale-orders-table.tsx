@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { MOTION_DURATION, MOTION_EASING, getMotionStaggerDelay } from "@/lib/motion-tokens";
 import type {
-  Wholesale1688Order,
+  WholesaleLinked1688Order,
   WholesaleCustomer,
   WholesaleOrderListItem,
   WholesaleOrderSettlement,
@@ -38,7 +38,7 @@ export type WholesaleOrderEditAction = {
   label: string;
   tone: "direct" | "request";
 };
-type WholesaleOrdersTableProps = {
+export type WholesaleOrdersTableProps = {
   canMarkOrderSettled: (order: WholesaleOrderListItem) => boolean;
   canManageOrderListAttachments: (order: WholesaleOrderListItem) => boolean;
   canViewInternalFields: boolean;
@@ -60,7 +60,7 @@ type WholesaleOrdersTableProps = {
   orders: WholesaleOrderListItem[];
   pendingKey: string | null;
   profilesById: Map<string, WholesaleProfile>;
-  purchaseOrdersByOrderId: Map<string, Wholesale1688Order[]>;
+  purchaseOrdersByOrderId: Map<string, WholesaleLinked1688Order[]>;
 };
 export function WholesaleOrdersTable({
   canMarkOrderSettled,

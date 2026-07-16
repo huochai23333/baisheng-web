@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { DashboardSectionHeader } from "../dashboard-section-header";
+import { DashboardPageShell } from "../dashboard-page-shell";
 import {
   DashboardFilterField,
   DashboardListHeader,
@@ -37,16 +38,19 @@ export function WholesalePageShell({
   title: string;
 }) {
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      <DashboardSectionHeader
-        actions={actions}
-        badge={eyebrow}
-        contentClassName="max-w-3xl"
-        description={description}
-        title={title}
-      />
+    <DashboardPageShell
+      header={
+        <DashboardSectionHeader
+          actions={actions}
+          badge={eyebrow}
+          contentClassName="max-w-3xl"
+          description={description}
+          title={title}
+        />
+      }
+    >
       {children}
-    </section>
+    </DashboardPageShell>
   );
 }
 

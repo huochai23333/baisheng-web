@@ -45,6 +45,10 @@ export function WholesaleClient({
     initialData.currentRole === "salesman" ||
     initialData.currentRole === "finance";
   const canEdit = canAdmin || canUseSalesTools;
+  // 财务可以查看认领结果，但只有管理员和业务员可以调整订单关系。
+  const canManageClaims =
+    initialData.currentRole === "administrator" ||
+    initialData.currentRole === "salesman";
   const canManageWholesaleCustomers = canManageEveryWholesaleCustomer(
     initialData.currentRole,
   );
@@ -107,21 +111,21 @@ export function WholesaleClient({
         </div>
       ) : null}
 
-      {initialData.section === "order-claims" ? (
+      {initialData.section === "order-claims" && initialData.claimPage ? (
         <WholesaleClaimsSection
           actions={actions}
           canAdmin={canAdmin}
-          canEdit={canEdit}
-          canReassignClaims={canManageEveryWholesaleOrder(
-            initialData.currentRole,
-          )}
+          canManageClaims={canManageClaims}
           customers={initialData.customers}
-          customersById={customersById}
-          orders={initialData.orders}
+          initialPage={initialData.claimPage}
           pendingKey={actions.pendingKey}
-          profilesById={profilesById}
-          purchaseOrders={initialData.purchaseOrders}
         />
+      ) : null}
+
+      {initialData.section === "order-claims" && !initialData.claimPage ? (
+        <PageBanner tone="error">
+          {uiText("claimsLoadError")}
+        </PageBanner>
       ) : null}
 
       {initialData.section === "logistics" ? (

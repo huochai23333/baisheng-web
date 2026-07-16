@@ -27,6 +27,60 @@
     "page": "第 {page} 页，共 {pageCount} 页",
     "range": "第 {start}-{end} 条，共 {total} 条"
   },
+  "DashboardFramework": {
+    "filters": {
+      "title": "筛选内容",
+      "description": "选择筛选条件，快速找到需要处理的内容。",
+      "reset": "恢复默认筛选"
+    },
+    "confirm": {
+      "title": "请确认这项操作",
+      "cancel": "暂不操作",
+      "accept": "确认操作"
+    },
+    "files": {
+      "select": "选择文件"
+    },
+    "actions": {
+      "edit": "编辑",
+      "save": "保存",
+      "cancel": "取消"
+    }
+  },
+  "OrderListFramework": {
+    "filters": {
+      "title": "筛选订单",
+      "description": "选择日期和其他条件，快速找到需要处理的订单。",
+      "reset": "恢复默认范围"
+    },
+    "datePresets": {
+      "label": "日期快捷范围",
+      "last30Days": "最近 30 天",
+      "currentMonth": "本月",
+      "previousMonth": "上月",
+      "last3Months": "最近 3 个月",
+      "custom": "自定义"
+    },
+    "exactSearch": {
+      "action": "跨日期查此单号",
+      "active": "全历史精确查询：{orderNumber}",
+      "exit": "退出全历史查询"
+    },
+    "list": {
+      "title": "订单列表",
+      "description": "这里展示符合当前筛选条件的订单。",
+      "loaded": "已显示 {shown} / {total} {unit}",
+      "range": "已显示 {start}–{end} / {total} {unit}",
+      "loadMore": "继续加载",
+      "loadingMore": "正在继续加载…"
+    },
+    "units": {
+      "orders": "笔订单",
+      "purchaseOrders": "笔 1688 订单",
+      "claimGroups": "个认领组",
+      "logisticsOrders": "笔物流订单"
+    }
+  },
   "AuthShell": {
     "brandTitle": "管理系统",
     "brandSubtitle": "精选管理工作台",
@@ -766,8 +820,6 @@
         "edit": "修改订单",
         "requestEdit": "申请修改"
       },
-      "listCount": "已显示 {shown} / {total} 笔订单。",
-      "loadingList": "正在按当前条件加载订单。",
       "statuses": {
         "unsettled": "未结汇",
         "partial_settled": "部分结汇",
@@ -829,8 +881,7 @@
         "recorded": "已有运费",
         "missing": "缺少运费",
         "search": "搜索",
-        "searchPlaceholder": "包裹号、物流号或店铺名称",
-        "clear": "清除筛选"
+        "searchPlaceholder": "包裹号、物流号或店铺名称"
       },
       "summary": {
         "orders": "订单总数",
@@ -861,10 +912,7 @@
       },
       "list": {
         "title": "物流订单",
-        "shown": "已显示 {shown} / {total} 笔",
-        "loading": "正在加载物流订单…",
-        "loadingMore": "正在继续加载…",
-        "loadMore": "继续加载"
+        "loading": "正在加载物流订单…"
       },
       "assignments": {
         "title": "店铺归属设置",
@@ -1735,9 +1783,9 @@
       "forceDeleteSuccess": "订单 {orderNumber} 已彻底删除。"
     },
     "summary": {
-      "total": "订单总数",
-      "pending": "待处理订单",
-      "completed": "已完成订单"
+      "total": "当前范围订单总数",
+      "pending": "当前范围待处理订单",
+      "completed": "当前范围已完成订单"
     },
     "states": {
       "noViewPermissionTitle": "暂无查看权限",
@@ -1754,8 +1802,7 @@
       "orderingUserPlaceholder": "输入客户姓名或邮箱",
       "createdFromDateLabel": "下单日期从",
       "createdToDateLabel": "下单日期到",
-      "resultSummary": "共 {total} 条，匹配 {matched} 条",
-      "clear": "清空筛选"
+      "resultSummary": "当前范围共 {total} 条，匹配 {matched} 条"
     },
     "table": {
       "orderNumber": "订单编号",
@@ -3837,16 +3884,47 @@
       "text010": " 这个客户还没有可关联的批发订单，请先新建订单后再认领。 ",
       "attribute001": "选择从 1688 导出的订单表格，确认无误后再接收进入认领列表。系统会按收货人名字先帮你分到待分类。",
       "attribute004": "确认客户和批发订单后，这条采购订单会进入已认领。",
+      "noMatchingOrders": "没有找到符合搜索内容的批发订单",
+      "orderSearchLabel": "搜索批发订单",
+      "orderSearchPlaceholder": "输入订单编号或金额",
       "selectCustomerFirst": "请先选择客户",
       "selectOrder": "请选择该客户的订单",
+      "selectedOrderCount": "已选择 {count} 笔",
+      "exactSearchAction": "跨日期查此单号",
+      "exactSearchActive": "正在进行全历史精确查询",
+      "exitExactSearch": "退出全历史查询",
+      "loadingOrders": "正在加载批发订单…",
+      "loadMoreOrders": "继续加载批发订单",
       "text006": " 系统根据收货人名字“",
       "text008": "”，请确认要关联的批发订单。 "
     },
-    "components_dashboard_wholesale_wholesale_bulk_claim_dialog": {
-      "title": "批量认领采购订单",
-      "description": "把已选择的 {count} 条采购订单统一归到同一个客户和批发订单。",
-      "selectionSummary": "已选择 {count} 条采购订单，请确认它们属于同一个客户和批发订单。",
-      "submit": "确认批量认领"
+    "components_dashboard_wholesale_wholesale_claim_group_dialog": {
+      "cancelGroup": "撤销整组关联",
+      "cancelWarning": "撤销后，这组里的所有 1688 订单都会重新回到待认领列表。批发订单本身不会被删除。",
+      "confirmCancel": "确认撤销",
+      "create": "确认认领",
+      "createDescription": "为已选择的 {count} 笔 1688 订单确认客户，并勾选一笔或多笔批发订单。",
+      "createTitle": "认领采购订单",
+      "editDescription": "可以更换客户、调整批发订单，或移出误选的 1688 订单。",
+      "editTitle": "调整关联",
+      "keepGroup": "保留关联",
+      "purchaseOrdersLabel": "本组 1688 订单",
+      "removePurchaseOrder": "从本组移出 {orderNumber}",
+      "save": "保存调整",
+      "selectionSummary": "本次关联包含 {count} 笔 1688 订单"
+    },
+    "components_dashboard_wholesale_wholesale_claim_groups_table": {
+      "actions": "操作",
+      "adjust": "调整关联",
+      "claimedBy": "首次认领",
+      "claimedSummary": "首次认领：{name}，{time}",
+      "customer": "客户",
+      "group": "认领组",
+      "groupNumber": "认领组 {number}",
+      "purchaseOrders": "1688 订单",
+      "updatedBy": "最后调整",
+      "updatedSummary": "最后调整：{name}，{time}",
+      "wholesaleOrders": "批发订单"
     },
     "components_dashboard_wholesale_wholesale_claims_section": {
       "text003": " 条 ",
@@ -3859,9 +3937,14 @@
       "attribute003": "订单认领",
       "attribute004": "采购订单认领",
       "attribute007": "暂无采购订单",
+      "assistedEmptyDescription": "当前没有需要确认客户归属的 1688 订单。",
       "bulkClaim": "批量认领",
-      "clearFilters": "清空筛选",
+      "claimedBoardCount": "{groupCount} 组 · {purchaseCount} 笔 1688 订单",
+      "claimedEmptyDescription": "完成认领后，会按认领组在这里集中展示两侧订单。",
+      "claimedEmptyTitle": "暂无已认领订单",
       "clearSelection": "取消选择",
+      "hallEmptyDescription": "当前没有等待业务员认领的 1688 订单。",
+      "purchaseBoardCount": "{count} 笔 1688 订单",
       "purchaseFromLabel": "采购开始日期",
       "purchaseToLabel": "采购结束日期",
       "recipientFilterLabel": "收货人名字",
@@ -3892,12 +3975,16 @@
       "text003": "辅助归类",
       "text023": " 调整归属 ",
       "text001": " 1688 订单号 ",
+      "missingItem": "未记录商品",
+      "missingStatus": "未记录状态",
+      "notMatched": "尚未匹配客户",
       "selectAll": "选择当前筛选结果中的全部采购订单",
       "selectOrder": "选择采购订单 {orderNumber}"
     },
     "components_dashboard_wholesale_wholesale_client": {
       "text001": " 重新加载 ",
-      "text002": "物流记录暂时没有加载成功，请稍后重试。"
+      "text002": "物流记录暂时没有加载成功，请稍后重试。",
+      "claimsLoadError": "1688 订单暂时没有加载成功，请稍后重试。"
     },
     "components_dashboard_wholesale_wholesale_commission_records": {
       "text002": "客户",
@@ -4051,7 +4138,6 @@
       "attribute014": "申请说明"
     },
     "components_dashboard_wholesale_wholesale_order_filters": {
-      "text003": " 清空筛选 ",
       "text004": "全部状态",
       "attribute004": "客户",
       "attribute005": "业务员",
@@ -4059,8 +4145,6 @@
       "attribute001": "搜索订单",
       "attribute003": "订单状态",
       "text008": "全部客户",
-      "text001": "查找订单",
-      "text002": " 可以按订单、1688 单号、客户、业务员、状态和日期查找。 ",
       "attribute002": "订单号、客户或 1688 单号",
       "attribute007": "下单日期到",
       "attribute006": "下单日期从",
@@ -4126,7 +4210,6 @@
       "attribute002": "批发业务",
       "attribute003": "批发订单",
       "text002": " 重新加载 ",
-      "text004": " 继续加载 ",
       "attribute004": "订单列表",
       "text001": " 新建订单 ",
       "attribute006": "暂无匹配订单",

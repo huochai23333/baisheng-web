@@ -2,11 +2,9 @@
 
 import type { ReactNode } from "react";
 
-import { LoaderCircle, PencilLine, Save, X } from "lucide-react";
-
 import type { ServiceFeeTypeOption } from "@/lib/service-fee-types";
 
-import { Button } from "../../ui/button";
+import { DashboardInlineEditActions } from "../dashboard-framework-primitives";
 import {
   DashboardTableFrame,
   dashboardFilterInputClassName,
@@ -241,44 +239,17 @@ function ServiceFeeActions({
   onStartEditing: () => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2 md:justify-end">
-      {isEditing ? (
-        <>
-          <Button
-            disabled={pendingAction !== null}
-            onClick={onSave}
-            type="button"
-            variant="outline"
-          >
-            {isSaving ? (
-              <LoaderCircle className="size-4 animate-spin" />
-            ) : (
-              <Save className="size-4" />
-            )}
-            {copy.save}
-          </Button>
-          <Button
-            disabled={pendingAction !== null}
-            onClick={onCancelEditing}
-            type="button"
-            variant="outline"
-          >
-            <X className="size-4" />
-            {copy.cancel}
-          </Button>
-        </>
-      ) : (
-        <Button
-          disabled={pendingAction !== null}
-          onClick={onStartEditing}
-          type="button"
-          variant="outline"
-        >
-          <PencilLine className="size-4" />
-          {copy.edit}
-        </Button>
-      )}
-    </div>
+    <DashboardInlineEditActions
+      cancelLabel={copy.cancel}
+      editLabel={copy.edit}
+      editing={isEditing}
+      onCancel={onCancelEditing}
+      onEdit={onStartEditing}
+      onSave={onSave}
+      pending={pendingAction !== null}
+      saveLabel={copy.save}
+      saving={isSaving}
+    />
   );
 }
 

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import type { WholesaleLogisticsStoreAssignment } from "@/lib/wholesale-logistics-page";
 
@@ -33,6 +34,8 @@ export function WholesaleLogisticsAssignmentHistory({
   pendingKey: string | null;
   profiles: WholesaleProfile[];
 }) {
+  const confirm = useDashboardConfirm();
+  const confirmT = useTranslations("DashboardFramework.confirm");
   const locale = useLocale();
   const t = useTranslations("WholesaleBusiness.logisticsArchive");
   const profilesById = useMemo(
@@ -46,7 +49,11 @@ export function WholesaleLogisticsAssignmentHistory({
 
   const endAssignment = async (assignment: WholesaleLogisticsStoreAssignment) => {
     // 结束会改变此后的订单归属，因此提交前让业务人员再次确认店铺名称。
-    if (!window.confirm(t("assignments.confirmEnd", { store: assignment.store_name }))) {
+    if (!(await confirm({
+      description: t("assignments.confirmEnd", { store: assignment.store_name }),
+      title: confirmT("title"),
+      tone: "warning",
+    }))) {
       return;
     }
     await onEnd(assignment.id, new Date().toISOString());

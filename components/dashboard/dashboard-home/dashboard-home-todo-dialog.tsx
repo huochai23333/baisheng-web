@@ -3,7 +3,12 @@
 import { LoaderCircle } from "lucide-react";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
-import { PageBanner, type NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import {
+  DashboardFormDialog,
+  DashboardFormTextarea,
+  dashboardFormInputClassName,
+} from "@/components/dashboard/dashboard-form-dialog";
+import type { NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { UserTodoItemRow } from "@/lib/user-todos";
 
@@ -26,10 +31,6 @@ type HomeTodoDialogProps = {
   pending: boolean;
 };
 
-const inputClassName =
-  "min-h-11 rounded-2xl border border-[#d8dee3] bg-white px-4 text-sm text-[#23313a] outline-none transition focus:border-[#86a5ba] focus:ring-4 focus:ring-[#dbe8f0]";
-const textareaClassName = `${inputClassName} min-h-[150px] resize-y py-3 leading-7`;
-
 export function HomeTodoDialog({
   copy,
   feedback,
@@ -40,46 +41,24 @@ export function HomeTodoDialog({
   open,
   pending,
 }: HomeTodoDialogProps) {
-  return open ? (
-    <DashboardDialog
-      actions={
-        <>
-          <Button
-            className="h-11 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
-            data-testid="home-todo-dialog-cancel"
-            disabled={pending}
-            onClick={() => onOpenChange(false)}
-            type="button"
-            variant="outline"
-          >
-            {copy.actions.cancel}
-          </Button>
-          <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-            data-testid="home-todo-dialog-save"
-            disabled={pending}
-            onClick={onSubmit}
-            type="button"
-          >
-            {pending ? <LoaderCircle className="size-4 animate-spin" /> : null}
-            {copy.actions.save}
-          </Button>
-        </>
-      }
+  return (
+    <DashboardFormDialog
+      cancelLabel={copy.actions.cancel}
+      cancelTestId="home-todo-dialog-cancel"
       description={copy.dialog.description}
+      feedback={feedback}
       onOpenChange={onOpenChange}
+      onSubmit={onSubmit}
       open={open}
+      pending={pending}
+      submitLabel={copy.actions.save}
+      submitTestId="home-todo-dialog-save"
       title={copy.dialog.title}
     >
-      <div className="space-y-5">
-        {feedback ? (
-          <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner>
-        ) : null}
-
         <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
           {copy.dialog.titleLabel}
           <input
-            className={inputClassName}
+            className={dashboardFormInputClassName}
             data-testid="home-todo-dialog-title"
             onChange={(event) => onUpdateField("title", event.target.value)}
             placeholder={copy.dialog.titlePlaceholder}
@@ -90,8 +69,8 @@ export function HomeTodoDialog({
 
         <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
           {copy.dialog.notesLabel}
-          <textarea
-            className={textareaClassName}
+          <DashboardFormTextarea
+            className="min-h-[150px]"
             data-testid="home-todo-dialog-notes"
             onChange={(event) => onUpdateField("notes", event.target.value)}
             placeholder={copy.dialog.notesPlaceholder}
@@ -102,7 +81,7 @@ export function HomeTodoDialog({
         <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
           {copy.dialog.dueDateLabel}
           <input
-            className={inputClassName}
+            className={dashboardFormInputClassName}
             data-testid="home-todo-dialog-due-date"
             onChange={(event) => onUpdateField("dueDate", event.target.value)}
             type="date"
@@ -137,9 +116,8 @@ export function HomeTodoDialog({
             {copy.dialog.completedLabel}
           </label>
         </div>
-      </div>
-    </DashboardDialog>
-  ) : null;
+    </DashboardFormDialog>
+  );
 }
 
 type HomeTodoDeleteDialogProps = {

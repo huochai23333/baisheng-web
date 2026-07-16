@@ -1,7 +1,5 @@
 "use client";
 
-import { useRef } from "react";
-
 import { useTranslations } from "next-intl";
 import { LoaderCircle, Paperclip, Trash2, Upload } from "lucide-react";
 
@@ -21,6 +19,7 @@ import {
   type NoticeTone,
 } from "@/components/dashboard/dashboard-shared-ui";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
+import { DashboardFilePicker } from "@/components/dashboard/dashboard-framework-primitives";
 import type { SalesmanTaskRow } from "@/lib/salesman-tasks";
 
 type DialogFeedback = { tone: NoticeTone; message: string } | null;
@@ -51,7 +50,6 @@ export function SalesmanTaskSubmitDialog({
   task: SalesmanTaskRow | null;
 }) {
   const t = useTranslations("Tasks.salesman.submitDialog");
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const requiresAttachment = task?.review_requires_attachment ?? true;
 
   return (
@@ -120,29 +118,12 @@ export function SalesmanTaskSubmitDialog({
           <p className="mb-2 text-sm font-semibold text-[#23313a]">
             {requiresAttachment ? t("filesLabel") : t("filesOptionalLabel")}
           </p>
-          <input
-            className="hidden"
+          <DashboardFilePicker
+            label={t("filesCta")}
             multiple
-            onChange={(event) => {
-              const selectedFiles = Array.from(event.target.files ?? []);
-              event.target.value = "";
-
-              if (selectedFiles.length > 0) {
-                onFilesChange(selectedFiles);
-              }
-            }}
-            ref={fileInputRef}
-            type="file"
+            onFiles={onFilesChange}
           />
-          <button
-            className="flex min-h-32 w-full flex-col items-center justify-center gap-3 rounded-[24px] border border-dashed border-[#c8d4de] bg-[#f8fbfc] px-6 py-8 text-center transition hover:border-[#9cb3c6] hover:bg-[#f1f7fb]"
-            onClick={() => fileInputRef.current?.click()}
-            type="button"
-          >
-            <Upload className="size-6 text-[#486782]" />
-            <div>
-              <p className="text-sm font-semibold text-[#23313a]">{t("filesCta")}</p>
-              <p className="mt-2 text-xs leading-6 text-[#6f7b85]">
+          <p className="mt-2 text-xs leading-6 text-[#6f7b85]">
                 {requiresAttachment
                   ? t("filesHint", {
                       maxFiles: TASK_REVIEW_SUBMISSION_MAX_FILES,
@@ -158,9 +139,7 @@ export function SalesmanTaskSubmitDialog({
                       otherMaxPerFile: formatFileSize(OTHER_UPLOAD_MAX_SIZE_BYTES),
                       maxTotal: formatFileSize(TASK_REVIEW_SUBMISSION_MAX_TOTAL_SIZE_BYTES),
                     })}
-              </p>
-            </div>
-          </button>
+          </p>
 
           {files.length > 0 ? (
             <div className="mt-4 space-y-2">

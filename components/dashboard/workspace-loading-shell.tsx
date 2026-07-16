@@ -8,6 +8,7 @@ import {
   getWorkspaceConfigForPathname,
   type WorkspaceLoadingTitleKey,
 } from "@/lib/workspace-config";
+import { DashboardPageShell } from "./dashboard-page-shell";
 
 type WorkspaceLoadingShellProps = {
   description?: string;
@@ -30,12 +31,8 @@ export function WorkspaceLoadingShell({
     title ?? (resolvedTitleKey ? titleT(resolvedTitleKey) : shellT("title"));
 
   return (
-    <section
-      aria-busy="true"
-      aria-live="polite"
-      className="mx-auto flex w-full max-w-[1320px] flex-col gap-8"
-      role="status"
-    >
+    <div aria-busy="true" aria-live="polite" role="status">
+    <DashboardPageShell>
       <div className="rounded-[28px] border border-white/90 bg-[#f4f3f1]/92 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.08)] xl:p-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-3">
@@ -71,7 +68,8 @@ export function WorkspaceLoadingShell({
           <SkeletonBlock />
         </div>
       </div>
-    </section>
+    </DashboardPageShell>
+    </div>
   );
 }
 

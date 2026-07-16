@@ -18,6 +18,7 @@ import {
 } from "@/lib/upload-file-size-limits";
 
 import { formatFileSize } from "@/components/dashboard/dashboard-shared-ui";
+import { DashboardFilePicker } from "@/components/dashboard/dashboard-framework-primitives";
 import {
   getTaskTargetRoleLabel,
   getTaskTargetRolesLabel,
@@ -308,12 +309,12 @@ export function CreateTaskAttachmentsField({
   return (
     <FormField label={t("createDialog.attachmentsLabel")}>
       <div className="rounded-[24px] border border-dashed border-[#cfd8df] bg-[#fbfaf8] p-5">
-        <label className="flex cursor-pointer flex-col items-center justify-center rounded-[20px] border border-[#dfe5ea] bg-white px-5 py-8 text-center transition hover:bg-[#f8fbfd]">
-          <Paperclip className="size-5 text-[#486782]" />
-          <span className="mt-3 text-sm font-semibold text-[#23313a]">
-            {t("createDialog.attachmentsCta")}
-          </span>
-          <span className="mt-2 text-xs leading-6 text-[#7b858d]">
+        <DashboardFilePicker
+          label={t("createDialog.attachmentsCta")}
+          multiple
+          onFiles={onFilesChange}
+        />
+          <p className="mt-3 text-xs leading-6 text-[#7b858d]">
             {t("createDialog.attachmentsHint", {
               maxFiles: ADMIN_TASK_ATTACHMENT_MAX_FILES,
               imageMaxPerFile: formatFileSize(IMAGE_UPLOAD_MAX_SIZE_BYTES),
@@ -321,17 +322,7 @@ export function CreateTaskAttachmentsField({
               otherMaxPerFile: formatFileSize(OTHER_UPLOAD_MAX_SIZE_BYTES),
               maxTotal: formatFileSize(ADMIN_TASK_ATTACHMENT_MAX_TOTAL_SIZE_BYTES),
             })}
-          </span>
-          <input
-            className="sr-only"
-            multiple
-            onChange={(event) => {
-              onFilesChange(Array.from(event.target.files ?? []));
-              event.currentTarget.value = "";
-            }}
-            type="file"
-          />
-        </label>
+          </p>
 
         {files.length > 0 ? (
           <div className="mt-4 flex flex-wrap gap-2">

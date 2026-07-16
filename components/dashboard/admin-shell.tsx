@@ -12,6 +12,7 @@ import { AiAssistantClient } from "@/components/dashboard/ai-assistant/ai-assist
 import { BrandMark } from "@/components/brand/brand-mark";
 import { WorkspaceHeaderActions } from "@/components/dashboard/workspace-header-actions";
 import { WorkspaceSessionProvider } from "@/components/dashboard/workspace-session-provider";
+import { DashboardConfirmProvider } from "@/components/dashboard/dashboard-confirm-provider";
 import {
   WorkspaceCustomizationSidebarProvider,
   WorkspaceDesktopSidebar,
@@ -74,7 +75,8 @@ export async function AdminShell({ children, config }: AdminShellProps) {
 
   return (
     <ScopedIntlProvider namespaces={["DashboardShell", "LanguageToggle"]}>
-      <WorkspaceSessionProvider>
+      <DashboardConfirmProvider>
+        <WorkspaceSessionProvider>
         <WorkspaceCustomizationSidebarProvider>
         <div className="min-h-screen bg-[#faf9f7] text-[#1c262d]">
           <div className="pointer-events-none fixed inset-0 overflow-hidden">
@@ -159,7 +161,8 @@ export async function AdminShell({ children, config }: AdminShellProps) {
           </div>
         </div>
         </WorkspaceCustomizationSidebarProvider>
-      </WorkspaceSessionProvider>
+        </WorkspaceSessionProvider>
+      </DashboardConfirmProvider>
     </ScopedIntlProvider>
   );
 }

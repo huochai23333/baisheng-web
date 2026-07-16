@@ -29,10 +29,17 @@ test.describe("wholesale order pagination", () => {
     expect(loadedIds.slice(0, 20)).toEqual(firstBatchIds);
 
     await page.getByLabel("搜索订单").fill("1688-LOCAL-001");
-    await expect(rows).toHaveCount(1);
-    await expect(rows.first()).toContainText("WH-LOCAL-202607-001");
-    await expect(rows.first().getByRole("button", { name: "1688-LOCAL-001" }))
-      .toBeVisible();
+    await expect(rows).toHaveCount(2);
+    for (const orderId of [
+      "c2000000-0000-4000-8000-000000000001",
+      "c2000000-0000-4000-8000-000000000004",
+    ]) {
+      await expect(
+        page
+          .getByTestId(`wholesale-order-row-${orderId}`)
+          .getByRole("button", { name: "1688-LOCAL-001" }),
+      ).toBeVisible();
+    }
   });
 
   test("salesman and client can use wholesale order cards on mobile", async ({
@@ -121,7 +128,7 @@ test.describe("wholesale order pagination", () => {
       page.locator('[data-testid^="wholesale-order-row-"]').filter({
         hasText: "1688-LOCAL-001",
       }),
-    ).toBeVisible();
+    ).toHaveCount(2);
 
     await page.unroute("**/rest/v1/wholesale_order_settlements**");
     await page.route("**/rest/v1/rpc/get_wholesale_order_page", (route) =>

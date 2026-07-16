@@ -13,11 +13,11 @@ import {
 import { useTranslations } from "next-intl";
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   DashboardListSection,
   DashboardTableFrame,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
+import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import type {
@@ -98,6 +98,7 @@ export function AdminPeopleDirectorySection({
   filteredPeople,
   onAdjustPerson,
   onEditPersonNote,
+  onReset,
   onRoleFilterChange,
   onSearchTextChange,
   onStatusFilterChange,
@@ -113,6 +114,7 @@ export function AdminPeopleDirectorySection({
   filteredPeople: AdminPersonRow[];
   onAdjustPerson: (person: AdminPersonRow) => void;
   onEditPersonNote: (person: AdminPersonRow) => void;
+  onReset: () => void;
   onRoleFilterChange: (value: string) => void;
   onSearchTextChange: (value: string) => void;
   onStatusFilterChange: (value: string) => void;
@@ -131,7 +133,11 @@ export function AdminPeopleDirectorySection({
       eyebrow={t("directory.eyebrow")}
       title={t("directory.title")}
     >
-      <DashboardFilterPanel gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]">
+      <DashboardResourceFilterSection
+        gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"
+        onReset={onReset}
+        resetDisabled={!searchText && roleFilter === "all" && statusFilter === "all"}
+      >
         <DashboardFilterField label={t("filters.search")}>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
@@ -173,7 +179,7 @@ export function AdminPeopleDirectorySection({
             ))}
           </select>
         </DashboardFilterField>
-      </DashboardFilterPanel>
+      </DashboardResourceFilterSection>
 
       <div className="mt-5">
         {filteredPeople.length === 0 ? (

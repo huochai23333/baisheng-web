@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "@/components/i18n/locale-provider";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 import type { AdminWorkspaceFeedbackPageData } from "@/lib/workspace-feedback";
 
 import {
@@ -21,20 +21,20 @@ export function AdminFeedbackClient({
   const viewModel = useAdminFeedbackViewModel({ initialData });
 
   return (
-    <section className="mx-auto flex w-full max-w-[1320px] flex-col gap-8">
-      {viewModel.pageFeedback ? (
-        <PageBanner tone={viewModel.pageFeedback.tone}>
-          {viewModel.pageFeedback.message}
-        </PageBanner>
-      ) : null}
-
-      <AdminFeedbackHeaderSection />
-
+    <DashboardPageShell
+      feedback={viewModel.pageFeedback}
+      header={<AdminFeedbackHeaderSection />}
+    >
       {!viewModel.hasPermission ? (
         <AdminFeedbackNoPermissionSection />
       ) : (
         <>
           <AdminFeedbackFilterSection
+            onReset={() => {
+              viewModel.setSearchText("");
+              viewModel.handleStatusFilterChange("all");
+              viewModel.handleTypeFilterChange("all");
+            }}
             onSearchTextChange={viewModel.setSearchText}
             onStatusFilterChange={viewModel.handleStatusFilterChange}
             onTypeFilterChange={viewModel.handleTypeFilterChange}
@@ -59,6 +59,6 @@ export function AdminFeedbackClient({
           />
         </>
       )}
-    </section>
+    </DashboardPageShell>
   );
 }

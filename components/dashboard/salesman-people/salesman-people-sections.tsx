@@ -11,11 +11,11 @@ import { useTranslations } from "next-intl";
 
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   DashboardListSection,
   DashboardTableFrame,
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
+import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import {
   DashboardSectionHeader,
   type DashboardSectionHeaderMetric,
@@ -104,6 +104,7 @@ export function SalesmanPeopleDirectorySection({
   locale,
   onAdjustCustomerType,
   onEditCustomerNote,
+  onReset,
   onSearchTextChange,
   searchText,
 }: {
@@ -112,6 +113,7 @@ export function SalesmanPeopleDirectorySection({
   locale: Locale;
   onAdjustCustomerType: (customer: SalesmanCustomerRow) => void;
   onEditCustomerNote: (customer: SalesmanCustomerRow) => void;
+  onReset: () => void;
   onSearchTextChange: (value: string) => void;
   searchText: string;
 }) {
@@ -123,7 +125,11 @@ export function SalesmanPeopleDirectorySection({
       eyebrow={t("directory.eyebrow")}
       title={t("directory.title")}
     >
-      <DashboardFilterPanel gridClassName="sm:grid-cols-[minmax(0,1fr)]">
+      <DashboardResourceFilterSection
+        gridClassName="sm:grid-cols-[minmax(0,1fr)]"
+        onReset={onReset}
+        resetDisabled={!searchText}
+      >
         <DashboardFilterField label={t("filters.search")}>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
@@ -135,7 +141,7 @@ export function SalesmanPeopleDirectorySection({
             />
           </div>
         </DashboardFilterField>
-      </DashboardFilterPanel>
+      </DashboardResourceFilterSection>
 
       <div className="mt-5">
         {filteredCustomers.length === 0 ? (
