@@ -11,7 +11,7 @@ import {
   type AdminOrderSupplementaryDetail,
 } from "@/lib/admin-orders";
 
-import { PageBanner } from "../dashboard-shared-ui";
+import { FeedbackNotice } from "../dashboard-shared-ui";
 import { OrderDetailCard } from "./admin-orders-dialog-ui";
 import {
   flattenOrderDetailItems,
@@ -52,8 +52,8 @@ export function OrderSupplementaryDetailsSection({
 
   if (loading) {
     return (
-      <div className="rounded-[24px] border border-[#ebe7e1] bg-[#f9f7f4] px-5 py-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
-        <div className="flex items-center gap-3 text-sm text-[#60707d]">
+      <div className="rounded-[24px] border border-border-subtle bg-surface-inset px-5 py-4 shadow-[var(--surface-shadow-interactive)]">
+        <div className="flex items-center gap-3 text-sm text-content-muted">
           <LoaderCircle className="size-4 animate-spin" />
           {t("details.supplementary.loading")}
         </div>
@@ -62,11 +62,13 @@ export function OrderSupplementaryDetailsSection({
   }
 
   if (error) {
-    return <PageBanner tone="error">{error}</PageBanner>;
+    return <FeedbackNotice tone="error">{error}</FeedbackNotice>;
   }
 
   if (!detail) {
-    return <PageBanner tone="info">{t("details.supplementary.empty")}</PageBanner>;
+    return (
+      <FeedbackNotice tone="info">{t("details.supplementary.empty")}</FeedbackNotice>
+    );
   }
 
   const formTitle = getSupplementaryFormTitle(detail, t);
@@ -74,13 +76,18 @@ export function OrderSupplementaryDetailsSection({
   const subtypeValue = getSupplementarySubtypeValue(detail, orderUiCopy);
 
   return (
-    <section className="rounded-[28px] border border-[#ebe7e1] bg-[#f9f7f4] p-5 shadow-[0_10px_24px_rgba(96,113,128,0.05)] sm:p-6">
+    <section className="rounded-[28px] border border-border-subtle bg-surface-inset p-5 shadow-[var(--surface-shadow-interactive)] sm:p-6">
       <div className="flex flex-col">
-        <h3 className="text-lg font-semibold text-[#23313a]">{formTitle}</h3>
+        <h3 className="text-lg font-semibold text-content-strong">
+          {formTitle}
+        </h3>
       </div>
 
       <div className="mt-5 grid gap-5 md:grid-cols-2">
-        <OrderDetailCard label={t("details.supplementary.sourceForm")} value={formTitle} />
+        <OrderDetailCard
+          label={t("details.supplementary.sourceForm")}
+          value={formTitle}
+        />
         <OrderDetailCard label={subtypeLabel} value={subtypeValue} />
         {detail.kind === "service" ? (
           <>
@@ -90,7 +97,11 @@ export function OrderSupplementaryDetailsSection({
             />
             <OrderDetailCard
               label={t("details.supplementary.discount")}
-              value={formatDiscountRatioValue(detail.discountRatio, locale, orderUiCopy)}
+              value={formatDiscountRatioValue(
+                detail.discountRatio,
+                locale,
+                orderUiCopy,
+              )}
             />
           </>
         ) : null}
@@ -106,7 +117,9 @@ export function OrderSupplementaryDetailsSection({
           ))
         ) : (
           <div className="md:col-span-2">
-            <PageBanner tone="info">{t("details.supplementary.noMoreDetails")}</PageBanner>
+            <FeedbackNotice tone="info">
+              {t("details.supplementary.noMoreDetails")}
+            </FeedbackNotice>
           </div>
         )}
       </div>
@@ -128,7 +141,10 @@ function formatServicePriceValue(
 function getVisibleSupplementaryDetails(
   detail: AdminOrderSupplementaryDetail,
 ): AdminOrderDetailValue {
-  if (detail.kind !== "vip_recharge" || !isPlainOrderDetailObject(detail.details)) {
+  if (
+    detail.kind !== "vip_recharge" ||
+    !isPlainOrderDetailObject(detail.details)
+  ) {
     return detail.details;
   }
 
@@ -146,7 +162,10 @@ function isPlainOrderDetailObject(
 }
 
 function isHiddenVipOrderDetailKey(key: string) {
-  const normalizedKey = key.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  const normalizedKey = key
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
   return normalizedKey === "source" || normalizedKey === "request_id";
 }
 

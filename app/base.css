@@ -21,8 +21,8 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(circle at top right, rgba(190, 209, 222, 0.35), transparent 32%),
-      radial-gradient(circle at bottom left, rgba(204, 221, 213, 0.22), transparent 28%);
+      radial-gradient(circle at top right, var(--page-glow-blue), transparent 32%),
+      radial-gradient(circle at bottom left, var(--page-glow-green), transparent 28%);
   }
 
   :where(button, a, [role="button"], summary) {
@@ -31,10 +31,23 @@
     transition-timing-function: var(--motion-ease-enter);
   }
 
-  :where(input, select, textarea) {
+  :where(input, textarea, [role="combobox"]) {
     transition-duration: var(--motion-duration-feedback);
     transition-property: color, background-color, border-color, box-shadow, opacity;
     transition-timing-function: var(--motion-ease-enter);
+  }
+
+  [data-slot="select-popup"] {
+    transform-origin: var(--transform-origin);
+    transition:
+      opacity var(--motion-duration-feedback) var(--motion-ease-enter),
+      transform var(--motion-duration-feedback) var(--motion-ease-enter);
+  }
+
+  [data-slot="select-popup"][data-starting-style],
+  [data-slot="select-popup"][data-ending-style] {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
   }
 
   :where(button, a, [role="button"], summary):active:not(:disabled) {

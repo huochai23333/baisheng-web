@@ -1,4 +1,6 @@
 "use client";
+
+import { StatusBadge } from "@/components/ui/status-badge";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import {
@@ -24,7 +26,6 @@ import {
 } from "./wholesale-display";
 import {
   WholesaleEmptyState,
-  WholesaleStatusBadge,
   WholesaleTable,
   WholesaleTd,
   WholesaleTh,
@@ -146,11 +147,11 @@ export function WholesaleOrderChangeSections({
                         {request.request_note ?? "未填写"}
                       </WholesaleTd>
                       <WholesaleTd>
-                        <WholesaleStatusBadge
+                        <StatusBadge
                           tone={getRequestStatusTone(request.status)}
                         >
                           {getRequestStatusLabel(request.status)}
-                        </WholesaleStatusBadge>
+                        </StatusBadge>
                       </WholesaleTd>
                       <WholesaleTd>
                         {formatDateTime(request.created_at)}
@@ -160,7 +161,8 @@ export function WholesaleOrderChangeSections({
                           {isPending ? (
                             <div className="flex min-w-[170px] flex-wrap gap-2">
                               <Button
-                                className="h-9 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
+                                variant="primary"
+                                size="compact"
                                 disabled={
                                   pendingKey ===
                                   `order-edit:approve:${request.id}`
@@ -179,14 +181,14 @@ export function WholesaleOrderChangeSections({
                                 <UiMessage id="components_dashboard_wholesale_wholesale_order_change_sections.text009" />
                               </Button>
                               <Button
-                                className="h-9 rounded-full border border-[#f1d1d1] bg-[#fff2f2] px-3 text-xs text-[#b13d3d] hover:bg-[#fce5e5]"
+                                size="compact"
                                 disabled={
                                   pendingKey ===
                                   `order-edit:reject:${request.id}`
                                 }
                                 onClick={() => void onRejectRequest(request.id)}
                                 type="button"
-                                variant="outline"
+                                variant="danger"
                               >
                                 {pendingKey ===
                                 `order-edit:reject:${request.id}` ? (

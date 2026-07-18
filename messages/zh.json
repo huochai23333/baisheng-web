@@ -47,6 +47,31 @@
       "cancel": "取消"
     }
   },
+  "DatePicker": {
+    "cancel": "取消",
+    "chooseDate": "选择日期",
+    "chooseDateTime": "选择日期和时间",
+    "chooseMonth": "选择月份",
+    "clear": "清除",
+    "close": "关闭日期选择",
+    "complete": "完成",
+    "hour": "小时",
+    "invalidDate": "请输入有效日期，例如 2026/06/18。",
+    "invalidDateTime": "请输入有效日期和时间，例如 2026/06/18 14:30。",
+    "invalidMonth": "请输入有效月份，例如 2026/06。",
+    "minute": "分钟",
+    "monthLabel": "月份",
+    "nextMonth": "下一个月",
+    "now": "现在",
+    "openDate": "打开日期选择",
+    "openDateTime": "打开日期和时间选择",
+    "openMonth": "打开月份选择",
+    "outOfRange": "请选择允许范围内的日期或时间。",
+    "previousMonth": "上一个月",
+    "required": "请选择或输入日期。",
+    "today": "今天",
+    "yearLabel": "年份"
+  },
   "OrderListFramework": {
     "filters": {
       "title": "筛选订单",

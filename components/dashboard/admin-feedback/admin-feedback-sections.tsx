@@ -1,9 +1,10 @@
 "use client";
 
+import { Select } from "@/components/ui/select";
+
 import {
   Filter,
   MessageSquareWarning,
-  Search,
   ShieldAlert,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -11,8 +12,8 @@ import { useTranslations } from "next-intl";
 import {
   DashboardFilterField,
   DashboardListSection,
+  DashboardSearchInput,
   DashboardTableFrame,
-  dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
@@ -96,48 +97,44 @@ export function AdminFeedbackFilterSection({
     <DashboardResourceFilterSection
       gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"
       onReset={onReset}
-      resetDisabled={!searchText && statusFilter === "all" && typeFilter === "all"}
+      resetDisabled={
+        !searchText && statusFilter === "all" && typeFilter === "all"
+      }
     >
       <DashboardFilterField label={t("filters.search")}>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
-          <input
-            className={cn(dashboardFilterInputClassName, "pl-10")}
-            onChange={(event) => onSearchTextChange(event.target.value)}
-            placeholder={t("filters.searchPlaceholder")}
-            value={searchText}
-          />
-        </div>
+        <DashboardSearchInput
+          onChange={onSearchTextChange}
+          placeholder={t("filters.searchPlaceholder")}
+          value={searchText}
+        />
       </DashboardFilterField>
 
       <DashboardFilterField label={t("filters.type")}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) => onTypeFilterChange(event.target.value)}
+        <Select
+          onValueChange={onTypeFilterChange}
+          options={[
+            { label: t("filters.allTypes"), value: "all" },
+            ...typeOptions.map((feedbackType) => ({
+              label: typeLabels[feedbackType],
+              value: feedbackType,
+            })),
+          ]}
           value={typeFilter}
-        >
-          <option value="all">{t("filters.allTypes")}</option>
-          {typeOptions.map((feedbackType) => (
-            <option key={feedbackType} value={feedbackType}>
-              {typeLabels[feedbackType]}
-            </option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
 
       <DashboardFilterField label={t("filters.status")}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) => onStatusFilterChange(event.target.value)}
+        <Select
+          onValueChange={onStatusFilterChange}
+          options={[
+            { label: t("filters.allStatuses"), value: "all" },
+            ...statusOptions.map((status) => ({
+              label: statusLabels[status],
+              value: status,
+            })),
+          ]}
           value={statusFilter}
-        >
-          <option value="all">{t("filters.allStatuses")}</option>
-          {statusOptions.map((status) => (
-            <option key={status} value={status}>
-              {statusLabels[status]}
-            </option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
     </DashboardResourceFilterSection>
   );
@@ -179,7 +176,7 @@ export function AdminFeedbackListSection({
       ) : (
         <DashboardTableFrame>
           <table className="min-w-[1060px] w-full text-left text-sm">
-            <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
+            <thead className="bg-surface-inset text-xs font-semibold text-content-muted">
               <tr>
                 <th className="px-4 py-3">{t("list.feedback")}</th>
                 <th className="px-4 py-3">{t("list.submitter")}</th>
@@ -189,7 +186,7 @@ export function AdminFeedbackListSection({
                 <th className="px-4 py-3">{t("list.status")}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f0ece5]">
+            <tbody className="divide-y divide-border-subtle">
               {feedbackItems.map((feedback) => (
                 <FeedbackTableRow
                   feedback={feedback}
@@ -234,33 +231,33 @@ function FeedbackTableRow({
   const fallback = t("fallback.notProvided");
 
   return (
-    <tr className="align-top text-[#334550]">
+    <tr className="align-top text-content-muted">
       <td className="max-w-[360px] px-4 py-4">
-        <p className="font-semibold text-[#23313a]">{feedback.title}</p>
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#66727d]">
+        <p className="font-semibold text-content-strong">{feedback.title}</p>
+        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-content-muted">
           {feedback.content}
         </p>
       </td>
       <td className="px-4 py-4">
-        <p className="font-semibold text-[#23313a]">
+        <p className="font-semibold text-content-strong">
           {getFeedbackSubmitterName(feedback, fallback)}
         </p>
-        <p className="mt-1 text-xs text-[#6f7b85]">
+        <p className="mt-1 text-xs text-content-muted">
           {getFeedbackSubmitterContact(feedback, fallback)}
         </p>
-        <p className="mt-2 text-xs font-medium text-[#7d8890]">
+        <p className="mt-2 text-xs font-medium text-content-muted">
           {getFeedbackRoleLabel(feedback.submitted_role, roleLabels, fallback)}
         </p>
       </td>
       <td className="px-4 py-4">
-        <span className="inline-flex rounded-full bg-[#edf3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
+        <span className="inline-flex rounded-full bg-status-info-soft px-3 py-1 text-xs font-semibold text-primary">
           {typeLabels[feedback.feedback_type]}
         </span>
       </td>
-      <td className="max-w-[190px] break-all px-4 py-4 text-xs leading-6 text-[#66727d]">
+      <td className="max-w-[190px] break-all px-4 py-4 text-xs leading-6 text-content-muted">
         {feedback.source_path}
       </td>
-      <td className="px-4 py-4 text-xs leading-6 text-[#66727d]">
+      <td className="px-4 py-4 text-xs leading-6 text-content-muted">
         {formatFeedbackDate(feedback.created_at, locale, fallback)}
       </td>
       <td className="px-4 py-4">
@@ -273,24 +270,18 @@ function FeedbackTableRow({
           >
             {statusLabels[feedback.status]}
           </span>
-          <select
+          <Select
             aria-label={t("list.statusAction")}
-            className="h-10 min-w-[132px] rounded-[14px] border border-[#dfe5ea] bg-white px-3 text-xs font-semibold text-[#486782] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30 disabled:cursor-not-allowed disabled:opacity-65"
+            className="min-w-[132px]"
+            controlSize="compact"
             disabled={pending}
-            onChange={(event) =>
-              onStatusChange(
-                feedback.id,
-                event.target.value as WorkspaceFeedbackStatus,
-              )
-            }
+            onValueChange={(value) => onStatusChange(feedback.id, value)}
+            options={statusOptions.map((status) => ({
+              label: statusLabels[status],
+              value: status,
+            }))}
             value={feedback.status}
-          >
-            {statusOptions.map((status) => (
-              <option key={status} value={status}>
-                {statusLabels[status]}
-              </option>
-            ))}
-          </select>
+          />
         </div>
       </td>
     </tr>
@@ -300,12 +291,12 @@ function FeedbackTableRow({
 function getStatusPillClassName(status: WorkspaceFeedbackStatus) {
   switch (status) {
     case "declined":
-      return "bg-[#f9e8e8] text-[#a84242]";
+      return "bg-surface-inset text-content-muted";
     case "in_progress":
-      return "bg-[#e5eef6] text-[#486782]";
+      return "bg-surface-inset text-primary";
     case "new":
-      return "bg-[#f6edda] text-[#9a6a1f]";
+      return "bg-surface-inset text-content-muted";
     case "resolved":
-      return "bg-[#e4f2eb] text-[#2f6b4f]";
+      return "bg-surface-inset text-content-muted";
   }
 }

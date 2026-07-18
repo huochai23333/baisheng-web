@@ -1,10 +1,11 @@
 "use client";
 
+import { Select } from "@/components/ui/select";
+
 import {
   BadgeCheck,
   Clock3,
   Filter,
-  Search,
   Sparkles,
   UserRound,
 } from "lucide-react";
@@ -14,7 +15,7 @@ import {
   DashboardFilterField,
   DashboardFilterPanel,
   DashboardListSection,
-  dashboardFilterInputClassName,
+  DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
 import {
   DashboardSectionHeader,
@@ -29,7 +30,6 @@ import type {
   BusinessVipRow,
 } from "@/lib/business-vip-management";
 import type { Locale } from "@/lib/locale";
-import { cn } from "@/lib/utils";
 
 import {
   BUSINESS_VIP_STATUS_FILTERS,
@@ -115,30 +115,21 @@ export function BusinessVipFiltersSection({
   return (
     <DashboardFilterPanel gridClassName="gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
       <DashboardFilterField label={t("filters.search")}>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
-          <input
-            className={cn(dashboardFilterInputClassName, "pl-10")}
-            onChange={(event) => onSearchTextChange(event.target.value)}
-            placeholder={t("filters.searchPlaceholder")}
-            value={searchText}
-          />
-        </div>
+        <DashboardSearchInput
+          onChange={onSearchTextChange}
+          placeholder={t("filters.searchPlaceholder")}
+          value={searchText}
+        />
       </DashboardFilterField>
       <DashboardFilterField label={t("filters.status")}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) =>
-            onStatusFilterChange(event.target.value as BusinessVipStatusFilter)
-          }
+        <Select
+          onValueChange={onStatusFilterChange}
+          options={BUSINESS_VIP_STATUS_FILTERS.map((filter) => ({
+            label: t(`filters.statusOptions.${filter}`),
+            value: filter,
+          }))}
           value={statusFilter}
-        >
-          {BUSINESS_VIP_STATUS_FILTERS.map((filter) => (
-            <option key={filter} value={filter}>
-              {t(`filters.statusOptions.${filter}`)}
-            </option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
     </DashboardFilterPanel>
   );
@@ -208,7 +199,10 @@ export function BusinessVipDirectorySection({
           eyebrow={t("operationRecords.eyebrow")}
           title={t("operationRecords.title")}
         >
-          <BusinessVipWholesaleRecordTable locale={locale} rows={filteredRows} />
+          <BusinessVipWholesaleRecordTable
+            locale={locale}
+            rows={filteredRows}
+          />
         </DashboardListSection>
       </>
     );

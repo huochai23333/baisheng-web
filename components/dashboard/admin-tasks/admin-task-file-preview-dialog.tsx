@@ -77,7 +77,9 @@ export function AdminTaskFilePreviewDialog({
     ? [
         getKindLabel(file.kind, t),
         formatFileSize(file.file_size_bytes),
-        file.submission_round ? t("round", { round: file.submission_round }) : null,
+        file.submission_round
+          ? t("round", { round: file.submission_round })
+          : null,
       ]
         .filter(Boolean)
         .join(" · ")
@@ -89,7 +91,7 @@ export function AdminTaskFilePreviewDialog({
         file ? (
           <>
             <Button
-              className="h-10 rounded-full border border-[#d8e2e8] bg-white px-4 text-[#486782] hover:bg-[#eef3f6]"
+              size="compact"
               onClick={() => openSignedUrl(file.signedUrl)}
               type="button"
               variant="outline"
@@ -98,7 +100,8 @@ export function AdminTaskFilePreviewDialog({
               {t("openInNewTab")}
             </Button>
             <Button
-              className="h-10 rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79]"
+              variant="primary"
+              size="compact"
               disabled={downloadBusy}
               onClick={() => onDownload(file)}
               type="button"
@@ -122,18 +125,24 @@ export function AdminTaskFilePreviewDialog({
         <div className="space-y-4">
           <PreviewSurface file={file} videoRef={videoRef} />
 
-          <div className="flex flex-wrap items-center gap-3 text-sm text-[#66727d]">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#eef3f6] px-3 py-1 font-medium text-[#486782]">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-content-muted">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-status-info-soft px-3 py-1 font-medium text-primary">
               {getKindIcon(file.kind)}
               {getKindLabel(file.kind, t)}
             </span>
             {file.task_name ? <span>{file.task_name}</span> : null}
-            {file.submitted_by_name ? <span>{file.submitted_by_name}</span> : null}
+            {file.submitted_by_name ? (
+              <span>{file.submitted_by_name}</span>
+            ) : null}
             {file.submitted_at ? (
-              <span>{t("submittedAt", { time: formatDateTime(file.submitted_at) })}</span>
+              <span>
+                {t("submittedAt", { time: formatDateTime(file.submitted_at) })}
+              </span>
             ) : null}
             {file.reviewed_at ? (
-              <span>{t("reviewedAt", { time: formatDateTime(file.reviewed_at) })}</span>
+              <span>
+                {t("reviewedAt", { time: formatDateTime(file.reviewed_at) })}
+              </span>
             ) : null}
           </div>
         </div>
@@ -153,7 +162,7 @@ function PreviewSurface({
 
   if (file.kind === "image") {
     return (
-      <div className="overflow-hidden rounded-[24px] border border-[#ebe7e1] bg-[#111820]">
+      <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-surface-inset">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt={file.original_name}
@@ -166,7 +175,7 @@ function PreviewSurface({
 
   if (file.kind === "video") {
     return (
-      <div className="overflow-hidden rounded-[24px] border border-[#ebe7e1] bg-[#111820]">
+      <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-surface-inset">
         <video
           ref={videoRef}
           autoPlay
@@ -182,7 +191,7 @@ function PreviewSurface({
 
   if (file.kind === "pdf") {
     return (
-      <div className="overflow-hidden rounded-[24px] border border-[#dfe5ea] bg-white">
+      <div className="overflow-hidden rounded-[24px] border border-border bg-white">
         <iframe
           className="h-[72vh] min-h-[420px] w-full"
           src={file.signedUrl}
@@ -193,7 +202,7 @@ function PreviewSurface({
   }
 
   return (
-    <div className="rounded-[24px] border border-[#dfe5ea] bg-white px-4 py-10">
+    <div className="rounded-[24px] border border-border bg-white px-4 py-10">
       <EmptyState
         description={t("unsupportedDescription")}
         icon={<File className="size-6" />}

@@ -18,7 +18,7 @@ import {
   type WorkspaceFeedbackType,
 } from "@/lib/workspace-feedback";
 
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 import {
   feedbackMatchesSearch,
   type AdminFeedbackRoleLabels,
@@ -26,7 +26,7 @@ import {
   type AdminFeedbackTypeLabels,
 } from "./admin-feedback-display";
 
-type Feedback = { tone: NoticeTone; message: string } | null;
+type Feedback = { tone: FeedbackTone; message: string } | null;
 type FilterValue<T extends string> = T | "all";
 
 export function useAdminFeedbackViewModel({

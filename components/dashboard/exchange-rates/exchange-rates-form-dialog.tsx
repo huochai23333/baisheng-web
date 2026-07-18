@@ -1,18 +1,20 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+
 import { useTranslations } from "next-intl";
 
 import {
-  DashboardFormDialog,
+  FormDialog,
   DashboardFormField,
   dashboardFormInputClassName,
 } from "@/components/dashboard/dashboard-form-dialog";
-import type { NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import type { FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 
 import type { ExchangeRateFormState } from "./exchange-rates-utils";
 
 type ExchangeRateFormDialogProps = {
-  feedback?: { tone: NoticeTone; message: string } | null;
+  feedback?: { tone: FeedbackTone; message: string } | null;
   formState: ExchangeRateFormState;
   mode: "create" | "edit";
   open: boolean;
@@ -38,7 +40,7 @@ export function ExchangeRateFormDialog({
   const t = useTranslations("ExchangeRates");
 
   return (
-    <DashboardFormDialog
+    <FormDialog
       cancelLabel={t("dialogs.cancel")}
       description={
         mode === "create"
@@ -51,52 +53,60 @@ export function ExchangeRateFormDialog({
       open={open}
       pending={pending}
       submitLabel={
-        mode === "create" ? t("dialogs.create.submit") : t("dialogs.edit.submit")
+        mode === "create"
+          ? t("dialogs.create.submit")
+          : t("dialogs.edit.submit")
       }
-      title={mode === "create" ? t("dialogs.create.title") : t("dialogs.edit.title")}
+      title={
+        mode === "create" ? t("dialogs.create.title") : t("dialogs.edit.title")
+      }
     >
-        <div className="grid gap-5 md:grid-cols-2">
-          <DashboardFormField label={t("dialogs.fields.originalCurrency")}>
-            <input
-              className={dashboardFormInputClassName}
-              disabled={pending}
-              onChange={(event) => onFieldChange("originalCurrency", event.target.value)}
-              placeholder={t("dialogs.placeholders.originalCurrency")}
-              type="text"
-              value={formState.originalCurrency}
-            />
-          </DashboardFormField>
+      <div className="grid gap-5 md:grid-cols-2">
+        <DashboardFormField label={t("dialogs.fields.originalCurrency")}>
+          <FormControls.Input
+            className={dashboardFormInputClassName}
+            disabled={pending}
+            onChange={(event) =>
+              onFieldChange("originalCurrency", event.target.value)
+            }
+            placeholder={t("dialogs.placeholders.originalCurrency")}
+            type="text"
+            value={formState.originalCurrency}
+          />
+        </DashboardFormField>
 
-          <DashboardFormField label={t("dialogs.fields.targetCurrency")}>
-            <input
-              className={dashboardFormInputClassName}
-              disabled={pending}
-              onChange={(event) => onFieldChange("targetCurrency", event.target.value)}
-              placeholder={t("dialogs.placeholders.targetCurrency")}
-              type="text"
-              value={formState.targetCurrency}
-            />
-          </DashboardFormField>
+        <DashboardFormField label={t("dialogs.fields.targetCurrency")}>
+          <FormControls.Input
+            className={dashboardFormInputClassName}
+            disabled={pending}
+            onChange={(event) =>
+              onFieldChange("targetCurrency", event.target.value)
+            }
+            placeholder={t("dialogs.placeholders.targetCurrency")}
+            type="text"
+            value={formState.targetCurrency}
+          />
+        </DashboardFormField>
 
-          <DashboardFormField label={t("dialogs.fields.dailyExchangeRate")}>
-            <input
-              className={dashboardFormInputClassName}
-              disabled={pending}
-              min="0"
-              onChange={(event) =>
-                onFieldChange("dailyExchangeRate", event.target.value)
-              }
-              placeholder={t("dialogs.placeholders.dailyExchangeRate")}
-              step="0.000001"
-              type="number"
-              value={formState.dailyExchangeRate}
-            />
-          </DashboardFormField>
+        <DashboardFormField label={t("dialogs.fields.dailyExchangeRate")}>
+          <FormControls.Input
+            className={dashboardFormInputClassName}
+            disabled={pending}
+            min="0"
+            onChange={(event) =>
+              onFieldChange("dailyExchangeRate", event.target.value)
+            }
+            placeholder={t("dialogs.placeholders.dailyExchangeRate")}
+            step="0.000001"
+            type="number"
+            value={formState.dailyExchangeRate}
+          />
+        </DashboardFormField>
 
-          <div className="rounded-[22px] border border-[#ebe7e1] bg-[#f8f6f3] px-4 py-4 text-sm leading-7 text-[#65717b]">
-            {t("dialogs.currencyHint")}
-          </div>
+        <div className="rounded-[22px] border border-border-subtle bg-surface-inset px-4 py-4 text-sm leading-7 text-content-muted">
+          {t("dialogs.currencyHint")}
         </div>
-    </DashboardFormDialog>
+      </div>
+    </FormDialog>
   );
 }

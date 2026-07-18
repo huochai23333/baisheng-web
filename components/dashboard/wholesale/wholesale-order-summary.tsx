@@ -1,4 +1,5 @@
 import { UiMessage } from "@/components/i18n/ui-message";
+import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
 import { useTranslations } from "next-intl";
 import type { WholesaleOrderPageSummary } from "@/lib/wholesale-order-page";
 import { formatCurrency, formatPercent } from "./wholesale-display";
@@ -25,18 +26,18 @@ export function WholesaleOrderSummary({
     },
   ];
   return (
-    <>
-      <div className="hidden md:block">
-        <WholesaleStatGrid stats={stats} />
-      </div>
-      <details className="rounded-[22px] border border-[#e7e2db] bg-white/90 md:hidden">
-        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[#486782] [&::-webkit-details-marker]:hidden">
-          <UiMessage id="components_dashboard_wholesale_wholesale_order_summary.text001" />
-        </summary>
-        <div className="border-t border-[#ece7df] p-4">
-          <WholesaleStatGrid stats={stats} />
-        </div>
-      </details>
-    </>
+    <ResponsiveDataView
+      desktop={<WholesaleStatGrid stats={stats} />}
+      mobile={
+        <details className="rounded-[22px] border border-border-subtle bg-surface-panel">
+          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-primary [&::-webkit-details-marker]:hidden">
+            <UiMessage id="components_dashboard_wholesale_wholesale_order_summary.text001" />
+          </summary>
+          <div className="border-t border-border-subtle p-4">
+            <WholesaleStatGrid stats={stats} />
+          </div>
+        </details>
+      }
+    />
   );
 }

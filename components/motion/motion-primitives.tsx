@@ -56,12 +56,7 @@ type MotionListProps = Omit<HTMLMotionProps<"div">, "children"> & {
 
 export function MotionList({ children, className, ...props }: MotionListProps) {
   return (
-    <motion.div
-      className={className}
-      data-motion-list="true"
-      layout
-      {...props}
-    >
+    <motion.div className={className} data-motion-list="true" layout {...props}>
       <AnimatePresence initial={false} mode="popLayout">
         {children}
       </AnimatePresence>
@@ -139,5 +134,10 @@ export function MotionCollapse({
 }
 
 export function MotionSkeleton({ className }: { className?: string }) {
-  return <span aria-hidden="true" className={cn("motion-skeleton block", className)} />;
+  return (
+    <span
+      aria-hidden="true"
+      className={cn("motion-skeleton block", className)}
+    />
+  );
 }

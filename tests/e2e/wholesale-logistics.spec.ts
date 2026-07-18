@@ -6,7 +6,10 @@ import {
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
-import { chooseSelectOption } from "./helpers/select-control";
+import {
+  chooseSelectOption,
+  expectSelectValue,
+} from "./helpers/select-control";
 
 test.describe.configure({ mode: "serial" });
 
@@ -27,7 +30,7 @@ test.describe("店小秘物流永久档案", () => {
     // 店铺筛选会同时收窄列表和汇总；RMB 必须合入 CNY，USD 仍单独显示。
     const storeFilter = page.getByLabel("店小秘店铺");
     await chooseSelectOption(storeFilter, { label: "Local Shop Alpha" });
-    await expect(storeFilter).toHaveValue("Local Shop Alpha");
+    await expectSelectValue(storeFilter, "Local Shop Alpha");
     await expect(page.getByText("已显示 3 / 3 笔")).toBeVisible();
     await expect(page.getByText("CNY 国际运费")).toBeVisible();
     await expect(page.getByText(/CNY\s*150\.50/).first()).toBeVisible();
@@ -53,7 +56,8 @@ test.describe("店小秘物流永久档案", () => {
       .getByText("LOCAL-PKG-004")
       .filter({ visible: true })
       .locator("xpath=ancestor::tr[1]");
-    await expect(missingDesktopRow).toHaveClass(/bg-\[#fff3f2\]/);
+    // 缺少运费使用设计系统的警示表面，不再依赖领域内硬编码色值。
+    await expect(missingDesktopRow).toHaveClass(/bg-status-danger-soft/);
     await expect(missingDesktopRow.getByText("缺少运费")).toBeVisible();
 
     await expectResponsiveLayout(page);
@@ -61,7 +65,7 @@ test.describe("店小秘物流永久档案", () => {
       .getByText("LOCAL-PKG-004")
       .filter({ visible: true })
       .locator("xpath=ancestor::article[1]");
-    await expect(missingMobileCard).toHaveClass(/border-\[#d94841\]/);
+    await expect(missingMobileCard).toHaveClass(/border-status-danger/);
     await expect(missingMobileCard.getByText("缺少运费")).toBeVisible();
   });
 
@@ -79,7 +83,8 @@ test.describe("店小秘物流永久档案", () => {
     });
     await expect(alphaHistory).toContainText("本地业务员");
     await alphaHistory.getByRole("button", { name: "调整" }).click();
-    await expect(dialog.getByLabel("负责业务员")).toHaveValue(
+    await expectSelectValue(
+      dialog.getByLabel("负责业务员"),
       "55555555-5555-4555-8555-555555555555",
     );
     await chooseSelectOption(dialog.getByLabel("负责业务员"), {

@@ -1,6 +1,8 @@
 "use client";
 
-import type { ChangeEventHandler, ReactNode } from "react";
+import * as FormControls from "@/components/ui/form-controls";
+
+import type { ReactNode } from "react";
 
 import { LoaderCircle } from "lucide-react";
 
@@ -19,10 +21,10 @@ import {
 import { EmptyState as DashboardEmptyState } from "../dashboard-shared-ui";
 
 export const wholesaleStickyFirstThClassName =
-  "sticky left-0 z-30 min-w-[180px] whitespace-normal border-r border-[#efebe5] bg-[#f7f5f2] shadow-[8px_0_16px_rgba(35,49,58,0.08)]";
+  "sticky left-0 z-30 min-w-[180px] whitespace-normal border-r border-border-subtle bg-surface-inset shadow-[var(--surface-shadow-interactive)]";
 
 export const wholesaleStickyFirstTdClassName =
-  "sticky left-0 z-20 min-w-[180px] whitespace-normal border-r border-[#efebe5] bg-white shadow-[8px_0_16px_rgba(35,49,58,0.08)] group-hover:bg-[#fcfbf8]";
+  "sticky left-0 z-20 min-w-[180px] whitespace-normal border-r border-border-subtle bg-white shadow-[var(--surface-shadow-interactive)] group-hover:bg-surface-inset";
 
 export function WholesalePageShell({
   actions,
@@ -70,7 +72,7 @@ export function WholesalePanel({
       {title ? (
         <DashboardListHeader description={description} title={title} />
       ) : description ? (
-        <p className="break-words text-sm leading-7 text-[#6f7b85] [overflow-wrap:anywhere]">
+        <p className="break-words text-sm leading-7 text-content-muted [overflow-wrap:anywhere]">
           {description}
         </p>
       ) : null}
@@ -102,17 +104,17 @@ export function WholesaleStatGrid({
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => (
         <div
-          className="min-w-0 rounded-[24px] border border-[#ece8e1] bg-white p-5 shadow-[0_10px_24px_rgba(96,113,128,0.06)] sm:p-6"
+          className="min-w-0 rounded-[24px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)] sm:p-6"
           key={stat.label}
         >
-          <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase">
+          <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
             {stat.label}
           </p>
-          <p className="mt-4 break-words rounded-[20px] bg-[#f6f4f0] px-4 py-3 text-xl font-bold tracking-tight text-[#23313a] [overflow-wrap:anywhere] sm:px-5 sm:py-4 sm:text-2xl">
+          <p className="mt-4 break-words rounded-[20px] bg-surface-inset px-4 py-3 text-xl font-bold tracking-tight text-content-strong [overflow-wrap:anywhere] sm:px-5 sm:py-4 sm:text-2xl">
             {stat.value}
           </p>
           {stat.helper ? (
-            <p className="mt-3 break-words text-xs leading-5 text-[#7a8791] [overflow-wrap:anywhere]">
+            <p className="mt-3 break-words text-xs leading-5 text-content-muted [overflow-wrap:anywhere]">
               {stat.helper}
             </p>
           ) : null}
@@ -134,7 +136,7 @@ export function WholesaleTable({
     <DashboardTableFrame innerClassName="max-h-[72vh] overflow-auto overscroll-contain">
       <table
         data-wholesale-table
-        className="w-full border-collapse text-left text-sm [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[#fcfbf8] [&_tbody_tr:last-child_td]:border-b-0"
+        className="w-full border-collapse text-left text-sm [&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-surface-inset [&_tbody_tr:last-child_td]:border-b-0"
         style={{ minWidth }}
       >
         {children}
@@ -153,7 +155,7 @@ export function WholesaleTh({
   return (
     <th
       className={cn(
-        "sticky top-0 z-10 whitespace-nowrap border-b border-[#efebe5] bg-[#f7f5f2] px-5 py-4 text-left font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase",
+        "sticky top-0 z-10 whitespace-nowrap border-b border-border-subtle bg-surface-inset px-5 py-4 text-left font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase",
         className,
       )}
     >
@@ -172,7 +174,7 @@ export function WholesaleTd({
   return (
     <td
       className={cn(
-        "whitespace-nowrap border-b border-[#efebe5] px-5 py-4 align-top text-sm text-[#2b3942]",
+        "whitespace-nowrap border-b border-border-subtle px-5 py-4 align-top text-sm text-content-strong",
         className,
       )}
     >
@@ -202,7 +204,7 @@ export function WholesaleField({
 }) {
   return (
     <DashboardFilterField label={label}>
-      <input
+      <FormControls.Input
         className={dashboardFilterInputClassName}
         defaultValue={defaultValue}
         min={min}
@@ -229,7 +231,7 @@ export function WholesaleTextarea({
 }) {
   return (
     <DashboardFilterField label={label}>
-      <textarea
+      <FormControls.Textarea
         className={cn(
           dashboardFilterInputClassName,
           "h-auto min-h-24 py-3 sm:h-auto",
@@ -238,45 +240,6 @@ export function WholesaleTextarea({
         name={name}
         placeholder={placeholder}
       />
-    </DashboardFilterField>
-  );
-}
-
-export function WholesaleSelect({
-  children,
-  defaultValue,
-  disabled,
-  label,
-  name,
-  onChange,
-  required,
-  value,
-}: {
-  children: ReactNode;
-  defaultValue?: string;
-  disabled?: boolean;
-  label: string;
-  name: string;
-  onChange?: ChangeEventHandler<HTMLSelectElement>;
-  required?: boolean;
-  value?: string;
-}) {
-  return (
-    <DashboardFilterField label={label}>
-      <select
-        // 原生 label 包住 select 时，浏览器可能把全部 option 文本也并入可访问名称。
-        // 明确 aria-label 后，读屏和自动化都只会读到当前字段标题。
-        aria-label={label}
-        className={dashboardFilterInputClassName}
-        defaultValue={defaultValue}
-        disabled={disabled}
-        name={name}
-        onChange={onChange}
-        required={required}
-        value={value}
-      >
-        {children}
-      </select>
     </DashboardFilterField>
   );
 }
@@ -293,34 +256,13 @@ export function WholesaleSubmitButton({
 }) {
   return (
     <Button
-      className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+      variant="primary"
+      size="default"
       disabled={disabled || pending}
       type="submit"
     >
       {pending ? <LoaderCircle className="size-4 animate-spin" /> : null}
       {children}
     </Button>
-  );
-}
-
-export function WholesaleStatusBadge({
-  children,
-  tone = "default",
-}: {
-  children: ReactNode;
-  tone?: "default" | "success" | "warning" | "danger";
-}) {
-  return (
-    <span
-      className={cn(
-        "inline-flex min-h-7 items-center rounded-full px-3 py-1 text-xs font-semibold leading-5",
-        tone === "default" && "bg-[#f0efec] text-[#6d787f]",
-        tone === "success" && "bg-[#e8f4ec] text-[#4c7259]",
-        tone === "warning" && "bg-[#fff5db] text-[#9a6a07]",
-        tone === "danger" && "bg-[#fbe6e6] text-[#b13d3d]",
-      )}
-    >
-      {children}
-    </span>
   );
 }

@@ -22,46 +22,40 @@ type WorkspaceGlobalPageProps = {
   params: Promise<{ workspace: string }>;
 };
 
-const AdminAnnouncementsClient = dynamic(
-  () =>
-    import("@/components/dashboard/announcements/announcements-client").then(
-      (mod) => mod.AdminAnnouncementsClient,
-    ),
+const AdminAnnouncementsClient = dynamic(() =>
+  import("@/components/dashboard/announcements/announcements-client").then(
+    (mod) => mod.AdminAnnouncementsClient,
+  ),
 );
 
-const AdminPeopleClient = dynamic(
-  () =>
-    import("@/components/dashboard/admin-people/admin-people-client").then(
-      (mod) => mod.AdminPeopleClient,
-    ),
+const AdminPeopleClient = dynamic(() =>
+  import("@/components/dashboard/admin-people/admin-people-client").then(
+    (mod) => mod.AdminPeopleClient,
+  ),
 );
 
-const AdminFeedbackClient = dynamic(
-  () =>
-    import("@/components/dashboard/admin-feedback/admin-feedback-client").then(
-      (mod) => mod.AdminFeedbackClient,
-    ),
+const AdminFeedbackClient = dynamic(() =>
+  import("@/components/dashboard/admin-feedback/admin-feedback-client").then(
+    (mod) => mod.AdminFeedbackClient,
+  ),
 );
 
-const CompanyExpensesClient = dynamic(
-  () =>
-    import(
-      "@/components/dashboard/company-expenses/company-expenses-client"
-    ).then((mod) => mod.CompanyExpensesClient),
+const CompanyExpensesClient = dynamic(() =>
+  import("@/components/dashboard/company-expenses/company-expenses-client").then(
+    (mod) => mod.CompanyExpensesClient,
+  ),
 );
 
-const OperatorReimbursementsClient = dynamic(
-  () =>
-    import(
-      "@/components/dashboard/operator-reimbursements/operator-reimbursements-client"
-    ).then((mod) => mod.OperatorReimbursementsClient),
+const OperatorReimbursementsClient = dynamic(() =>
+  import("@/components/dashboard/operator-reimbursements/operator-reimbursements-client").then(
+    (mod) => mod.OperatorReimbursementsClient,
+  ),
 );
 
-const AdminSystemSettingsClient = dynamic(
-  () =>
-    import(
-      "@/components/dashboard/admin-system-settings/admin-system-settings-client"
-    ).then((mod) => mod.AdminSystemSettingsClient),
+const AdminSystemSettingsClient = dynamic(() =>
+  import("@/components/dashboard/admin-system-settings/admin-system-settings-client").then(
+    (mod) => mod.AdminSystemSettingsClient,
+  ),
 );
 
 export async function generateWorkspaceAccountsMetadata(): Promise<Metadata> {

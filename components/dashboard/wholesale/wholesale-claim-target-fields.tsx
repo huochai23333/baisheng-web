@@ -1,10 +1,20 @@
 "use client";
 
-import { useCallback, useDeferredValue, useEffect, useRef, useState } from "react";
+import * as FormControls from "@/components/ui/form-controls";
+
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useTranslations } from "next-intl";
 
 import type { WholesaleCustomer, WholesaleOrder } from "@/lib/wholesale";
 import { Button } from "@/components/ui/button";
+import { DashboardFilterField } from "@/components/dashboard/dashboard-section-panel";
+import { Select } from "@/components/ui/select";
 import { getDefaultOrderDateRange } from "@/lib/order-date-range";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { getWholesaleClaimOrderCandidatePage } from "@/lib/wholesale-claims-page";
@@ -13,7 +23,6 @@ import {
   formatWholesaleOrderLinkOption,
   getWholesaleOrderLinkOptionsForCustomer,
 } from "./wholesale-order-link-options";
-import { WholesaleSelect } from "./wholesale-ui";
 
 /**
  * 单条和批量认领共用同一份客户、多订单联动状态。
@@ -30,9 +39,8 @@ export function useWholesaleClaimTarget({
 }) {
   const [selectedCustomerId, setSelectedCustomerId] =
     useState(initialCustomerId);
-  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>(
-    initialOrderIds,
-  );
+  const [selectedOrderIds, setSelectedOrderIds] =
+    useState<string[]>(initialOrderIds);
   const [orderSearchText, setOrderSearchText] = useState("");
   const [matchingOrders, setMatchingOrders] = useState(() =>
     getWholesaleOrderLinkOptionsForCustomer(initialOrders, initialCustomerId),
@@ -105,7 +113,14 @@ export function useWholesaleClaimTarget({
           setCandidateLoadingMore(false);
         }
       }
-    }, [dateRange, deferredSearchText, exactOrderNumber, searchMode, selectedCustomerId],
+    },
+    [
+      dateRange,
+      deferredSearchText,
+      exactOrderNumber,
+      searchMode,
+      selectedCustomerId,
+    ],
   );
 
   useEffect(() => {
@@ -210,36 +225,38 @@ export function WholesaleClaimTargetFields({
 
   return (
     <>
-      <WholesaleSelect
-        label={uiText("attribute005")}
-        name="customer_id"
-        onChange={(event) => onCustomerChange(event.target.value)}
-        required
-        value={selectedCustomerId}
-      >
-        <option value="">{uiText("text009")}</option>
-        {customers.map((customer) => (
-          <option key={customer.id} value={customer.id}>
-            {customer.unique_name}
-          </option>
-        ))}
-      </WholesaleSelect>
+      <DashboardFilterField label={uiText("attribute005")}>
+        <Select
+          aria-label={uiText("attribute005")}
+          name="customer_id"
+          onValueChange={onCustomerChange}
+          options={[
+            { label: uiText("text009"), value: "" },
+            ...customers.map((customer) => ({
+              label: customer.unique_name,
+              value: customer.id,
+            })),
+          ]}
+          required
+          value={selectedCustomerId}
+        />
+      </DashboardFilterField>
 
       <div className="grid min-w-0 gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-sm font-medium text-[#40515c]">
+          <span className="text-sm font-medium text-content-muted">
             {uiText("attribute006")}
           </span>
-          <span className="text-xs text-[#71808d]">
+          <span className="text-xs text-content-muted">
             {uiText("selectedOrderCount", {
               count: selectedOrderIds.length,
             })}
           </span>
         </div>
 
-        <input
+        <FormControls.Input
           aria-label={uiText("orderSearchLabel")}
-          className="h-11 min-w-0 rounded-[16px] border border-[#dfe5ea] bg-white px-3 text-sm text-[#23313a] outline-none transition focus:border-[#486782] focus:ring-2 focus:ring-[#486782]/15 disabled:bg-[#f4f6f7]"
+          className="h-11 min-w-0 rounded-[16px] border border-border bg-white px-3 text-sm text-content-strong outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:bg-surface-inset"
           disabled={!selectedCustomerId}
           onChange={(event) => onOrderSearchChange(event.target.value)}
           placeholder={
@@ -255,7 +272,7 @@ export function WholesaleClaimTargetFields({
           <div className="flex flex-wrap items-center gap-2">
             {exactSearchActive ? (
               <>
-                <span className="rounded-full bg-[#fff4d8] px-3 py-1.5 text-xs font-semibold text-[#8b6508]">
+                <span className="rounded-full bg-surface-inset px-3 py-1.5 text-xs font-semibold text-content-muted">
                   {uiText("exactSearchActive")}
                 </span>
                 <Button
@@ -282,38 +299,39 @@ export function WholesaleClaimTargetFields({
         ) : null}
 
         {candidateError ? (
-          <p className="text-sm leading-6 text-[#a83b3b]">{candidateError}</p>
+          <p className="text-sm leading-6 text-content-muted">
+            {candidateError}
+          </p>
         ) : null}
 
         <div
           aria-label={uiText("attribute006")}
-          className="max-h-64 min-w-0 overflow-y-auto rounded-[18px] border border-[#dfe5ea] bg-[#f8fafb] p-2"
+          className="max-h-64 min-w-0 overflow-y-auto rounded-[18px] border border-border bg-surface-inset p-2"
           role="group"
         >
           {!selectedCustomerId ? (
-            <p className="px-2 py-4 text-sm leading-6 text-[#71808d]">
+            <p className="px-2 py-4 text-sm leading-6 text-content-muted">
               {uiText("selectCustomerFirst")}
             </p>
           ) : candidateLoading ? (
-            <p className="px-2 py-4 text-sm leading-6 text-[#71808d]">
+            <p className="px-2 py-4 text-sm leading-6 text-content-muted">
               {uiText("loadingOrders")}
             </p>
           ) : matchingOrders.length === 0 ? (
-            <p className="px-2 py-4 text-sm leading-6 text-[#9a6a07]">
+            <p className="px-2 py-4 text-sm leading-6 text-status-warning">
               {uiText("text010")}
             </p>
           ) : (
             <div className="grid gap-1.5">
               {visibleOrders.map((order) => (
                 <label
-                  className="flex min-w-0 cursor-pointer items-start gap-3 rounded-[14px] bg-white px-3 py-2.5 text-sm text-[#2b3942] hover:bg-[#edf3f6]"
+                  className="flex min-w-0 cursor-pointer items-start gap-3 rounded-[14px] bg-white px-3 py-2.5 text-sm text-content-strong hover:bg-status-info-soft"
                   key={order.id}
                 >
-                  <input
+                  <FormControls.Checkbox
                     checked={selectedOrderIds.includes(order.id)}
-                    className="mt-0.5 size-4 shrink-0 accent-[#486782]"
+                    className="mt-0.5 size-4 shrink-0 accent-primary"
                     onChange={() => onToggleOrder(order.id)}
-                    type="checkbox"
                   />
                   <span className="min-w-0 break-words [overflow-wrap:anywhere]">
                     {formatWholesaleOrderLinkOption(order)}

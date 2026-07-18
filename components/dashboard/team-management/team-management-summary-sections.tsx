@@ -1,11 +1,12 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
+import * as FormControls from "@/components/ui/form-controls";
+import { Select } from "@/components/ui/select";
+
 import { useTranslations } from "next-intl";
-import {
-  Building2,
-  LoaderCircle,
-  Trash2,
-} from "lucide-react";
+import { Building2, LoaderCircle, Trash2 } from "lucide-react";
 
 import { useLocale } from "@/components/i18n/locale-provider";
 import type {
@@ -29,9 +30,7 @@ import {
   getTeamDisplayName,
   getTeamManagerLabel,
 } from "./team-management-display";
-import {
-  teamManagementDetailInputClassName,
-} from "./team-management-section-styles";
+import { teamManagementDetailInputClassName } from "./team-management-section-styles";
 
 export function TeamOverviewSection({
   detailMembers,
@@ -55,23 +54,23 @@ export function TeamOverviewSection({
     >
       <div className="grid gap-4 lg:grid-cols-2">
         {overviews.map((team) => (
-          <button
+          <DesignButton
             key={team.team_id}
             className={[
-              "rounded-[24px] border p-5 text-left shadow-[0_10px_24px_rgba(96,113,128,0.05)] transition-all",
+              "rounded-[24px] border p-5 text-left shadow-[var(--surface-shadow-interactive)] transition-all",
               selectedTeamId === team.team_id
-                ? "border-[#8fb3cf] bg-[#f4f8fb]"
-                : "border-[#ebe7e1] bg-white hover:-translate-y-0.5 hover:shadow-[0_18px_32px_rgba(96,113,128,0.10)]",
+                ? "border-border-subtle bg-surface-inset"
+                : "border-border-subtle bg-white hover:-translate-y-0.5 hover:shadow-[var(--surface-shadow-interactive)]",
             ].join(" ")}
             onClick={() => onSelectTeam(team.team_id)}
             type="button"
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xl font-semibold tracking-tight text-[#23313a]">
+                <p className="text-xl font-semibold tracking-tight text-content-strong">
                   {getTeamDisplayName(team.team_name, t)}
                 </p>
-                <p className="mt-2 text-sm leading-7 text-[#6f7b85]">
+                <p className="mt-2 text-sm leading-7 text-content-muted">
                   {t("overview.managerPrefix", {
                     managerLabel: getTeamManagerLabel(
                       team.manager_name,
@@ -83,10 +82,14 @@ export function TeamOverviewSection({
               </div>
               <div className="flex flex-wrap gap-2">
                 {team.can_manage ? (
-                  <DataPill accent="blue">{t("shared.pills.manageable")}</DataPill>
+                  <DataPill accent="blue">
+                    {t("shared.pills.manageable")}
+                  </DataPill>
                 ) : null}
                 {selectedTeamId === team.team_id ? (
-                  <DataPill accent="green">{t("shared.pills.currentView")}</DataPill>
+                  <DataPill accent="green">
+                    {t("shared.pills.currentView")}
+                  </DataPill>
                 ) : null}
               </div>
             </div>
@@ -113,8 +116,8 @@ export function TeamOverviewSection({
             {viewerRole === "administrator" &&
             selectedTeamId === team.team_id &&
             detailMembers.length > 0 ? (
-              <div className="mt-4 rounded-[18px] bg-[#f7f5f2] px-4 py-4">
-                <p className="text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+              <div className="mt-4 rounded-[18px] bg-surface-inset px-4 py-4">
+                <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
                   {t("overview.memberPreview")}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -133,7 +136,7 @@ export function TeamOverviewSection({
                 </div>
               </div>
             ) : null}
-          </button>
+          </DesignButton>
         ))}
       </div>
     </DashboardListSection>
@@ -174,19 +177,24 @@ export function TeamDetailSummarySection({
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-3xl font-bold tracking-tight text-[#23313a]">
+              <h3 className="text-3xl font-bold tracking-tight text-content-strong">
                 {getTeamDisplayName(detailTeam.team_name, t)}
               </h3>
               {detailTeam.can_manage ? (
-                <DataPill accent="blue">{t("shared.pills.manageable")}</DataPill>
+                <DataPill accent="blue">
+                  {t("shared.pills.manageable")}
+                </DataPill>
               ) : null}
               {viewerRole === "administrator" ? (
                 <DataPill accent="gold">{t("shared.pills.adminView")}</DataPill>
               ) : null}
             </div>
-            <p className="mt-3 text-sm leading-7 text-[#6f7b85]">
+            <p className="mt-3 text-sm leading-7 text-content-muted">
               {t("detail.managerSummary", {
-                joinedAt: formatDateTime(detailTeam.last_member_joined_at, locale),
+                joinedAt: formatDateTime(
+                  detailTeam.last_member_joined_at,
+                  locale,
+                ),
                 managerLabel: getTeamManagerLabel(
                   detailTeam.manager_name,
                   detailTeam.manager_email,
@@ -197,36 +205,35 @@ export function TeamDetailSummarySection({
           </div>
 
           {canManageSelectedTeam ? (
-            <div className="w-full max-w-[360px] rounded-[24px] border border-[#ebe7e1] bg-[#fbfaf8] p-4 shadow-[0_10px_24px_rgba(96,113,128,0.04)]">
-              <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase">
+            <div className="w-full max-w-[360px] rounded-[24px] border border-border-subtle bg-surface-inset p-4 shadow-[var(--surface-shadow-interactive)]">
+              <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
                 {t("detail.editTitle")}
               </p>
-              <input
+              <FormControls.Input
                 className={teamManagementDetailInputClassName}
                 onChange={(event) => onTeamNameChange(event.target.value)}
                 placeholder={t("detail.teamNamePlaceholder")}
                 value={teamNameDraft}
               />
               {viewerRole === "administrator" ? (
-                <select
-                  className={teamManagementDetailInputClassName}
-                  onChange={(event) => onManagerUserIdChange(event.target.value)}
+                <Select
+                  className="mt-3"
+                  onValueChange={onManagerUserIdChange}
+                  options={[
+                    { label: t("shared.managerOptionNone"), value: "" },
+                    ...managerCandidates.map((candidate) => ({
+                      disabled: !candidate.assignable,
+                      label: getManagerCandidateLabel(candidate, t),
+                      value: candidate.user_id,
+                    })),
+                  ]}
                   value={managerUserIdDraft}
-                >
-                  <option value="">{t("shared.managerOptionNone")}</option>
-                  {managerCandidates.map((candidate) => (
-                    <option
-                      disabled={!candidate.assignable}
-                      key={candidate.user_id}
-                      value={candidate.user_id}
-                    >
-                      {getManagerCandidateLabel(candidate, t)}
-                    </option>
-                  ))}
-                </select>
+                />
               ) : null}
               <Button
-                className="mt-3 h-10 w-full rounded-full bg-[#486782] text-white hover:bg-[#3e5f79]"
+                variant="primary"
+                size="compact"
+                className="mt-3 w-full"
                 disabled={!teamNameDraft.trim() || busyKey !== null}
                 onClick={onSaveTeam}
               >
@@ -239,10 +246,11 @@ export function TeamDetailSummarySection({
               </Button>
               {viewerRole === "administrator" ? (
                 <Button
-                  className="mt-3 h-10 w-full rounded-full border-[#f1d1d1] bg-[#fff2f2] text-[#b13d3d] hover:bg-[#fce5e5]"
+                  size="compact"
+                  className="mt-3 w-full"
                   disabled={busyKey !== null}
                   onClick={onDeleteTeam}
-                  variant="outline"
+                  variant="danger"
                 >
                   {busyKey === "delete-team" ? (
                     <LoaderCircle className="size-4 animate-spin" />
@@ -255,7 +263,6 @@ export function TeamDetailSummarySection({
             </div>
           ) : null}
         </div>
-
       </div>
     </DashboardSectionPanel>
   );
@@ -282,7 +289,9 @@ export function TeamInsightsSection({
               ? t("insights.activeEmptyDescription")
               : t("insights.activeReadyDescription")
           }
-          title={t("insights.activeTitle", { count: detailTeam.active_member_count })}
+          title={t("insights.activeTitle", {
+            count: detailTeam.active_member_count,
+          })}
         />
         <InsightCard
           description={
@@ -293,7 +302,9 @@ export function TeamInsightsSection({
           title={t("insights.vipTitle", { count: detailTeam.vip_client_count })}
         />
         <InsightCard
-          description={t("insights.relationsDescription", { count: clientCount })}
+          description={t("insights.relationsDescription", {
+            count: clientCount,
+          })}
           title={t("insights.relationsTitle", { count: clientCount })}
         />
       </div>

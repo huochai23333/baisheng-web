@@ -48,11 +48,11 @@ export function HomeClockSection({
       <div className="min-w-0">
         <h3
           className={cn(
-            "flex items-center gap-2 font-bold tracking-tight text-[#23313a]",
+            "flex items-center gap-2 font-bold tracking-tight text-content-strong",
             mini ? "text-base" : compact ? "text-lg" : "text-xl",
           )}
         >
-          <Clock3 className="size-5 shrink-0 text-[#486782]" />
+          <Clock3 className="size-5 shrink-0 text-primary" />
           <span className="min-w-0 break-words">
             {mini ? copy.miniTitle : copy.title}
           </span>
@@ -60,7 +60,7 @@ export function HomeClockSection({
         {!mini ? (
           <p
             className={cn(
-              "mt-2 break-words text-sm leading-7 text-[#69747d]",
+              "mt-2 break-words text-sm leading-7 text-content-muted",
               compact && "line-clamp-2 text-xs leading-6",
             )}
           >
@@ -85,7 +85,7 @@ export function HomeClockSection({
         >
           <time
             className={cn(
-              "block break-words font-mono font-bold leading-none text-[#23313a]",
+              "block break-words font-mono font-bold leading-none text-content-strong",
               mini ? "text-xl" : compact ? "text-3xl" : "text-5xl",
             )}
             dateTime={date?.toISOString()}
@@ -95,7 +95,7 @@ export function HomeClockSection({
           </time>
           <p
             className={cn(
-              "mt-2 font-mono font-semibold leading-none text-[#486782]",
+              "mt-2 font-mono font-semibold leading-none text-primary",
               mini ? "text-xs" : "text-sm",
             )}
             data-testid="home-clock-seconds"
@@ -104,12 +104,12 @@ export function HomeClockSection({
           </p>
 
           {!mini ? (
-            <div className="mt-4 min-w-0 space-y-2 text-sm leading-6 text-[#69747d]">
+            <div className="mt-4 min-w-0 space-y-2 text-sm leading-6 text-content-muted">
               <p className="flex min-w-0 items-center gap-2">
-                <CalendarDays className="size-4 shrink-0 text-[#486782]" />
+                <CalendarDays className="size-4 shrink-0 text-primary" />
                 <span className="min-w-0 break-words">{display.date}</span>
               </p>
-              <p className="break-words text-xs font-semibold text-[#7b858d]">
+              <p className="break-words text-xs font-semibold text-content-muted">
                 {copy.timezoneLabel}
               </p>
             </div>
@@ -131,28 +131,25 @@ function ClockFace({
     <div
       aria-hidden="true"
       className={cn(
-        "relative shrink-0 rounded-full border border-[#d9e2e8] bg-[#fbfaf8] shadow-inner",
+        "relative shrink-0 rounded-full border border-border-subtle bg-surface-inset shadow-inner",
         mini ? "size-14" : "size-24",
       )}
       data-testid="home-clock-face"
     >
-      <span className="absolute left-1/2 top-1.5 h-1.5 w-0.5 -translate-x-1/2 rounded-full bg-[#7b858d]" />
-      <span className="absolute bottom-1.5 left-1/2 h-1.5 w-0.5 -translate-x-1/2 rounded-full bg-[#7b858d]" />
-      <span className="absolute left-1.5 top-1/2 h-0.5 w-1.5 -translate-y-1/2 rounded-full bg-[#7b858d]" />
-      <span className="absolute right-1.5 top-1/2 h-0.5 w-1.5 -translate-y-1/2 rounded-full bg-[#7b858d]" />
+      <span className="absolute left-1/2 top-1.5 h-1.5 w-0.5 -translate-x-1/2 rounded-full bg-content-muted" />
+      <span className="absolute bottom-1.5 left-1/2 h-1.5 w-0.5 -translate-x-1/2 rounded-full bg-content-muted" />
+      <span className="absolute left-1.5 top-1/2 h-0.5 w-1.5 -translate-y-1/2 rounded-full bg-content-muted" />
+      <span className="absolute right-1.5 top-1/2 h-0.5 w-1.5 -translate-y-1/2 rounded-full bg-content-muted" />
       <ClockHand
-        className="h-[28%] w-1 bg-[#23313a]"
+        className="h-[28%] w-1 bg-content-strong"
         degrees={angles.hour}
       />
+      <ClockHand className="h-[36%] w-0.5 bg-primary" degrees={angles.minute} />
       <ClockHand
-        className="h-[36%] w-0.5 bg-[#486782]"
-        degrees={angles.minute}
-      />
-      <ClockHand
-        className="h-[40%] w-px bg-[#9d3a35]"
+        className="h-[40%] w-px bg-surface-inset"
         degrees={angles.second}
       />
-      <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#486782]" />
+      <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary" />
     </div>
   );
 }

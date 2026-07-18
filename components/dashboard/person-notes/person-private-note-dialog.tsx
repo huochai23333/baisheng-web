@@ -1,5 +1,7 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+
 import { LoaderCircle, Save, StickyNote } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -33,7 +35,8 @@ export function PersonPrivateNoteDialog({
       actions={
         <>
           <Button
-            className="h-10 rounded-full border border-[#d9e0e5] bg-white px-5 text-[#486782] hover:bg-[#f3f6f8]"
+            variant="outline"
+            size="compact"
             disabled={saving}
             onClick={onClose}
             type="button"
@@ -41,7 +44,8 @@ export function PersonPrivateNoteDialog({
             {t("actions.cancel")}
           </Button>
           <Button
-            className="h-10 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="compact"
             disabled={!canSave}
             onClick={onSave}
             type="button"
@@ -67,26 +71,26 @@ export function PersonPrivateNoteDialog({
       })}
     >
       <div className="space-y-4">
-        <div className="flex items-start gap-3 rounded-[20px] border border-[#e4e9ed] bg-white p-4">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#eef3f6] text-[#486782]">
+        <div className="flex items-start gap-3 rounded-[20px] border border-border-subtle bg-white p-4">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-status-info-soft text-primary">
             <StickyNote className="size-4" />
           </span>
           <div className="min-w-0">
-            <p className="break-words text-sm font-semibold text-[#23313a] [overflow-wrap:anywhere]">
+            <p className="break-words text-sm font-semibold text-content-strong [overflow-wrap:anywhere]">
               {targetName || t("fallback.unnamed")}
             </p>
-            <p className="mt-1 break-words text-xs leading-6 text-[#6a7680] [overflow-wrap:anywhere]">
+            <p className="mt-1 break-words text-xs leading-6 text-content-muted [overflow-wrap:anywhere]">
               {t("dialog.visibility")}
             </p>
           </div>
         </div>
 
         <label className="block">
-          <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+          <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
             {t("dialog.note")}
           </span>
-          <textarea
-            className="min-h-40 w-full resize-y rounded-[18px] border border-[#dfe5ea] bg-white px-4 py-3 text-sm leading-6 text-[#23313a] outline-none transition placeholder:text-[#8a949c] focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+          <FormControls.Textarea
+            className="min-h-40 w-full resize-y rounded-[18px] border border-border bg-white px-4 py-3 text-sm leading-6 text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
             disabled={saving}
             maxLength={PERSON_PRIVATE_NOTE_MAX_LENGTH}
             onChange={(event) => onDraftNoteChange(event.target.value)}
@@ -95,7 +99,7 @@ export function PersonPrivateNoteDialog({
           />
         </label>
 
-        <p className="text-right text-xs text-[#7b858d]">
+        <p className="text-right text-xs text-content-muted">
           {t("dialog.counter", {
             count: draftNote.length,
             max: PERSON_PRIVATE_NOTE_MAX_LENGTH,

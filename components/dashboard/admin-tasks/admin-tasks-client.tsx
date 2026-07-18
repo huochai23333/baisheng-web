@@ -14,18 +14,11 @@ import {
 
 import { DashboardPageShell } from "@/components/dashboard/dashboard-page-shell";
 
-import {
-  AssignmentDialog,
-} from "./admin-tasks-dialogs";
+import { AssignmentDialog } from "./admin-tasks-dialogs";
 import { AdminTaskFilePreviewDialog } from "./admin-task-file-preview-dialog";
 import { AdminTaskMediaLibrarySection } from "./admin-task-media-library-section";
-import {
-  AdminTaskReviewSection,
-} from "./admin-task-review-section";
-import {
-  CreateTaskDialog,
-  EditTaskDialog,
-} from "./admin-task-form-dialog";
+import { AdminTaskReviewSection } from "./admin-task-review-section";
+import { CreateTaskDialog, EditTaskDialog } from "./admin-task-form-dialog";
 import { TaskTypeManagementDialog } from "./admin-task-type-management-dialog";
 import {
   AdminTasksBoardTabs,
@@ -187,9 +180,14 @@ export function AdminTasksClient({
               <AdminTasksFiltersSection
                 filters={viewModel.filters}
                 onTargetRoleChange={(value) =>
-                  viewModel.updateFilter("targetRole", value as AdminTaskTargetRoleFilter)
+                  viewModel.updateFilter(
+                    "targetRole",
+                    value as AdminTaskTargetRoleFilter,
+                  )
                 }
-                onSearchTextChange={(value) => viewModel.updateFilter("searchText", value)}
+                onSearchTextChange={(value) =>
+                  viewModel.updateFilter("searchText", value)
+                }
                 targetRoleOptions={viewModel.targetRoleOptions}
               />
 
@@ -228,8 +226,12 @@ export function AdminTasksClient({
             onCommissionAmountChange={(value) =>
               viewModel.updateCreateField("commissionAmount", value)
             }
-            onTaskIntroChange={(value) => viewModel.updateCreateField("taskIntro", value)}
-            onTaskNameChange={(value) => viewModel.updateCreateField("taskName", value)}
+            onTaskIntroChange={(value) =>
+              viewModel.updateCreateField("taskIntro", value)
+            }
+            onTaskNameChange={(value) =>
+              viewModel.updateCreateField("taskName", value)
+            }
             open={viewModel.createDialogOpen}
             pending={viewModel.createPending}
             targetRoleOptions={viewModel.targetRoleOptions}
@@ -255,8 +257,12 @@ export function AdminTasksClient({
             onCommissionAmountChange={(value) =>
               viewModel.updateEditField("commissionAmount", value)
             }
-            onTaskIntroChange={(value) => viewModel.updateEditField("taskIntro", value)}
-            onTaskNameChange={(value) => viewModel.updateEditField("taskName", value)}
+            onTaskIntroChange={(value) =>
+              viewModel.updateEditField("taskIntro", value)
+            }
+            onTaskNameChange={(value) =>
+              viewModel.updateEditField("taskName", value)
+            }
             open={viewModel.editDialogOpen}
             pending={viewModel.editPending}
             selectedTask={viewModel.editingTask}
@@ -281,7 +287,9 @@ export function AdminTasksClient({
             feedback={viewModel.taskTypeDialogFeedback}
             formPending={viewModel.taskTypeFormPending}
             formState={viewModel.taskTypeFormState}
-            onDeactivate={(taskType) => void viewModel.handleDeactivateTaskType(taskType)}
+            onDeactivate={(taskType) =>
+              void viewModel.handleDeactivateTaskType(taskType)
+            }
             onFieldChange={viewModel.updateTaskTypeFormField}
             onOpenChange={viewModel.handleTaskTypeDialogOpenChange}
             onStartCreate={viewModel.startCreateTaskType}

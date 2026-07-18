@@ -1,13 +1,15 @@
 "use client";
 
-import { Plus, Search, UserCheck, UsersRound } from "lucide-react";
+import { Select } from "@/components/ui/select";
+
+import { Plus, UserCheck, UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ClientBusinessAddDialog } from "@/components/dashboard/client-business-add-dialog";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import {
   DashboardFilterField,
-  dashboardFilterInputClassName,
+  DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { DashboardCollectionSection } from "@/components/dashboard/dashboard-collection-section";
@@ -20,7 +22,6 @@ import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 import type { AdminPeoplePageData } from "@/lib/admin-people";
 import type { ClientBusinessCandidate } from "@/lib/client-business-access";
-import { cn } from "@/lib/utils";
 
 import { getTourismPersonName } from "./tourism-people-display";
 import { TourismPersonDetails } from "./tourism-person-details";
@@ -54,38 +55,41 @@ export function TourismCustomersClient({
   return (
     <DashboardPageShell
       feedback={state.feedback}
-      header={<DashboardSectionHeader
-        actions={
-          <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-            onClick={() => state.setAddDialogOpen(true)}
-            type="button"
-          >
-            <Plus className="size-4" />
-            {t("addCustomer")}
-          </Button>
-        }
-        badge={t("badge")}
-        badgeIcon={<UsersRound className="size-4" />}
-        description={t("headerDescription")}
-        metrics={[
-          {
-            accent: "blue",
-            icon: <UsersRound className="size-5" />,
-            label: t("metricTotal"),
-            value: state.tourismCustomers.length,
-          },
-          {
-            accent: "green",
-            icon: <UserCheck className="size-5" />,
-            label: t("metricActive"),
-            value: state.activeCount,
-          },
-        ]}
-        metricsClassName="grid-cols-1 sm:grid-cols-2"
-        metricsPlacement="below"
-        title={t("headerTitle")}
-      />}
+      header={
+        <DashboardSectionHeader
+          actions={
+            <Button
+              variant="primary"
+              size="default"
+              onClick={() => state.setAddDialogOpen(true)}
+              type="button"
+            >
+              <Plus className="size-4" />
+              {t("addCustomer")}
+            </Button>
+          }
+          badge={t("badge")}
+          badgeIcon={<UsersRound className="size-4" />}
+          description={t("headerDescription")}
+          metrics={[
+            {
+              accent: "blue",
+              icon: <UsersRound className="size-5" />,
+              label: t("metricTotal"),
+              value: state.tourismCustomers.length,
+            },
+            {
+              accent: "green",
+              icon: <UserCheck className="size-5" />,
+              label: t("metricActive"),
+              value: state.activeCount,
+            },
+          ]}
+          metricsClassName="grid-cols-1 sm:grid-cols-2"
+          metricsPlacement="below"
+          title={t("headerTitle")}
+        />
+      }
     >
       <DashboardResourceFilterSection
         gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
@@ -93,30 +97,25 @@ export function TourismCustomersClient({
         resetDisabled={!state.hasFilters}
         resetLabel={t("resetFilters")}
       >
-          <DashboardFilterField label={t("searchLabel")}>
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
-              <input
-                className={cn(dashboardFilterInputClassName, "pl-10")}
-                onChange={(event) => state.setSearchText(event.target.value)}
-                placeholder={t("searchPlaceholder")}
-                type="search"
-                value={state.searchText}
-              />
-            </div>
-          </DashboardFilterField>
-          <DashboardFilterField label={t("statusLabel")}>
-            <select
-              className={dashboardFilterInputClassName}
-              onChange={(event) => state.setStatusFilter(event.target.value)}
-              value={state.statusFilter}
-            >
-              <option value="all">{t("allStatuses")}</option>
-              <option value="active">{t("statuses.active")}</option>
-              <option value="inactive">{t("statuses.inactive")}</option>
-              <option value="suspended">{t("statuses.suspended")}</option>
-            </select>
-          </DashboardFilterField>
+        <DashboardFilterField label={t("searchLabel")}>
+          <DashboardSearchInput
+            onChange={state.setSearchText}
+            placeholder={t("searchPlaceholder")}
+            value={state.searchText}
+          />
+        </DashboardFilterField>
+        <DashboardFilterField label={t("statusLabel")}>
+          <Select
+            onValueChange={state.setStatusFilter}
+            options={[
+              { label: t("allStatuses"), value: "all" },
+              { label: t("statuses.active"), value: "active" },
+              { label: t("statuses.inactive"), value: "inactive" },
+              { label: t("statuses.suspended"), value: "suspended" },
+            ]}
+            value={state.statusFilter}
+          />
+        </DashboardFilterField>
       </DashboardResourceFilterSection>
 
       <DashboardCollectionSection
@@ -126,12 +125,12 @@ export function TourismCustomersClient({
         })}
         title={t("listTitle")}
       >
-          <TourismPeopleTable
-            locale={locale}
-            onSelect={state.setSelectedCustomer}
-            people={state.filteredCustomers}
-            tab="customers"
-          />
+        <TourismPeopleTable
+          locale={locale}
+          onSelect={state.setSelectedCustomer}
+          people={state.filteredCustomers}
+          tab="customers"
+        />
       </DashboardCollectionSection>
 
       <DashboardDialog

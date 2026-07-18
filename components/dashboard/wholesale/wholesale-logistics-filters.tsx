@@ -6,9 +6,11 @@ import { useTranslations } from "next-intl";
 import { DashboardOrderFilterSection } from "@/components/dashboard/dashboard-order-filter-section";
 import {
   DashboardFilterField,
-  dashboardFilterInputClassName,
+  DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Select } from "@/components/ui/select";
 import { getDefaultOrderDateRange } from "@/lib/order-date-range";
 import type { WholesaleProfile } from "@/lib/wholesale";
 import type {
@@ -34,7 +36,8 @@ export function WholesaleLogisticsFiltersPanel({
   onExactSearch: () => void;
   onExitExactSearch: () => void;
   onSelectDatePreset: (
-    preset: "last_30_days" | "current_month" | "previous_month" | "last_3_months",
+    preset:
+      "last_30_days" | "current_month" | "previous_month" | "last_3_months",
   ) => void;
   profiles: WholesaleProfile[];
   storeOptions: WholesaleLogisticsStoreOption[];
@@ -67,93 +70,88 @@ export function WholesaleLogisticsFiltersPanel({
       onReset={onClear}
       resetDisabled={resetDisabled}
     >
-      <DashboardFilterField label={t("filters.sales")}> 
-        <select
-          className={dashboardFilterInputClassName}
-          onInput={(event) => onChange({ salesUserId: event.currentTarget.value })}
+      <DashboardFilterField label={t("filters.sales")}>
+        <Select
+          aria-label={t("filters.sales")}
+          onValueChange={(salesUserId) => onChange({ salesUserId })}
+          options={[
+            { label: t("filters.allSales"), value: "all" },
+            { label: t("filters.unassigned"), value: "unassigned" },
+            ...salesProfiles.map((profile) => ({
+              label:
+                profile.name || profile.email || t("fallbacks.unnamedSales"),
+              value: profile.user_id,
+            })),
+          ]}
           value={filters.salesUserId}
-        >
-          <option value="all">{t("filters.allSales")}</option>
-          <option value="unassigned">{t("filters.unassigned")}</option>
-          {salesProfiles.map((profile) => (
-            <option key={profile.user_id} value={profile.user_id}>
-              {profile.name || profile.email || t("fallbacks.unnamedSales")}
-            </option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
 
       <DashboardFilterField label={t("filters.store")}>
-        <select
-          className={dashboardFilterInputClassName}
-          onInput={(event) => onChange({ storeName: event.currentTarget.value })}
+        <Select
+          aria-label={t("filters.store")}
+          onValueChange={(storeName) => onChange({ storeName })}
+          options={[
+            { label: t("filters.allStores"), value: "" },
+            ...storeOptions.map((option) => ({
+              label: option.store_name,
+              value: option.store_name,
+            })),
+          ]}
           value={filters.storeName}
-        >
-          <option value="">{t("filters.allStores")}</option>
-          {storeOptions.map((option) => (
-            <option key={option.store_name} value={option.store_name}>
-              {option.store_name}
-            </option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
 
-      <DashboardFilterField label={t("filters.fromDate")}>
-        <input
-          id="wholesale-logistics-date-from"
-          className={dashboardFilterInputClassName}
-          onChange={(event) => onChange({ fromDate: event.currentTarget.value })}
+      <DashboardFilterField
+        controlId="wholesale-logistics-date-from"
+        label={t("filters.fromDate")}
+      >
+        <DatePicker
+          onValueChange={(fromDate) => onChange({ fromDate })}
           required
-          type="date"
           value={filters.fromDate}
         />
       </DashboardFilterField>
 
       <DashboardFilterField label={t("filters.toDate")}>
-        <input
-          className={dashboardFilterInputClassName}
+        <DatePicker
           min={filters.fromDate}
-          onChange={(event) => onChange({ toDate: event.currentTarget.value })}
+          onValueChange={(toDate) => onChange({ toDate })}
           required
-          type="date"
           value={filters.toDate}
         />
       </DashboardFilterField>
 
       <DashboardFilterField label={t("filters.costState")}>
-        <select
-          className={dashboardFilterInputClassName}
-          onInput={(event) =>
+        <Select
+          aria-label={t("filters.costState")}
+          onValueChange={(value) =>
             onChange({
-              costState: event.currentTarget.value as WholesaleLogisticsFilters["costState"],
+              costState: value as WholesaleLogisticsFilters["costState"],
             })
           }
+          options={[
+            { label: t("filters.allCosts"), value: "all" },
+            { label: t("filters.recorded"), value: "recorded" },
+            { label: t("filters.missing"), value: "missing" },
+          ]}
           value={filters.costState}
-        >
-          <option value="all">{t("filters.allCosts")}</option>
-          <option value="recorded">{t("filters.recorded")}</option>
-          <option value="missing">{t("filters.missing")}</option>
-        </select>
+        />
       </DashboardFilterField>
 
       <DashboardFilterField label={t("filters.search")}>
         <div className="flex min-w-0 flex-col gap-2">
-          <label className="relative block min-w-0">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#8a949c]" />
-            <input
-              className={`${dashboardFilterInputClassName} min-w-0 pl-10`}
-              onChange={(event) => onChange({ searchText: event.currentTarget.value })}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && filters.searchText.trim()) {
-                  event.preventDefault();
-                  onExactSearch();
-                }
-              }}
-              placeholder={t("filters.searchPlaceholder")}
-              type="search"
-              value={filters.searchText}
-            />
-          </label>
+          <DashboardSearchInput
+            onChange={(value) => onChange({ searchText: value })}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && filters.searchText.trim()) {
+                event.preventDefault();
+                onExactSearch();
+              }
+            }}
+            placeholder={t("filters.searchPlaceholder")}
+            value={filters.searchText}
+          />
           <Button
             className="min-h-10 rounded-full px-3"
             disabled={!filters.searchText.trim()}

@@ -1,7 +1,11 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Select } from "@/components/ui/select";
+
 import {
-  DashboardFormDialog,
+  FormDialog,
   DashboardFormTextarea,
   dashboardFormInputClassName,
 } from "@/components/dashboard/dashboard-form-dialog";
@@ -11,7 +15,7 @@ import type {
   CompanyExpenseRow,
 } from "@/lib/company-expenses";
 
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 import {
   companyExpenseCurrencyOptions,
   type CompanyExpenseFormState,
@@ -40,7 +44,7 @@ type CompanyExpenseFormDialogProps = {
     titlePlaceholder: string;
   };
   editingExpense: CompanyExpenseRow | null;
-  feedback: { tone: NoticeTone; message: string } | null;
+  feedback: { tone: FeedbackTone; message: string } | null;
   formState: CompanyExpenseFormState;
   onOpenChange: (open: boolean) => void;
   onSubmit: () => void;
@@ -69,7 +73,7 @@ export function CompanyExpenseFormDialog({
   );
 
   return (
-    <DashboardFormDialog
+    <FormDialog
       cancelLabel={copy.cancel}
       description={createMode ? copy.createDescription : copy.editDescription}
       feedback={feedback}
@@ -80,114 +84,92 @@ export function CompanyExpenseFormDialog({
       submitLabel={createMode ? copy.createSubmit : copy.editSubmit}
       title={createMode ? copy.createTitle : copy.editTitle}
     >
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-            {copy.expenseMonthLabel}
-            <input
-              className={dashboardFormInputClassName}
-              onChange={(event) =>
-                onUpdateField("expenseMonth", event.target.value)
-              }
-              type="month"
-              value={formState.expenseMonth}
-            />
-          </label>
+      <div className="grid gap-4 md:grid-cols-2">
+        <FormControls.Field label={copy.expenseMonthLabel}>
+          <DatePicker
+            mode="month"
+            onValueChange={(value) => onUpdateField("expenseMonth", value)}
+            value={formState.expenseMonth}
+          />
+        </FormControls.Field>
 
-          <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-            {copy.expenseDateLabel}
-            <input
-              className={dashboardFormInputClassName}
-              onChange={(event) =>
-                onUpdateField("expenseDate", event.target.value)
-              }
-              type="date"
-              value={formState.expenseDate}
-            />
-          </label>
-        </div>
+        <FormControls.Field label={copy.expenseDateLabel}>
+          <DatePicker
+            onValueChange={(value) => onUpdateField("expenseDate", value)}
+            value={formState.expenseDate}
+          />
+        </FormControls.Field>
+      </div>
 
-        <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-          {copy.titleLabel}
-          <input
+      <label className="grid gap-2 text-sm font-semibold text-content-strong">
+        {copy.titleLabel}
+        <FormControls.Input
+          className={dashboardFormInputClassName}
+          onChange={(event) => onUpdateField("title", event.target.value)}
+          placeholder={copy.titlePlaceholder}
+          type="text"
+          value={formState.title}
+        />
+      </label>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <label className="grid gap-2 text-sm font-semibold text-content-strong">
+          {copy.categoryLabel}
+          <Select
+            onValueChange={(value) => onUpdateField("category", value)}
+            options={companyExpenseCategoryValues.map((category) => ({
+              label: copy.categoryOptions[category],
+              value: category,
+            }))}
+            value={formState.category}
+          />
+        </label>
+
+        <label className="grid gap-2 text-sm font-semibold text-content-strong">
+          {copy.amountLabel}
+          <FormControls.Input
             className={dashboardFormInputClassName}
-            onChange={(event) => onUpdateField("title", event.target.value)}
-            placeholder={copy.titlePlaceholder}
-            type="text"
-            value={formState.title}
+            inputMode="decimal"
+            min="0"
+            onChange={(event) => onUpdateField("amount", event.target.value)}
+            step="0.01"
+            type="number"
+            value={formState.amount}
           />
         </label>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-            {copy.categoryLabel}
-            <select
-              className={dashboardFormInputClassName}
-              onChange={(event) =>
-                onUpdateField(
-                  "category",
-                  event.target.value as CompanyExpenseCategory,
-                )
-              }
-              value={formState.category}
-            >
-              {companyExpenseCategoryValues.map((category) => (
-                <option key={category} value={category}>
-                  {copy.categoryOptions[category]}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-            {copy.amountLabel}
-            <input
-              className={dashboardFormInputClassName}
-              inputMode="decimal"
-              min="0"
-              onChange={(event) => onUpdateField("amount", event.target.value)}
-              step="0.01"
-              type="number"
-              value={formState.amount}
-            />
-          </label>
-
-          <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-            {copy.currencyLabel}
-            <select
-              className={dashboardFormInputClassName}
-              onChange={(event) =>
-                onUpdateField("currencyCode", event.target.value)
-              }
-              value={formState.currencyCode}
-            >
-              {currencyOptions.map((currencyCode) => (
-                <option key={currencyCode} value={currencyCode}>
-                  {currencyCode}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-          {copy.payeeLabel}
-          <input
-            className={dashboardFormInputClassName}
-            onChange={(event) => onUpdateField("payee", event.target.value)}
-            placeholder={copy.payeePlaceholder}
-            type="text"
-            value={formState.payee}
+        <label className="grid gap-2 text-sm font-semibold text-content-strong">
+          {copy.currencyLabel}
+          <Select
+            onValueChange={(value) => onUpdateField("currencyCode", value)}
+            options={currencyOptions.map((currencyCode) => ({
+              label: currencyCode,
+              value: currencyCode,
+            }))}
+            value={formState.currencyCode}
           />
         </label>
+      </div>
 
-        <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-          {copy.noteLabel}
-          <DashboardFormTextarea
-            onChange={(event) => onUpdateField("note", event.target.value)}
-            placeholder={copy.notePlaceholder}
-            value={formState.note}
-          />
-        </label>
-    </DashboardFormDialog>
+      <label className="grid gap-2 text-sm font-semibold text-content-strong">
+        {copy.payeeLabel}
+        <FormControls.Input
+          className={dashboardFormInputClassName}
+          onChange={(event) => onUpdateField("payee", event.target.value)}
+          placeholder={copy.payeePlaceholder}
+          type="text"
+          value={formState.payee}
+        />
+      </label>
+
+      <label className="grid gap-2 text-sm font-semibold text-content-strong">
+        {copy.noteLabel}
+        <DashboardFormTextarea
+          onChange={(event) => onUpdateField("note", event.target.value)}
+          placeholder={copy.notePlaceholder}
+          value={formState.note}
+        />
+      </label>
+    </FormDialog>
   );
 }

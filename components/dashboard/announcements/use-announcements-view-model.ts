@@ -21,7 +21,7 @@ import {
 } from "@/lib/announcements";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "../workspace-session-provider";
 import {
   createAnnouncementFormFromRow,
@@ -30,7 +30,7 @@ import {
   type AnnouncementFormState,
 } from "./announcements-display";
 
-type Feedback = { tone: NoticeTone; message: string } | null;
+type Feedback = { tone: FeedbackTone; message: string } | null;
 type AnnouncementAction = "delete" | "offline" | "publish";
 type PendingAnnouncementAction = {
   id: string;

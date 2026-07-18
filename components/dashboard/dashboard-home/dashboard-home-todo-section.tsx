@@ -1,11 +1,10 @@
 "use client";
 
-import {
-  ListTodo,
-  LoaderCircle,
-  Plus,
-  Star,
-} from "lucide-react";
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
+import * as FormControls from "@/components/ui/form-controls";
+
+import { ListTodo, LoaderCircle, Plus, Star } from "lucide-react";
 
 import {
   MotionList,
@@ -13,9 +12,10 @@ import {
   PresenceSwap,
 } from "@/components/motion/motion-primitives";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
-import { EmptyState, PageBanner } from "../dashboard-shared-ui";
+import { EmptyState, FeedbackNotice } from "../dashboard-shared-ui";
 import {
   HomeTodoDeleteDialog,
   HomeTodoDialog,
@@ -50,7 +50,7 @@ export function HomeTodosSection({
     <section
       className={cn(
         frame === "card"
-          ? "rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[0_18px_45px_rgba(96,113,128,0.06)] xl:p-8"
+          ? "rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[var(--surface-shadow-interactive)] xl:p-8"
           : "flex h-full min-h-0 flex-col overflow-hidden",
       )}
       data-testid="home-todos-section"
@@ -59,18 +59,18 @@ export function HomeTodosSection({
         <div className="min-w-0">
           <h3
             className={cn(
-              "flex items-center gap-2 font-bold tracking-tight text-[#23313a]",
+              "flex items-center gap-2 font-bold tracking-tight text-content-strong",
               compact ? "text-lg" : "text-2xl",
             )}
           >
             <ListTodo
-              className={cn("text-[#486782]", compact ? "size-5" : "size-6")}
+              className={cn("text-primary", compact ? "size-5" : "size-6")}
             />
             {copy.title}
           </h3>
           <p
             className={cn(
-              "mt-2 text-sm leading-7 text-[#69747d]",
+              "mt-2 text-sm leading-7 text-content-muted",
               compact && "text-xs leading-6",
             )}
           >
@@ -81,7 +81,7 @@ export function HomeTodosSection({
 
       <form
         className={cn(
-          "mt-6 grid gap-3 rounded-[24px] border border-[#e2e7eb] bg-[#fbfaf8] p-4 lg:grid-cols-[minmax(0,1fr)_180px_auto_auto]",
+          "mt-6 grid gap-3 rounded-[24px] border border-border-subtle bg-surface-inset p-4 lg:grid-cols-[minmax(0,1fr)_180px_auto_auto]",
           frame === "plain" && "mt-4",
         )}
         onSubmit={(event) => {
@@ -89,9 +89,9 @@ export function HomeTodosSection({
           void todoState.handleCreate();
         }}
       >
-        <input
+        <FormControls.Input
           aria-label={copy.quickAdd.placeholder}
-          className="h-12 min-w-0 rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none transition placeholder:text-[#8a949c] focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+          className="h-12 min-w-0 rounded-[18px] border border-border bg-white px-4 text-sm text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
           data-testid="home-todo-title-input"
           onChange={(event) =>
             todoState.updateQuickDraftField("title", event.target.value)
@@ -101,19 +101,17 @@ export function HomeTodosSection({
           value={todoState.quickDraft.title}
         />
 
-        <label className="block min-w-0">
-          <span className="sr-only">{copy.quickAdd.dueDateLabel}</span>
-          <input
-            className="h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-3 text-sm text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
-            onChange={(event) =>
-              todoState.updateQuickDraftField("dueDate", event.target.value)
+        <div className="min-w-0">
+          <DatePicker
+            aria-label={copy.quickAdd.dueDateLabel}
+            onValueChange={(value) =>
+              todoState.updateQuickDraftField("dueDate", value)
             }
-            type="date"
             value={todoState.quickDraft.dueDate}
           />
-        </label>
+        </div>
 
-        <button
+        <DesignButton
           aria-label={
             todoState.quickDraft.isImportant
               ? copy.actions.unmarkImportant
@@ -121,10 +119,10 @@ export function HomeTodosSection({
           }
           aria-pressed={todoState.quickDraft.isImportant}
           className={cn(
-            "flex h-12 w-full items-center justify-center rounded-[18px] border text-[#7b858d] transition sm:w-12",
+            "flex h-12 w-full items-center justify-center rounded-[18px] border text-content-muted transition sm:w-12",
             todoState.quickDraft.isImportant
-              ? "border-[#e4c979] bg-[#fff6d8] text-[#a07604]"
-              : "border-[#dfe5ea] bg-white hover:bg-[#f4f7f9]",
+              ? "border-border-subtle bg-surface-inset text-content-muted"
+              : "border-border bg-white hover:bg-surface-inset",
           )}
           data-testid="home-todo-quick-important"
           onClick={() =>
@@ -146,10 +144,11 @@ export function HomeTodosSection({
               todoState.quickDraft.isImportant ? "fill-current" : "",
             )}
           />
-        </button>
+        </DesignButton>
 
         <Button
-          className="h-12 rounded-[18px] bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+          variant="primary"
+          size="default"
           data-testid="home-todo-add-button"
           disabled={createPending}
           type="submit"
@@ -178,9 +177,9 @@ export function HomeTodosSection({
 
       {todoState.pageFeedback ? (
         <div className="mt-5">
-          <PageBanner tone={todoState.pageFeedback.tone}>
+          <FeedbackNotice tone={todoState.pageFeedback.tone}>
             {todoState.pageFeedback.message}
-          </PageBanner>
+          </FeedbackNotice>
         </div>
       ) : null}
 
@@ -212,8 +211,12 @@ export function HomeTodosSection({
                     locale={locale}
                     onDelete={() => void todoState.handleDelete(todo)}
                     onEdit={() => todoState.openEditDialog(todo)}
-                    onToggleComplete={() => todoState.handleToggleComplete(todo)}
-                    onToggleImportant={() => todoState.handleToggleImportant(todo)}
+                    onToggleComplete={() =>
+                      todoState.handleToggleComplete(todo)
+                    }
+                    onToggleImportant={() =>
+                      todoState.handleToggleImportant(todo)
+                    }
                     pendingAction={todoState.pendingAction}
                     todo={todo}
                   />

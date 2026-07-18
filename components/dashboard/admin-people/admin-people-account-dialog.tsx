@@ -1,5 +1,8 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+import { Select } from "@/components/ui/select";
+
 import { LoaderCircle, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -68,7 +71,8 @@ export function AdminPeopleAccountDialog({
       actions={
         <>
           <Button
-            className="h-10 rounded-full border border-[#d9e0e5] bg-white px-5 text-[#486782] hover:bg-[#f3f6f8]"
+            variant="outline"
+            size="compact"
             disabled={saving}
             onClick={onClose}
             type="button"
@@ -76,7 +80,8 @@ export function AdminPeopleAccountDialog({
             {t("actions.cancel")}
           </Button>
           <Button
-            className="h-10 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="compact"
             disabled={!canSaveDraft}
             onClick={onSave}
             type="button"
@@ -110,12 +115,12 @@ export function AdminPeopleAccountDialog({
             statusLabels={statusLabels}
           />
 
-          <section className="min-w-0 border-t border-[#ebe7e1] pt-6">
+          <section className="min-w-0 border-t border-border-subtle pt-6">
             <div className="mb-4">
-              <p className="text-sm font-semibold text-[#23313a]">
+              <p className="text-sm font-semibold text-content-strong">
                 {t("dialog.adjustTitle")}
               </p>
-              <p className="mt-1 text-xs leading-6 text-[#6a7680]">
+              <p className="mt-1 text-xs leading-6 text-content-muted">
                 {t("dialog.adjustDescription")}
               </p>
             </div>
@@ -123,49 +128,41 @@ export function AdminPeopleAccountDialog({
             <div className="min-w-0 space-y-5">
               <div className="grid min-w-0 gap-4 sm:grid-cols-2">
                 <label className="block min-w-0">
-                  <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+                  <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
                     {t("dialog.nextRole")}
                   </span>
-                  <select
-                    className="h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+                  <Select
                     disabled={selectedPersonIsCurrentViewer || saving}
-                    onChange={(event) => onDraftRoleChange(event.target.value)}
+                    onValueChange={onDraftRoleChange}
+                    options={roleOptions.map((role) => ({
+                      label: roleLabels[role],
+                      value: role,
+                    }))}
                     value={draftRole}
-                  >
-                    {roleOptions.map((role) => (
-                      <option key={role} value={role}>
-                        {roleLabels[role]}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </label>
 
                 <label className="block min-w-0">
-                  <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+                  <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
                     {t("dialog.nextStatus")}
                   </span>
-                  <select
-                    className="h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+                  <Select
                     disabled={selectedPersonIsCurrentViewer || saving}
-                    onChange={(event) =>
-                      onDraftStatusChange(event.target.value)
-                    }
+                    onValueChange={onDraftStatusChange}
+                    options={statusOptions.map((status) => ({
+                      label: statusLabels[status],
+                      value: status,
+                    }))}
                     value={draftStatus}
-                  >
-                    {statusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {statusLabels[status]}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </label>
 
                 <label className="block min-w-0 sm:col-span-2">
-                  <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+                  <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
                     {t("dialog.nextCity")}
                   </span>
-                  <input
-                    className="h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none transition placeholder:text-[#8a949c] focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+                  <FormControls.Input
+                    className="h-12 w-full rounded-[18px] border border-border bg-white px-4 text-sm text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
                     disabled={selectedPersonIsCurrentViewer || saving}
                     maxLength={ADMIN_PEOPLE_CITY_MAX_LENGTH}
                     onChange={(event) => onDraftCityChange(event.target.value)}
@@ -176,11 +173,11 @@ export function AdminPeopleAccountDialog({
               </div>
 
               <label className="block min-w-0">
-                <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+                <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
                   {t("dialog.note")}
                 </span>
-                <textarea
-                  className="min-h-28 w-full resize-y rounded-[18px] border border-[#dfe5ea] bg-white px-4 py-3 text-sm leading-6 text-[#23313a] outline-none transition placeholder:text-[#8a949c] focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+                <FormControls.Textarea
+                  className="min-h-28 w-full resize-y rounded-[18px] border border-border bg-white px-4 py-3 text-sm leading-6 text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
                   disabled={selectedPersonIsCurrentViewer || saving}
                   maxLength={500}
                   onChange={(event) => onDraftNoteChange(event.target.value)}

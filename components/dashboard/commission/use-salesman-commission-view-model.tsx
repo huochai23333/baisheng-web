@@ -11,12 +11,12 @@ import {
 } from "@/lib/salesman-commission";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useDashboardPagination } from "@/lib/use-dashboard-pagination";
-import type { NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import type { FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "@/components/dashboard/workspace-session-provider";
 
 import { toCommissionErrorMessage } from "./commission-display";
 
-type PageFeedback = { tone: NoticeTone; message: string } | null;
+type PageFeedback = { tone: FeedbackTone; message: string } | null;
 type CommissionBoard = "normal" | "task";
 
 /** 业务员佣金页的数据刷新、看板选择和分页状态统一收口。 */
@@ -88,4 +88,3 @@ export function useSalesmanCommissionViewModel(
     taskCommissions,
   };
 }
-

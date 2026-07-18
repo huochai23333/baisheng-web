@@ -1,4 +1,6 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -10,6 +12,7 @@ import {
 } from "@/components/dashboard/dashboard-section-panel";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import type { CommissionRuleSetting } from "@/lib/commission-settings";
 import type { ExchangeRateRow } from "@/lib/exchange-rates";
 import { normalizeSearchText } from "@/lib/value-normalizers";
@@ -179,7 +182,7 @@ export function WholesaleCommissionSection({
       <DashboardListSection
         actions={
           <Button
-            className="rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
+            size="default"
             disabled={!hasActiveFilters}
             onClick={() => {
               setIncentiveSearch("");
@@ -198,7 +201,7 @@ export function WholesaleCommissionSection({
       >
         <div className="mb-5 grid gap-4 md:grid-cols-3">
           <DashboardFilterField label={uiText("attribute004")}>
-            <input
+            <FormControls.Input
               className={dashboardFilterInputClassName}
               onChange={(event) => setIncentiveSearch(event.target.value)}
               placeholder={uiText("attribute005")}
@@ -207,40 +210,56 @@ export function WholesaleCommissionSection({
             />
           </DashboardFilterField>
           <DashboardFilterField label={uiText("attribute006")}>
-            <select
-              className={dashboardFilterInputClassName}
-              onChange={(event) => setIncentiveSalesFilter(event.target.value)}
+            <Select
+              aria-label={uiText("attribute006")}
+              onValueChange={setIncentiveSalesFilter}
+              options={[
+                {
+                  label: (
+                    <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text002" />
+                  ),
+                  value: ALL,
+                },
+                ...salesAccounts.map((account) => ({
+                  label: account.label,
+                  value: account.userId,
+                })),
+              ]}
               value={incentiveSalesFilter}
-            >
-              <option value={ALL}>
-                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text002" />
-              </option>
-              {salesAccounts.map((account) => (
-                <option key={account.userId} value={account.userId}>
-                  {account.label}
-                </option>
-              ))}
-            </select>
+            />
           </DashboardFilterField>
           <DashboardFilterField label={uiText("attribute007")}>
-            <select
-              className={dashboardFilterInputClassName}
-              onChange={(event) => setIncentiveStatusFilter(event.target.value)}
+            <Select
+              aria-label={uiText("attribute007")}
+              onValueChange={setIncentiveStatusFilter}
+              options={[
+                {
+                  label: (
+                    <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text003" />
+                  ),
+                  value: ALL,
+                },
+                {
+                  label: (
+                    <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text004" />
+                  ),
+                  value: "pending",
+                },
+                {
+                  label: (
+                    <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text005" />
+                  ),
+                  value: "settled",
+                },
+                {
+                  label: (
+                    <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text006" />
+                  ),
+                  value: "cancelled",
+                },
+              ]}
               value={incentiveStatusFilter}
-            >
-              <option value={ALL}>
-                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text003" />
-              </option>
-              <option value="pending">
-                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text004" />
-              </option>
-              <option value="settled">
-                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text005" />
-              </option>
-              <option value="cancelled">
-                <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text006" />
-              </option>
-            </select>
+            />
           </DashboardFilterField>
         </div>
 

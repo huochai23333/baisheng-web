@@ -1,13 +1,12 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { StatusBadge } from "@/components/ui/status-badge";
+
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
 
 import { useTranslations } from "next-intl";
 import { Search, UsersRound } from "lucide-react";
 
-import type { AdminCommissionRow, CommissionSettlementStatus } from "@/lib/admin-commission";
-import type { DashboardPaginationSlice } from "@/lib/dashboard-pagination";
-import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 import { DashboardPaginationFooter } from "@/components/dashboard/dashboard-collection-section";
@@ -24,6 +23,11 @@ import {
 
 import type { BeneficiarySummaryRow } from "./admin-commission-view-model";
 import {
+  type AdminCommissionTableSectionProps,
+  CommissionDetailLine,
+  getCommissionSettlementTone,
+} from "./admin-commission-record-utils";
+import {
   formatCommissionMoney,
   formatNullableCommissionMoney,
   getCommissionCategoryLabel,
@@ -31,11 +35,6 @@ import {
   getCommissionRoleLabel,
   getCommissionSettlementStatusLabel,
 } from "./commission-display";
-
-type CommissionPagination = DashboardPaginationSlice<AdminCommissionRow> & {
-  goToNextPage: () => void;
-  goToPreviousPage: () => void;
-};
 
 export function CommissionBeneficiarySummarySection({
   rows,
@@ -62,22 +61,36 @@ export function CommissionBeneficiarySummarySection({
         />
       ) : (
         <DashboardTableFrame>
-          <table className="min-w-[980px] w-full divide-y divide-[#e6e2db] text-sm">
+          <table className="min-w-[980px] w-full divide-y divide-border-subtle text-sm">
             <thead>
-              <tr className="text-left text-xs font-semibold tracking-[0.16em] text-[#8b959c] uppercase">
-                <th className="px-4 py-3">{t("beneficiaries.columns.beneficiary")}</th>
-                <th className="px-4 py-3">{t("beneficiaries.columns.roleStatus")}</th>
-                <th className="px-4 py-3">{t("beneficiaries.columns.recordCount")}</th>
-                <th className="px-4 py-3">{t("beneficiaries.columns.totalAmount")}</th>
-                <th className="px-4 py-3">{t("beneficiaries.columns.pendingAmount")}</th>
-                <th className="px-4 py-3">{t("beneficiaries.columns.paidAmount")}</th>
-                <th className="px-4 py-3">{t("beneficiaries.columns.latestRecord")}</th>
+              <tr className="text-left text-xs font-semibold tracking-[0.16em] text-content-muted uppercase">
+                <th className="px-4 py-3">
+                  {t("beneficiaries.columns.beneficiary")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("beneficiaries.columns.roleStatus")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("beneficiaries.columns.recordCount")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("beneficiaries.columns.totalAmount")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("beneficiaries.columns.pendingAmount")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("beneficiaries.columns.paidAmount")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("beneficiaries.columns.latestRecord")}
+                </th>
                 <th className="px-4 py-3 text-right">
                   {t("beneficiaries.columns.actions")}
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#efebe5]">
+            <tbody className="divide-y divide-border-subtle">
               {rows.map((beneficiary) => {
                 const beneficiaryStatus = mapUserStatus(
                   beneficiary.status,
@@ -87,50 +100,53 @@ export function CommissionBeneficiarySummarySection({
                 return (
                   <tr
                     key={beneficiary.userId}
-                    className="bg-white/50 transition-colors hover:bg-[#f7f7f5]"
+                    className="bg-white/50 transition-colors hover:bg-surface-inset"
                   >
                     <td className="px-4 py-4">
-                      <div className="font-medium text-[#22313a]">
+                      <div className="font-medium text-content-strong">
                         {beneficiary.label}
                       </div>
                       {beneficiary.email ? (
-                        <div className="mt-1 text-xs text-[#79848d]">
+                        <div className="mt-1 text-xs text-content-muted">
                           {beneficiary.email}
                         </div>
                       ) : null}
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap gap-2">
-                        <InlineChip tone="blue">
+                        <StatusBadge tone="info">
                           {getCommissionRoleLabel(beneficiary.role, t)}
-                        </InlineChip>
-                        <InlineChip
+                        </StatusBadge>
+                        <StatusBadge
                           tone={
-                            beneficiaryStatus.accent === "success" ? "green" : "gold"
+                            beneficiaryStatus.accent === "success"
+                              ? "success"
+                              : "warning"
                           }
                         >
                           {beneficiaryStatus.label}
-                        </InlineChip>
+                        </StatusBadge>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-[#22313a]">
+                    <td className="px-4 py-4 text-content-strong">
                       {beneficiary.recordCount}
                     </td>
-                    <td className="px-4 py-4 text-[#22313a]">
+                    <td className="px-4 py-4 text-content-strong">
                       {formatCommissionMoney(beneficiary.totalAmount, locale)}
                     </td>
-                    <td className="px-4 py-4 text-[#9a6a07]">
+                    <td className="px-4 py-4 text-status-warning">
                       {formatCommissionMoney(beneficiary.pendingAmount, locale)}
                     </td>
-                    <td className="px-4 py-4 text-[#4c7259]">
+                    <td className="px-4 py-4 text-status-success">
                       {formatCommissionMoney(beneficiary.paidAmount, locale)}
                     </td>
-                    <td className="px-4 py-4 text-[#66727b]">
+                    <td className="px-4 py-4 text-content-muted">
                       {formatDateTime(beneficiary.lastCreatedAt, locale)}
                     </td>
                     <td className="px-4 py-4 text-right">
                       <Button
-                        className="rounded-full bg-[#486782] text-white hover:bg-[#3e5f79]"
+                        variant="primary"
+                        size="default"
                         onClick={() => onViewAll(beneficiary.userId)}
                         type="button"
                       >
@@ -154,13 +170,7 @@ export function AdminCommissionTableSection({
   pagination,
   rows,
   settlingCommissionId,
-}: {
-  onFocusOrderNumber: (orderNumber: string) => void;
-  onMarkAsPaid: (commission: AdminCommissionRow) => void;
-  pagination: CommissionPagination;
-  rows: AdminCommissionRow[];
-  settlingCommissionId: string | null;
-}) {
+}: AdminCommissionTableSectionProps) {
   const t = useTranslations("Commission");
   const sharedT = useTranslations("DashboardShared");
   const { locale } = useLocale();
@@ -193,22 +203,26 @@ export function AdminCommissionTableSection({
             />
           }
         >
-          <table className="min-w-[1220px] w-full divide-y divide-[#e6e2db] text-sm">
+          <table className="min-w-[1220px] w-full divide-y divide-border-subtle text-sm">
             <thead>
-              <tr className="text-left text-xs font-semibold tracking-[0.16em] text-[#8b959c] uppercase">
+              <tr className="text-left text-xs font-semibold tracking-[0.16em] text-content-muted uppercase">
                 <th className="px-4 py-3">{t("table.columns.orderStatus")}</th>
                 <th className="px-4 py-3">{t("table.columns.beneficiary")}</th>
                 <th className="px-4 py-3">{t("table.columns.category")}</th>
                 <th className="px-4 py-3">{t("table.columns.source")}</th>
-                <th className="px-4 py-3">{t("table.columns.amountSnapshot")}</th>
+                <th className="px-4 py-3">
+                  {t("table.columns.amountSnapshot")}
+                </th>
                 <th className="px-4 py-3">
                   {t("table.columns.commissionSettlement")}
                 </th>
                 <th className="px-4 py-3">{t("table.columns.timestamps")}</th>
-                <th className="px-4 py-3 text-right">{t("table.columns.actions")}</th>
+                <th className="px-4 py-3 text-right">
+                  {t("table.columns.actions")}
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#efebe5]">
+            <tbody className="divide-y divide-border-subtle">
               {pagination.items.map((commission) => {
                 const beneficiaryStatus = mapUserStatus(
                   commission.beneficiary.status,
@@ -219,63 +233,82 @@ export function AdminCommissionTableSection({
                 return (
                   <tr
                     key={commission.id}
-                    className="align-top transition-colors hover:bg-[#f7f7f5]"
+                    className="align-top transition-colors hover:bg-surface-inset"
                   >
                     <td className="px-4 py-4">
-                      <button
-                        className="text-left text-sm font-semibold text-[#486782] transition-colors hover:text-[#36546d]"
-                        onClick={() => onFocusOrderNumber(commission.orderNumber)}
+                      <DesignButton
+                        className="text-left text-sm font-semibold text-primary transition-colors hover:text-content-muted"
+                        onClick={() =>
+                          onFocusOrderNumber(commission.orderNumber)
+                        }
                         type="button"
                       >
                         {commission.orderNumber}
-                      </button>
+                      </DesignButton>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <InlineChip tone="blue">
-                          {getCommissionOrderStatusLabel(commission.orderStatus, t)}
-                        </InlineChip>
+                        <StatusBadge tone="info">
+                          {getCommissionOrderStatusLabel(
+                            commission.orderStatus,
+                            t,
+                          )}
+                        </StatusBadge>
                         {commission.isOrderDeleted ? (
-                          <InlineChip tone="gold">
+                          <StatusBadge tone="warning">
                             {t("shared.deletedOrder")}
-                          </InlineChip>
+                          </StatusBadge>
                         ) : null}
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="font-medium text-[#22313a]">
+                      <div className="font-medium text-content-strong">
                         {commission.beneficiary.label}
                       </div>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <InlineChip tone="blue">
-                          {getCommissionRoleLabel(commission.beneficiary.role, t)}
-                        </InlineChip>
-                        <InlineChip
+                        <StatusBadge tone="info">
+                          {getCommissionRoleLabel(
+                            commission.beneficiary.role,
+                            t,
+                          )}
+                        </StatusBadge>
+                        <StatusBadge
                           tone={
-                            beneficiaryStatus.accent === "success" ? "green" : "gold"
+                            beneficiaryStatus.accent === "success"
+                              ? "success"
+                              : "warning"
                           }
                         >
                           {beneficiaryStatus.label}
-                        </InlineChip>
+                        </StatusBadge>
                       </div>
                     </td>
-                    <td className="px-4 py-4 font-medium text-[#22313a]">
+                    <td className="px-4 py-4 font-medium text-content-strong">
                       {getCommissionCategoryLabel(commission.category, t)}
                     </td>
                     <td className="px-4 py-4">
-                      <DetailLine
+                      <CommissionDetailLine
                         label={t("shared.fields.customer")}
-                        value={commission.sourceCustomer?.label ?? t("shared.fallback.none")}
+                        value={
+                          commission.sourceCustomer?.label ??
+                          t("shared.fallback.none")
+                        }
                       />
-                      <DetailLine
+                      <CommissionDetailLine
                         label={t("shared.fields.salesman")}
-                        value={commission.sourceSalesman?.label ?? t("shared.fallback.none")}
+                        value={
+                          commission.sourceSalesman?.label ??
+                          t("shared.fallback.none")
+                        }
                       />
                     </td>
                     <td className="px-4 py-4">
-                      <DetailLine
+                      <CommissionDetailLine
                         label={t("shared.fields.orderAmount")}
-                        value={formatCommissionMoney(commission.orderAmountRmb, locale)}
+                        value={formatCommissionMoney(
+                          commission.orderAmountRmb,
+                          locale,
+                        )}
                       />
-                      <DetailLine
+                      <CommissionDetailLine
                         label={t("shared.fields.costAmount")}
                         value={formatNullableCommissionMoney(
                           commission.costAmountRmb,
@@ -283,7 +316,7 @@ export function AdminCommissionTableSection({
                           t,
                         )}
                       />
-                      <DetailLine
+                      <CommissionDetailLine
                         label={t("shared.fields.serviceFee")}
                         value={formatNullableCommissionMoney(
                           commission.serviceFeeAmountRmb,
@@ -293,29 +326,38 @@ export function AdminCommissionTableSection({
                       />
                     </td>
                     <td className="px-4 py-4">
-                      <div className="font-semibold text-[#22313a]">
-                        {formatCommissionMoney(commission.commissionAmountRmb, locale)}
+                      <div className="font-semibold text-content-strong">
+                        {formatCommissionMoney(
+                          commission.commissionAmountRmb,
+                          locale,
+                        )}
                       </div>
                       <div className="mt-2">
-                        <InlineChip tone={getSettlementTone(commission.settlementStatus)}>
+                        <StatusBadge
+                          tone={getCommissionSettlementTone(
+                            commission.settlementStatus,
+                          )}
+                        >
                           {getCommissionSettlementStatusLabel(
                             commission.settlementStatus,
                             t,
                           )}
-                        </InlineChip>
+                        </StatusBadge>
                       </div>
                       {commission.settlementNote ? (
-                        <p className="mt-2 max-w-xs text-xs leading-6 text-[#79848d]">
-                          {t("shared.note", { note: commission.settlementNote })}
+                        <p className="mt-2 max-w-xs text-xs leading-6 text-content-muted">
+                          {t("shared.note", {
+                            note: commission.settlementNote,
+                          })}
                         </p>
                       ) : null}
                     </td>
                     <td className="px-4 py-4">
-                      <DetailLine
+                      <CommissionDetailLine
                         label={t("shared.fields.createdAt")}
                         value={formatDateTime(commission.createdAt, locale)}
                       />
-                      <DetailLine
+                      <CommissionDetailLine
                         label={t("shared.fields.settledAt")}
                         value={formatDateTime(commission.settledAt, locale)}
                       />
@@ -323,7 +365,8 @@ export function AdminCommissionTableSection({
                     <td className="px-4 py-4 text-right">
                       {commission.settlementStatus === "pending" ? (
                         <Button
-                          className="rounded-full bg-[#4c7259] text-white hover:bg-[#3f604a]"
+                          variant="success"
+                          size="default"
                           disabled={isSettling}
                           onClick={() => onMarkAsPaid(commission)}
                           type="button"
@@ -333,7 +376,7 @@ export function AdminCommissionTableSection({
                             : t("actions.markPaid")}
                         </Button>
                       ) : (
-                        <span className="text-xs text-[#8a949c]">
+                        <span className="text-xs text-content-subtle">
                           {t("actions.noPendingAction")}
                         </span>
                       )}
@@ -347,52 +390,4 @@ export function AdminCommissionTableSection({
       )}
     </DashboardListSection>
   );
-}
-
-function InlineChip({
-  children,
-  tone,
-}: {
-  children: ReactNode;
-  tone: "blue" | "green" | "gold";
-}) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold",
-        tone === "blue" && "bg-[#e4edf3] text-[#486782]",
-        tone === "green" && "bg-[#e7f3ea] text-[#4c7259]",
-        tone === "gold" && "bg-[#fbf1d9] text-[#9a6a07]",
-      )}
-    >
-      {children}
-    </span>
-  );
-}
-
-function DetailLine({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="leading-7 text-[#66727b]">
-      <span className="text-xs text-[#8a949c]">{label}: </span>
-      <span>{value}</span>
-    </div>
-  );
-}
-
-function getSettlementTone(status: CommissionSettlementStatus) {
-  if (status === "paid") {
-    return "green";
-  }
-
-  if (status === "pending" || status === "reversed") {
-    return "gold";
-  }
-
-  return "blue";
 }

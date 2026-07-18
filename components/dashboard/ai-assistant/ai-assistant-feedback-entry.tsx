@@ -69,10 +69,12 @@ export function AiAssistantFeedbackEntry({
   }
 
   return (
-    <div className="rounded-[18px] border border-[#d7e5dd] bg-[#f4faf6] px-4 py-3 text-sm leading-6 text-[#3f6b55]">
+    <div className="rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
       <p>{feedbackPrompt.description}</p>
       <Button
-        className="mt-3 h-9 rounded-full bg-[#4f7a61] px-4 text-sm font-semibold text-white hover:bg-[#456e58]"
+        variant="secondary"
+        size="compact"
+        className="mt-3"
         onClick={() => onOpenFeedback(feedbackPrompt.draft)}
         type="button"
       >

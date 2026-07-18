@@ -23,9 +23,9 @@ import {
 import { signOutCurrentBrowserSession } from "@/lib/browser-auth-session";
 import type { getBrowserSupabaseClient } from "@/lib/supabase";
 
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 
-type PageNoticeSetter = (notice: { tone: NoticeTone; message: string } | null) => void;
+type PageNoticeSetter = (notice: { tone: FeedbackTone; message: string } | null) => void;
 type BusySetter = (busyKey: string | null) => void;
 
 type UseDashboardAccountSwitcherOptions = {

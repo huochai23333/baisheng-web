@@ -1,4 +1,6 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { RefreshCcw } from "lucide-react";
@@ -8,6 +10,7 @@ import {
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import {
   WholesaleCustomerDirectory,
@@ -65,7 +68,7 @@ export function WholesaleCustomerPeopleTab({
     <DashboardListSection
       actions={
         <Button
-          className="rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
+          size="default"
           disabled={!hasCustomerFilters}
           onClick={onResetCustomerFilters}
           type="button"
@@ -83,7 +86,7 @@ export function WholesaleCustomerPeopleTab({
     >
       <div className="mb-5 grid gap-4 md:grid-cols-3">
         <DashboardFilterField label={uiText("attribute002")}>
-          <input
+          <FormControls.Input
             className={dashboardFilterInputClassName}
             onChange={(event) => onCustomerSearchChange(event.target.value)}
             placeholder={uiText("attribute003")}
@@ -92,39 +95,50 @@ export function WholesaleCustomerPeopleTab({
           />
         </DashboardFilterField>
         <DashboardFilterField label={uiText("attribute004")}>
-          <select
-            className={dashboardFilterInputClassName}
-            onChange={(event) => onCustomerKindFilterChange(event.target.value)}
+          <Select
+            aria-label={uiText("attribute004")}
+            onValueChange={onCustomerKindFilterChange}
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text002" />
+                ),
+                value: ALL,
+              },
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text003" />
+                ),
+                value: "registered_account",
+              },
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text004" />
+                ),
+                value: "sales_created",
+              },
+            ]}
             value={customerKindFilter}
-          >
-            <option value={ALL}>
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text002" />
-            </option>
-            <option value="registered_account">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text003" />
-            </option>
-            <option value="sales_created">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text004" />
-            </option>
-          </select>
+          />
         </DashboardFilterField>
         <DashboardFilterField label={uiText("attribute005")}>
-          <select
-            className={dashboardFilterInputClassName}
-            onChange={(event) =>
-              onCustomerSalesFilterChange(event.target.value)
-            }
+          <Select
+            aria-label={uiText("attribute005")}
+            onValueChange={onCustomerSalesFilterChange}
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text005" />
+                ),
+                value: ALL,
+              },
+              ...salesAccounts.map((profile) => ({
+                label: profile.name || profile.email,
+                value: profile.user_id,
+              })),
+            ]}
             value={customerSalesFilter}
-          >
-            <option value={ALL}>
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text005" />
-            </option>
-            {salesAccounts.map((profile) => (
-              <option key={profile.user_id} value={profile.user_id}>
-                {profile.name || profile.email}
-              </option>
-            ))}
-          </select>
+          />
         </DashboardFilterField>
       </div>
       <WholesaleCustomerDirectory
@@ -156,7 +170,7 @@ export function WholesaleSalesAccountPeopleTab({
     <DashboardListSection
       actions={
         <Button
-          className="rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
+          size="default"
           disabled={!hasAccountFilters}
           onClick={onResetAccountFilters}
           type="button"
@@ -174,7 +188,7 @@ export function WholesaleSalesAccountPeopleTab({
     >
       <div className="mb-5 grid gap-4 md:grid-cols-3">
         <DashboardFilterField label={uiText("attribute007")}>
-          <input
+          <FormControls.Input
             className={dashboardFilterInputClassName}
             onChange={(event) => onAccountSearchChange(event.target.value)}
             placeholder={uiText("attribute008")}
@@ -183,40 +197,58 @@ export function WholesaleSalesAccountPeopleTab({
           />
         </DashboardFilterField>
         <DashboardFilterField label={uiText("attribute009")}>
-          <select
-            className={dashboardFilterInputClassName}
-            onChange={(event) => onAccountRoleFilterChange(event.target.value)}
+          <Select
+            aria-label={uiText("attribute009")}
+            onValueChange={onAccountRoleFilterChange}
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text007" />
+                ),
+                value: ALL,
+              },
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text008" />
+                ),
+                value: "salesman",
+              },
+            ]}
             value={accountRoleFilter}
-          >
-            <option value={ALL}>
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text007" />
-            </option>
-            <option value="salesman">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text008" />
-            </option>
-          </select>
+          />
         </DashboardFilterField>
         <DashboardFilterField label={uiText("attribute010")}>
-          <select
-            className={dashboardFilterInputClassName}
-            onChange={(event) =>
-              onAccountStatusFilterChange(event.target.value)
-            }
+          <Select
+            aria-label={uiText("attribute010")}
+            onValueChange={onAccountStatusFilterChange}
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text009" />
+                ),
+                value: ALL,
+              },
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text010" />
+                ),
+                value: "active",
+              },
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text011" />
+                ),
+                value: "inactive",
+              },
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text012" />
+                ),
+                value: "suspended",
+              },
+            ]}
             value={accountStatusFilter}
-          >
-            <option value={ALL}>
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text009" />
-            </option>
-            <option value="active">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text010" />
-            </option>
-            <option value="inactive">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text011" />
-            </option>
-            <option value="suspended">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text012" />
-            </option>
-          </select>
+          />
         </DashboardFilterField>
       </div>
       <WholesaleSalesAccountDirectory

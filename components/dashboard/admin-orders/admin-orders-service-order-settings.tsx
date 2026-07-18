@@ -17,17 +17,13 @@ import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useLocale } from "@/components/i18n/locale-provider";
 
 import { DashboardListSection } from "../dashboard-section-panel";
-import { PageBanner, type NoticeTone } from "../dashboard-shared-ui";
-import {
-  createOrdersUiCopy,
-} from "./admin-orders-utils";
+import { FeedbackNotice, type FeedbackTone } from "../dashboard-shared-ui";
+import { createOrdersUiCopy } from "./admin-orders-utils";
 import {
   formatRatioForInput,
   parseServiceFeeInput,
 } from "./admin-orders-service-fee-settings-utils";
-import {
-  ServiceOrderPricesTable,
-} from "./admin-orders-service-order-settings-tables";
+import { ServiceOrderPricesTable } from "./admin-orders-service-order-settings-tables";
 import {
   type ServiceOrderPriceDraft,
   ServiceOrderSettingsSectionTitle,
@@ -35,7 +31,7 @@ import {
 } from "./admin-orders-service-order-settings-shared";
 import { ServiceOrderDiscountsTable } from "./admin-orders-service-order-discounts-table";
 
-type PageFeedback = { tone: NoticeTone; message: string } | null;
+type PageFeedback = { tone: FeedbackTone; message: string } | null;
 
 export function AdminOrdersServiceOrderSettings({
   initialDiscounts,
@@ -56,7 +52,10 @@ export function AdminOrdersServiceOrderSettings({
   const ordersUiT = useTranslations("OrdersUI");
   const orderUiCopy = useMemo(() => createOrdersUiCopy(ordersUiT), [ordersUiT]);
   const serviceTypeById = useMemo(
-    () => new Map(serviceOrderTypes.map((item) => [item.id, item.business_subcategory])),
+    () =>
+      new Map(
+        serviceOrderTypes.map((item) => [item.id, item.business_subcategory]),
+      ),
     [serviceOrderTypes],
   );
   const [prices, setPrices] = useState<ServiceOrderPriceOption[]>(() =>
@@ -88,15 +87,23 @@ export function AdminOrdersServiceOrderSettings({
     }
 
     const parsedAmountUsd = parsePositiveAmount(priceDraft.amountUsd);
-    const parsedCostAmountRmb = parseNonNegativeAmount(priceDraft.costAmountRmb);
+    const parsedCostAmountRmb = parseNonNegativeAmount(
+      priceDraft.costAmountRmb,
+    );
 
     if (parsedAmountUsd === null) {
-      setFeedback({ tone: "error", message: t("settings.serviceOrders.validation.price") });
+      setFeedback({
+        tone: "error",
+        message: t("settings.serviceOrders.validation.price"),
+      });
       return;
     }
 
     if (parsedCostAmountRmb === null) {
-      setFeedback({ tone: "error", message: t("settings.serviceOrders.validation.cost") });
+      setFeedback({
+        tone: "error",
+        message: t("settings.serviceOrders.validation.cost"),
+      });
       return;
     }
 
@@ -114,9 +121,15 @@ export function AdminOrdersServiceOrderSettings({
       setPrices(nextRows);
       onPricesChange?.(nextRows);
       clearEditing();
-      setFeedback({ tone: "success", message: t("settings.serviceOrders.updateSuccess") });
+      setFeedback({
+        tone: "success",
+        message: t("settings.serviceOrders.updateSuccess"),
+      });
     } catch {
-      setFeedback({ tone: "error", message: t("settings.serviceOrders.errors.unknown") });
+      setFeedback({
+        tone: "error",
+        message: t("settings.serviceOrders.errors.unknown"),
+      });
     } finally {
       setPendingAction(null);
     }
@@ -130,7 +143,10 @@ export function AdminOrdersServiceOrderSettings({
     const parsed = parseServiceFeeInput(editValue);
 
     if (!parsed.ok) {
-      setFeedback({ tone: "error", message: t("settings.serviceOrders.validation.discount") });
+      setFeedback({
+        tone: "error",
+        message: t("settings.serviceOrders.validation.discount"),
+      });
       return;
     }
 
@@ -138,16 +154,26 @@ export function AdminOrdersServiceOrderSettings({
     setFeedback(null);
 
     try {
-      const updated = await updateOrderDiscountType(supabase, row.id, parsed.value);
+      const updated = await updateOrderDiscountType(
+        supabase,
+        row.id,
+        parsed.value,
+      );
       const nextRows = sortOrderDiscounts(
         discounts.map((item) => (item.id === updated.id ? updated : item)),
       );
       setDiscounts(nextRows);
       onDiscountsChange?.(nextRows);
       clearEditing();
-      setFeedback({ tone: "success", message: t("settings.serviceOrders.updateSuccess") });
+      setFeedback({
+        tone: "success",
+        message: t("settings.serviceOrders.updateSuccess"),
+      });
     } catch {
-      setFeedback({ tone: "error", message: t("settings.serviceOrders.errors.unknown") });
+      setFeedback({
+        tone: "error",
+        message: t("settings.serviceOrders.errors.unknown"),
+      });
     } finally {
       setPendingAction(null);
     }
@@ -175,10 +201,10 @@ export function AdminOrdersServiceOrderSettings({
   }
 
   return (
-    <DashboardListSection
-      bodyClassName="flex flex-col gap-5"
-    >
-      {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
+    <DashboardListSection bodyClassName="flex flex-col gap-5">
+      {feedback ? (
+        <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+      ) : null}
 
       <section className="flex flex-col gap-3">
         <ServiceOrderSettingsSectionTitle

@@ -81,19 +81,21 @@ function SummaryCard({
   title: string;
 }) {
   return (
-    <div className="rounded-[24px] border border-white/85 bg-white/72 p-5 shadow-[0_14px_32px_rgba(96,113,128,0.06)]">
-      <div className="flex items-center gap-3 text-[#486782]">
-        <div className="flex size-10 items-center justify-center rounded-full bg-[#eef3f6]">
+    <div className="rounded-[24px] border border-white/85 bg-white/72 p-5 shadow-[var(--surface-shadow-interactive)]">
+      <div className="flex items-center gap-3 text-primary">
+        <div className="flex size-10 items-center justify-center rounded-full bg-status-info-soft">
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="break-words text-sm font-semibold text-[#405160] [overflow-wrap:anywhere]">
+          <p className="break-words text-sm font-semibold text-content-muted [overflow-wrap:anywhere]">
             {title}
           </p>
-          <p className="text-sm text-[#7a8791]">{copy.count(summary.count)}</p>
+          <p className="text-sm text-content-muted">
+            {copy.count(summary.count)}
+          </p>
         </div>
       </div>
-      <p className="mt-4 break-words text-2xl font-bold text-[#23313a] [overflow-wrap:anywhere]">
+      <p className="mt-4 break-words text-2xl font-bold text-content-strong [overflow-wrap:anywhere]">
         {formatOperatorReimbursementAmount(summary.amount, locale)}
       </p>
     </div>

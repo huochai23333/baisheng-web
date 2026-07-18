@@ -6,6 +6,7 @@ import {
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
+import { fillDateControl } from "./helpers/date-control";
 
 test.describe("operator reimbursements", () => {
   test("operator can add and reimburse current records", async ({ page }) => {
@@ -22,7 +23,7 @@ test.describe("operator reimbursements", () => {
     await page.getByRole("button", { name: "新增报销" }).click();
     const dialog = page.getByRole("dialog", { name: "新增报销" });
     await expect(dialog).toBeVisible();
-    await dialog.getByLabel("发生日期").fill(getTodayDateValue());
+    await fillDateControl(dialog.getByLabel("发生日期"), getTodayDateValue());
     await dialog.getByLabel("报销金额").fill("88.66");
     await dialog.getByLabel("报销内容").fill(content);
     await dialog.getByRole("button", { name: "保存记录" }).click();

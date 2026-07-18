@@ -68,12 +68,19 @@ export function TaskCard({
   const canDelete = canDeleteTask(task);
   const canChangeAssignment = canReassignTask(task);
   const targetRolesLabel = getTaskTargetRolesLabel(task.target_roles, sharedT);
-  const taskTypeLabel = getTaskTypeLabel(task.task_type_label, task.task_type_code, sharedT);
-  const commissionLabel = formatTaskCommissionMoney(task.commission_amount_rmb, locale);
+  const taskTypeLabel = getTaskTypeLabel(
+    task.task_type_label,
+    task.task_type_code,
+    sharedT,
+  );
+  const commissionLabel = formatTaskCommissionMoney(
+    task.commission_amount_rmb,
+    locale,
+  );
   const progressLabel = getTaskAcceptanceProgressLabel(task, sharedT);
 
   return (
-    <article className="rounded-[24px] border border-[#ebe7e1] bg-white p-5 shadow-[0_12px_26px_rgba(96,113,128,0.05)]">
+    <article className="rounded-[24px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
@@ -84,7 +91,10 @@ export function TaskCard({
             </DataPill>
             <DataPill accent="blue">{taskTypeLabel}</DataPill>
             <DataPill accent="blue">
-              {getTaskReviewRequirementLabel(task.review_requires_attachment, sharedT)}
+              {getTaskReviewRequirementLabel(
+                task.review_requires_attachment,
+                sharedT,
+              )}
             </DataPill>
             {task.attachments.length > 0 ? (
               <DataPill accent="blue">
@@ -96,7 +106,8 @@ export function TaskCard({
 
           <div className="flex shrink-0 flex-wrap gap-2 xl:justify-end">
             <Button
-              className="h-9 rounded-full border border-[#d8e2e8] bg-white px-3 text-[#486782] hover:bg-[#eef3f6]"
+              variant="outline"
+              size="compact"
               onClick={onViewDetails}
               type="button"
             >
@@ -104,7 +115,9 @@ export function TaskCard({
               {t("viewDetails")}
             </Button>
             <Button
-              className="h-9 rounded-full border border-[#d8e2e8] bg-white px-3 text-[#486782] hover:bg-[#eef3f6] disabled:cursor-not-allowed disabled:opacity-60"
+              variant="outline"
+              size="compact"
+              className="disabled:cursor-not-allowed disabled:opacity-60"
               disabled={!canEdit}
               onClick={onEdit}
               type="button"
@@ -113,7 +126,9 @@ export function TaskCard({
               {t("edit")}
             </Button>
             <Button
-              className="h-9 rounded-full border border-[#d8e2e8] bg-white px-3 text-[#486782] hover:bg-[#eef3f6] disabled:cursor-not-allowed disabled:opacity-60"
+              variant="outline"
+              size="compact"
+              className="disabled:cursor-not-allowed disabled:opacity-60"
               disabled={!canChangeAssignment || reassignBusy}
               onClick={onReassign}
               type="button"
@@ -126,7 +141,9 @@ export function TaskCard({
               {t("reassign")}
             </Button>
             <Button
-              className="h-9 rounded-full border border-[#f1d1d1] bg-[#fff2f2] px-3 text-[#b13d3d] hover:bg-[#fce5e5] disabled:cursor-not-allowed disabled:opacity-60"
+              variant="danger"
+              size="compact"
+              className="disabled:cursor-not-allowed disabled:opacity-60"
               disabled={!canDelete || deleteBusy}
               onClick={onDelete}
               type="button"
@@ -142,22 +159,34 @@ export function TaskCard({
         </div>
 
         <div className="min-w-0">
-          <h3 className="break-words text-xl font-bold tracking-tight text-[#23313a]">
+          <h3 className="break-words text-xl font-bold tracking-tight text-content-strong">
             {task.task_name}
           </h3>
-          <p className="mt-2 line-clamp-2 break-words text-sm leading-6 text-[#6f7b85]">
+          <p className="mt-2 line-clamp-2 break-words text-sm leading-6 text-content-muted">
             {getTaskIntroText(task.task_intro, sharedT)}
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <InfoTile label={t("commissionAmountLabel")} value={commissionLabel} />
-          <InfoTile label={t("acceptanceProgressLabel")} value={progressLabel} />
+          <InfoTile
+            label={t("commissionAmountLabel")}
+            value={commissionLabel}
+          />
+          <InfoTile
+            label={t("acceptanceProgressLabel")}
+            value={progressLabel}
+          />
           <InfoTile
             label={t("reviewRequirementLabel")}
-            value={getTaskReviewRequirementLabel(task.review_requires_attachment, sharedT)}
+            value={getTaskReviewRequirementLabel(
+              task.review_requires_attachment,
+              sharedT,
+            )}
           />
-          <InfoTile label={t("createdAtLabel")} value={formatDateTime(task.created_at)} />
+          <InfoTile
+            label={t("createdAtLabel")}
+            value={formatDateTime(task.created_at)}
+          />
         </div>
       </div>
     </article>
@@ -173,7 +202,9 @@ export function FormField({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-[#23313a]">{label}</span>
+      <span className="mb-2 block text-sm font-semibold text-content-strong">
+        {label}
+      </span>
       {children}
     </label>
   );

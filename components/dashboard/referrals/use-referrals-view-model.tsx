@@ -9,7 +9,7 @@ import { useWorkspaceSyncEffect } from "@/components/dashboard/workspace-session
 import { useLocale } from "@/components/i18n/locale-provider";
 import {
   createDashboardSharedCopy,
-  type NoticeTone,
+  type FeedbackTone,
 } from "@/components/dashboard/dashboard-shared-ui";
 import {
   getReferralsPageData,
@@ -27,7 +27,7 @@ import {
   toReferralErrorMessage,
 } from "./referrals-display";
 
-type PageFeedback = { tone: NoticeTone; message: string } | null;
+type PageFeedback = { tone: FeedbackTone; message: string } | null;
 
 /**
  * 推荐关系页面的数据刷新、业务切换和树形筛选都由 view-model 维护。
@@ -195,4 +195,3 @@ export function useReferralsViewModel(initialData: ReferralsPageData) {
     ),
   };
 }
-

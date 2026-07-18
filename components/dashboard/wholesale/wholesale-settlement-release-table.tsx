@@ -1,4 +1,6 @@
 "use client";
+
+import { StatusBadge } from "@/components/ui/status-badge";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { CheckCircle2, LoaderCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +17,6 @@ import {
   WHOLESALE_SETTLEMENT_RELEASE_STATUS_LABELS,
 } from "./wholesale-settlement-release-display";
 import {
-  WholesaleStatusBadge,
   WholesaleTable,
   WholesaleTd,
   WholesaleTh,
@@ -97,7 +98,7 @@ export function WholesaleSettlementReleaseTable({
                   <p className="font-semibold [overflow-wrap:anywhere]">
                     {release.customer_name}
                   </p>
-                  <p className="text-[#4f606b]">
+                  <p className="text-content-muted">
                     {formatCurrency(
                       release.release_amount,
                       release.release_currency,
@@ -106,11 +107,11 @@ export function WholesaleSettlementReleaseTable({
                 </div>
               </WholesaleTd>
               <WholesaleTd>
-                <WholesaleStatusBadge
+                <StatusBadge
                   tone={getSettlementReleaseStatusTone(release.status)}
                 >
                   {WHOLESALE_SETTLEMENT_RELEASE_STATUS_LABELS[release.status]}
-                </WholesaleStatusBadge>
+                </StatusBadge>
               </WholesaleTd>
               <WholesaleTd>{formatDate(release.received_on)}</WholesaleTd>
               <WholesaleTd className="min-w-[150px] whitespace-normal">
@@ -132,7 +133,8 @@ export function WholesaleSettlementReleaseTable({
                 <div className="flex flex-wrap gap-2">
                   {canClaim && release.status === "pending" ? (
                     <Button
-                      className="h-8 rounded-full bg-[#486782] px-2.5 text-xs text-white hover:bg-[#3e5f79]"
+                      variant="primary"
+                      size="compact"
                       disabled={claimPending}
                       onClick={() => onOpenClaim(release)}
                       type="button"
@@ -147,11 +149,11 @@ export function WholesaleSettlementReleaseTable({
                   ) : null}
                   {canPublish && release.status === "pending" ? (
                     <Button
-                      className="h-8 rounded-full border border-[#f1d1d1] bg-[#fff2f2] px-2.5 text-xs text-[#b13d3d] hover:bg-[#fce5e5]"
+                      size="compact"
                       disabled={cancelPending}
                       onClick={() => void onCancelRelease(release.id)}
                       type="button"
-                      variant="outline"
+                      variant="danger"
                     >
                       {cancelPending ? (
                         <LoaderCircle className="size-3.5 animate-spin" />
@@ -162,7 +164,7 @@ export function WholesaleSettlementReleaseTable({
                     </Button>
                   ) : null}
                   {release.status !== "pending" ? (
-                    <span className="text-xs leading-6 text-[#7b8790]">
+                    <span className="text-xs leading-6 text-content-muted">
                       <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_table.text012" />
                     </span>
                   ) : null}

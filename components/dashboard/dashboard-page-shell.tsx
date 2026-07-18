@@ -8,15 +8,11 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "../ui/button";
 import { DashboardSectionPanel } from "./dashboard-section-panel";
-import {
-  EmptyState,
-  PageBanner,
-  type NoticeTone,
-} from "./dashboard-shared-ui";
+import { EmptyState, FeedbackNotice, type FeedbackTone } from "./dashboard-shared-ui";
 
 export type DashboardActionFeedback = {
   message: string;
-  tone: NoticeTone;
+  tone: FeedbackTone;
 } | null;
 
 /**
@@ -44,7 +40,7 @@ export function DashboardPageShell({
     >
       {header}
       {feedback ? (
-        <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner>
+        <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
       ) : null}
       {children}
     </section>

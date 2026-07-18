@@ -68,7 +68,7 @@ export function OrderServiceFeeSummaryCard({
 }) {
   const t = useTranslations("OrdersUI.serviceFeePreview");
   const classNames = [
-    "rounded-[22px] border border-[#ebe7e1] bg-white p-5 shadow-[0_10px_24px_rgba(96,113,128,0.05)]",
+    "rounded-[22px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]",
     className,
   ]
     .filter(Boolean)
@@ -78,11 +78,13 @@ export function OrderServiceFeeSummaryCard({
     <section className={classNames}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-[#26343d]">{title}</p>
-          <p className="mt-1 text-xs leading-5 text-[#6f7d75]">{description}</p>
+          <p className="text-sm font-semibold text-content-muted">{title}</p>
+          <p className="mt-1 text-xs leading-5 text-content-muted">
+            {description}
+          </p>
         </div>
         {loading ? (
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#d8e2db] bg-white px-3 py-1 text-xs text-[#5f6f66]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-white px-3 py-1 text-xs text-content-muted">
             <LoaderCircle className="size-3.5 animate-spin" />
             {t("loading")}
           </div>
@@ -90,34 +92,35 @@ export function OrderServiceFeeSummaryCard({
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <PreviewMetric
-          label={t("tier")}
-          value={tier || "-"}
-        />
+        <PreviewMetric label={t("tier")} value={tier || "-"} />
         <PreviewMetric
           label={t("rate")}
-          value={rate !== null && rate !== undefined ? formatDiscountRatioValue(rate) : "-"}
+          value={
+            rate !== null && rate !== undefined
+              ? formatDiscountRatioValue(rate)
+              : "-"
+          }
         />
         <PreviewMetric
           label={t("amount")}
-          value={amount !== null && amount !== undefined ? formatMoneyValue(amount) : "-"}
+          value={
+            amount !== null && amount !== undefined
+              ? formatMoneyValue(amount)
+              : "-"
+          }
         />
       </div>
     </section>
   );
 }
 
-function PreviewMetric({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function PreviewMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[18px] border border-[#ebe7e1] bg-[#fbfaf8] px-4 py-3">
-      <p className="text-xs text-[#7b8790]">{label}</p>
-      <p className="mt-1 break-words text-sm font-semibold text-[#26343d]">{value}</p>
+    <div className="rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3">
+      <p className="text-xs text-content-muted">{label}</p>
+      <p className="mt-1 break-words text-sm font-semibold text-content-muted">
+        {value}
+      </p>
     </div>
   );
 }

@@ -1,15 +1,13 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
+import * as FormControls from "@/components/ui/form-controls";
+
 import { memo } from "react";
 
 import { useTranslations } from "next-intl";
-import {
-  Clock3,
-  LoaderCircle,
-  Plus,
-  RefreshCw,
-  Trash2,
-} from "lucide-react";
+import { Clock3, LoaderCircle, Plus, RefreshCw, Trash2 } from "lucide-react";
 
 import {
   normalizeCurrencyCode,
@@ -24,11 +22,11 @@ import {
   DashboardListSection,
   dashboardFilterInputClassName,
 } from "../dashboard-section-panel";
-import { PageBanner, type NoticeTone } from "../dashboard-shared-ui";
+import { FeedbackNotice, type FeedbackTone } from "../dashboard-shared-ui";
 
 type SyncFeedback = {
   message: string;
-  tone: NoticeTone;
+  tone: FeedbackTone;
 } | null;
 
 type ExchangeRateSyncSectionProps = {
@@ -77,7 +75,7 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
   return (
     <DashboardListSection
       actions={
-        <div className="inline-flex items-center gap-2 rounded-full bg-[#f5f7f8] px-4 py-2 text-sm text-[#52616d]">
+        <div className="inline-flex items-center gap-2 rounded-full bg-surface-inset px-4 py-2 text-sm text-content-muted">
           <Clock3 className="size-4" />
           {t("sync.schedule")}
         </div>
@@ -87,33 +85,34 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
       title={t("sync.title")}
     >
       <div className="space-y-5">
-        {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
+        {feedback ? (
+          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+        ) : null}
 
-        <div className="flex flex-col gap-4 border-b border-[#edf0ed] pb-5 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-4 border-b border-border-subtle pb-5 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm font-semibold text-[#23313a]">
+            <p className="text-sm font-semibold text-content-strong">
               {t("sync.autoFetchTitle")}
             </p>
-            <p className="mt-1 text-sm leading-6 text-[#6f7b85]">
+            <p className="mt-1 text-sm leading-6 text-content-muted">
               {isEnabled
                 ? t("sync.autoFetchEnabled")
                 : t("sync.autoFetchDisabled")}
             </p>
           </div>
           <label className="relative inline-flex cursor-pointer items-center gap-3">
-            <input
+            <FormControls.Checkbox
               checked={isEnabled}
               className="peer absolute inset-0 z-10 cursor-pointer opacity-0 disabled:cursor-not-allowed"
               disabled={settingsPending}
               onChange={(event) => onAutoSyncChange(event.target.checked)}
-              type="checkbox"
             />
             <span
               className={cn(
                 "pointer-events-none relative h-7 w-12 rounded-full border transition-colors",
                 isEnabled
-                  ? "border-[#5d7f69] bg-[#5d7f69]"
-                  : "border-[#d8e0d8] bg-[#edf1ee]",
+                  ? "border-border-subtle bg-surface-inset"
+                  : "border-border-subtle bg-surface-inset",
               )}
             >
               <span
@@ -123,7 +122,7 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                 )}
               />
             </span>
-            <span className="text-sm font-medium text-[#31404b]">
+            <span className="text-sm font-medium text-content-muted">
               {settingsPending
                 ? t("sync.switchPending")
                 : isEnabled
@@ -136,17 +135,17 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <section className="space-y-4">
             <div>
-              <p className="text-sm font-semibold text-[#23313a]">
+              <p className="text-sm font-semibold text-content-strong">
                 {t("sync.pairsTitle")}
               </p>
-              <p className="mt-1 text-sm leading-6 text-[#6f7b85]">
+              <p className="mt-1 text-sm leading-6 text-content-muted">
                 {t("sync.pairsDescription")}
               </p>
             </div>
 
             <div className="flex flex-wrap gap-2">
               {pairs.length === 0 ? (
-                <span className="rounded-full bg-[#f6f8f6] px-3 py-2 text-sm text-[#6f7b85]">
+                <span className="rounded-full bg-surface-inset px-3 py-2 text-sm text-content-muted">
                   {t("sync.noPairs")}
                 </span>
               ) : (
@@ -156,13 +155,13 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
 
                   return (
                     <span
-                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#dfe7df] bg-white px-3 text-sm font-medium text-[#31404b]"
+                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border-subtle bg-white px-3 text-sm font-medium text-content-muted"
                       key={pair.id}
                     >
                       {currency} {" -> "} CNY
-                      <button
+                      <DesignButton
                         aria-label={t("sync.removePair", { currency })}
-                        className="inline-flex size-7 items-center justify-center rounded-full text-[#9b4a4a] transition-colors hover:bg-[#fff1f1]"
+                        className="inline-flex size-7 items-center justify-center rounded-full text-content-muted transition-colors hover:bg-surface-inset"
                         disabled={removing}
                         onClick={() => onRemovePair(pair.id, currency)}
                         type="button"
@@ -172,7 +171,7 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                         ) : (
                           <Trash2 className="size-3.5" />
                         )}
-                      </button>
+                      </DesignButton>
                     </span>
                   );
                 })
@@ -181,7 +180,7 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
 
             <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
               <DashboardFilterField label={t("sync.addPairLabel")}>
-                <input
+                <FormControls.Input
                   className={dashboardFilterInputClassName}
                   onChange={(event) => onPairInputChange(event.target.value)}
                   placeholder={t("sync.currencyPlaceholder")}
@@ -191,7 +190,8 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
               </DashboardFilterField>
               <div className="flex items-end">
                 <Button
-                  className="h-12 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+                  variant="primary"
+                  size="default"
                   disabled={addPairPending}
                   onClick={onAddPair}
                   type="button"
@@ -209,10 +209,10 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
 
           <section className="space-y-4">
             <div>
-              <p className="text-sm font-semibold text-[#23313a]">
+              <p className="text-sm font-semibold text-content-strong">
                 {t("sync.manualTitle")}
               </p>
-              <p className="mt-1 text-sm leading-6 text-[#6f7b85]">
+              <p className="mt-1 text-sm leading-6 text-content-muted">
                 {t("sync.manualDescription")}
               </p>
             </div>
@@ -223,7 +223,7 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                   className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
                   key={`${index}-${manualCurrencies.length}`}
                 >
-                  <input
+                  <FormControls.Input
                     className={dashboardFilterInputClassName}
                     onChange={(event) =>
                       onManualCurrencyChange(index, event.target.value)
@@ -234,8 +234,10 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                   />
                   <Button
                     aria-label={t("sync.removeManualCurrency")}
-                    className="h-11 rounded-full text-[#9b4a4a] hover:text-[#9b4a4a] sm:h-12"
-                    disabled={manualFetchPending || manualCurrencies.length === 1}
+                    className="h-11 rounded-full text-content-muted hover:text-content-muted sm:h-12"
+                    disabled={
+                      manualFetchPending || manualCurrencies.length === 1
+                    }
                     onClick={() => onRemoveManualCurrency(index)}
                     type="button"
                     variant="outline"
@@ -258,7 +260,8 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                 {t("sync.addManualCurrency")}
               </Button>
               <Button
-                className="rounded-full bg-[#486782] text-white hover:bg-[#3e5f79]"
+                variant="primary"
+                size="default"
                 disabled={manualFetchPending}
                 onClick={onManualFetch}
                 type="button"
@@ -278,7 +281,7 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                   <p
                     className={cn(
                       "text-sm",
-                      result.ok ? "text-[#4f6757]" : "text-[#9b4a4a]",
+                      result.ok ? "text-content-muted" : "text-content-muted",
                     )}
                     key={`${result.baseCurrency}-${result.targetCurrency}`}
                   >

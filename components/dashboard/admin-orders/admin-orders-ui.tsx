@@ -7,9 +7,7 @@ import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
-import {
-  normalizeOptionalString,
-} from "../dashboard-shared-ui";
+import { normalizeOptionalString } from "../dashboard-shared-ui";
 import { DashboardCenteredLoadingState } from "../dashboard-centered-loading-state";
 import {
   createOrdersUiCopy,
@@ -28,7 +26,7 @@ function OrdersLoadingState() {
 
 function OrderHeaderCell({ children }: { children: ReactNode }) {
   return (
-    <th className="px-5 py-4 text-left font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase">
+    <th className="px-5 py-4 text-left font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
       {children}
     </th>
   );
@@ -46,8 +44,8 @@ function OrderValueCell({
   return (
     <td
       className={cn(
-        "max-w-[220px] px-5 py-4 text-sm text-[#2b3942]",
-        strong ? "font-semibold text-[#223038]" : "font-medium",
+        "max-w-[220px] px-5 py-4 text-sm text-content-strong",
+        strong ? "font-semibold text-content-muted" : "font-medium",
       )}
       title={title}
     >
@@ -66,7 +64,9 @@ function OrderStatusChip({ status }: { status: string | null }) {
     return <StatusTag tone="default">{t("status.notProvided")}</StatusTag>;
   }
 
-  const matchedStatus = orderStatusOptions.find((option) => option.value === normalizedStatus);
+  const matchedStatus = orderStatusOptions.find(
+    (option) => option.value === normalizedStatus,
+  );
 
   if (!matchedStatus) {
     return <StatusTag tone="default">{normalizedStatus}</StatusTag>;
@@ -79,7 +79,8 @@ function OrderStatusChip({ status }: { status: string | null }) {
           ? "gold"
           : normalizedStatus === "completed"
             ? "green"
-            : normalizedStatus === "cancelled" || normalizedStatus === "refunding"
+            : normalizedStatus === "cancelled" ||
+                normalizedStatus === "refunding"
               ? "red"
               : "blue"
       }
@@ -108,11 +109,11 @@ function StatusTag({
     <span
       className={cn(
         "inline-flex min-h-7 items-center rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap",
-        tone === "blue" && "bg-[#eef3f7] text-[#486782]",
-        tone === "default" && "bg-[#f0efec] text-[#6d787f]",
-        tone === "gold" && "bg-[#fff5db] text-[#9a6a07]",
-        tone === "green" && "bg-[#e8f4ec] text-[#4c7259]",
-        tone === "red" && "bg-[#fbe6e6] text-[#b13d3d]",
+        tone === "blue" && "bg-surface-inset text-primary",
+        tone === "default" && "bg-surface-inset text-content-muted",
+        tone === "gold" && "bg-status-warning-soft text-status-warning",
+        tone === "green" && "bg-status-success-soft text-status-success",
+        tone === "red" && "bg-status-danger-soft text-status-danger",
       )}
     >
       {children}

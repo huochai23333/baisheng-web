@@ -1,25 +1,21 @@
 "use client";
 
-import {
-  ClipboardClock,
-  Filter,
-  Search,
-  ShieldAlert,
-} from "lucide-react";
+import { Select } from "@/components/ui/select";
+
+import { ClipboardClock, Filter, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import {
   DashboardFilterField,
   DashboardListSection,
+  DashboardSearchInput,
   DashboardTableFrame,
-  dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import type { AdminOperationRecord } from "@/lib/admin-operation-records";
 import type { Locale } from "@/lib/locale";
-import { cn } from "@/lib/utils";
 
 import {
   formatOperationDate,
@@ -96,48 +92,44 @@ export function OperationRecordsFilterSection({
     <DashboardResourceFilterSection
       gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"
       onReset={onReset}
-      resetDisabled={!searchText && categoryFilter === "all" && actionFilter === "all"}
+      resetDisabled={
+        !searchText && categoryFilter === "all" && actionFilter === "all"
+      }
     >
       <DashboardFilterField label={t("filters.search")}>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
-          <input
-            className={cn(dashboardFilterInputClassName, "pl-10")}
-            onChange={(event) => onSearchTextChange(event.target.value)}
-            placeholder={t("filters.searchPlaceholder")}
-            value={searchText}
-          />
-        </div>
+        <DashboardSearchInput
+          onChange={onSearchTextChange}
+          placeholder={t("filters.searchPlaceholder")}
+          value={searchText}
+        />
       </DashboardFilterField>
 
       <DashboardFilterField label={t("filters.category")}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) => onCategoryFilterChange(event.target.value)}
+        <Select
+          onValueChange={onCategoryFilterChange}
+          options={[
+            { label: t("filters.allCategories"), value: "all" },
+            ...categoryOptions.map((category) => ({
+              label: categoryLabels[category],
+              value: category,
+            })),
+          ]}
           value={categoryFilter}
-        >
-          <option value="all">{t("filters.allCategories")}</option>
-          {categoryOptions.map((category) => (
-            <option key={category} value={category}>
-              {categoryLabels[category]}
-            </option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
 
       <DashboardFilterField label={t("filters.action")}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) => onActionFilterChange(event.target.value)}
+        <Select
+          onValueChange={onActionFilterChange}
+          options={[
+            { label: t("filters.allActions"), value: "all" },
+            ...actionOptions.map((action) => ({
+              label: actionLabels[action],
+              value: action,
+            })),
+          ]}
           value={actionFilter}
-        >
-          <option value="all">{t("filters.allActions")}</option>
-          {actionOptions.map((action) => (
-            <option key={action} value={action}>
-              {actionLabels[action]}
-            </option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
     </DashboardResourceFilterSection>
   );
@@ -177,7 +169,7 @@ export function OperationRecordsListSection({
       ) : (
         <DashboardTableFrame>
           <table className="min-w-[1080px] w-full text-left text-sm">
-            <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
+            <thead className="bg-surface-inset text-xs font-semibold text-content-muted">
               <tr>
                 <th className="px-4 py-3">{t("list.columns.time")}</th>
                 <th className="px-4 py-3">{t("list.columns.category")}</th>
@@ -187,7 +179,7 @@ export function OperationRecordsListSection({
                 <th className="px-4 py-3">{t("list.columns.detail")}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#eee9e1]">
+            <tbody className="divide-y divide-border-subtle">
               {records.map((record) => (
                 <OperationRecordRow
                   actionLabels={actionLabels}
@@ -229,35 +221,35 @@ function OperationRecordRow({
   const fallback = t("fallback.notProvided");
 
   return (
-    <tr className="align-top text-[#334550]">
-      <td className="px-4 py-4 text-xs leading-6 text-[#66727d]">
+    <tr className="align-top text-content-muted">
+      <td className="px-4 py-4 text-xs leading-6 text-content-muted">
         {formatOperationDate(record.occurredAt, locale, fallback)}
       </td>
       <td className="px-4 py-4">
-        <span className="inline-flex rounded-full bg-[#edf3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
+        <span className="inline-flex rounded-full bg-status-info-soft px-3 py-1 text-xs font-semibold text-primary">
           {categoryLabels[record.category]}
         </span>
       </td>
-      <td className="px-4 py-4 font-semibold text-[#23313a]">
+      <td className="px-4 py-4 font-semibold text-content-strong">
         {actionLabels[record.action]}
       </td>
       <td className="px-4 py-4">
-        <p className="font-semibold text-[#23313a]">
+        <p className="font-semibold text-content-strong">
           {getOperationUserLabel(record.subject, fallback)}
         </p>
-        <p className="mt-1 text-xs text-[#7b858d]">
+        <p className="mt-1 text-xs text-content-muted">
           {getOperationUserContact(record.subject, fallback)}
         </p>
       </td>
       <td className="px-4 py-4">
-        <p className="font-semibold text-[#23313a]">
+        <p className="font-semibold text-content-strong">
           {getOperationUserLabel(record.actor, fallback)}
         </p>
-        <p className="mt-1 text-xs text-[#7b858d]">
+        <p className="mt-1 text-xs text-content-muted">
           {getOperationUserContact(record.actor, fallback)}
         </p>
       </td>
-      <td className="max-w-[340px] px-4 py-4 text-[#53616d]">
+      <td className="max-w-[340px] px-4 py-4 text-content-muted">
         <OperationRecordDetail
           feedbackStatusLabels={feedbackStatusLabels}
           record={record}
@@ -288,7 +280,11 @@ function OperationRecordDetail({
       {record.roleChange ? (
         <p>
           {t("detail.roleChange", {
-            from: getRoleChangeLabel(record.roleChange.from, roleLabels, fallback),
+            from: getRoleChangeLabel(
+              record.roleChange.from,
+              roleLabels,
+              fallback,
+            ),
             to: getRoleChangeLabel(record.roleChange.to, roleLabels, fallback),
           })}
         </p>

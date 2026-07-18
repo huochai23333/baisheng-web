@@ -5,6 +5,13 @@ import {
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
+import { fillDateControl } from "./helpers/date-control";
+import {
+  chooseSelectOption,
+  expectSelectValue,
+  getSelectOptionValueByText,
+  getSelectValue,
+} from "./helpers/select-control";
 
 test.describe("wholesale settlement releases", () => {
   test("finance publishes releases and salesman claims one into an order", async ({
@@ -90,21 +97,24 @@ test.describe("wholesale settlement releases", () => {
     const fixedCustomerSelect = claimDialog.getByLabel("客户");
     const orderSelect = claimDialog.getByLabel("匹配批发订单");
     await expect(fixedCustomerSelect).toBeDisabled();
-    await expect(fixedCustomerSelect).not.toHaveValue("");
-    await expect(orderSelect).toHaveValue("");
-    const targetOrderValue = await orderSelect
-      .locator("option")
-      .filter({ hasText: targetOrderNumber })
-      .getAttribute("value");
-    expect(targetOrderValue).not.toBeNull();
+    expect(await getSelectValue(fixedCustomerSelect)).not.toBe("");
+    await expectSelectValue(orderSelect, "");
+    const targetOrderValue = await getSelectOptionValueByText(
+      orderSelect,
+      targetOrderNumber,
+    );
+    await orderSelect.click();
     await expect(
-      orderSelect.locator("option").filter({ hasText: targetOrderNumber }),
+      salesmanPage.getByRole("option").filter({ hasText: targetOrderNumber }),
     ).toContainText(" · ");
+    await salesmanPage.keyboard.press("Escape");
+    // Select 有短暂退出动画；等 Portal 真正卸载后再改变视口，避免旧桌面坐标污染移动宽度测量。
+    await expect(salesmanPage.getByRole("option")).toHaveCount(0);
     await salesmanPage.setViewportSize({ height: 844, width: 390 });
     await expectNoDocumentHorizontalOverflow(salesmanPage);
     await expectNoCompressedText(salesmanPage);
     await salesmanPage.setViewportSize({ height: 900, width: 1440 });
-    await orderSelect.selectOption(targetOrderValue ?? "");
+    await chooseSelectOption(orderSelect, { value: targetOrderValue });
     await claimDialog.getByRole("button", { name: "确认匹配" }).click();
 
     await expect(salesmanPage.getByText("结汇收款已匹配到订单。")).toBeVisible();
@@ -126,20 +136,20 @@ test.describe("wholesale settlement releases", () => {
     const manualCustomerSelect = manualClaimDialog.getByLabel("客户");
     const manualOrderSelect = manualClaimDialog.getByLabel("匹配批发订单");
     await expect(manualOrderSelect).toBeDisabled();
-    await manualCustomerSelect.selectOption({ label: "Wholesale Alpha" });
+    await chooseSelectOption(manualCustomerSelect, {
+      label: "Wholesale Alpha",
+    });
     await expect(manualOrderSelect).toBeEnabled();
-    await expect(manualOrderSelect).toHaveValue("");
-    await expect(
-      manualOrderSelect.locator("option").filter({ hasText: manualTargetOrderNumber }),
-    ).toHaveCount(1);
-    await manualOrderSelect.selectOption(
-      (await manualOrderSelect
-        .locator("option")
-        .filter({ hasText: manualTargetOrderNumber })
-        .getAttribute("value")) ?? "",
+    await expectSelectValue(manualOrderSelect, "");
+    const manualTargetOrderValue = await getSelectOptionValueByText(
+      manualOrderSelect,
+      manualTargetOrderNumber,
     );
-    const manualCustomerValue = await manualCustomerSelect.inputValue();
-    const manualOrderValue = await manualOrderSelect.inputValue();
+    await chooseSelectOption(manualOrderSelect, {
+      value: manualTargetOrderValue,
+    });
+    const manualCustomerValue = await getSelectValue(manualCustomerSelect);
+    const manualOrderValue = await getSelectValue(manualOrderSelect);
     const claimRequestPattern =
       "**/rest/v1/rpc/claim_wholesale_settlement_release";
     await salesmanPage.route(claimRequestPattern, async (route) => {
@@ -157,8 +167,8 @@ test.describe("wholesale settlement releases", () => {
       salesmanPage.getByText("操作没有成功，请检查内容和权限后再试。"),
     ).toBeVisible();
     await expect(manualClaimDialog).toBeVisible();
-    await expect(manualCustomerSelect).toHaveValue(manualCustomerValue);
-    await expect(manualOrderSelect).toHaveValue(manualOrderValue);
+    await expectSelectValue(manualCustomerSelect, manualCustomerValue);
+    await expectSelectValue(manualOrderSelect, manualOrderValue);
 
     // 失败验证完成后恢复真实请求，同一份选择应该可以直接重新提交。
     await salesmanPage.unroute(claimRequestPattern);
@@ -217,7 +227,7 @@ async function publishRelease(
   await expect(dialog).toBeVisible();
 
   if (options.customerLabel) {
-    await dialog.getByRole("combobox", { name: "选择客户" }).selectOption({
+    await chooseSelectOption(dialog.getByRole("combobox", { name: "选择客户" }), {
       label: options.customerLabel,
     });
   } else {
@@ -225,8 +235,10 @@ async function publishRelease(
   }
 
   await dialog.getByLabel("结汇金额").fill(options.amount);
-  await dialog.getByLabel("币种").selectOption(options.currency);
-  await dialog.getByLabel("收款日期").fill(options.receivedDate);
+  await chooseSelectOption(dialog.getByLabel("币种"), {
+    value: options.currency,
+  });
+  await fillDateControl(dialog.getByLabel("收款日期"), options.receivedDate);
   await dialog.getByLabel("备注").fill(options.note);
   await dialog.getByRole("button", { name: "发布收款" }).click();
 }

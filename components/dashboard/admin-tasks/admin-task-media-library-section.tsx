@@ -1,5 +1,7 @@
 "use client";
 
+import { Select } from "@/components/ui/select";
+
 import type { ReactNode } from "react";
 
 import {
@@ -30,7 +32,6 @@ import {
   DashboardFilterPanel,
   DashboardListSection,
   DashboardSearchInput,
-  dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import {
   EmptyState,
@@ -39,12 +40,8 @@ import {
 } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 
-import {
-  canPreviewTaskFile,
-} from "./admin-task-file-preview-dialog";
-import type {
-  AdminTaskMediaLibraryKindFilter,
-} from "./use-admin-task-media-library";
+import { canPreviewTaskFile } from "./admin-task-file-preview-dialog";
+import type { AdminTaskMediaLibraryKindFilter } from "./use-admin-task-media-library";
 
 export function AdminTaskMediaLibrarySection({
   busyItemId,
@@ -91,7 +88,7 @@ export function AdminTaskMediaLibrarySection({
     <DashboardListSection
       actions={
         <Button
-          className="h-10 rounded-full border border-[#d8e2e8] bg-white px-4 text-[#486782] hover:bg-[#eef3f6]"
+          size="compact"
           disabled={isRefreshing}
           onClick={onRefresh}
           type="button"
@@ -109,7 +106,6 @@ export function AdminTaskMediaLibrarySection({
         <DashboardFilterPanel gridClassName="grid-cols-1 lg:grid-cols-[minmax(0,1fr)_220px]">
           <DashboardFilterField label={t("searchLabel")}>
             <DashboardSearchInput
-              icon={<Search className="size-4 text-[#7d8890]" />}
               onChange={onSearchTextChange}
               placeholder={t("searchPlaceholder")}
               value={searchText}
@@ -117,19 +113,17 @@ export function AdminTaskMediaLibrarySection({
           </DashboardFilterField>
 
           <DashboardFilterField label={t("kindLabel")}>
-            <select
-              className={dashboardFilterInputClassName}
-              onChange={(event) =>
-                onKindFilterChange(event.target.value as AdminTaskMediaLibraryKindFilter)
-              }
+            <Select
+              onValueChange={onKindFilterChange}
+              options={[
+                { label: t("kindAll"), value: "all" },
+                { label: t("kindImage"), value: "image" },
+                { label: t("kindVideo"), value: "video" },
+                { label: t("kindPdf"), value: "pdf" },
+                { label: t("kindFile"), value: "file" },
+              ]}
               value={kindFilter}
-            >
-              <option value="all">{t("kindAll")}</option>
-              <option value="image">{t("kindImage")}</option>
-              <option value="video">{t("kindVideo")}</option>
-              <option value="pdf">{t("kindPdf")}</option>
-              <option value="file">{t("kindFile")}</option>
-            </select>
+            />
           </DashboardFilterField>
         </DashboardFilterPanel>
 
@@ -178,15 +172,15 @@ function TaskMediaLibraryCard({
   const previewable = canPreviewTaskFile(item.kind);
 
   return (
-    <article className="min-w-0 rounded-[24px] border border-[#e6ebef] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.04)] sm:p-5">
+    <article className="min-w-0 rounded-[24px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)] sm:p-5">
       <div className="flex min-w-0 items-start gap-4">
         <div
           className={cn(
             "flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px]",
-            item.kind === "image" && "bg-[#eef3f6] text-[#486782]",
-            item.kind === "video" && "bg-[#edf6f1] text-[#4c7259]",
-            item.kind === "pdf" && "bg-[#fbf1d9] text-[#9a6a07]",
-            item.kind === "file" && "bg-[#f1f4f6] text-[#5f6972]",
+            item.kind === "image" && "bg-status-info-soft text-primary",
+            item.kind === "video" && "bg-surface-inset text-status-success",
+            item.kind === "pdf" && "bg-status-warning-soft text-status-warning",
+            item.kind === "file" && "bg-surface-inset text-content-muted",
           )}
         >
           {getKindIcon(item.kind)}
@@ -194,12 +188,12 @@ function TaskMediaLibraryCard({
 
         <div className="min-w-0 flex-1">
           <p
-            className="truncate text-base font-semibold text-[#23313a]"
+            className="truncate text-base font-semibold text-content-strong"
             title={item.original_name}
           >
             {item.original_name}
           </p>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-[#6f7b85]">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-content-muted">
             <Badge>{getKindLabel(item.kind, t)}</Badge>
             <span>{formatFileSize(item.file_size_bytes)}</span>
             <span>{t("round", { round: item.submission_round })}</span>
@@ -209,22 +203,26 @@ function TaskMediaLibraryCard({
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <InfoTile
-          icon={<ClipboardList className="size-4 text-[#486782]" />}
+          icon={<ClipboardList className="size-4 text-primary" />}
           label={t("taskLabel")}
           value={item.task_name}
         />
         <InfoTile
-          icon={<FileText className="size-4 text-[#486782]" />}
+          icon={<FileText className="size-4 text-primary" />}
           label={t("typeLabel")}
           value={item.task_type_name ?? item.task_type_code}
         />
         <InfoTile
-          icon={<UserRound className="size-4 text-[#486782]" />}
+          icon={<UserRound className="size-4 text-primary" />}
           label={t("submitterLabel")}
-          value={getDisplayName(item.submitted_by_name, item.submitted_by_email, t)}
+          value={getDisplayName(
+            item.submitted_by_name,
+            item.submitted_by_email,
+            t,
+          )}
         />
         <InfoTile
-          icon={<CheckCircle2 className="size-4 text-[#486782]" />}
+          icon={<CheckCircle2 className="size-4 text-primary" />}
           label={t("reviewedAtLabel")}
           value={formatDateTime(item.reviewed_at)}
         />
@@ -233,7 +231,7 @@ function TaskMediaLibraryCard({
       <div className="mt-4 flex flex-wrap gap-2">
         {previewable ? (
           <Button
-            className="h-9 rounded-full border border-[#d8e2e8] bg-white px-3 text-xs text-[#486782] hover:bg-[#eef3f6]"
+            size="compact"
             disabled={busy}
             onClick={() => onPreview(item)}
             type="button"
@@ -248,7 +246,8 @@ function TaskMediaLibraryCard({
           </Button>
         ) : null}
         <Button
-          className="h-9 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
+          variant="primary"
+          size="compact"
           disabled={busy}
           onClick={() => onDownload(item)}
           type="button"
@@ -267,7 +266,7 @@ function TaskMediaLibraryCard({
 
 function Badge({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-[#eef3f6] px-2.5 py-1 font-medium text-[#486782]">
+    <span className="inline-flex items-center rounded-full bg-status-info-soft px-2.5 py-1 font-medium text-primary">
       {children}
     </span>
   );
@@ -283,12 +282,12 @@ function InfoTile({
   value: string;
 }) {
   return (
-    <div className="min-w-0 rounded-[18px] bg-[#f7f5f2] px-3 py-3">
-      <div className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.14em] text-[#88939b] uppercase">
+    <div className="min-w-0 rounded-[18px] bg-surface-inset px-3 py-3">
+      <div className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.14em] text-content-subtle uppercase">
         {icon}
         <span className="min-w-0 truncate">{label}</span>
       </div>
-      <p className="mt-2 min-w-0 break-words text-sm font-medium leading-6 text-[#23313a] [overflow-wrap:anywhere]">
+      <p className="mt-2 min-w-0 break-words text-sm font-medium leading-6 text-content-strong [overflow-wrap:anywhere]">
         {value}
       </p>
     </div>

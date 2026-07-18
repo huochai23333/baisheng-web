@@ -63,9 +63,7 @@ export function SalesmanPeopleClient({
             canSave={viewModel.personNoteEditor.canSave}
             draftNote={viewModel.personNoteEditor.draftNote}
             onClose={viewModel.personNoteEditor.closeNoteDialog}
-            onDraftNoteChange={
-              viewModel.personNoteEditor.handleDraftNoteChange
-            }
+            onDraftNoteChange={viewModel.personNoteEditor.handleDraftNoteChange}
             onSave={() => void viewModel.personNoteEditor.handleSaveNote()}
             open={viewModel.personNoteEditor.noteDialogOpen}
             saving={viewModel.personNoteEditor.saving}

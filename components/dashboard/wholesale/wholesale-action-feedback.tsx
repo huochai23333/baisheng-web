@@ -1,6 +1,6 @@
 "use client";
 
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { FeedbackNotice } from "@/components/ui/feedback-notice";
 
 import type { WholesaleActionFeedback } from "./use-wholesale-action-runner";
 
@@ -16,12 +16,10 @@ export function WholesaleActionFeedbackNotice({
   if (!feedback) return null;
 
   return (
-    <div
-      aria-live="polite"
-      className="fixed inset-x-4 top-4 z-[70] mx-auto max-w-2xl"
-      role="alert"
-    >
-      <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner>
+    // 外层只负责把反馈放到弹窗之上；播报角色由 FeedbackNotice 统一提供。
+    // 如果两层都声明 role="alert"，屏幕阅读器会把同一条错误重复朗读两次。
+    <div className="fixed inset-x-4 top-4 z-[70] mx-auto max-w-2xl">
+      <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
     </div>
   );
 }

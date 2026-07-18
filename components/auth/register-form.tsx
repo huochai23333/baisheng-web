@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-import { AuthFeedback } from "./auth-feedback";
+import { FeedbackNotice } from "@/components/ui/feedback-notice";
 import { RegisterStepBusiness } from "./register-step-business";
 import { RegisterStepInvite } from "./register-step-invite";
 import { RegisterStepPassword } from "./register-step-password";
@@ -24,7 +24,9 @@ export function RegisterForm({ initialInviteCode = null }: RegisterFormProps) {
 
       {wizard.error ? (
         <div className="mb-5">
-          <AuthFeedback tone="error">{wizard.error}</AuthFeedback>
+          <FeedbackNotice density="compact" tone="error">
+            {wizard.error}
+          </FeedbackNotice>
         </div>
       ) : null}
 

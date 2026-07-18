@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { useMemo } from "react";
 
 import { MessageSquarePlus } from "lucide-react";
@@ -17,14 +19,14 @@ export function WorkspaceFeedbackButton() {
 
   return (
     <>
-      <button
+      <DesignButton
         aria-label={copy.open}
-        className="relative flex h-9 w-9 items-center justify-center rounded-full text-[#486782] transition-colors hover:bg-white sm:h-10 sm:w-10"
+        className="relative flex h-9 w-9 items-center justify-center rounded-full text-primary transition-colors hover:bg-white sm:h-10 sm:w-10"
         onClick={() => feedback.openDialog()}
         type="button"
       >
         <MessageSquarePlus className="size-[18px]" />
-      </button>
+      </DesignButton>
 
       <WorkspaceFeedbackSuccessToast message={feedback.successMessage} />
 

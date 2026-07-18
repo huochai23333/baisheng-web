@@ -12,7 +12,7 @@ export function WholesaleOrderSettlementRecordsCell({
 }) {
   if (settlements.length === 0) {
     return (
-      <span className="text-[#7b8790]">
+      <span className="text-content-muted">
         <UiMessage id="components_dashboard_wholesale_wholesale_orders_table.text030" />
       </span>
     );
@@ -22,10 +22,10 @@ export function WholesaleOrderSettlementRecordsCell({
     <div className="grid max-h-24 gap-2 overflow-y-auto pr-1">
       {settlements.map((settlement) => (
         <div
-          className="rounded-[10px] bg-[#f7fafb] p-2 text-xs leading-5 text-[#4f606b]"
+          className="rounded-[10px] bg-surface-inset p-2 text-xs leading-5 text-content-muted"
           key={settlement.id}
         >
-          <p className="font-semibold text-[#2f3f4a]">
+          <p className="font-semibold text-content-muted">
             {formatDate(settlement.settled_on)}
           </p>
           <p>

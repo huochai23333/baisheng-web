@@ -1,6 +1,12 @@
 "use client";
 
-import { Download, FileSpreadsheet, LoaderCircle, Trash2, Upload } from "lucide-react";
+import {
+  Download,
+  FileSpreadsheet,
+  LoaderCircle,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -42,10 +48,14 @@ export function WholesaleOrderListAttachments({
 }: WholesaleOrderListAttachmentsProps) {
   const t = useTranslations("WholesaleBusiness.ordersUi.orderList");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [downloadPendingId, setDownloadPendingId] = useState<string | null>(null);
+  const [downloadPendingId, setDownloadPendingId] = useState<string | null>(
+    null,
+  );
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
-  const downloadAttachment = async (attachment: WholesaleOrderListAttachment) => {
+  const downloadAttachment = async (
+    attachment: WholesaleOrderListAttachment,
+  ) => {
     const supabase = getBrowserSupabaseClient();
 
     if (!supabase) {
@@ -90,10 +100,15 @@ export function WholesaleOrderListAttachments({
   return (
     <div className="min-w-0 space-y-2">
       {attachments.length > 0 ? (
-        <div className={compact ? "max-h-24 space-y-2 overflow-y-auto pr-1" : "space-y-2"}>
+        <div
+          className={
+            compact ? "max-h-24 space-y-2 overflow-y-auto pr-1" : "space-y-2"
+          }
+        >
           {attachments.map((attachment) => (
             <Button
-              className="h-auto max-w-full justify-start rounded-full border border-[#d8e2e8] bg-white px-3 py-1.5 text-left text-xs font-semibold text-[#486782] hover:bg-[#eef3f6]"
+              size="default"
+              className="h-auto max-w-full justify-start py-1.5 text-left"
               disabled={downloadPendingId === attachment.id}
               key={attachment.id}
               onClick={() => void downloadAttachment(attachment)}
@@ -113,12 +128,12 @@ export function WholesaleOrderListAttachments({
           ))}
         </div>
       ) : (
-        <p className="text-sm text-[#71808d]">{t("empty")}</p>
+        <p className="text-sm text-content-muted">{t("empty")}</p>
       )}
 
       {canManage ? (
         <Button
-          className="h-8 rounded-full border border-[#d8e2e8] bg-white px-3 text-xs text-[#486782] hover:bg-[#eef3f6]"
+          size="compact"
           onClick={() => setDialogOpen(true)}
           type="button"
           variant="outline"
@@ -129,7 +144,7 @@ export function WholesaleOrderListAttachments({
       ) : null}
 
       {downloadError ? (
-        <p className="break-words text-xs leading-5 text-[#a64b4b]">
+        <p className="break-words text-xs leading-5 text-content-muted">
           {downloadError}
         </p>
       ) : null}
@@ -187,7 +202,7 @@ function WholesaleOrderListAttachmentDialog({
     >
       <div className="space-y-5">
         <form
-          className="rounded-[18px] border border-dashed border-[#cfdbe3] bg-[#f8fbfd] p-4"
+          className="rounded-[18px] border border-dashed border-border-subtle bg-surface-inset p-4"
           onSubmit={(event) => {
             event.preventDefault();
             if (selectedFiles.length === 0) return;
@@ -198,28 +213,29 @@ function WholesaleOrderListAttachmentDialog({
             });
           }}
         >
-          <p className="block text-sm font-semibold text-[#354650]">
+          <p className="block text-sm font-semibold text-content-muted">
             {t("choose")}
           </p>
           <div className="mt-3">
-          <DashboardFilePicker
-            accept=".csv,.xls,.xlsx"
-            files={selectedFiles}
-            multiple
-            onFiles={setSelectedFiles}
-          />
+            <DashboardFilePicker
+              accept=".csv,.xls,.xlsx"
+              files={selectedFiles}
+              multiple
+              onFiles={setSelectedFiles}
+            />
           </div>
-          <p className="mt-3 text-xs leading-5 text-[#71808d]">
+          <p className="mt-3 text-xs leading-5 text-content-muted">
             {t("help", { count: WHOLESALE_ORDER_LIST_MAX_FILES })}
           </p>
           {selectedFiles.length > 0 ? (
-            <p className="mt-2 break-words text-xs text-[#486782]">
+            <p className="mt-2 break-words text-xs text-primary">
               {t("selected", { count: selectedFiles.length })}
             </p>
           ) : null}
           <div className="mt-4 flex justify-end">
             <Button
-              className="rounded-full bg-[#486782] text-white hover:bg-[#3e5f79]"
+              variant="primary"
+              size="default"
               disabled={uploadPending || selectedFiles.length === 0}
               type="submit"
             >
@@ -234,45 +250,50 @@ function WholesaleOrderListAttachmentDialog({
         </form>
 
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-[#354650]">
+          <h3 className="text-sm font-semibold text-content-muted">
             {t("uploaded")}
           </h3>
           {attachments.length === 0 ? (
-            <div className="rounded-[16px] bg-[#f7f9fa] px-4 py-3 text-sm text-[#71808d]">
+            <div className="rounded-[16px] bg-surface-inset px-4 py-3 text-sm text-content-muted">
               {t("noneUploaded")}
             </div>
           ) : (
             attachments.map((attachment) => {
-              const deletePending = pendingKey === `order-list:delete:${attachment.id}`;
+              const deletePending =
+                pendingKey === `order-list:delete:${attachment.id}`;
 
               return (
                 <div
-                  className="flex min-w-0 flex-col gap-3 rounded-[16px] border border-[#e5ebef] bg-white p-3 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex min-w-0 flex-col gap-3 rounded-[16px] border border-border-subtle bg-white p-3 sm:flex-row sm:items-center sm:justify-between"
                   data-attachment-name={attachment.original_name}
                   key={attachment.id}
                 >
                   <div className="flex min-w-0 items-start gap-2">
-                    <FileSpreadsheet className="mt-0.5 size-4 shrink-0 text-[#486782]" />
+                    <FileSpreadsheet className="mt-0.5 size-4 shrink-0 text-primary" />
                     <div className="min-w-0">
-                      <p className="break-words text-sm font-semibold text-[#354650] [overflow-wrap:anywhere]">
+                      <p className="break-words text-sm font-semibold text-content-muted [overflow-wrap:anywhere]">
                         {attachment.original_name}
                       </p>
-                      <p className="mt-1 text-xs text-[#71808d]">
+                      <p className="mt-1 text-xs text-content-muted">
                         {formatFileSize(attachment.file_size_bytes)}
                       </p>
                     </div>
                   </div>
                   <Button
-                    className="self-end rounded-full border border-[#f0d6d6] bg-white text-[#a64b4b] hover:bg-[#fff5f5] sm:self-auto"
+                    size="default"
+                    className="self-end text-content-muted sm:self-auto"
                     disabled={deletePending}
                     onClick={async () => {
-                      if (!(await confirm({
-                        description: t("confirmDelete", {
-                          name: attachment.original_name,
-                        }),
-                        title: confirmT("title"),
-                        tone: "danger",
-                      }))) return;
+                      if (
+                        !(await confirm({
+                          description: t("confirmDelete", {
+                            name: attachment.original_name,
+                          }),
+                          title: confirmT("title"),
+                          tone: "danger",
+                        }))
+                      )
+                        return;
                       await onDelete(attachment);
                     }}
                     type="button"

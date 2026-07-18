@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { PageReveal } from "@/components/motion/page-reveal";
+import { Button } from "@/components/ui/button";
+import { PublicStateCard } from "@/components/ui/public-state-card";
 import { DEFAULT_LOCALE, normalizeLocale, type Locale } from "@/lib/locale";
 
 type ErrorPageProps = {
@@ -21,7 +23,8 @@ const ERROR_BOUNDARY_COPY = {
   en: {
     badge: "Page notice",
     title: "This page is temporarily unavailable",
-    description: "This page may have been idle for a while. Reopen it to continue.",
+    description:
+      "This page may have been idle for a while. Reopen it to continue.",
     reopen: "Reopen page",
   },
 } as const satisfies Record<
@@ -60,27 +63,13 @@ export default function Error({ error }: ErrorPageProps) {
 
   return (
     <PageReveal className="min-h-screen">
-        <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(160deg,#f6f2ea_0%,#f3f7fa_48%,#edf2f6_100%)] px-6 py-16">
-          <section className="w-full max-w-xl rounded-[32px] border border-white/90 bg-white/90 p-8 shadow-[0_24px_80px_rgba(35,49,58,0.12)] sm:p-10">
-            <span className="inline-flex rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
-              {copy.badge}
-            </span>
-            <h1 className="mt-5 text-3xl font-bold tracking-tight text-[#23313a]">
-              {copy.title}
-            </h1>
-            <p className="mt-3 text-sm leading-7 text-[#69747d]">
-              {copy.description}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <button
-                className="inline-flex h-11 items-center justify-center rounded-full bg-[#486782] px-5 text-sm font-semibold text-white transition hover:bg-[#3e5f79]"
-                onClick={reopenPage}
-                type="button"
-              >
-                {copy.reopen}
-              </button>
-            </div>
-          </section>
+      <main className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
+        <PublicStateCard
+          actions={<Button onClick={reopenPage}>{copy.reopen}</Button>}
+          badge={copy.badge}
+          description={copy.description}
+          title={copy.title}
+        />
       </main>
     </PageReveal>
   );

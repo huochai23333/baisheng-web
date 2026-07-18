@@ -136,7 +136,7 @@ npm run supabase:admin -- summary
 说明：
 
 - `npm run check:i18n` 会核对中英文消息键结构，并拦截 TSX 中直接编写的用户可见文案；品牌、币种、邮箱示例和 `1688` 等不可翻译标识使用小型明确白名单。
-- `npm run check:dashboard-ui` 会拦截工作台原生确认框、领域页面复制页面宽度、重复弹窗输入样式、直接文件输入和已经移除的旧分页外壳。
+- `npm run check:dashboard-ui` 是全站 UI 结构守卫：拦截 TS/TSX 硬编码颜色、任何原生 `select/option` 和日期族输入、`components/ui` 之外的其他原生表单控件、领域 Select/DatePicker 包装或完整视觉覆盖、业务按钮覆盖完整背景/尺寸/圆角/悬停样式、领域状态标签实现、数据列表自行维护桌面/移动断点、超过 400 行的工作台文件、深色模式、原生确认框、复制页面外壳和旧分页组件。导航与首页布局编辑器是明确的响应式白名单。
 - `npm run test:regression` 会依次执行 lint、typecheck、双语静态检查、工作台结构检查、build 和 Playwright 回归测试。
 - `npm run clean:artifacts` 清理 `.playwright-cli` 和 `output/playwright` 下的临时验证产物。
 - `npm run clean:cache` 清理 `.next` 和 `tsconfig.tsbuildinfo`。
@@ -262,8 +262,8 @@ baisheng-web/
 - `components/motion` 只承接通用页面渐入、状态切换、折叠、列表重排和骨架动效；业务请求与状态判断仍留在对应模块。
 - 公司品牌、默认域名、Logo、助手名称和默认启用业务只能从 `lib/company-config.ts` 读取；不要在页面、组件、助手 prompt 或法律文案里重新写固定公司名。
 - 旅游业务和批发业务的导航、角色页面能力、页面入口和业务设置区块由 `lib/workspace-business-modules.ts` 注册；新增、删除或裁剪业务时优先改业务模块清单，不在 `workspace-config.ts` 或页面入口里散落判断。
-- `components/auth` 只放认证页表单、输入框和认证页跳转组件。
-- `components/legal` 承接公开法律页和页脚链接。
+- `components/auth` 只放认证流程编排、认证页字段适配和认证页跳转组件。认证页允许使用唯一的照片双栏和玻璃外壳，但材质只能来自 `theme.css` 的认证语义变量；输入、按钮、字段关联和状态反馈仍统一复用 `components/ui`，不得建立第二套控件。
+- `components/legal` 承接公开法律页和页脚链接，并复用全站表面层级与状态标签，不维护独立色板。
 - `lib` 承接服务端查询、mutation、显示格式化、错误映射和共享业务规则。
 - `messages` 承接用户可见中英文文案。
 - `output`、`.playwright-cli`、`.next` 和 `node_modules` 都是本地产物，不提交。
@@ -272,19 +272,32 @@ baisheng-web/
 
 工作台共享能力：
 
+- `app/theme.css` 与 `components/ui/`：全站唯一的浅色视觉入口，基准是暖白工作台。页面画布使用 `#faf9f7`，导航结构使用 `#f4f3f1`，筛选、表格和弹窗使用 `#fbfaf8`；具体色值只存在于主题 CSS，业务 TSX 使用表面、内容、边框、品牌和状态等语义令牌。普通面板移动端为 24px 圆角、桌面端为 28px 圆角，不使用背景模糊；模糊只留给顶栏、移动菜单等覆盖结构，以及认证页经过约束的唯一玻璃外壳。项目当前不提供深色模式。
+- 控件密度按工作台办公场景统一：行内紧凑操作移动端至少 44px、桌面端 40px，普通按钮固定 44px，普通输入移动端 44px / 16px 圆角、桌面端 48px / 18px 圆角。认证页使用共享控件已有的 52px / 22px 大型变体，其他业务页面只有确实需要强调时才能使用。筛选输入、选择菜单和非选中快捷项使用浅色边界，悬停时适度加深；选择菜单展开后使用圆角暖白浮层，当前项固定为浅品牌蓝底、品牌色文字和勾选，不能退回系统方形菜单或深蓝选中块。每个选项至少 44px 高，长列表在视口内滚动，长文字在浮层中换行、在触发器中截断。普通表单继续使用更清楚的控件边界，所有键盘焦点保持高对比度。语义正文和状态色对比度至少为 4.5:1，普通表单边界及键盘焦点至少为 3:1。常规操作使用 `Button` 的语义变体和尺寸，整张记录卡或导航行这类不应继承按钮固定高度的点击区域使用 `InteractiveButton`。
+- `components/ui/button-variants.ts` 与 `button.tsx`：服务端链接和客户端按钮共用同一套变体与尺寸；外观定义与客户端交互边界分离，服务端页面不能从客户端模块调用样式函数。
+- `components/ui/form-controls.tsx`：输入、多行输入、勾选、单选、开关和字段说明的统一入口；`Field` 自动建立标签、提示、错误与输入控件之间的可访问性关联。`Field density="filter"` 还会通过共享上下文让 Input、Select 与 DatePicker 自动使用筛选区浅边界，普通字段继续使用默认边界；业务页面不得为三类控件分别复制筛选样式。`components/ui/select.tsx` 是全站唯一的单选菜单，业务层只能传入 `options`、值、表单语义和 `compact/default/large` 尺寸，`className` 只允许控制外层宽度、间距与定位。Select 通过 Base UI 的隐藏输入保留 `FormData`、必填与禁用语义，并继承 `Field` 生成的 id、错误说明、无效状态和视觉密度；账号菜单、语言切换、移动导航和国家区号菜单仍是各自已经圆角化的专用浮层，不属于表单 Select。业务组件不直接渲染原生表单标签。
+- `components/ui/date-picker.tsx` 是全站唯一的日期、月份和日期时间入口，接口使用 `mode="date | month | datetime-local"`、`value/defaultValue`、`onValueChange`、`name`、`min/max`、表单语义和统一控件尺寸；`className` 同样只控制宽度、网格跨度与定位。可见文本框支持键盘输入，日历按钮或 `Alt + ↓` 打开由 Base UI 定位的圆角暖白浮层，DayPicker 只负责日期网格与键盘移动；日期和月份点选后立即提交，日期时间选择小时、分钟后点击“完成”才提交。中文接受 `YYYY-MM-DD`、`YYYY/MM/DD`、`YYYY-MM`、`YYYY/MM` 及相同日期加 24 小时时间，英文另外接受 `MM/DD/YYYY`、`MM/YYYY` 及相同日期加时间；界面按语言格式化，隐藏表单值始终保持 `YYYY-MM-DD`、`YYYY-MM` 或 `YYYY-MM-DDTHH:mm`。非法日期、闰年错误、必填空值和超出范围都会关联到字段并阻止提交，Escape 恢复最后一个有效值；“今天”和“现在”统一按 `Asia/Shanghai` 计算。390px 下仍使用锚定浮层并在视口内翻转、位移和滚动，不改成系统日期弹层或底部抽屉。
+- `components/ui/feedback-notice.tsx`：认证页和工作台统一的结果反馈条，只有 `info`、`success`、`error` 三种语义和紧凑/默认两档密度；错误自动即时播报，成功和提示使用礼貌播报。业务组件不再维护 `AuthFeedback` 或 `PageBanner`。
+- `components/ui/status-badge.tsx`：全站唯一状态标签。业务模块只映射 `neutral`、`info`、`success`、`warning`、`danger` 语义，不自行返回颜色类名。
+- `components/ui/surface.tsx`、`data-display.tsx` 与 `responsive-data-view.tsx`：统一面板层级、记录卡、元信息、统计卡及桌面表格/移动卡片切换。数量、分页和继续加载底栏只渲染一次。
+- `components/ui/public-state-card.tsx`：访问范围、404、局部错误和全局错误页的统一提示卡；法律页和公共状态页继续复用工作台浅色材质，不跟随认证页的照片与玻璃变体。
+- `components/auth/auth-shell.tsx`：登录、注册和找回密码共用的认证编排外壳，接口按 `hero`、`form`、`footer` 分组。桌面端由 `AuthHeroPanel` 展示本地照片、品牌说明和提示，`AuthFormPanel` 展示表单；`lg` 以下隐藏照片栏，并由 `AuthSupplementalNote` 在表单后补齐说明。认证图片只允许在英雄面板静态导入，页面不得复制材质或移动说明卡。
+- 登录与找回密码的 Supabase 状态、账号切换、恢复会话和提交动作分别位于 `use-login-form-view-model.ts` 与 `use-forgot-password-view-model.ts`；表单文件只负责字段、反馈和操作按钮，注册继续由 `use-register-wizard.ts` 调度。
 - `components/motion/` 与 `lib/motion-tokens.ts`：全站统一动效入口；时长、缓动、错峰上限和减少动态效果规则集中维护，业务组件不自行定义另一套动效节奏。
 - `admin-shell-nav.tsx` 与同层桌面、移动导航模块：主文件只选择展示模式；桌面端保留菜单滚动能力但隐藏浏览器自带滚动滑块，并通过独立 hook 保存业务分组偏好；移动端保持完整下拉菜单，不参与桌面偏好同步。
 - `dashboard-section-header.tsx`：业务板块页头。
-- `dashboard-section-panel.tsx`：筛选面板、列表面板和表格外框。
+- `dashboard-section-panel.tsx`：筛选面板、列表面板和表格外框。带放大镜的工作台搜索框统一使用 `DashboardSearchInput`；组件会在移动和桌面断点为图标保留固定前置槽位，并继续继承 `Field density="filter"` 的浅边界。业务页面只传值、占位文案和更新函数，不得再自行组合绝对定位图标、响应式内边距或另一套搜索框外观。数据表格和记录列表统一使用 `divide-border-subtle` 作为低强调分隔线，`chart-*` 令牌只用于图表数据，不能再形成抢夺内容层级的深色横杆。
 - `dashboard-page-shell.tsx`：管理员、业务员、财务、客户、首页和“我的”页面共用的 `1320px` 页面外壳；页面内容固定按页头、操作反馈、权限或错误状态、业务区块的顺序展示。
 - `dashboard-resource-filter-section.tsx`：通用资源筛选卡，统一标题、说明、恢复按钮、筛选字段和结果摘要；订单筛选在它上面扩展必填日期、日期快捷项和跨日期精确单号查询。
-- `dashboard-collection-section.tsx`：通用列表卡、桌面表格/移动卡片切换、数量底栏、页码分页和继续加载操作。桌面端数量在左、操作在右，移动端上下排列，任何列表只显示一次加载数量。
-- `dashboard-form-dialog.tsx`：创建和编辑表单共用标题、说明、字段、操作反馈、取消、提交和等待状态。提交失败时弹窗与输入保持不变，成功后由领域状态关闭并清空。
+- `dashboard-collection-section.tsx` 与 `components/ui/responsive-data-view.tsx`：通用列表卡、固定 `md` 的桌面表格/移动卡片切换、数量底栏、页码分页和继续加载操作。导航及首页布局编辑器之外，业务数据列表不得自行配对显示断点；数量和分页只显示一次。
+- `dashboard-form-dialog.tsx` 的 `FormDialog` 与 `components/ui/action-group.tsx`：创建和编辑表单共用标题、说明、字段、操作反馈、取消、提交、等待状态及移动端按钮顺序。提交失败时弹窗与输入保持不变，成功后由领域状态关闭并清空。
 - `dashboard-confirm-provider.tsx`：工作台普通、警告和危险确认服务。取消、遮罩、Escape 或关闭都视为不继续，确认后才执行领域操作；工作台不使用浏览器原生确认框。
-- `dashboard-framework-primitives.tsx`：状态标签、行内编辑操作和文件选择器。领域模块只保留状态语义、文件格式、大小、数量和上传校验。
+- `dashboard-framework-primitives.tsx`：工作台行内编辑操作和文件选择器。领域模块只保留文件格式、大小、数量和上传校验；状态标签使用全站 `StatusBadge`。
+- `dashboard-feedback.tsx`、`dashboard-media-placeholders.tsx`、`dashboard-profile-cards.tsx`、`dashboard-shared-display.ts` 与 `dashboard-shared-errors.ts`：反馈、空状态、媒体占位、个人资料卡、格式化和错误提取分别维护；`dashboard-shared-ui.tsx` 仅为无逻辑的共享导出入口，不依赖隐私、任务等领域实现。
 - `dashboard-dialog.tsx`：工作台通用弹窗，统一处理遮罩、滚动锁定、初始聚焦、Tab 焦点循环和关闭后回到原操作位置；弹窗内输入内容时不能重启焦点锁，避免备注、说明、城市等输入框在连续输入时失焦。
 - `dashboard-segmented-tabs.tsx`：订单、任务、佣金、审核等板块内切换按钮。
-- `dashboard-pill.tsx` 与 `components/dashboard/tasks/task-ui.tsx`：标签、任务状态、目标角色、搜索筛选和信息块。
+- `components/dashboard/tasks/task-ui.tsx`：任务状态、目标角色、搜索筛选和信息块；状态外观复用全站 `StatusBadge`。任务展示与输入校验位于 `tasks-display.ts`，技术错误到日常提示的映射独立位于 `tasks-error-messages.ts`，两个文件都保持在 400 行以内。
+- 大型业务文件按契约、展示和状态副作用拆分：订单表单属性位于 `admin-orders-form-dialog-types.ts`，佣金分页及详情展示工具位于 `admin-commission-record-utils.tsx`，个人中心资料刷新流程位于 `dashboard-shared-my-refresh.ts`；页面和 view-model 主文件保持在 400 行以内。
 - `workspace-header-actions.tsx`：顶部公告、反馈、语言切换和头像菜单入口。
 - `workspace-feedback/`：所有登录用户的问题反馈弹窗和提交成功提示。
 - `announcements/`：管理员全局公告管理列表、筛选、发布和下线，不挂在旅游业务或批发业务下。
@@ -311,7 +324,7 @@ baisheng-web/
 - `wholesale/`：批发业务模块，包含批发订单、Order List 附件、分批结汇记录、结汇发布、1688 订单认领、物流永久档案、客户管理、批发推荐树、客户推荐佣金和业务员提成；订单类型、页面查询、范围裁剪、附件 mutation、附件权限 hook、弹窗和表格各自使用同层模块，角色能力集中在 `lib/wholesale-role-permissions.ts`，管理员额外可查看批发人员管理，不复用 `admin-orders/`；批发 VIP 使用独立客户权益模型，不复用旅游 VIP 表。物流页面协调组件只组装汇总、筛选、档案列表和店铺归属弹窗，查询、筛选 hook、归属 mutation、桌面表格、移动卡片和显示工具分别放在同层模块及 `lib/wholesale-logistics-page.ts`。`useWholesaleActions` 只组合共享 action runner 与订单、附件、1688、推荐/佣金、客户 action 模块，不直接承载具体请求。
 - 批发写操作统一返回 `Promise<boolean>`：数据库确认成功返回 `true`，失败返回 `false` 并保留弹窗、表单输入和已解析文件。共享 runner 统一维护 `pendingKey` 与页面反馈；一般批发页面成功后使用服务端刷新，订单页和物流页只刷新当前筛选所需的数据。店铺归属使用操作级 pending key，保存一条归属时不会锁住整张页面。失败反馈固定显示在弹窗遮罩上方，页面文案只使用用户能直接理解的说明。
 - `lib/exchange-rates.ts` 是汇率轻量导出入口，实际实现按类型、权限、查询、写入、显示计算和错误解析拆分；`lib/wholesale-order-assessment.ts` 只导出输入筛选、汇总提示和类型；`lib/team-management.ts` 只导出团队类型、查询、写入和 RPC 响应归一化。新增调用仍使用这些稳定入口，不添加旧实现 fallback。
-- 批发业务可以使用独立数据模型和页面模块，但页面视觉必须复用统一工作台的页头、面板、表格外框、筛选输入和空状态组件；`wholesale-ui.tsx` 只做轻量封装，不单独建立另一套卡片风格。
+- 批发业务可以使用独立数据模型和页面模块，但页面视觉必须复用统一工作台的页头、面板、表格外框、筛选输入、Select 和空状态组件；`wholesale-ui.tsx` 只保留与批发数据展示有关的轻量结构，不能包装基础选择控件或单独建立另一套卡片风格。
 - `team-management/`：团队创建、成员维护、客户结构和团队详情。
 - `dashboard-shared-my/`：个人中心、账号中心、资料、认证分区和“常用账号”入口。
 
@@ -436,6 +449,7 @@ baisheng-web/
 - Playwright 固定使用单 worker 串行执行，因为角色用例共用本地种子账号和 Supabase 数据；不要通过增加 worker 加速，否则写入场景和登录查询会互相干扰。
 - 如果 `3000` 不是当前项目服务，不要直接运行默认 e2e；先设置 `PLAYWRIGHT_BASE_URL` 指向当前项目端口，已手动启动 dev server 时同时设置 `PLAYWRIGHT_SKIP_WEB_SERVER=1`。
 - `tests/e2e` 覆盖登录、角色首页、越权拦截和关键工作区入口。
+- `tests/e2e/design-system-visual.spec.ts` 维护 38 张基线：在 `1440 × 900` 与 `390 × 844` 下覆盖登录、注册、找回密码、法律、异常、管理员、运营和客户关键页面、标准表单弹窗、选择菜单，以及日期、月份和日期时间浮层的展开状态；768px 另外检查三类日期浮层和代表页面都留在视口内。用例会关闭动画、冻结时间、隐藏开发入口，检查认证页使用共享大型控件、工作台使用共享默认控件，并验证两者的语义颜色和焦点规则一致；截图基线保存在同名 `-snapshots` 目录。
 - `tests/e2e/motion.spec.ts` 覆盖认证页首屏动效、减少动态效果、工作台菜单退出、待办列表重排和移动端密集表格宽度稳定性。
 - `tests/e2e/api-request-limits.spec.ts` 覆盖 AI 与 1688 请求体上限、1688 十分钟窗口限制和 `Retry-After`；数据库 SQL 断言继续覆盖 AI/1688 并发租约、释放和跨用户拒绝。
 - `tests/e2e/wholesale-order-pagination.spec.ts` 覆盖首批 20 条、继续加载无重复、关联单号搜索、移动卡片详情，以及核心失败和关联数据局部警告。

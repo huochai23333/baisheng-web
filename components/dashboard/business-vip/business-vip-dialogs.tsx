@@ -1,5 +1,9 @@
 "use client";
 
+import { DatePicker } from "@/components/ui/date-picker";
+import { Field } from "@/components/ui/form-controls";
+import { Select } from "@/components/ui/select";
+
 import type { FormEvent } from "react";
 import { useState } from "react";
 
@@ -7,7 +11,10 @@ import { Ban, CalendarClock, Check, LoaderCircle, Send, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
-import { PageBanner, type NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import {
+  FeedbackNotice,
+  type FeedbackTone,
+} from "@/components/dashboard/dashboard-shared-ui";
 import type {
   BusinessVipAdjustmentAction,
   BusinessVipRequest,
@@ -34,7 +41,7 @@ export type BusinessVipDialogState =
 
 type BusinessVipDialogFeedback = {
   message: string;
-  tone: NoticeTone;
+  tone: FeedbackTone;
 } | null;
 
 export function BusinessVipDialogs({
@@ -144,7 +151,9 @@ function BusinessVipRequestDialog({
       title={t("dialogs.request.title")}
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
+        {feedback ? (
+          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+        ) : null}
         <BusinessVipNoteField
           disabled={pending}
           label={t("dialogs.noteLabel")}
@@ -154,7 +163,13 @@ function BusinessVipRequestDialog({
         />
         <DialogActions
           cancelLabel={t("dialogs.cancel")}
-          icon={pending ? <LoaderCircle className="size-4 animate-spin" /> : <Send className="size-4" />}
+          icon={
+            pending ? (
+              <LoaderCircle className="size-4 animate-spin" />
+            ) : (
+              <Send className="size-4" />
+            )
+          }
           cancelDisabled={pending}
           onCancel={onClose}
           submitDisabled={pending}
@@ -202,11 +217,15 @@ function BusinessVipReviewDialog({
       }}
       open
       title={t(
-        approving ? "dialogs.review.approveTitle" : "dialogs.review.rejectTitle",
+        approving
+          ? "dialogs.review.approveTitle"
+          : "dialogs.review.rejectTitle",
       )}
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
+        {feedback ? (
+          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+        ) : null}
         <BusinessVipNoteField
           disabled={pending}
           label={t("dialogs.review.noteLabel")}
@@ -216,7 +235,7 @@ function BusinessVipReviewDialog({
         />
         <DialogActions
           cancelLabel={t("dialogs.cancel")}
-          className={approving ? "" : "bg-[#b13d3d] hover:bg-[#9f3535]"}
+          className={approving ? "" : "bg-status-danger hover:bg-surface-inset"}
           icon={
             pending ? (
               <LoaderCircle className="size-4 animate-spin" />
@@ -230,7 +249,9 @@ function BusinessVipReviewDialog({
           onCancel={onClose}
           submitDisabled={pending}
           submitLabel={t(
-            approving ? "dialogs.review.approveSubmit" : "dialogs.review.rejectSubmit",
+            approving
+              ? "dialogs.review.approveSubmit"
+              : "dialogs.review.rejectSubmit",
           )}
         />
       </form>
@@ -287,39 +308,34 @@ function BusinessVipAdjustmentDialog({
       title={t("dialogs.adjust.title")}
     >
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
-        <label className="block">
-          <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
-            {t("dialogs.adjust.actionLabel")}
-          </span>
-          <select
-            className="h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+        {feedback ? (
+          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+        ) : null}
+        <Field label={t("dialogs.adjust.actionLabel")}>
+          <Select
             disabled={pending}
-            onChange={(event) =>
-              setAction(event.target.value as BusinessVipAdjustmentAction)
-            }
+            onValueChange={setAction}
+            options={[
+              {
+                label: t("dialogs.adjust.setExpiresAt"),
+                value: "set_expires_at",
+              },
+              { label: t("dialogs.adjust.cancelVip"), value: "cancel" },
+            ]}
             value={action}
-          >
-            <option value="set_expires_at">
-              {t("dialogs.adjust.setExpiresAt")}
-            </option>
-            <option value="cancel">{t("dialogs.adjust.cancelVip")}</option>
-          </select>
-        </label>
+          />
+        </Field>
 
         {action === "set_expires_at" ? (
-          <label className="block">
-            <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
-              {t("dialogs.adjust.dateLabel")}
-            </span>
-            <input
-              className="h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+          <Field label={t("dialogs.adjust.dateLabel")} required>
+            <DatePicker
               disabled={pending}
-              onChange={(event) => setNextExpiresAt(event.target.value)}
-              type="datetime-local"
+              mode="datetime-local"
+              onValueChange={setNextExpiresAt}
+              required
               value={nextExpiresAt}
             />
-          </label>
+          </Field>
         ) : null}
 
         <BusinessVipNoteField
@@ -331,7 +347,9 @@ function BusinessVipAdjustmentDialog({
         />
         <DialogActions
           cancelLabel={t("dialogs.cancel")}
-          className={action === "cancel" ? "bg-[#b13d3d] hover:bg-[#9f3535]" : ""}
+          className={
+            action === "cancel" ? "bg-status-danger hover:bg-surface-inset" : ""
+          }
           icon={
             pending ? (
               <LoaderCircle className="size-4 animate-spin" />

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -11,16 +11,17 @@ import {
   type CurrentUserBundle,
 } from "@/lib/user-self-service";
 
-import {
-  type MediaAssetKey,
-  type NoticeTone,
-  toErrorMessage,
-} from "../dashboard-shared-ui";
+import { type MediaAssetKey, toErrorMessage } from "../dashboard-shared-ui";
 import {
   useWorkspaceRecoverCloudSync,
   useWorkspaceSyncEffect,
 } from "../workspace-session-provider";
 import { DashboardSharedMyMediaDialogActions } from "./dashboard-shared-my-media-dialog-actions";
+import {
+  type DashboardSharedMyNotice,
+  type DashboardSharedMyRefreshOptions,
+  refreshDashboardSharedMyBundle,
+} from "./dashboard-shared-my-refresh";
 import { useDashboardSharedMyStateCopy } from "./dashboard-shared-my-state-copy";
 import {
   createDashboardSharedMyViewModel,
@@ -33,7 +34,9 @@ import { useDashboardSharedMyMediaActions } from "./use-dashboard-shared-my-medi
 import { useDashboardSharedMyPrivacyActions } from "./use-dashboard-shared-my-privacy-actions";
 import { useDashboardInviteCode } from "./use-dashboard-invite-code";
 
-export function useDashboardSharedMyState(initialData: CurrentUserBundle | null = null) {
+export function useDashboardSharedMyState(
+  initialData: CurrentUserBundle | null = null,
+) {
   const router = useRouter();
   const { locale } = useLocale();
   const { copy, sharedCopy } = useDashboardSharedMyStateCopy();
@@ -46,13 +49,11 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
   const [bundle, setBundle] = useState<CurrentUserBundle | null>(initialData);
   const [loading, setLoading] = useState(initialData === null);
   const [pageError, setPageError] = useState<string | null>(null);
-  const [pageNotice, setPageNotice] = useState<{ tone: NoticeTone; message: string } | null>(
+  const [pageNotice, setPageNotice] = useState<DashboardSharedMyNotice | null>(
     null,
   );
-  const [dialogNotice, setDialogNotice] = useState<{
-    tone: NoticeTone;
-    message: string;
-  } | null>(null);
+  const [dialogNotice, setDialogNotice] =
+    useState<DashboardSharedMyNotice | null>(null);
   const [activeDialog, setActiveDialog] = useState<MediaAssetKey | null>(null);
   const [identityDraft, setIdentityDraft] = useState("");
   const [passportDraft, setPassportDraft] = useState("");
@@ -113,7 +114,11 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
   );
 
   useEffect(() => {
-    if (initialData !== null || !supabase || hasLoadedInitialBundleRef.current) {
+    if (
+      initialData !== null ||
+      !supabase ||
+      hasLoadedInitialBundleRef.current
+    ) {
       return;
     }
 
@@ -145,55 +150,21 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
     });
   });
 
-  const refreshBundle = async ({
-    dialogMessage,
-    pageMessage,
-    quiet,
-  }: {
-    dialogMessage?: string;
-    pageMessage?: string;
-    quiet?: boolean;
-  } = {}) => {
-    if (!supabase) {
-      return;
-    }
-
-    try {
-      if (!quiet) {
-        setBusyKey("refresh");
-      }
-
-      const nextBundle = await getCurrentUserBundle(supabase);
-
-      if (!nextBundle) {
-        router.replace("/login");
-        return;
-      }
-
-      setBundle(nextBundle);
-      setPageError(null);
-
-      if (dialogMessage) {
-        setDialogNotice({ tone: "success", message: dialogMessage });
-      }
-
-      if (pageMessage) {
-        setPageNotice({ tone: "success", message: pageMessage });
-      }
-    } catch (error) {
-      const message = toErrorMessage(error, sharedCopy);
-
-      if (activeDialog) {
-        setDialogNotice({ tone: "error", message });
-      } else {
-        setPageError(message);
-      }
-    } finally {
-      if (!quiet) {
-        setBusyKey(null);
-      }
-    }
-  };
+  const refreshBundle = (options: DashboardSharedMyRefreshOptions = {}) =>
+    refreshDashboardSharedMyBundle(
+      {
+        activeDialog,
+        onRequireLogin: () => router.replace("/login"),
+        setBundle,
+        setBusyKey,
+        setDialogNotice,
+        setPageError,
+        setPageNotice,
+        sharedCopy,
+        supabase,
+      },
+      options,
+    );
 
   const {
     approvedIdentityValue,
@@ -249,12 +220,16 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
 
     if (key === "identity") {
       setIdentityEditing(identityStatus === "empty");
-      setIdentityDraft(identityStatus === "pending" ? identityValue : approvedIdentityValue);
+      setIdentityDraft(
+        identityStatus === "pending" ? identityValue : approvedIdentityValue,
+      );
     }
 
     if (key === "passport") {
       setPassportEditing(passportStatus === "empty");
-      setPassportDraft(passportStatus === "pending" ? passportValue : approvedPassportValue);
+      setPassportDraft(
+        passportStatus === "pending" ? passportValue : approvedPassportValue,
+      );
     }
   };
 
@@ -269,7 +244,11 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
     setPassportEditing(false);
   };
 
-  const copyInviteCode = useDashboardInviteCode({ copy, profile, setPageNotice });
+  const copyInviteCode = useDashboardInviteCode({
+    copy,
+    profile,
+    setPageNotice,
+  });
 
   const profileDialog = useDashboardProfileDialog({
     authUser,
@@ -309,19 +288,20 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
 
   const dialogCopy = getDashboardSharedMyDialogCopy(activeDialog, copy);
 
-  const dialogActions = activeDialog === "photos" || activeDialog === "videos" ? (
-    <DashboardSharedMyMediaDialogActions
-      activeDialog={activeDialog}
-      busyKey={busyKey}
-      copy={copy}
-      deletePhotoAssets={mediaActions.deletePhotoAssets}
-      deleteVideoAssets={mediaActions.deleteVideoAssets}
-      photoAssets={photoAssets}
-      photoInputRef={photoInputRef}
-      videoAssets={videoAssets}
-      videoInputRef={videoInputRef}
-    />
-  ) : undefined;
+  const dialogActions =
+    activeDialog === "photos" || activeDialog === "videos" ? (
+      <DashboardSharedMyMediaDialogActions
+        activeDialog={activeDialog}
+        busyKey={busyKey}
+        copy={copy}
+        deletePhotoAssets={mediaActions.deletePhotoAssets}
+        deleteVideoAssets={mediaActions.deleteVideoAssets}
+        photoAssets={photoAssets}
+        photoInputRef={photoInputRef}
+        videoAssets={videoAssets}
+        videoInputRef={videoInputRef}
+      />
+    ) : undefined;
 
   return {
     bundle,
@@ -392,4 +372,6 @@ export function useDashboardSharedMyState(initialData: CurrentUserBundle | null 
   };
 }
 
-export type DashboardSharedMyState = ReturnType<typeof useDashboardSharedMyState>;
+export type DashboardSharedMyState = ReturnType<
+  typeof useDashboardSharedMyState
+>;

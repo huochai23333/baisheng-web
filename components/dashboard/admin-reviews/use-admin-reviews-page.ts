@@ -21,14 +21,14 @@ import { getBrowserSupabaseClient } from "@/lib/supabase";
 import {
   createDashboardSharedCopy,
   toErrorMessage,
-  type NoticeTone,
+  type FeedbackTone,
 } from "../dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "../workspace-session-provider";
 import { useDashboardConfirm } from "../dashboard-confirm-provider";
 
 import type { BusyAction, ReviewTab } from "./types";
 
-type PageFeedback = { tone: NoticeTone; message: string } | null;
+type PageFeedback = { tone: FeedbackTone; message: string } | null;
 
 export function useAdminReviewsPage(initialData: AdminReviewsPageData) {
   const confirm = useDashboardConfirm();

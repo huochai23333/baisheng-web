@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { CurrentUserBundle } from "@/lib/user-self-service";
 
@@ -44,7 +44,10 @@ export function DashboardSharedMyClient({
     return (
       <DashboardPageShell
         className="gap-6"
-        feedback={{ tone: "error", message: page.error ?? copy.bundleUnavailable }}
+        feedback={{
+          tone: "error",
+          message: page.error ?? copy.bundleUnavailable,
+        }}
       >
         <DashboardAccessState
           actionLabel={copy.retrySync}
@@ -61,14 +64,19 @@ export function DashboardSharedMyClient({
     <>
       <DashboardPageShell
         feedback={
-          page.error
-            ? { tone: "error", message: page.error }
-            : page.notice
+          page.error ? { tone: "error", message: page.error } : page.notice
         }
       >
         <DashboardSharedMySections
           copy={copy}
-          state={{ account, accountSwitcher, assetDialog, page, profileDialog, ui }}
+          state={{
+            account,
+            accountSwitcher,
+            assetDialog,
+            page,
+            profileDialog,
+            ui,
+          }}
         />
       </DashboardPageShell>
 

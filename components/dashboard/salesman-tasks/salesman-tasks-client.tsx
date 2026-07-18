@@ -46,7 +46,8 @@ export function SalesmanTasksClient({
         <DashboardSectionHeader
           actions={
             <Button
-              className="h-11 rounded-full border border-[#d8e2e8] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
+              variant="outline"
+              size="default"
               disabled={!viewModel.canView}
               onClick={() =>
                 viewModel.updateFilter(
@@ -57,11 +58,13 @@ export function SalesmanTasksClient({
               type="button"
             >
               <History className="size-4" />
-              {viewModel.filters.focus === "completed" ? t("header.allTasks") : t("header.history")}
+              {viewModel.filters.focus === "completed"
+                ? t("header.allTasks")
+                : t("header.history")}
             </Button>
           }
           badge={t("header.badge")}
-          badgeClassName="bg-[#e6edf2]"
+          badgeClassName="bg-surface-inset"
           description={t("header.description")}
           title={t("header.title")}
         />
@@ -79,30 +82,44 @@ export function SalesmanTasksClient({
             gridClassName="grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.6fr)]"
             variant="standalone"
           >
-              <SearchField
-                label={t("filters.searchLabel")}
-                onChange={(value) => viewModel.updateFilter("searchText", value)}
-                placeholder={t("filters.searchPlaceholder")}
-                value={viewModel.filters.searchText}
-              />
+            <SearchField
+              label={t("filters.searchLabel")}
+              onChange={(value) => viewModel.updateFilter("searchText", value)}
+              placeholder={t("filters.searchPlaceholder")}
+              value={viewModel.filters.searchText}
+            />
 
-              <FilterField
-                label={t("filters.focusLabel")}
-                onChange={(value) => viewModel.updateFilter("focus", value as SalesmanTaskFocusFilter)}
-                value={viewModel.filters.focus}
-              >
-                <option value="all">{t("filters.focusAll")}</option>
-                <option value="available">{t("filters.focusAvailable")}</option>
-                <option value="in_progress">{t("filters.focusInProgress")}</option>
-                <option value="reviewing">{t("filters.focusReviewing")}</option>
-                <option value="rejected">{t("filters.focusRejected")}</option>
-                <option value="completed">{t("filters.focusCompleted")}</option>
-              </FilterField>
+            <FilterField
+              label={t("filters.focusLabel")}
+              onChange={(value) =>
+                viewModel.updateFilter(
+                  "focus",
+                  value as SalesmanTaskFocusFilter,
+                )
+              }
+              options={[
+                { label: t("filters.focusAll"), value: "all" },
+                {
+                  label: t("filters.focusAvailable"),
+                  value: "available",
+                },
+                {
+                  label: t("filters.focusInProgress"),
+                  value: "in_progress",
+                },
+                { label: t("filters.focusReviewing"), value: "reviewing" },
+                { label: t("filters.focusRejected"), value: "rejected" },
+                { label: t("filters.focusCompleted"), value: "completed" },
+              ]}
+              value={viewModel.filters.focus}
+            />
           </DashboardFilterPanel>
 
           <DashboardListSection
             bodyClassName="space-y-4"
-            description={t("list.description", { count: viewModel.filteredTasks.length })}
+            description={t("list.description", {
+              count: viewModel.filteredTasks.length,
+            })}
             title={t("list.title")}
           >
             {viewModel.filteredTasks.length === 0 ? (
@@ -116,10 +133,14 @@ export function SalesmanTasksClient({
                 {viewModel.tasksPagination.items.map((task) => (
                   <SalesmanTaskCard
                     attachmentBusyKey={viewModel.attachmentBusyKey}
-                    busy={viewModel.busyTaskId === task.id || viewModel.isRefreshing}
+                    busy={
+                      viewModel.busyTaskId === task.id || viewModel.isRefreshing
+                    }
                     key={task.id}
                     onAccept={() => void viewModel.handleAcceptTask(task.id)}
-                    onOpenAttachment={(attachment) => void viewModel.handleOpenAttachment(task.id, attachment)}
+                    onOpenAttachment={(attachment) =>
+                      void viewModel.handleOpenAttachment(task.id, attachment)
+                    }
                     onSubmitReview={() => viewModel.openSubmitDialog(task)}
                     task={task}
                     viewerId={viewModel.viewerId}

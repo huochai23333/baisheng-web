@@ -5,6 +5,7 @@ import {
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
+import { fillDateControl } from "./helpers/date-control";
 
 const ORDER_PAGES = [
   "/admin/tourism/orders",
@@ -103,8 +104,8 @@ test.describe("四类订单列表统一框架", () => {
     await expect(reset).toBeDisabled();
 
     // 输入不属于快捷项的完整日期范围时，工具条应自动标记为“自定义”。
-    await startDate.fill("2026-05-02");
-    await page.getByLabel("下单日期到").fill("2026-05-03");
+    await fillDateControl(startDate, "2026-05-02");
+    await fillDateControl(page.getByLabel("下单日期到"), "2026-05-03");
     await expect(
       dateToolbar.getByRole("button", { name: "自定义" }),
     ).toHaveAttribute("aria-pressed", "true");

@@ -45,14 +45,14 @@ test.describe("registration wizard", () => {
     page,
   }) => {
     await page.goto("/register");
-    await page.getByRole("textbox", { name: /邀请码 业务员/ }).fill("NOTREAL");
+    await page.getByRole("textbox", { name: "邀请码" }).fill("NOTREAL");
     await page.getByRole("button", { name: "下一步" }).click();
 
     await expect(
       page.getByText("邀请码不存在，请确认后重新输入。"),
     ).toBeVisible();
     await expect(
-      page.getByRole("textbox", { name: /邀请码 业务员/ }),
+      page.getByRole("textbox", { name: "邀请码" }),
     ).toHaveValue("NOTREAL");
   });
 
@@ -110,7 +110,7 @@ async function expectLockedBusiness(
   selectedBusinessName: string,
   disabledBusinessName: string,
 ) {
-  await page.getByRole("textbox", { name: /邀请码 业务员/ }).fill(inviteCode);
+  await page.getByRole("textbox", { name: "邀请码" }).fill(inviteCode);
   await page.getByRole("button", { name: "下一步" }).click();
 
   await expect(

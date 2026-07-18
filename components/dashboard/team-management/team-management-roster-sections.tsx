@@ -8,7 +8,11 @@ import {
   UsersRound,
 } from "lucide-react";
 
-import type { TeamClient, TeamMember, TeamSalesmanCandidate } from "@/lib/team-management";
+import type {
+  TeamClient,
+  TeamMember,
+  TeamSalesmanCandidate,
+} from "@/lib/team-management";
 
 import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
@@ -107,7 +111,7 @@ export function TeamCandidatesSection({
         />
       </div>
 
-      <div className="rounded-[22px] border border-[#d9e8dc] bg-[#edf5ef] px-4 py-3 text-sm text-[#42624b]">
+      <div className="rounded-[22px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
         {t("candidates.availableCount", { count: availableCandidateCount })}
       </div>
 

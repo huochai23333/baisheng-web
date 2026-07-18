@@ -1,12 +1,15 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import type { FormEvent } from "react";
+import { DashboardFilterField } from "@/components/dashboard/dashboard-section-panel";
+import { Select } from "@/components/ui/select";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import { getProfileName } from "./wholesale-display";
 import {
   WholesaleField,
-  WholesaleSelect,
   WholesaleSubmitButton,
   WholesaleTextarea,
 } from "./wholesale-ui";
@@ -57,7 +60,11 @@ export function WholesaleCustomerForm({
   return (
     <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
       {customer ? (
-        <input name="customer_id" type="hidden" value={customer.id} />
+        <FormControls.Input
+          name="customer_id"
+          type="hidden"
+          value={customer.id}
+        />
       ) : null}
       <WholesaleField
         defaultValue={customer?.unique_name}
@@ -66,31 +73,36 @@ export function WholesaleCustomerForm({
         required
       />
       {canAssignSalesUser ? (
-        <WholesaleSelect
-          defaultValue={customer?.assigned_sales_user_id ?? ""}
-          label={uiText("attribute002")}
-          name="assigned_sales_user_id"
-        >
-          <option value="">
-            <UiMessage id="components_dashboard_wholesale_wholesale_customer_form.text001" />
-          </option>
-          {salesAccounts.map((profile) => (
-            <option key={profile.user_id} value={profile.user_id}>
-              {profile.name || profile.email}
-            </option>
-          ))}
-        </WholesaleSelect>
+        <DashboardFilterField label={uiText("attribute002")}>
+          <Select
+            aria-label={uiText("attribute002")}
+            defaultValue={customer?.assigned_sales_user_id ?? ""}
+            name="assigned_sales_user_id"
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_customer_form.text001" />
+                ),
+                value: "",
+              },
+              ...salesAccounts.map((profile) => ({
+                label: profile.name || profile.email,
+                value: profile.user_id,
+              })),
+            ]}
+          />
+        </DashboardFilterField>
       ) : (
-        <div className="min-w-0 rounded-[18px] border border-[#ebe7e1] bg-white px-4 py-3">
-          <input
+        <div className="min-w-0 rounded-[18px] border border-border-subtle bg-white px-4 py-3">
+          <FormControls.Input
             name="assigned_sales_user_id"
             type="hidden"
             value={fixedSalesUserId ?? ""}
           />
-          <p className="text-xs font-semibold text-[#7b8790]">
+          <p className="text-xs font-semibold text-content-muted">
             <UiMessage id="components_dashboard_wholesale_wholesale_customer_form.text002" />
           </p>
-          <p className="mt-2 break-words text-sm font-medium text-[#2b3942]">
+          <p className="mt-2 break-words text-sm font-medium text-content-strong">
             {fixedSalesUserName}
           </p>
         </div>

@@ -2,7 +2,6 @@
 
 import {
   Filter,
-  Search,
   StickyNote,
   UserCheck,
   UsersRound,
@@ -12,8 +11,8 @@ import { useTranslations } from "next-intl";
 import {
   DashboardFilterField,
   DashboardListSection,
+  DashboardSearchInput,
   DashboardTableFrame,
-  dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import {
@@ -24,7 +23,6 @@ import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { SalesmanCustomerRow } from "@/lib/salesman-people";
 import type { Locale } from "@/lib/locale";
-import { cn } from "@/lib/utils";
 
 import {
   formatSalesmanPeopleDate,
@@ -131,15 +129,11 @@ export function SalesmanPeopleDirectorySection({
         resetDisabled={!searchText}
       >
         <DashboardFilterField label={t("filters.search")}>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
-            <input
-              className={cn(dashboardFilterInputClassName, "pl-10")}
-              onChange={(event) => onSearchTextChange(event.target.value)}
-              placeholder={t("filters.searchPlaceholder")}
-              value={searchText}
-            />
-          </div>
+          <DashboardSearchInput
+            onChange={onSearchTextChange}
+            placeholder={t("filters.searchPlaceholder")}
+            value={searchText}
+          />
         </DashboardFilterField>
       </DashboardResourceFilterSection>
 
@@ -161,43 +155,53 @@ export function SalesmanPeopleDirectorySection({
                 <col className="w-[12%]" />
                 <col className="w-[13%]" />
               </colgroup>
-              <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
+              <thead className="bg-surface-inset text-xs font-semibold text-content-muted">
                 <tr>
-                  <th className="px-3 py-3">{t("directory.columns.customer")}</th>
-                  <th className="px-3 py-3">{t("directory.columns.privateNote")}</th>
+                  <th className="px-3 py-3">
+                    {t("directory.columns.customer")}
+                  </th>
+                  <th className="px-3 py-3">
+                    {t("directory.columns.privateNote")}
+                  </th>
                   <th className="px-3 py-3">{t("directory.columns.city")}</th>
-                  <th className="px-3 py-3">{t("directory.columns.currentType")}</th>
-                  <th className="px-3 py-3">{t("directory.columns.markedAt")}</th>
-                  <th className="px-3 py-3">{t("directory.columns.actions")}</th>
+                  <th className="px-3 py-3">
+                    {t("directory.columns.currentType")}
+                  </th>
+                  <th className="px-3 py-3">
+                    {t("directory.columns.markedAt")}
+                  </th>
+                  <th className="px-3 py-3">
+                    {t("directory.columns.actions")}
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#eee9e1]">
+              <tbody className="divide-y divide-border-subtle">
                 {filteredCustomers.map((customer) => (
                   <tr key={customer.user_id} className="align-top">
                     <td className="px-3 py-4">
-                      <p className="font-semibold text-[#23313a]">
+                      <p className="font-semibold text-content-strong">
                         {getSalesmanCustomerName(
                           customer,
                           t("fallback.unnamedCustomer"),
                         )}
                       </p>
-                      <p className="mt-1 break-all text-xs text-[#7b858d]">
+                      <p className="mt-1 break-all text-xs text-content-muted">
                         {getSalesmanCustomerContact(
                           customer,
                           t("fallback.notProvided"),
                         )}
                       </p>
                     </td>
-                    <td className="px-3 py-4 text-[#53616d]">
+                    <td className="px-3 py-4 text-content-muted">
                       <p className="break-words leading-6 [overflow-wrap:anywhere]">
                         {customer.private_note ?? t("fallback.noPrivateNote")}
                       </p>
                     </td>
-                    <td className="px-3 py-4 text-[#53616d]">
+                    <td className="px-3 py-4 text-content-muted">
                       {customer.city ?? t("fallback.notProvided")}
                     </td>
                     <td className="px-3 py-4">
-                      <p className="font-semibold text-[#23313a]">
+                      <p className="font-semibold text-content-strong">
                         {getSalesmanCustomerTypeLabel(
                           customer.customer_type,
                           customerTypeLabels,
@@ -205,7 +209,7 @@ export function SalesmanPeopleDirectorySection({
                         )}
                       </p>
                     </td>
-                    <td className="px-3 py-4 text-[#53616d]">
+                    <td className="px-3 py-4 text-content-muted">
                       {formatSalesmanPeopleDate(
                         customer.marked_at,
                         locale,
@@ -215,14 +219,16 @@ export function SalesmanPeopleDirectorySection({
                     <td className="px-3 py-4">
                       <div className="flex flex-col items-start gap-2">
                         <Button
-                          className="h-9 rounded-full border border-[#d9e0e5] bg-white px-3 text-[#486782] hover:bg-[#f3f6f8]"
+                          variant="outline"
+                          size="compact"
                           onClick={() => onEditCustomerNote(customer)}
                         >
                           <StickyNote className="size-4" />
                           {t("actions.note")}
                         </Button>
                         <Button
-                          className="h-9 rounded-full bg-[#486782] px-3 text-white hover:bg-[#3e5f79]"
+                          variant="primary"
+                          size="compact"
                           onClick={() => onAdjustCustomerType(customer)}
                         >
                           {t("actions.adjust")}

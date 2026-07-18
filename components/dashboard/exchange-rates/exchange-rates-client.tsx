@@ -80,14 +80,18 @@ export function ExchangeRatesClient({
       feedback={pageFeedback}
       header={
         !embedded ? (
-          <ExchangeRatesHeaderSection canManage={canManage} onCreate={openCreateDialog} />
+          <ExchangeRatesHeaderSection
+            canManage={canManage}
+            onCreate={openCreateDialog}
+          />
         ) : undefined
       }
     >
       {embedded && canManage ? (
         <div className="flex justify-end">
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             onClick={openCreateDialog}
             type="button"
           >
@@ -105,7 +109,11 @@ export function ExchangeRatesClient({
               : t("states.noViewDescription")
           }
           kind="permission"
-          title={mode === "manage" ? t("states.noManageTitle") : t("states.noViewTitle")}
+          title={
+            mode === "manage"
+              ? t("states.noManageTitle")
+              : t("states.noViewTitle")
+          }
         />
       ) : (
         <>

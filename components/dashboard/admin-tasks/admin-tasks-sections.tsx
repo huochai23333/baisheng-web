@@ -25,7 +25,10 @@ import {
   DashboardFilterPanel,
   DashboardListSection,
 } from "@/components/dashboard/dashboard-section-panel";
-import { EmptyState, PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import {
+  EmptyState,
+  FeedbackNotice,
+} from "@/components/dashboard/dashboard-shared-ui";
 import {
   MotionList,
   MotionListItem,
@@ -34,18 +37,10 @@ import {
 
 import { getTaskTargetRoleLabel } from "@/components/dashboard/tasks/tasks-display";
 
-import {
-  FilterField,
-  SearchField,
-  TaskCard,
-} from "./admin-tasks-ui";
+import { FilterField, SearchField, TaskCard } from "./admin-tasks-ui";
 import { AdminTaskDetailDialog } from "./admin-task-detail-dialog";
-import {
-  AdminTaskSubmissionMediaPreviewDialog,
-} from "./admin-task-submission-media";
-import {
-  type AdminTasksPagination,
-} from "./admin-tasks-view-model-shared";
+import { AdminTaskSubmissionMediaPreviewDialog } from "./admin-task-submission-media";
+import { type AdminTasksPagination } from "./admin-tasks-view-model-shared";
 import { useAdminTaskSubmissionMedia } from "./use-admin-task-submission-media";
 
 type TargetRoleOptions = AdminTasksPageData["targetRoleOptions"];
@@ -74,16 +69,22 @@ export function AdminTasksHeroSection({
       actions={
         <>
           <Button
-            className="h-11 rounded-full border border-[#d8e2e8] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
+            variant="outline"
+            size="default"
             disabled={isRefreshing}
             onClick={onRefresh}
             type="button"
           >
-            <RefreshCw className={["size-4", isRefreshing ? "animate-spin" : ""].join(" ")} />
+            <RefreshCw
+              className={["size-4", isRefreshing ? "animate-spin" : ""].join(
+                " ",
+              )}
+            />
             {t("header.refresh")}
           </Button>
           <Button
-            className="h-11 rounded-full border border-[#d8e2e8] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
+            variant="outline"
+            size="default"
             disabled={!canView}
             onClick={onManageTaskTypes}
             type="button"
@@ -92,7 +93,8 @@ export function AdminTasksHeroSection({
             {t("header.manageTypes")}
           </Button>
           <Button
-            className="h-11 rounded-full border border-[#d8e2e8] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
+            variant="outline"
+            size="default"
             disabled={!canView}
             onClick={onToggleCompletedHistory}
             type="button"
@@ -101,7 +103,8 @@ export function AdminTasksHeroSection({
             {showCompletedHistory ? t("header.allTasks") : t("header.history")}
           </Button>
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             disabled={!canView}
             onClick={onCreate}
             type="button"
@@ -112,7 +115,7 @@ export function AdminTasksHeroSection({
         </>
       }
       badge={t("header.badge")}
-      badgeClassName="bg-[#e6edf2]"
+      badgeClassName="bg-surface-inset"
       description={t("header.description")}
       title={t("header.title")}
     />
@@ -150,25 +153,27 @@ export function AdminTasksFiltersSection({
       gridClassName="grid-cols-1 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.55fr)]"
       variant="standalone"
     >
-        <SearchField
-          label={t("filters.searchLabel")}
-          onChange={onSearchTextChange}
-          placeholder={t("filters.searchPlaceholder")}
-          value={filters.searchText}
-        />
+      <SearchField
+        label={t("filters.searchLabel")}
+        onChange={onSearchTextChange}
+        placeholder={t("filters.searchPlaceholder")}
+        value={filters.searchText}
+      />
 
-        <FilterField
-          label={t("filters.targetRoleLabel")}
-          onChange={(value) => onTargetRoleChange(value as AdminTaskTargetRoleFilter)}
-          value={filters.targetRole}
-        >
-          <option value="all">{t("filters.targetRoleAll")}</option>
-          {targetRoleOptions.map((option) => (
-            <option key={option.role} value={option.role}>
-              {getTaskTargetRoleLabel(option.role, sharedT)}
-            </option>
-          ))}
-        </FilterField>
+      <FilterField
+        label={t("filters.targetRoleLabel")}
+        onChange={(value) =>
+          onTargetRoleChange(value as AdminTaskTargetRoleFilter)
+        }
+        options={[
+          { label: t("filters.targetRoleAll"), value: "all" },
+          ...targetRoleOptions.map((option) => ({
+            label: getTaskTargetRoleLabel(option.role, sharedT),
+            value: option.role,
+          })),
+        ]}
+        value={filters.targetRole}
+      />
     </DashboardFilterPanel>
   );
 }
@@ -198,10 +203,13 @@ export function AdminTasksListSection({
   const visibleCompletedTaskIds = tasksPagination.items
     .filter((task) => task.completed_count > 0)
     .map((task) => task.id);
-  const submissionMediaState = useAdminTaskSubmissionMedia(visibleCompletedTaskIds);
+  const submissionMediaState = useAdminTaskSubmissionMedia(
+    visibleCompletedTaskIds,
+  );
   const [detailsTask, setDetailsTask] = useState<AdminTaskRow | null>(null);
-  const detailsTaskSubmissionMedia =
-    detailsTask ? (submissionMediaState.mediaByTaskId.get(detailsTask.id) ?? []) : [];
+  const detailsTaskSubmissionMedia = detailsTask
+    ? (submissionMediaState.mediaByTaskId.get(detailsTask.id) ?? [])
+    : [];
 
   return (
     <DashboardListSection
@@ -219,7 +227,9 @@ export function AdminTasksListSection({
         ) : (
           <>
             {submissionMediaState.errorMessage ? (
-              <PageBanner tone="error">{submissionMediaState.errorMessage}</PageBanner>
+              <FeedbackNotice tone="error">
+                {submissionMediaState.errorMessage}
+              </FeedbackNotice>
             ) : null}
 
             <MotionList className="grid grid-cols-1 gap-5 2xl:grid-cols-2">
@@ -260,17 +270,23 @@ export function AdminTasksListSection({
       />
 
       <AdminTaskDetailDialog
-        onDownloadSubmissionMedia={(media) => void submissionMediaState.downloadMedia(media)}
+        onDownloadSubmissionMedia={(media) =>
+          void submissionMediaState.downloadMedia(media)
+        }
         onOpenChange={(open) => {
           if (!open) {
             setDetailsTask(null);
           }
         }}
-        onPreviewSubmissionMedia={(media) => void submissionMediaState.openPreview(media)}
+        onPreviewSubmissionMedia={(media) =>
+          void submissionMediaState.openPreview(media)
+        }
         submissionMedia={detailsTaskSubmissionMedia}
         submissionMediaBusyId={submissionMediaState.busyMediaId}
         submissionMediaLoading={
-          detailsTask ? submissionMediaState.loadingTaskIds.has(detailsTask.id) : false
+          detailsTask
+            ? submissionMediaState.loadingTaskIds.has(detailsTask.id)
+            : false
         }
         task={detailsTask}
       />

@@ -70,13 +70,13 @@ export function TourismPersonDetails({
     <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {rows.map((row) => (
         <div
-          className="min-w-0 rounded-[18px] border border-[#e4e9ed] bg-white px-4 py-3"
+          className="min-w-0 rounded-[18px] border border-border-subtle bg-white px-4 py-3"
           key={row.label}
         >
-          <p className="text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+          <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
             {row.label}
           </p>
-          <p className="mt-1 break-words text-sm leading-6 text-[#53616d] [overflow-wrap:anywhere]">
+          <p className="mt-1 break-words text-sm leading-6 text-content-muted [overflow-wrap:anywhere]">
             {row.value}
           </p>
         </div>

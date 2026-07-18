@@ -45,7 +45,9 @@ export function Wholesale1688UploadDialog({
           <DashboardFilePicker
             accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             files={selectedFile ? [selectedFile] : []}
-            label={<UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text001" />}
+            label={
+              <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text001" />
+            }
             onFiles={(files) => {
               const file = files[0];
               if (!file) return;
@@ -69,9 +71,9 @@ export function Wholesale1688UploadDialog({
           />
         </DashboardFilterField>
         {parseError ? (
-          <p className="text-sm text-[#b13d3d]">{parseError}</p>
+          <p className="text-sm text-status-danger">{parseError}</p>
         ) : parsedRows.length > 0 ? (
-          <p className="text-sm leading-6 text-[#61717e]">
+          <p className="text-sm leading-6 text-content-muted">
             <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text002" />
             {parsedRows.length}
             <UiMessage id="components_dashboard_wholesale_wholesale_claims_dialogs.text003" />
@@ -81,10 +83,15 @@ export function Wholesale1688UploadDialog({
         ) : null}
         <div className="flex justify-end">
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79] disabled:opacity-60"
+            variant="primary"
+            size="default"
+            className="disabled:opacity-60"
             disabled={parsedRows.length === 0 || pending}
             onClick={async () => {
-              const succeeded = await onImportRows(selectedFile?.name ?? "", parsedRows);
+              const succeeded = await onImportRows(
+                selectedFile?.name ?? "",
+                parsedRows,
+              );
               // 导入失败时继续展示已经解析好的表格，不要求用户重新选文件。
               if (!succeeded) return;
               onOpenChange(false);

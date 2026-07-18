@@ -24,7 +24,7 @@ import {
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import {
   normalizeSearchText,
-  type NoticeTone,
+  type FeedbackTone,
 } from "@/components/dashboard/dashboard-shared-ui";
 import {
   toSalesmanTaskErrorMessage,
@@ -32,7 +32,7 @@ import {
 import { useWorkspaceSyncEffect } from "@/components/dashboard/workspace-session-provider";
 import { useSalesmanTaskReviewDialog } from "./use-salesman-task-review-dialog";
 
-type PageFeedback = { tone: NoticeTone; message: string } | null;
+type PageFeedback = { tone: FeedbackTone; message: string } | null;
 
 function areSalesmanTasksFiltersEqual(
   left: SalesmanTasksFilters,

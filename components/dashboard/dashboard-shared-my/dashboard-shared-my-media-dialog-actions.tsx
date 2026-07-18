@@ -23,8 +23,12 @@ export function DashboardSharedMyMediaDialogActions({
   activeDialog: MediaAssetKey | null;
   busyKey: string | null;
   copy: DashboardSharedMyStateCopy;
-  deletePhotoAssets: (targets: CurrentUserBundle["mediaAssets"]) => Promise<void>;
-  deleteVideoAssets: (targets: CurrentUserBundle["mediaAssets"]) => Promise<void>;
+  deletePhotoAssets: (
+    targets: CurrentUserBundle["mediaAssets"],
+  ) => Promise<void>;
+  deleteVideoAssets: (
+    targets: CurrentUserBundle["mediaAssets"],
+  ) => Promise<void>;
   photoAssets: CurrentUserBundle["mediaAssets"];
   photoInputRef: RefObject<HTMLInputElement | null>;
   videoAssets: CurrentUserBundle["mediaAssets"];
@@ -44,7 +48,7 @@ export function DashboardSharedMyMediaDialogActions({
   return (
     <>
       <Button
-        className="h-11 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
+        size="default"
         disabled={!assets.length || busyKey !== null}
         onClick={() => void handleDelete(assets)}
         variant="outline"
@@ -57,7 +61,8 @@ export function DashboardSharedMyMediaDialogActions({
         {deleteLabel}
       </Button>
       <Button
-        className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+        variant="primary"
+        size="default"
         disabled={busyKey !== null}
         onClick={() => inputRef.current?.click()}
       >

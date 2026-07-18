@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { useState } from "react";
 
 import { LoaderCircle, Plus, RefreshCw, Trash2, UserRound } from "lucide-react";
@@ -33,10 +35,7 @@ export function DashboardAccountSwitcherSection({
 
   return (
     <>
-      <section
-        className="scroll-mt-28"
-        id="common-account"
-      >
+      <section className="scroll-mt-28" id="common-account">
         {alternateAccount ? (
           <SavedAccountSwitchRow
             account={alternateAccount}
@@ -54,17 +53,17 @@ export function DashboardAccountSwitcherSection({
             }}
           />
         ) : (
-          <button
-            className="group flex min-h-[76px] w-full items-center justify-center rounded-2xl border border-dashed border-[#cdd6dc] bg-white/72 px-4 py-3 text-[#486782] shadow-[0_12px_28px_rgba(96,113,128,0.06)] transition-colors hover:border-[#9db1bf] hover:bg-white"
+          <DesignButton
+            className="group flex min-h-[76px] w-full items-center justify-center rounded-2xl border border-dashed border-border-subtle bg-white/72 px-4 py-3 text-primary shadow-[var(--surface-shadow-interactive)] transition-colors hover:border-border-subtle hover:bg-white"
             disabled={busyKey !== null}
             onClick={() => void state.actions.addAlternateAccount()}
             type="button"
           >
             <span className="flex flex-col items-center gap-1.5">
-              <span className="text-xs font-semibold text-[#6e7780]">
+              <span className="text-xs font-semibold text-content-muted">
                 {copy.accountSwitcherAddHint}
               </span>
-              <span className="flex size-9 items-center justify-center rounded-full bg-[#e6edf2] text-[#486782] transition-colors group-hover:bg-[#dce8ef]">
+              <span className="flex size-9 items-center justify-center rounded-full bg-surface-inset text-primary transition-colors group-hover:bg-surface-inset">
                 {busyKey === "account-switcher-add" ? (
                   <LoaderCircle className="size-4 animate-spin" />
                 ) : (
@@ -72,16 +71,16 @@ export function DashboardAccountSwitcherSection({
                 )}
               </span>
             </span>
-          </button>
+          </DesignButton>
         )}
 
         {state.hasSavedCurrentAccount ? (
           <div className="mt-2 flex justify-center">
             <Button
               aria-label={copy.accountSwitcherClear}
-              className="h-8 rounded-full px-3 text-[#7b8790] hover:bg-[#edf1f3]"
               disabled={busyKey !== null}
               onClick={() => setConfirmAction("clear")}
+              size="compact"
               variant="ghost"
             >
               <Trash2 className="size-3.5" />
@@ -130,7 +129,9 @@ function SavedAccountSwitchRow({
   onRemove: () => void;
   onSwitch: () => void;
 }) {
-  const roleLabel = account.role ? getAccountSwitcherRoleLabel(copy, account.role) : null;
+  const roleLabel = account.role
+    ? getAccountSwitcherRoleLabel(copy, account.role)
+    : null;
   const actionBusyKey = needsReauthentication
     ? "account-switcher-reauthenticate"
     : "account-switcher-switch";
@@ -138,28 +139,31 @@ function SavedAccountSwitchRow({
   return (
     <article
       className={cn(
-        "flex min-h-[88px] items-center justify-between gap-3 rounded-2xl border bg-white/78 px-4 py-3 shadow-[0_12px_28px_rgba(96,113,128,0.06)] sm:px-5",
-        needsReauthentication ? "border-[#ead7c6]" : "border-[#dce3e7]",
+        "flex min-h-[88px] items-center justify-between gap-3 rounded-2xl border bg-white/78 px-4 py-3 shadow-[var(--surface-shadow-interactive)] sm:px-5",
+        needsReauthentication ? "border-border-subtle" : "border-border-subtle",
       )}
     >
       <div className="flex min-w-0 items-center gap-3">
-        <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#e6edf2] text-[#486782]">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-surface-inset text-primary">
           <UserRound className="size-5" />
         </div>
         <div className="min-w-0">
           {roleLabel ? (
-            <p className="text-xs font-semibold text-[#6f7f8a]">{roleLabel}</p>
+            <p className="text-xs font-semibold text-content-muted">
+              {roleLabel}
+            </p>
           ) : null}
-          <p className="mt-0.5 truncate text-base font-semibold text-[#24313a]">
+          <p className="mt-0.5 truncate text-base font-semibold text-content-muted">
             {account.displayName}
           </p>
-          <p className="truncate text-sm text-[#6e7780]">{account.email}</p>
+          <p className="truncate text-sm text-content-muted">{account.email}</p>
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
         <Button
-          className="h-10 rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79]"
+          variant="primary"
+          size="compact"
           disabled={busyKey !== null}
           onClick={onSwitch}
         >
@@ -173,8 +177,9 @@ function SavedAccountSwitchRow({
             : copy.accountSwitcherSwitch}
         </Button>
         <Button
+          size="default"
           aria-label={copy.accountSwitcherRemove}
-          className="size-10 rounded-full border-[#d4d8dc] bg-white p-0 text-[#7b8790] hover:bg-[#f2f4f6]"
+          className="size-10 text-content-muted"
           disabled={busyKey !== null}
           onClick={onRemove}
           variant="outline"

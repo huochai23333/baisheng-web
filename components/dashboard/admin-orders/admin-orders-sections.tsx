@@ -6,7 +6,10 @@ import { useTranslations } from "next-intl";
 import { ClipboardList, Plus } from "lucide-react";
 
 import { useLocale } from "@/components/i18n/locale-provider";
-import { type AdminOrderRow, type AdminOrdersFilters } from "@/lib/admin-orders";
+import {
+  type AdminOrderRow,
+  type AdminOrdersFilters,
+} from "@/lib/admin-orders";
 import { type OrderDatePreset } from "@/lib/order-date-range";
 
 import { Button } from "../../ui/button";
@@ -69,7 +72,10 @@ type OrdersTableSectionProps = {
   onOrderingUserChange: (value: string) => void;
   onSearchExactOrderAllTime: () => void;
   onSelectOrder: (order: AdminOrderRow) => void;
-  orderTypeMetaById: Map<string, ReturnType<typeof getOrderTypeMetaFromCategory>>;
+  orderTypeMetaById: Map<
+    string,
+    ReturnType<typeof getOrderTypeMetaFromCategory>
+  >;
   pagination: OrdersPaginationState;
   rows: AdminOrderRow[];
   showCreatedAtColumn: boolean;
@@ -101,7 +107,8 @@ export const OrdersHeaderSection = memo(function OrdersHeaderSection({
       actions={
         canCreateOrders ? (
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             disabled={!canOpenCreateDialog}
             onClick={onCreate}
             type="button"
@@ -113,7 +120,7 @@ export const OrdersHeaderSection = memo(function OrdersHeaderSection({
       }
       asideFooter={
         noCreateTargetHint && !canOpenCreateDialog ? (
-          <p className="text-sm text-[#69747d]">{noCreateTargetHint}</p>
+          <p className="text-sm text-content-muted">{noCreateTargetHint}</p>
         ) : null
       }
       badge={badge}
@@ -203,14 +210,17 @@ export const OrdersTableSection = memo(function OrdersTableSection({
         title={frameworkT("list.title")}
       >
         <div className="mb-5 grid gap-2 text-sm sm:grid-cols-3">
-          <p className="rounded-xl bg-[#f7f5f2] px-3 py-2 text-[#69747d]">
-            {t("summary.total")}: <strong className="text-[#2b3942]">{summary.total}</strong>
+          <p className="rounded-xl bg-surface-inset px-3 py-2 text-content-muted">
+            {t("summary.total")}:{" "}
+            <strong className="text-content-strong">{summary.total}</strong>
           </p>
-          <p className="rounded-xl bg-[#f7f5f2] px-3 py-2 text-[#69747d]">
-            {t("summary.pending")}: <strong className="text-[#2b3942]">{summary.pending}</strong>
+          <p className="rounded-xl bg-surface-inset px-3 py-2 text-content-muted">
+            {t("summary.pending")}:{" "}
+            <strong className="text-content-strong">{summary.pending}</strong>
           </p>
-          <p className="rounded-xl bg-[#f7f5f2] px-3 py-2 text-[#69747d]">
-            {t("summary.completed")}: <strong className="text-[#2b3942]">{summary.completed}</strong>
+          <p className="rounded-xl bg-surface-inset px-3 py-2 text-content-muted">
+            {t("summary.completed")}:{" "}
+            <strong className="text-content-strong">{summary.completed}</strong>
           </p>
         </div>
 
@@ -223,14 +233,18 @@ export const OrdersTableSection = memo(function OrdersTableSection({
         ) : (
           <DashboardTableFrame>
             <table className="min-w-[1120px] w-full table-fixed border-collapse">
-              <thead className="bg-[#f7f5f2]">
-                <tr className="border-b border-[#efebe5]">
+              <thead className="bg-surface-inset">
+                <tr className="border-b border-border-subtle">
                   <OrderHeaderCell>{t("table.orderNumber")}</OrderHeaderCell>
                   <OrderHeaderCell>{t("table.rmbAmount")}</OrderHeaderCell>
                   <OrderHeaderCell>{t("table.serviceFee")}</OrderHeaderCell>
-                  {canViewOrderCosts ? <OrderHeaderCell>{t("table.costAmount")}</OrderHeaderCell> : null}
+                  {canViewOrderCosts ? (
+                    <OrderHeaderCell>{t("table.costAmount")}</OrderHeaderCell>
+                  ) : null}
                   {showOrderEntryColumn ? (
-                    <OrderHeaderCell>{t("table.orderEntryUser")}</OrderHeaderCell>
+                    <OrderHeaderCell>
+                      {t("table.orderEntryUser")}
+                    </OrderHeaderCell>
                   ) : null}
                   {showOrderingColumn ? (
                     <OrderHeaderCell>{t("table.orderingUser")}</OrderHeaderCell>
@@ -246,7 +260,7 @@ export const OrdersTableSection = memo(function OrdersTableSection({
                 {rows.map((order) => (
                   <tr
                     key={order.order_number}
-                    className="cursor-pointer border-b border-[#efebe5] transition-colors hover:bg-[#fcfbf8] last:border-b-0"
+                    className="cursor-pointer border-b border-border-subtle transition-colors hover:bg-surface-inset last:border-b-0"
                     onClick={() => onSelectOrder(order)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
@@ -257,22 +271,36 @@ export const OrdersTableSection = memo(function OrdersTableSection({
                     tabIndex={0}
                   >
                     <OrderValueCell strong value={order.order_number} />
-                    <OrderValueCell value={formatMoneyValue(order.rmb_amount, locale)} />
-                    <OrderValueCell value={formatMoneyValue(order.service_fee_amount, locale)} />
+                    <OrderValueCell
+                      value={formatMoneyValue(order.rmb_amount, locale)}
+                    />
+                    <OrderValueCell
+                      value={formatMoneyValue(order.service_fee_amount, locale)}
+                    />
                     {canViewOrderCosts ? (
-                      <OrderValueCell value={formatMoneyValue(order.cost_amount, locale)} />
+                      <OrderValueCell
+                        value={formatMoneyValue(order.cost_amount, locale)}
+                      />
                     ) : null}
                     {showOrderEntryColumn ? (
                       <OrderValueCell
-                        value={resolveOrderUserLabel(order.order_entry_user, userLabelById)}
+                        value={resolveOrderUserLabel(
+                          order.order_entry_user,
+                          userLabelById,
+                        )}
                       />
                     ) : null}
                     {showOrderingColumn ? (
                       <OrderValueCell
-                        value={resolveOrderUserLabel(order.ordering_user, userLabelById)}
+                        value={resolveOrderUserLabel(
+                          order.ordering_user,
+                          userLabelById,
+                        )}
                       />
                     ) : null}
-                    <OrderValueCell value={<OrderStatusChip status={order.order_status} />} />
+                    <OrderValueCell
+                      value={<OrderStatusChip status={order.order_status} />}
+                    />
                     <OrderValueCell
                       value={
                         <OrderTypeChip
@@ -285,7 +313,9 @@ export const OrdersTableSection = memo(function OrdersTableSection({
                       }
                     />
                     {showCreatedAtColumn ? (
-                      <OrderValueCell value={formatDateTime(order.created_at, locale)} />
+                      <OrderValueCell
+                        value={formatDateTime(order.created_at, locale)}
+                      />
                     ) : null}
                   </tr>
                 ))}

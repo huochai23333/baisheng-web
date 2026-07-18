@@ -1,6 +1,5 @@
 import { DEFAULT_LOCALE, type Locale } from "@/lib/locale";
 import type { UserMediaAssetWithPreview } from "@/lib/user-self-service";
-import { cn } from "@/lib/utils";
 import {
   normalizeOptionalString,
   normalizeSearchText,
@@ -34,15 +33,10 @@ export function getStatusLabel(
   return copy.mediaStatus.videosEmpty;
 }
 
-export function statusBadgeClass(status: ReviewStatus) {
-  return cn(
-    "inline-flex min-h-8 items-center rounded-full px-3 py-1 text-center text-xs font-semibold leading-5",
-    status === "approved"
-      ? "bg-[#e8f4ec] text-[#4c7259]"
-      : status === "pending"
-        ? "bg-[#fff5db] text-[#9a6a07]"
-        : "bg-[#eef3f6] text-[#486782]",
-  );
+export function getReviewStatusTone(status: ReviewStatus) {
+  if (status === "approved") return "success" as const;
+  if (status === "pending") return "warning" as const;
+  return "info" as const;
 }
 
 export function mapUserStatus(

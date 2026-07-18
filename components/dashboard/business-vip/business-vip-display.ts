@@ -6,7 +6,6 @@ import type {
   BusinessVipStatus,
 } from "@/lib/business-vip-management";
 import type { Locale } from "@/lib/locale";
-import { cn } from "@/lib/utils";
 
 export type BusinessVipStatusFilter = BusinessVipStatus | "all";
 
@@ -229,23 +228,15 @@ export function getBusinessVipDateTimeInputValue(
   return localDate.toISOString().slice(0, 16);
 }
 
-export function getBusinessVipStatusChipClass(status: BusinessVipStatus) {
-  return cn(
-    "inline-flex min-h-8 items-center rounded-full px-3 py-1 text-center text-xs font-semibold leading-5",
-    status === "active" && "bg-[#e8f4ec] text-[#4c7259]",
-    status === "expired" && "bg-[#fff5db] text-[#9a6a07]",
-    status === "cancelled" && "bg-[#fbe6e6] text-[#b13d3d]",
-    status === "none" && "bg-[#eef3f6] text-[#486782]",
-  );
+export function getBusinessVipStatusTone(status: BusinessVipStatus) {
+  if (status === "active") return "success" as const;
+  if (status === "expired") return "warning" as const;
+  if (status === "cancelled") return "danger" as const;
+  return "info" as const;
 }
 
-export function getBusinessVipRequestChipClass(status: string) {
-  return cn(
-    "inline-flex min-h-7 items-center rounded-full px-2.5 py-1 text-xs font-semibold leading-5",
-    status === "approved" && "bg-[#e8f4ec] text-[#4c7259]",
-    status === "rejected" && "bg-[#fbe6e6] text-[#b13d3d]",
-    status !== "approved" &&
-      status !== "rejected" &&
-      "bg-[#fff5db] text-[#9a6a07]",
-  );
+export function getBusinessVipRequestTone(status: string) {
+  if (status === "approved") return "success" as const;
+  if (status === "rejected") return "danger" as const;
+  return "warning" as const;
 }

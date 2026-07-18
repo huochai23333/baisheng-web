@@ -158,13 +158,15 @@ function GreetingWidgetContent({
   return (
     <div className="flex h-full min-h-0 flex-col justify-between">
       <div>
-        <span className="inline-flex max-w-full items-center gap-2 rounded-full bg-[#dff0e4] px-3 py-1 text-xs font-semibold text-[#487155]">
+        <span className="inline-flex max-w-full items-center gap-2 rounded-full bg-surface-inset px-3 py-1 text-xs font-semibold text-status-success">
           <Bell className="size-3.5 shrink-0" />
-          <span className="truncate">{copy.greeting.greeting[greetingPeriod]}</span>
+          <span className="truncate">
+            {copy.greeting.greeting[greetingPeriod]}
+          </span>
         </span>
         <h2
           className={cn(
-            "mt-4 break-words font-bold tracking-tight text-[#1f2a32]",
+            "mt-4 break-words font-bold tracking-tight text-content-strong",
             compact ? "text-xl" : "text-3xl sm:text-4xl",
           )}
         >
@@ -172,7 +174,7 @@ function GreetingWidgetContent({
         </h2>
       </div>
       {!compact ? (
-        <p className="mt-4 max-w-2xl break-words text-sm leading-7 text-[#66727d]">
+        <p className="mt-4 max-w-2xl break-words text-sm leading-7 text-content-muted">
           {copy.greeting.subtitle}
         </p>
       ) : null}
@@ -208,15 +210,15 @@ function AnnouncementsWidgetContent({
     <div className="flex h-full min-h-0 flex-col">
       <WidgetHeading
         description={copy.announcements.sectionDescription}
-        icon={<Megaphone className="size-5 text-[#486782]" />}
+        icon={<Megaphone className="size-5 text-primary" />}
         title={copy.announcements.sectionTitle}
       />
       {announcements.length === 0 ? (
-        <div className="mt-5 rounded-[22px] border border-[#e2e7eb] bg-[#fbfaf8] p-5">
-          <h4 className="text-base font-semibold text-[#23313a]">
+        <div className="mt-5 rounded-[22px] border border-border-subtle bg-surface-inset p-5">
+          <h4 className="text-base font-semibold text-content-strong">
             {copy.announcements.emptyTitle}
           </h4>
-          <p className="mt-2 break-words text-sm leading-7 text-[#69747d]">
+          <p className="mt-2 break-words text-sm leading-7 text-content-muted">
             {copy.announcements.emptyDescription}
           </p>
         </div>
@@ -224,18 +226,18 @@ function AnnouncementsWidgetContent({
         <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
           {announcements.map((announcement) => (
             <article
-              className="rounded-[22px] border border-[#e2e7eb] bg-[#fbfaf8] p-4"
+              className="rounded-[22px] border border-border-subtle bg-surface-inset p-4"
               key={announcement.id}
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <h4 className="break-words text-base font-semibold text-[#23313a]">
+                <h4 className="break-words text-base font-semibold text-content-strong">
                   {announcement.title}
                 </h4>
-                <time className="shrink-0 text-xs font-medium text-[#7b858d]">
+                <time className="shrink-0 text-xs font-medium text-content-muted">
                   {formatHomeAnnouncementDate(announcement, locale)}
                 </time>
               </div>
-              <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-[#53616d]">
+              <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-content-muted">
                 {announcement.content}
               </p>
             </article>
@@ -295,17 +297,17 @@ function CompactSummary({
 }) {
   return (
     <div className="flex h-full min-h-0 flex-col justify-between gap-4">
-      <div className="flex items-center gap-2 text-[#486782]">
+      <div className="flex items-center gap-2 text-primary">
         {icon}
-        <span className="min-w-0 truncate text-sm font-semibold text-[#23313a]">
+        <span className="min-w-0 truncate text-sm font-semibold text-content-strong">
           {title}
         </span>
       </div>
       <div>
-        <p className="break-words text-[clamp(1rem,4vw,1.5rem)] font-bold leading-tight text-[#23313a]">
+        <p className="break-words text-[clamp(1rem,4vw,1.5rem)] font-bold leading-tight text-content-strong">
           {metric}
         </p>
-        <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-[#66727d]">
+        <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-content-muted">
           {description}
         </p>
       </div>
@@ -324,11 +326,11 @@ function WidgetHeading({
 }) {
   return (
     <div className="min-w-0">
-      <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-[#23313a]">
+      <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-content-strong">
         {icon}
         <span className="min-w-0 break-words">{title}</span>
       </h3>
-      <p className="mt-2 break-words text-sm leading-7 text-[#69747d]">
+      <p className="mt-2 break-words text-sm leading-7 text-content-muted">
         {description}
       </p>
     </div>

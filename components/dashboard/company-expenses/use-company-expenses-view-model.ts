@@ -19,7 +19,7 @@ import {
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { normalizeSearchText } from "@/lib/value-normalizers";
 
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "../workspace-session-provider";
 import {
   createCompanyExpenseFormFromRow,
@@ -30,7 +30,7 @@ import {
   type CompanyExpenseFormState,
 } from "./company-expenses-display";
 
-type Feedback = { tone: NoticeTone; message: string } | null;
+type Feedback = { tone: FeedbackTone; message: string } | null;
 type PendingAction = { id: string; type: "delete" } | null;
 
 type CompanyExpensesViewModelCopy = {

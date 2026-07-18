@@ -16,16 +16,13 @@ export function CompanyExpensesHeaderSection({
   return (
     <DashboardSectionHeader
       actions={
-        <Button
-          className="h-12 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-          onClick={onCreate}
-        >
+        <Button variant="primary" size="default" onClick={onCreate}>
           <Plus className="size-4" />
           {copy.create}
         </Button>
       }
       badge={copy.title}
-      badgeClassName="bg-[#e8f0f5] text-[#486782]"
+      badgeClassName="bg-surface-inset text-primary"
       badgeIcon={<ReceiptText className="size-3.5" />}
       description={copy.description}
       descriptionClassName="max-w-2xl text-sm leading-7"

@@ -141,7 +141,7 @@ export function WholesaleCustomersSection({
           <div className="flex flex-wrap items-center justify-end gap-2">
             {canAddRegisteredCustomer ? (
               <Button
-                className="h-11 rounded-full border border-[#cbd7df] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
+                size="default"
                 onClick={() => setBusinessAddDialogOpen(true)}
                 type="button"
                 variant="outline"
@@ -152,7 +152,8 @@ export function WholesaleCustomersSection({
             ) : null}
             {canEdit ? (
               <Button
-                className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+                variant="primary"
+                size="default"
                 onClick={() => setCreateDialogOpen(true)}
                 type="button"
               >

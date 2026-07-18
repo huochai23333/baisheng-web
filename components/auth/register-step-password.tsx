@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { Checkbox } from "@/components/ui/form-controls";
 import { PRIVACY_POLICY_PATH, TERMS_OF_SERVICE_PATH } from "@/lib/legal-routes";
 
 import { AuthPasswordField } from "./auth-password-field";
@@ -47,29 +47,24 @@ export function RegisterStepPassword({
         value={password}
       />
 
-      <label className="flex items-start gap-3 pt-1 text-sm leading-6 text-[#6d767c]">
-        <span className="relative mt-0.5 flex size-5 shrink-0 items-center justify-center">
-          <input
-            checked={acceptedTerms}
-            className="peer absolute inset-0 z-10 size-5 cursor-pointer opacity-0"
-            name="terms"
-            onChange={(event) => onAcceptedTermsChange(event.target.checked)}
-            type="checkbox"
-          />
-          <span className="pointer-events-none absolute inset-0 rounded-md border border-[#c7cbd0] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition-colors peer-checked:border-[#486782] peer-checked:bg-[#486782]" />
-          <Check className="pointer-events-none relative size-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100" />
-        </span>
+      <label className="flex items-start gap-3 pt-1 text-sm leading-6 text-content-muted">
+        <Checkbox
+          checked={acceptedTerms}
+          className="mt-1 size-5"
+          name="terms"
+          onChange={(event) => onAcceptedTermsChange(event.target.checked)}
+        />
         <span>
           {t("termsPrefix")}{" "}
           <Link
-            className="font-medium text-[#486782] transition-colors hover:text-[#36536a]"
+            className="font-medium text-primary transition-colors hover:text-brand-hover"
             href={TERMS_OF_SERVICE_PATH}
           >
             {t("terms")}
           </Link>{" "}
           {t("and")}{" "}
           <Link
-            className="font-medium text-[#486782] transition-colors hover:text-[#36536a]"
+            className="font-medium text-primary transition-colors hover:text-brand-hover"
             href={PRIVACY_POLICY_PATH}
           >
             {t("privacy")}

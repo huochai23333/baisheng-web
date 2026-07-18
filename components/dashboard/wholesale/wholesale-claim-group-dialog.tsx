@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { X } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -164,31 +166,31 @@ function WholesaleClaimGroupDialogForm({
         if (succeeded) onOpenChange(false);
       }}
     >
-      <div className="rounded-[18px] bg-[#f6f8f9] px-4 py-3 text-sm leading-6 text-[#61717e]">
+      <div className="rounded-[18px] bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
         {uiText("selectionSummary", {
           count: purchaseOrderIds.length,
         })}
       </div>
 
       <div className="grid min-w-0 gap-2">
-        <span className="text-sm font-medium text-[#40515c]">
+        <span className="text-sm font-medium text-content-muted">
           {uiText("purchaseOrdersLabel")}
         </span>
-        <div className="flex max-h-40 min-w-0 flex-wrap gap-2 overflow-y-auto rounded-[18px] border border-[#dfe5ea] bg-white p-3">
+        <div className="flex max-h-40 min-w-0 flex-wrap gap-2 overflow-y-auto rounded-[18px] border border-border bg-white p-3">
           {initialPurchaseOrders
             .filter((purchaseOrder) =>
               purchaseOrderIds.includes(purchaseOrder.id),
             )
             .map((purchaseOrder) => (
               <span
-                className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full bg-[#edf3f6] px-3 py-1.5 text-xs font-semibold text-[#486782]"
+                className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-full bg-status-info-soft px-3 py-1.5 text-xs font-semibold text-primary"
                 key={purchaseOrder.id}
               >
                 <span className="min-w-0 break-words [overflow-wrap:anywhere]">
                   {purchaseOrder.external_order_number}
                 </span>
                 {target.kind === "edit" && purchaseOrderIds.length > 1 ? (
-                  <button
+                  <DesignButton
                     aria-label={uiText("removePurchaseOrder", {
                       orderNumber: purchaseOrder.external_order_number,
                     })}
@@ -201,7 +203,7 @@ function WholesaleClaimGroupDialogForm({
                     type="button"
                   >
                     <X className="size-3.5" />
-                  </button>
+                  </DesignButton>
                 ) : null}
               </span>
             ))}
@@ -229,7 +231,7 @@ function WholesaleClaimGroupDialogForm({
       />
 
       {target.kind === "edit" && confirmingCancel ? (
-        <div className="rounded-[18px] border border-[#efcaca] bg-[#fff4f4] p-4 text-sm leading-6 text-[#8f3030]">
+        <div className="rounded-[18px] border border-border-subtle bg-surface-inset p-4 text-sm leading-6 text-content-muted">
           <p>{uiText("cancelWarning")}</p>
           <div className="mt-3 flex flex-wrap justify-end gap-2">
             <Button
@@ -242,7 +244,8 @@ function WholesaleClaimGroupDialogForm({
               {uiText("keepGroup")}
             </Button>
             <Button
-              className="rounded-full bg-[#b13d3d] text-white hover:bg-[#962f2f]"
+              variant="danger"
+              size="default"
               disabled={pending}
               onClick={async () => {
                 const succeeded = await onCancelGroup(
@@ -261,9 +264,9 @@ function WholesaleClaimGroupDialogForm({
       <div className="flex flex-wrap justify-between gap-3">
         {target.kind === "edit" && !confirmingCancel ? (
           <Button
-            className="rounded-full border-[#efcaca] text-[#a83b3b] hover:bg-[#fff1f1]"
             disabled={pending}
             onClick={() => setConfirmingCancel(true)}
+            size="default"
             type="button"
             variant="outline"
           >
@@ -273,11 +276,11 @@ function WholesaleClaimGroupDialogForm({
           <span />
         )}
         <Button
-          className="min-h-11 whitespace-normal rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79] disabled:opacity-60"
+          variant="primary"
+          size="default"
+          className="min-h-11 whitespace-normal disabled:opacity-60"
           disabled={
-            pending ||
-            purchaseOrderIds.length === 0 ||
-            !claimTarget.canSubmit
+            pending || purchaseOrderIds.length === 0 || !claimTarget.canSubmit
           }
           type="submit"
         >

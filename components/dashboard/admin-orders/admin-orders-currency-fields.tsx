@@ -1,15 +1,15 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+import { Select } from "@/components/ui/select";
+
 import { useTranslations } from "next-intl";
 
 import {
   type OrderCurrencyOption,
   type OrderFormState,
 } from "./admin-orders-utils";
-import {
-  fieldInputClassName,
-  OrderField,
-} from "./admin-orders-dialog-ui";
+import { fieldInputClassName, OrderField } from "./admin-orders-dialog-ui";
 
 export function OrderCurrencyRateFields({
   currencyOptions,
@@ -37,7 +37,7 @@ export function OrderCurrencyRateFields({
     <>
       <OrderField label={t("fields.originalCurrency")} required>
         {lockCurrencyField ? (
-          <input
+          <FormControls.Input
             className={fieldInputClassName}
             disabled
             readOnly
@@ -45,33 +45,34 @@ export function OrderCurrencyRateFields({
             value={formState.originalCurrency}
           />
         ) : (
-          <select
-            className={fieldInputClassName}
+          <Select
             disabled={isFormBusy}
-            onChange={(event) => onFieldChange("originalCurrency", event.target.value)}
+            onValueChange={(value) => onFieldChange("originalCurrency", value)}
+            options={[
+              { label: t("select.originalCurrency"), value: "" },
+              ...currencyOptions.map((option) => ({
+                label: option.currency,
+                value: option.currency,
+              })),
+            ]}
             value={formState.originalCurrency}
-          >
-            <option value="">{t("select.originalCurrency")}</option>
-            {currencyOptions.map((option) => (
-              <option key={option.currency} value={option.currency}>
-                {option.currency}
-              </option>
-            ))}
-          </select>
+          />
         )}
         {lockCurrencyField ? (
-          <p className="mt-2 text-xs text-[#7b8790]">
+          <p className="mt-2 text-xs text-content-muted">
             {t("hints.lockedCurrencyAndRates")}
           </p>
         ) : null}
       </OrderField>
 
       <OrderField label={t("fields.dailyExchangeRate")} required>
-        <input
+        <FormControls.Input
           className={fieldInputClassName}
           disabled={isFormBusy || lockExchangeRateFields}
           min="0"
-          onChange={(event) => onFieldChange("dailyExchangeRate", event.target.value)}
+          onChange={(event) =>
+            onFieldChange("dailyExchangeRate", event.target.value)
+          }
           placeholder={t("placeholders.dailyExchangeRate")}
           readOnly={lockExchangeRateFields}
           step="0.0001"
@@ -79,7 +80,7 @@ export function OrderCurrencyRateFields({
           value={formState.dailyExchangeRate}
         />
         {lockExchangeRateFields ? (
-          <p className="mt-2 text-xs text-[#7b8790]">
+          <p className="mt-2 text-xs text-content-muted">
             {t(
               mode === "create"
                 ? "hints.autoDailyExchangeRate"
@@ -90,7 +91,7 @@ export function OrderCurrencyRateFields({
       </OrderField>
 
       <OrderField label={t("fields.transactionRate")} required>
-        <input
+        <FormControls.Input
           className={fieldInputClassName}
           disabled={isFormBusy || lockExchangeRateFields}
           min="0"
@@ -100,7 +101,9 @@ export function OrderCurrencyRateFields({
           type="number"
           value={formState.transactionRate}
         />
-        <p className="mt-2 text-xs text-[#7b8790]">{t("hints.transactionRate")}</p>
+        <p className="mt-2 text-xs text-content-muted">
+          {t("hints.transactionRate")}
+        </p>
       </OrderField>
     </>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import Link from "next/link";
@@ -30,7 +32,7 @@ import { MOTION_DURATION, MOTION_EASING } from "@/lib/motion-tokens";
 import type { WorkspaceAnnouncementsState } from "@/lib/workspace-announcements";
 
 import { DashboardDialog } from "./dashboard-dialog";
-import { PageBanner } from "./dashboard-shared-ui";
+import { FeedbackNotice } from "./dashboard-shared-ui";
 import { WorkspaceFeedbackButton } from "./workspace-feedback/workspace-feedback-button";
 import { useWorkspaceHeaderAnnouncements } from "./use-workspace-header-announcements";
 
@@ -75,7 +77,7 @@ export function WorkspaceHeaderActions({
         label: t("accountMenu.personalCenter"),
       },
       {
-        href: `${myHref}#account-center`,
+        href: `${myHref}var(--chart-1)ount-center`,
         icon: Settings,
         label: t("accountMenu.accountCenter"),
       },
@@ -85,7 +87,7 @@ export function WorkspaceHeaderActions({
         label: t("accountMenu.profileInfo"),
       },
       {
-        href: `${myHref}#account-verification`,
+        href: `${myHref}var(--chart-1)ount-verification`,
         icon: ShieldCheck,
         label: t("accountMenu.accountVerification"),
       },
@@ -134,9 +136,9 @@ export function WorkspaceHeaderActions({
 
   return (
     <>
-      <button
+      <DesignButton
         aria-label={t("announcements.open")}
-        className="relative flex h-9 w-9 items-center justify-center rounded-full text-[#486782] transition-colors hover:bg-white sm:h-10 sm:w-10"
+        className="relative flex h-9 w-9 items-center justify-center rounded-full text-primary transition-colors hover:bg-white sm:h-10 sm:w-10"
         disabled={announcements.loading}
         onClick={announcements.openRecentAnnouncements}
         type="button"
@@ -147,100 +149,100 @@ export function WorkspaceHeaderActions({
           <Bell className="size-[18px]" />
         )}
         {announcements.unreadCount > 0 ? (
-          <span className="absolute right-1 top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#c43d3d] px-1 text-[10px] font-semibold leading-none text-white">
+          <span className="absolute right-1 top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-surface-inset px-1 text-[10px] font-semibold leading-none text-white">
             {announcements.unreadCount > 9 ? "9+" : announcements.unreadCount}
           </span>
         ) : null}
-      </button>
+      </DesignButton>
       <WorkspaceFeedbackButton />
 
       <div className="relative" ref={menuRef}>
-        <button
+        <DesignButton
           aria-expanded={accountMenuOpen}
           aria-label={t("accountMenu.open")}
-          className="inline-flex items-center gap-3 rounded-full bg-[#f1efeb] p-1.5 transition-colors hover:bg-[#e8e5e0] sm:pr-3"
+          className="inline-flex items-center gap-3 rounded-full bg-surface-inset p-1.5 transition-colors hover:bg-surface-inset sm:pr-3"
           data-testid="workspace-account-menu-trigger"
           onClick={() => {
             setAccountMenuOpen((current) => !current);
           }}
           type="button"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#5b7890] text-xs font-semibold text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-inset text-xs font-semibold text-white">
             {initials}
           </div>
-          <span className="hidden text-sm font-medium text-[#486782] sm:inline">
+          <span className="hidden text-sm font-medium text-primary sm:inline">
             {accountLabel}
           </span>
           <ChevronDown
-            className={`hidden size-4 text-[#6b7b87] transition-transform duration-200 sm:block ${
+            className={`hidden size-4 text-content-muted transition-transform duration-200 sm:block ${
               accountMenuOpen ? "rotate-180" : "rotate-0"
             }`}
           />
-        </button>
+        </DesignButton>
 
         <AnimatePresence>
           {accountMenuOpen ? (
-          <motion.div
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[240px] origin-top-right overflow-hidden rounded-[22px] border border-[#e5e1da] bg-white shadow-[0_24px_52px_rgba(72,86,98,0.18)]"
-            data-testid="workspace-account-menu"
-            exit={{ opacity: 0, scale: 0.985, y: -6 }}
-            initial={{ opacity: 0, scale: 0.985, y: -6 }}
-            transition={{
-              duration: MOTION_DURATION.standard,
-              ease: MOTION_EASING.enter,
-            }}
-          >
-            <div className="border-b border-[#eee9e1] px-4 py-3">
-              <p className="truncate text-sm font-semibold text-[#2d3a44]">
-                {accountLabel}
-              </p>
-            </div>
+            <motion.div
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[240px] origin-top-right overflow-hidden rounded-[22px] border border-border-subtle bg-white shadow-[var(--surface-shadow-interactive)]"
+              data-testid="workspace-account-menu"
+              exit={{ opacity: 0, scale: 0.985, y: -6 }}
+              initial={{ opacity: 0, scale: 0.985, y: -6 }}
+              transition={{
+                duration: MOTION_DURATION.standard,
+                ease: MOTION_EASING.enter,
+              }}
+            >
+              <div className="border-b border-border-subtle px-4 py-3">
+                <p className="truncate text-sm font-semibold text-content-muted">
+                  {accountLabel}
+                </p>
+              </div>
 
-            <div className="p-2">
-              {accountMenuItems.map((item) => {
-                const Icon = item.icon;
+              <div className="p-2">
+                {accountMenuItems.map((item) => {
+                  const Icon = item.icon;
 
-                // 账号菜单不是高频跳转入口，点击时读取最新页面，
-                // 可以避免浏览器长期保存包含旧登录状态的页面内容。
-                return (
-                  <Link
-                    className="flex items-center gap-3 rounded-[16px] px-3 py-2.5 text-sm font-medium text-[#405a70] transition-colors hover:bg-[#f3f5f6]"
-                    href={item.href}
-                    key={item.href}
-                    onClick={(event) => {
-                      setAccountMenuOpen(false);
+                  // 账号菜单不是高频跳转入口，点击时读取最新页面，
+                  // 可以避免浏览器长期保存包含旧登录状态的页面内容。
+                  return (
+                    <Link
+                      className="flex items-center gap-3 rounded-[16px] px-3 py-2.5 text-sm font-medium text-content-muted transition-colors hover:bg-surface-inset"
+                      href={item.href}
+                      key={item.href}
+                      onClick={(event) => {
+                        setAccountMenuOpen(false);
 
-                      if (shouldUseFullPageLoad()) {
-                        event.preventDefault();
-                        window.location.assign(item.href);
-                      }
-                    }}
-                    prefetch={false}
-                  >
-                    <Icon className="size-4 text-[#6e7f8d]" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
+                        if (shouldUseFullPageLoad()) {
+                          event.preventDefault();
+                          window.location.assign(item.href);
+                        }
+                      }}
+                      prefetch={false}
+                    >
+                      <Icon className="size-4 text-content-muted" />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
 
-            <div className="border-t border-[#eee9e1] p-2">
-              <button
-                className="flex w-full items-center gap-3 rounded-[16px] px-3 py-2.5 text-left text-sm font-semibold text-[#b13d3d] transition-colors hover:bg-[#fff4f4] disabled:cursor-not-allowed disabled:opacity-70"
-                disabled={logoutPending}
-                onClick={handleLogout}
-                type="button"
-              >
-                {logoutPending ? (
-                  <LoaderCircle className="size-4 animate-spin" />
-                ) : (
-                  <LogOut className="size-4" />
-                )}
-                {t("logout")}
-              </button>
-            </div>
-          </motion.div>
+              <div className="border-t border-border-subtle p-2">
+                <DesignButton
+                  className="flex w-full items-center gap-3 rounded-[16px] px-3 py-2.5 text-left text-sm font-semibold text-status-danger transition-colors hover:bg-surface-inset disabled:cursor-not-allowed disabled:opacity-70"
+                  disabled={logoutPending}
+                  onClick={handleLogout}
+                  type="button"
+                >
+                  {logoutPending ? (
+                    <LoaderCircle className="size-4 animate-spin" />
+                  ) : (
+                    <LogOut className="size-4" />
+                  )}
+                  {t("logout")}
+                </DesignButton>
+              </div>
+            </motion.div>
           ) : null}
         </AnimatePresence>
       </div>
@@ -249,7 +251,8 @@ export function WorkspaceHeaderActions({
         actions={
           announcements.unreadCount > 0 ? (
             <Button
-              className="h-10 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+              variant="primary"
+              size="compact"
               disabled={announcements.markingRead}
               onClick={() => void announcements.acknowledgeAnnouncements()}
             >
@@ -275,11 +278,11 @@ export function WorkspaceHeaderActions({
       >
         <MotionList className="space-y-4">
           {announcements.errorMessage ? (
-            <PageBanner tone="error">{announcements.errorMessage}</PageBanner>
+            <FeedbackNotice tone="error">{announcements.errorMessage}</FeedbackNotice>
           ) : null}
 
           {announcements.displayedAnnouncements.length === 0 ? (
-            <div className="rounded-[24px] border border-[#e7e3dc] bg-white p-6 text-sm leading-7 text-[#66727d]">
+            <div className="rounded-[24px] border border-border-subtle bg-white p-6 text-sm leading-7 text-content-muted">
               {t("announcements.empty")}
             </div>
           ) : (
@@ -308,16 +311,16 @@ function WorkspaceAnnouncementCard({
   const publishedAt = announcement.published_at ?? announcement.created_at;
 
   return (
-    <article className="rounded-[24px] border border-[#e2e7eb] bg-white p-5 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
+    <article className="rounded-[24px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <h4 className="text-lg font-semibold text-[#23313a]">
+        <h4 className="text-lg font-semibold text-content-strong">
           {announcement.title}
         </h4>
-        <time className="shrink-0 text-xs font-medium text-[#7b858d]">
+        <time className="shrink-0 text-xs font-medium text-content-muted">
           {formatWorkspaceAnnouncementDate(publishedAt, locale)}
         </time>
       </div>
-      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#53616d]">
+      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-content-muted">
         {announcement.content}
       </p>
     </article>

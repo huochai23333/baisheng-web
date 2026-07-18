@@ -2,11 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 
-import {
-  Copy,
-  KeyRound,
-  Link as LinkIcon,
-} from "lucide-react";
+import { Copy, KeyRound, Link as LinkIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { buildBoardInviteLink } from "@/lib/business-referrals";
@@ -95,11 +91,11 @@ export function HomeInviteSection({
         data-testid="home-invite-section"
       >
         <InviteHeading compact={compact} copy={copy} mini={mini} />
-        <div className="mt-4 rounded-[20px] border border-[#ead6d0] bg-[#fff7f4] p-4">
-          <h4 className="break-words text-sm font-semibold text-[#8a4b4b]">
+        <div className="mt-4 rounded-[20px] border border-border-subtle bg-surface-inset p-4">
+          <h4 className="break-words text-sm font-semibold text-content-muted">
             {copy.noCodeTitle}
           </h4>
-          <p className="mt-2 break-words text-sm leading-6 text-[#7b858d]">
+          <p className="mt-2 break-words text-sm leading-6 text-content-muted">
             {copy.noCodeDescription}
           </p>
         </div>
@@ -116,18 +112,18 @@ export function HomeInviteSection({
 
       <div
         className={cn(
-          "rounded-[22px] border border-[#e2e7eb] bg-[#fbfaf8]",
+          "rounded-[22px] border border-border-subtle bg-surface-inset",
           mini ? "mt-3 p-2" : compact ? "mt-4 p-3" : "mt-4 p-4",
         )}
       >
         {!mini ? (
-          <span className="text-xs font-semibold text-[#69747d]">
+          <span className="text-xs font-semibold text-content-muted">
             {copy.codeLabel}
           </span>
         ) : null}
         <p
           className={cn(
-            "break-all font-mono font-bold leading-tight text-[#23313a]",
+            "break-all font-mono font-bold leading-tight text-content-strong",
             mini ? "text-sm" : compact ? "mt-1 text-lg" : "mt-1 text-2xl",
           )}
           data-testid="home-invite-code"
@@ -147,7 +143,9 @@ export function HomeInviteSection({
           icon={<Copy className="size-4" />}
           iconOnly={mini}
           label={copy.copyCode}
-          onClick={() => void handleCopy(normalizedReferralCode, copy.copiedCode)}
+          onClick={() =>
+            void handleCopy(normalizedReferralCode, copy.copiedCode)
+          }
           testId="home-invite-copy-code"
         />
         {linkActions.map((action) => (
@@ -169,7 +167,7 @@ export function HomeInviteSection({
       </div>
 
       {!mini && isSalesStaffRole(role) && linkActions.length === 0 ? (
-        <p className="mt-3 break-words text-xs leading-5 text-[#7b858d]">
+        <p className="mt-3 break-words text-xs leading-5 text-content-muted">
           {copy.noLinkAccess}
         </p>
       ) : null}
@@ -180,7 +178,9 @@ export function HomeInviteSection({
           className={cn(
             "mt-3 break-words text-sm leading-6",
             mini && "line-clamp-1 text-xs leading-5",
-            notice.tone === "success" ? "text-[#487155]" : "text-[#9d3a35]",
+            notice.tone === "success"
+              ? "text-status-success"
+              : "text-content-muted",
           )}
           role="status"
         >
@@ -204,11 +204,11 @@ function InviteHeading({
     <div className="min-w-0">
       <h3
         className={cn(
-          "flex items-center gap-2 font-bold tracking-tight text-[#23313a]",
+          "flex items-center gap-2 font-bold tracking-tight text-content-strong",
           mini ? "text-base" : compact ? "text-lg" : "text-xl",
         )}
       >
-        <KeyRound className="size-5 shrink-0 text-[#486782]" />
+        <KeyRound className="size-5 shrink-0 text-primary" />
         <span className="min-w-0 break-words">
           {mini ? copy.codeLabel : copy.title}
         </span>
@@ -216,7 +216,7 @@ function InviteHeading({
       {!mini ? (
         <p
           className={cn(
-            "mt-2 break-words text-sm leading-7 text-[#69747d]",
+            "mt-2 break-words text-sm leading-7 text-content-muted",
             compact && "line-clamp-2 text-xs leading-6",
           )}
         >
@@ -245,13 +245,14 @@ function InviteActionButton({
   return (
     <Button
       className={cn(
-        "h-auto min-h-11 justify-start rounded-[16px] border-[#d4d8dc] bg-white px-3 py-2 text-[#486782] hover:bg-[#f2f4f6]",
-        iconOnly && "justify-center px-0",
+        "h-auto min-h-11 justify-start whitespace-normal py-2",
+        iconOnly && "justify-center",
       )}
       data-testid={testId}
       onClick={onClick}
       title={label}
       type="button"
+      size="compact"
       variant="outline"
     >
       {iconOnly && miniLabel ? (
@@ -305,10 +306,7 @@ function buildInviteLinkActions({
   ];
 }
 
-function buildInviteLinkValue(
-  action: InviteLinkAction,
-  referralCode: string,
-) {
+function buildInviteLinkValue(action: InviteLinkAction, referralCode: string) {
   if (typeof window === "undefined") {
     return "";
   }

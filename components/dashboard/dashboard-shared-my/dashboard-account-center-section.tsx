@@ -43,8 +43,12 @@ export function DashboardAccountCenterSection({
 
       <div className="mt-6 flex flex-wrap gap-3">
         <Button
-          className="h-11 max-w-full rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-          disabled={ui.busyKey !== null || account.passwordResetCooldownRemaining > 0}
+          variant="primary"
+          size="default"
+          className="max-w-full"
+          disabled={
+            ui.busyKey !== null || account.passwordResetCooldownRemaining > 0
+          }
           onClick={() => void account.sendPasswordReset()}
         >
           {ui.busyKey === "password" ? (
@@ -55,7 +59,7 @@ export function DashboardAccountCenterSection({
           <span className="min-w-0 truncate">{passwordResetButtonLabel}</span>
         </Button>
         <Button
-          className="h-11 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
+          size="default"
           onClick={() => void account.copyInviteCode()}
           variant="outline"
         >
@@ -63,16 +67,13 @@ export function DashboardAccountCenterSection({
           {copy.copyInviteCode}
         </Button>
         <Button
-          className="h-11 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
+          size="default"
           disabled={ui.busyKey !== null}
           onClick={onRefreshProfile}
           variant="outline"
         >
           <RefreshCw
-            className={cn(
-              "size-4",
-              ui.busyKey === "refresh" && "animate-spin",
-            )}
+            className={cn("size-4", ui.busyKey === "refresh" && "animate-spin")}
           />
           {copy.refreshProfile}
         </Button>

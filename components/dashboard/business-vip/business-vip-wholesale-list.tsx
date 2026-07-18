@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { BadgePlus, Clock3, FileClock, RotateCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -19,7 +21,10 @@ import {
 type WholesaleVipCustomerListProps = {
   canManage: boolean;
   locale: Locale;
-  onOpenAction: (row: BusinessVipRow, action: BusinessVipMembershipAction) => void;
+  onOpenAction: (
+    row: BusinessVipRow,
+    action: BusinessVipMembershipAction,
+  ) => void;
   onOpenRecords: (row: BusinessVipRow) => void;
   pendingActionKey: string | null;
   rows: BusinessVipRow[];
@@ -45,7 +50,7 @@ export function BusinessVipWholesaleCustomerList({
               <col className="w-[32%]" />
               <col className="w-[24%]" />
             </colgroup>
-            <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
+            <thead className="bg-surface-inset text-xs font-semibold text-content-muted">
               <tr>
                 <th className="px-4 py-3">{t("directory.columns.customer")}</th>
                 <th className="px-4 py-3">{t("directory.columns.status")}</th>
@@ -54,7 +59,7 @@ export function BusinessVipWholesaleCustomerList({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#eee9e1]">
+            <tbody className="divide-y divide-border-subtle">
               {rows.map((row) => (
                 <tr className="align-top" key={row.targetId}>
                   <td className="px-4 py-4">
@@ -86,7 +91,7 @@ export function BusinessVipWholesaleCustomerList({
       <div className="grid gap-3 lg:hidden">
         {rows.map((row) => (
           <article
-            className="rounded-[18px] border border-[#ebe7e1] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]"
+            className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]"
             key={row.targetId}
           >
             <div className="flex flex-col gap-3">
@@ -123,20 +128,20 @@ function WholesaleVipCustomerRecordButton({
   const t = useTranslations("BusinessVip");
 
   return (
-    <button
+    <DesignButton
       aria-label={t("actions.viewCustomerRecords", {
         name: row.customerLabel,
       })}
-      className="group block w-full min-w-0 rounded-[16px] p-2 text-left transition-colors hover:bg-[#f6f9fb] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#bfd2e1]/40"
+      className="group block w-full min-w-0 rounded-[16px] p-2 text-left transition-colors hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40"
       onClick={() => onOpenRecords(row)}
       type="button"
     >
       <BusinessVipCustomerCell row={row} />
-      <span className="mt-2 inline-flex min-h-7 items-center gap-1.5 rounded-full bg-[#eef3f6] px-2.5 text-xs font-semibold text-[#486782] transition-colors group-hover:bg-[#e2edf4]">
+      <span className="mt-2 inline-flex min-h-7 items-center gap-1.5 rounded-full bg-status-info-soft px-2.5 text-xs font-semibold text-primary transition-colors group-hover:bg-surface-inset">
         <FileClock className="size-3.5" />
         {t("actions.viewRecords")}
       </span>
-    </button>
+    </DesignButton>
   );
 }
 
@@ -147,7 +152,10 @@ function WholesaleVipActionButton({
   row,
 }: {
   canManage: boolean;
-  onOpenAction: (row: BusinessVipRow, action: BusinessVipMembershipAction) => void;
+  onOpenAction: (
+    row: BusinessVipRow,
+    action: BusinessVipMembershipAction,
+  ) => void;
   pendingActionKey: string | null;
   row: BusinessVipRow;
 }) {
@@ -158,7 +166,9 @@ function WholesaleVipActionButton({
 
   return (
     <Button
-      className="h-10 w-full rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79] disabled:bg-[#d9dee2] disabled:text-[#7c8790] sm:w-auto"
+      variant="primary"
+      size="compact"
+      className="w-full sm:w-auto"
       disabled={!canManage || Boolean(pendingActionKey)}
       onClick={() => onOpenAction(row, action)}
       type="button"
@@ -175,6 +185,8 @@ function WholesaleVipActionButton({
   );
 }
 
-function getWholesaleVipAction(row: BusinessVipRow): BusinessVipMembershipAction {
+function getWholesaleVipAction(
+  row: BusinessVipRow,
+): BusinessVipMembershipAction {
   return row.status === "active" || row.status === "expired" ? "renew" : "open";
 }

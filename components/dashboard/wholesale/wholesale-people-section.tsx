@@ -54,7 +54,7 @@ export function WholesalePeopleSection({
       eyebrow={uiText("attribute002")}
       title={uiText("attribute003")}
     >
-      <div className="inline-flex w-fit items-center gap-2 rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
+      <div className="inline-flex w-fit items-center gap-2 rounded-full bg-status-info-soft px-3 py-1 text-xs font-semibold text-primary">
         <UserCog className="size-4" />
         <UiMessage id="components_dashboard_wholesale_wholesale_people_section.text001" />
       </div>

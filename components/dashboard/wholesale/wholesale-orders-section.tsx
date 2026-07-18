@@ -5,9 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { hasWholesaleOrderInternalFields } from "@/lib/wholesale";
-import type {
-  WholesaleOrderListItem,
-} from "@/lib/wholesale";
+import type { WholesaleOrderListItem } from "@/lib/wholesale";
 import { useWholesaleOrderFilters } from "./use-wholesale-order-filters";
 import { useWholesaleOrderPage } from "./use-wholesale-order-page";
 import { useWholesaleOrderListHandlers } from "./use-wholesale-order-list-handlers";
@@ -157,7 +155,8 @@ export function WholesaleOrdersSection({
       actions={
         canEdit ? (
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             onClick={() => setCreateDialogOpen(true)}
             type="button"
           >
@@ -211,8 +210,7 @@ export function WholesaleOrdersSection({
           onOpenOrderSettlement: setSelectedSettlementOrder,
           onUploadOrderListAttachments:
             orderListHandlers.uploadOrderListAttachments,
-          orderListAttachmentsByOrderId:
-            viewData.orderListAttachmentsByOrderId,
+          orderListAttachmentsByOrderId: viewData.orderListAttachmentsByOrderId,
           orderSettlementsByOrderId: viewData.orderSettlementsByOrderId,
           pendingKey,
           profilesById,
@@ -250,7 +248,8 @@ export function WholesaleOrdersSection({
         salesAccounts={salesAccounts}
       />
 
-      {selectedEditOrder && hasWholesaleOrderInternalFields(selectedEditOrder) ? (
+      {selectedEditOrder &&
+      hasWholesaleOrderInternalFields(selectedEditOrder) ? (
         <WholesaleOrderEditDialog
           canReassignOrder={canReassignOrder}
           customers={customers}

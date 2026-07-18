@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { FileBadge2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -20,7 +20,7 @@ function ReviewLoadingState() {
 
   return (
     <div className="mx-auto flex min-h-[60vh] w-full max-w-[1320px] items-center justify-center">
-      <div className="rounded-[28px] border border-white/85 bg-white/72 px-6 py-5 text-sm text-[#60707d] shadow-[0_18px_45px_rgba(96,113,128,0.06)]">
+      <div className="rounded-[28px] border border-white/85 bg-white/72 px-6 py-5 text-sm text-content-muted shadow-[var(--surface-shadow-interactive)]">
         {t("loading")}
       </div>
     </div>
@@ -49,29 +49,44 @@ function PrivacyReviewList({
   }
 
   return (
-    <div className="overflow-hidden rounded-[24px] border border-[#ebe7e1] bg-white shadow-[0_10px_24px_rgba(96,113,128,0.06)]">
-      <div className="hidden grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px] gap-5 border-b border-[#efebe5] bg-[#f7f5f2] px-6 py-4 lg:grid">
+    <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-white shadow-[var(--surface-shadow-interactive)]">
+      <div className="hidden grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px] gap-5 border-b border-border-subtle bg-surface-inset px-6 py-4 lg:grid">
         <ReviewHeaderCell>{t("privacy.columns.name")}</ReviewHeaderCell>
         <ReviewHeaderCell>{t("privacy.columns.email")}</ReviewHeaderCell>
         <ReviewHeaderCell>{t("privacy.columns.idCard")}</ReviewHeaderCell>
         <ReviewHeaderCell>{t("privacy.columns.passport")}</ReviewHeaderCell>
-        <ReviewHeaderCell className="text-right">{t("privacy.columns.actions")}</ReviewHeaderCell>
+        <ReviewHeaderCell className="text-right">
+          {t("privacy.columns.actions")}
+        </ReviewHeaderCell>
       </div>
 
-      <div className="divide-y divide-[#efebe5]">
+      <div className="divide-y divide-border-subtle">
         {rows.map((row) => {
           const rowKey = `privacy:${row.request_id}`;
           const busyAction = busyRows[rowKey];
-          const displayName = getDisplayName(row.name, row.email, t("fallback.unnamedUser"));
-          const displayEmail = getDisplayEmail(row.email, t("fallback.notProvided"));
+          const displayName = getDisplayName(
+            row.name,
+            row.email,
+            t("fallback.unnamedUser"),
+          );
+          const displayEmail = getDisplayEmail(
+            row.email,
+            t("fallback.notProvided"),
+          );
 
           return (
             <article
               key={row.request_id}
               className="grid gap-4 px-4 py-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px] lg:items-center lg:px-6"
             >
-              <ReviewValueCell label={t("privacy.columns.name")} value={displayName} />
-              <ReviewValueCell label={t("privacy.columns.email")} value={displayEmail} />
+              <ReviewValueCell
+                label={t("privacy.columns.name")}
+                value={displayName}
+              />
+              <ReviewValueCell
+                label={t("privacy.columns.email")}
+                value={displayEmail}
+              />
               <ReviewValueCell
                 label={t("privacy.columns.idCard")}
                 mono
@@ -98,7 +113,4 @@ function PrivacyReviewList({
   );
 }
 
-export {
-  PrivacyReviewList,
-  ReviewLoadingState,
-};
+export { PrivacyReviewList, ReviewLoadingState };

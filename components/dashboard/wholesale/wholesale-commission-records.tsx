@@ -1,4 +1,8 @@
 "use client";
+
+import { StatusBadge } from "@/components/ui/status-badge";
+
+import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
@@ -16,7 +20,7 @@ import {
   getProfileName,
   WHOLESALE_STATUS_LABELS,
 } from "./wholesale-display";
-import { WholesaleStatusBadge, WholesaleTd, WholesaleTh } from "./wholesale-ui";
+import { WholesaleTd, WholesaleTh } from "./wholesale-ui";
 type WholesaleCommissionRecordsProps = {
   canAdmin: boolean;
   commissions: WholesaleCommission[];
@@ -43,160 +47,173 @@ export function WholesaleCommissionRecords({
 }: WholesaleCommissionRecordsProps) {
   return (
     <>
-      <div className="hidden md:block">
-        <DashboardTableFrame>
-          <table className="w-full min-w-[980px] table-fixed border-collapse text-left text-sm">
-            <colgroup>
-              <col className="w-[18%]" />
-              <col className="w-[16%]" />
-              <col className="w-[16%]" />
-              <col className="w-[14%]" />
-              <col className="w-[12%]" />
-              <col className="w-[12%]" />
-              <col className="w-[12%]" />
-            </colgroup>
-            <thead>
-              <tr>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text001" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text002" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text003" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text004" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text005" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text006" />
-                </WholesaleTh>
-                {canAdmin ? (
-                  <WholesaleTh className="whitespace-normal">
-                    <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text007" />
-                  </WholesaleTh>
-                ) : null}
-              </tr>
-            </thead>
-            <tbody>
-              {commissions.map((commission) => {
-                const order = orderById.get(commission.order_id);
-                return (
-                  <tr key={commission.id}>
-                    <WholesaleTd className="whitespace-normal">
-                      <p className="font-semibold">
+      <ResponsiveDataView
+        desktop={
+          <>
+            <DashboardTableFrame>
+              <table className="w-full min-w-[980px] table-fixed border-collapse text-left text-sm">
+                <colgroup>
+                  <col className="w-[18%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[14%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[12%]" />
+                  <col className="w-[12%]" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text001" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text002" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text003" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text004" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text005" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text006" />
+                    </WholesaleTh>
+                    {canAdmin ? (
+                      <WholesaleTh className="whitespace-normal">
+                        <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text007" />
+                      </WholesaleTh>
+                    ) : null}
+                  </tr>
+                </thead>
+                <tbody>
+                  {commissions.map((commission) => {
+                    const order = orderById.get(commission.order_id);
+                    return (
+                      <tr key={commission.id}>
+                        <WholesaleTd className="whitespace-normal">
+                          <p className="font-semibold">
+                            {order?.order_number ?? "未找到订单"}
+                          </p>
+                          <p className="mt-1 text-xs text-content-muted">
+                            {formatDateTime(commission.calculated_at)}
+                          </p>
+                        </WholesaleTd>
+                        <WholesaleTd className="whitespace-normal">
+                          {getCustomerName(
+                            customersById,
+                            commission.customer_id,
+                          )}
+                        </WholesaleTd>
+                        <WholesaleTd className="whitespace-normal">
+                          {getProfileName(
+                            profilesById,
+                            commission.beneficiary_user_id,
+                          )}
+                        </WholesaleTd>
+                        <WholesaleTd className="whitespace-normal">
+                          <p>
+                            {formatCurrency(
+                              commission.order_payment_rmb_amount,
+                            )}
+                          </p>
+                          <p className="mt-1 text-xs text-content-muted">
+                            <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text008" />
+                            {formatCurrency(commission.gross_profit_rmb)}
+                          </p>
+                        </WholesaleTd>
+                        <WholesaleTd className="whitespace-normal">
+                          <p>
+                            {formatCurrency(commission.commission_amount_rmb)}
+                          </p>
+                          <p className="mt-1 text-xs text-content-muted">
+                            {formatPercent(commission.commission_rate)}
+                          </p>
+                        </WholesaleTd>
+                        <WholesaleTd className="whitespace-normal">
+                          <StatusBadge
+                            tone={getCommissionTone(commission.status)}
+                          >
+                            {WHOLESALE_STATUS_LABELS[commission.status]}
+                          </StatusBadge>
+                        </WholesaleTd>
+                        {canAdmin ? (
+                          <WholesaleTd className="whitespace-normal">
+                            <SettleButton
+                              commission={commission}
+                              onSettleCommission={onSettleCommission}
+                              pendingKey={pendingKey}
+                            />
+                          </WholesaleTd>
+                        ) : null}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </DashboardTableFrame>
+          </>
+        }
+        mobile={
+          <>
+            {commissions.map((commission) => {
+              const order = orderById.get(commission.order_id);
+              return (
+                <article
+                  className="min-w-0 rounded-[8px] border border-border-subtle bg-white p-4"
+                  key={commission.id}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="break-words font-semibold text-content-strong">
                         {order?.order_number ?? "未找到订单"}
                       </p>
-                      <p className="mt-1 text-xs text-[#71808d]">
-                        {formatDateTime(commission.calculated_at)}
+                      <p className="mt-1 break-words text-sm text-content-muted">
+                        {getCustomerName(customersById, commission.customer_id)}
                       </p>
-                    </WholesaleTd>
-                    <WholesaleTd className="whitespace-normal">
-                      {getCustomerName(customersById, commission.customer_id)}
-                    </WholesaleTd>
-                    <WholesaleTd className="whitespace-normal">
+                    </div>
+                    <StatusBadge tone={getCommissionTone(commission.status)}>
+                      {WHOLESALE_STATUS_LABELS[commission.status]}
+                    </StatusBadge>
+                  </div>
+                  <div className="mt-3 grid gap-2 break-words text-sm text-content-muted">
+                    <p>
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text009" />
                       {getProfileName(
                         profilesById,
                         commission.beneficiary_user_id,
                       )}
-                    </WholesaleTd>
-                    <WholesaleTd className="whitespace-normal">
-                      <p>
-                        {formatCurrency(commission.order_payment_rmb_amount)}
-                      </p>
-                      <p className="mt-1 text-xs text-[#71808d]">
-                        <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text008" />
-                        {formatCurrency(commission.gross_profit_rmb)}
-                      </p>
-                    </WholesaleTd>
-                    <WholesaleTd className="whitespace-normal">
-                      <p>{formatCurrency(commission.commission_amount_rmb)}</p>
-                      <p className="mt-1 text-xs text-[#71808d]">
-                        {formatPercent(commission.commission_rate)}
-                      </p>
-                    </WholesaleTd>
-                    <WholesaleTd className="whitespace-normal">
-                      <WholesaleStatusBadge
-                        tone={getCommissionTone(commission.status)}
-                      >
-                        {WHOLESALE_STATUS_LABELS[commission.status]}
-                      </WholesaleStatusBadge>
-                    </WholesaleTd>
-                    {canAdmin ? (
-                      <WholesaleTd className="whitespace-normal">
-                        <SettleButton
-                          commission={commission}
-                          onSettleCommission={onSettleCommission}
-                          pendingKey={pendingKey}
-                        />
-                      </WholesaleTd>
-                    ) : null}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </DashboardTableFrame>
-      </div>
-
-      <div className="grid gap-3 md:hidden">
-        {commissions.map((commission) => {
-          const order = orderById.get(commission.order_id);
-          return (
-            <article
-              className="min-w-0 rounded-[8px] border border-[#e4e8ec] bg-white p-4"
-              key={commission.id}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="break-words font-semibold text-[#23313a]">
-                    {order?.order_number ?? "未找到订单"}
-                  </p>
-                  <p className="mt-1 break-words text-sm text-[#6f7b85]">
-                    {getCustomerName(customersById, commission.customer_id)}
-                  </p>
-                </div>
-                <WholesaleStatusBadge
-                  tone={getCommissionTone(commission.status)}
-                >
-                  {WHOLESALE_STATUS_LABELS[commission.status]}
-                </WholesaleStatusBadge>
-              </div>
-              <div className="mt-3 grid gap-2 break-words text-sm text-[#5e6b75]">
-                <p>
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text009" />
-                  {getProfileName(profilesById, commission.beneficiary_user_id)}
-                </p>
-                <p>
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text010" />
-                  {formatCurrency(commission.order_payment_rmb_amount)}
-                </p>
-                <p>
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text011" />
-                  {formatCurrency(commission.gross_profit_rmb)}
-                </p>
-                <p>
-                  <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text012" />
-                  {formatCurrency(commission.commission_amount_rmb)}（
-                  {formatPercent(commission.commission_rate)}）
-                </p>
-              </div>
-              {canAdmin ? (
-                <SettleButton
-                  className="mt-4"
-                  commission={commission}
-                  onSettleCommission={onSettleCommission}
-                  pendingKey={pendingKey}
-                />
-              ) : null}
-            </article>
-          );
-        })}
-      </div>
+                    </p>
+                    <p>
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text010" />
+                      {formatCurrency(commission.order_payment_rmb_amount)}
+                    </p>
+                    <p>
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text011" />
+                      {formatCurrency(commission.gross_profit_rmb)}
+                    </p>
+                    <p>
+                      <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text012" />
+                      {formatCurrency(commission.commission_amount_rmb)}（
+                      {formatPercent(commission.commission_rate)}）
+                    </p>
+                  </div>
+                  {canAdmin ? (
+                    <SettleButton
+                      className="mt-4"
+                      commission={commission}
+                      onSettleCommission={onSettleCommission}
+                      pendingKey={pendingKey}
+                    />
+                  ) : null}
+                </article>
+              );
+            })}
+          </>
+        }
+      />
     </>
   );
 }
@@ -213,12 +230,14 @@ function SettleButton({
 }) {
   return (
     <Button
-      className={`${className} h-9 rounded-full bg-[#486782] px-3 text-xs font-semibold text-white hover:bg-[#3e5f79] disabled:opacity-60`}
+      className={className}
       disabled={
         commission.status !== "pending" || pendingKey === "commission:settle"
       }
       onClick={() => onSettleCommission(commission.id)}
+      size="compact"
       type="button"
+      variant="primary"
     >
       <UiMessage id="components_dashboard_wholesale_wholesale_commission_records.text013" />
     </Button>

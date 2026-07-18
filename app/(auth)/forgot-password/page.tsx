@@ -28,15 +28,21 @@ export default async function ForgotPasswordPage() {
     <ScopedIntlProvider namespaces={["LanguageToggle", "ForgotPasswordForm"]}>
       <AuthShell
         copy={authShellCopy}
+        footer={{
+          linkHref: "/login",
+          linkLabel: t("footerLinkLabel"),
+          prompt: t("footerPrompt"),
+        }}
+        form={{ title: t("headerTitle") }}
+        hero={{
+          description: t("asideDescription"),
+          note: {
+            description: t("noteDescription"),
+            title: t("noteTitle"),
+          },
+          title: t("asideTitle"),
+        }}
         mode="login"
-        asideDescription={t("asideDescription")}
-        asideTitle={t("asideTitle")}
-        footerLinkHref="/login"
-        footerLinkLabel={t("footerLinkLabel")}
-        footerPrompt={t("footerPrompt")}
-        headerTitle={t("headerTitle")}
-        noteDescription={t("noteDescription")}
-        noteTitle={t("noteTitle")}
       >
         <ForgotPasswordForm />
       </AuthShell>

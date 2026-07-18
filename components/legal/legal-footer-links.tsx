@@ -25,7 +25,7 @@ export function LegalFooterLinks({
   linkClassName,
 }: LegalFooterLinksProps) {
   const resolvedLinkClassName = cn(
-    "transition-colors hover:text-[#486782]",
+    "transition-colors hover:text-primary",
     linkClassName,
   );
 

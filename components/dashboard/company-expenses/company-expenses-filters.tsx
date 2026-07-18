@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Select } from "@/components/ui/select";
 
 import {
   companyExpenseCategoryValues,
@@ -10,7 +10,6 @@ import { DashboardResourceFilterSection } from "../dashboard-resource-filter-sec
 import {
   DashboardFilterField,
   DashboardSearchInput,
-  dashboardFilterInputClassName,
 } from "../dashboard-section-panel";
 
 type CompanyExpensesFilterSectionProps = {
@@ -64,48 +63,46 @@ export function CompanyExpensesFilterSection({
       }
     >
       <DashboardSearchInput
-        icon={<Search className="size-4 text-[#7c8a96]" />}
+        ariaLabel={copy.searchPlaceholder}
         onChange={onSearchQueryChange}
         placeholder={copy.searchPlaceholder}
         value={searchQuery}
       />
       <DashboardFilterField label={copy.monthLabel}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) => onMonthFilterChange(event.target.value)}
+        <Select
+          onValueChange={onMonthFilterChange}
+          options={[
+            { label: copy.allMonths, value: "all" },
+            ...monthOptions.map((month) => ({ label: month, value: month })),
+          ]}
           value={monthFilter}
-        >
-          <option value="all">{copy.allMonths}</option>
-          {monthOptions.map((month) => (
-            <option key={month} value={month}>{month}</option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
       <DashboardFilterField label={copy.categoryLabel}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) =>
-            onCategoryFilterChange(event.target.value as CompanyExpenseCategory | "all")
-          }
+        <Select
+          onValueChange={onCategoryFilterChange}
+          options={[
+            { label: copy.allCategories, value: "all" },
+            ...companyExpenseCategoryValues.map((category) => ({
+              label: copy.categoryOptions[category],
+              value: category,
+            })),
+          ]}
           value={categoryFilter}
-        >
-          <option value="all">{copy.allCategories}</option>
-          {companyExpenseCategoryValues.map((category) => (
-            <option key={category} value={category}>{copy.categoryOptions[category]}</option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
       <DashboardFilterField label={copy.currencyLabel}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) => onCurrencyFilterChange(event.target.value)}
+        <Select
+          onValueChange={onCurrencyFilterChange}
+          options={[
+            { label: copy.allCurrencies, value: "all" },
+            ...currencyOptions.map((currencyCode) => ({
+              label: currencyCode,
+              value: currencyCode,
+            })),
+          ]}
           value={currencyFilter}
-        >
-          <option value="all">{copy.allCurrencies}</option>
-          {currencyOptions.map((currencyCode) => (
-            <option key={currencyCode} value={currencyCode}>{currencyCode}</option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
     </DashboardResourceFilterSection>
   );

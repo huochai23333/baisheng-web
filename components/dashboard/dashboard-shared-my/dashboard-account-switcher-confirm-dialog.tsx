@@ -39,17 +39,10 @@ export function DashboardAccountSwitcherConfirmDialog({
     <DashboardDialog
       actions={
         <>
-          <Button
-            className="h-10 rounded-full border-[#d4d8dc] bg-white px-4 text-[#486782] hover:bg-[#f2f4f6]"
-            onClick={onCancel}
-            variant="outline"
-          >
+          <Button size="compact" onClick={onCancel} variant="outline">
             {copy.accountSwitcherCancel}
           </Button>
-          <Button
-            className="h-10 rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79]"
-            onClick={onConfirm}
-          >
+          <Button variant="primary" size="compact" onClick={onConfirm}>
             {confirmLabel}
           </Button>
         </>
@@ -62,8 +55,8 @@ export function DashboardAccountSwitcherConfirmDialog({
       open={open}
       title={title}
     >
-      <div className="flex items-start gap-3 rounded-[20px] border border-[#ead7c6] bg-[#fff8f1] p-4 text-sm leading-6 text-[#74563f]">
-        <AlertTriangle className="mt-0.5 size-5 shrink-0 text-[#9b6a41]" />
+      <div className="flex items-start gap-3 rounded-[20px] border border-border-subtle bg-surface-inset p-4 text-sm leading-6 text-content-muted">
+        <AlertTriangle className="mt-0.5 size-5 shrink-0 text-content-muted" />
         <p>{description}</p>
       </div>
     </DashboardDialog>

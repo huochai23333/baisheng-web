@@ -1,5 +1,7 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+
 import { Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -62,30 +64,34 @@ export function OrderDetailPairsInput({
           className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
           key={index}
         >
-          <input
+          <FormControls.Input
             aria-label={`${copy.namePlaceholder} ${index + 1}`}
             className={fieldInputClassName}
             disabled={disabled}
-            onChange={(event) => handleRowChange(index, "label", event.target.value)}
+            onChange={(event) =>
+              handleRowChange(index, "label", event.target.value)
+            }
             placeholder={copy.namePlaceholder}
             type="text"
             value={row.label}
           />
-          <input
+          <FormControls.Input
             aria-label={`${copy.valuePlaceholder} ${index + 1}`}
             className={fieldInputClassName}
             disabled={disabled}
-            onChange={(event) => handleRowChange(index, "value", event.target.value)}
+            onChange={(event) =>
+              handleRowChange(index, "value", event.target.value)
+            }
             placeholder={copy.valuePlaceholder}
             type="text"
             value={row.value}
           />
           <Button
             aria-label={`${copy.removeLabel} ${index + 1}`}
-            className="h-12 rounded-[18px] border-[#e1ddd7] text-[#7d4a42]"
+            className="h-12 rounded-[18px] border-border-subtle text-content-muted"
             disabled={disabled}
             onClick={() => handleRemoveRow(index)}
-            size="icon-lg"
+            size="icon-large"
             type="button"
             variant="outline"
           >
@@ -95,7 +101,8 @@ export function OrderDetailPairsInput({
       ))}
 
       <Button
-        className="h-10 rounded-[18px] border-[#d8e1da] bg-white px-4 text-[#3d5f4c] hover:bg-[#f3f8f4]"
+        size="compact"
+        className="text-content-muted"
         disabled={disabled}
         onClick={handleAddRow}
         type="button"
@@ -138,10 +145,12 @@ function parseJsonDetailRows(value: unknown): OrderDetailRow[] {
   }
 
   if (typeof value === "object") {
-    return Object.entries(value as Record<string, unknown>).map(([label, detail]) => ({
-      label,
-      value: formatJsonDetailValue(detail),
-    }));
+    return Object.entries(value as Record<string, unknown>).map(
+      ([label, detail]) => ({
+        label,
+        value: formatJsonDetailValue(detail),
+      }),
+    );
   }
 
   return [{ label: "", value: formatJsonDetailValue(value) }];
@@ -156,7 +165,9 @@ function parseLineDetailRow(line: string): OrderDetailRow | null {
 
   const fullWidthSeparatorIndex = normalized.indexOf("\uFF1A");
   const separatorIndex =
-    fullWidthSeparatorIndex >= 0 ? fullWidthSeparatorIndex : normalized.indexOf(":");
+    fullWidthSeparatorIndex >= 0
+      ? fullWidthSeparatorIndex
+      : normalized.indexOf(":");
 
   if (separatorIndex < 0) {
     return { label: normalized, value: "" };

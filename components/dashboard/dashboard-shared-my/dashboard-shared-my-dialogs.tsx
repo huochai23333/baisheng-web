@@ -1,5 +1,9 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
+import * as FormControls from "@/components/ui/form-controls";
+
 import dynamic from "next/dynamic";
 import {
   FileBadge2,
@@ -18,7 +22,7 @@ import {
   EmptyState,
   formatFileSize,
   InputCard,
-  PageBanner,
+  FeedbackNotice,
   StatusChip,
   StatusNotice,
   ValueCard,
@@ -29,7 +33,10 @@ import type { DashboardMyCopy } from "./dashboard-shared-my-copy";
 import type { DashboardSharedMyState } from "./use-dashboard-shared-my-state";
 
 const DashboardDialog = dynamic(
-  () => import("@/components/dashboard/dashboard-dialog").then((mod) => mod.DashboardDialog),
+  () =>
+    import("@/components/dashboard/dashboard-dialog").then(
+      (mod) => mod.DashboardDialog,
+    ),
   { ssr: false },
 );
 
@@ -59,7 +66,9 @@ export function DashboardSharedMyDialogs({
         >
           {assetDialog.notice ? (
             <div className="mb-5">
-              <PageBanner tone={assetDialog.notice.tone}>{assetDialog.notice.message}</PageBanner>
+              <FeedbackNotice tone={assetDialog.notice.tone}>
+                {assetDialog.notice.message}
+              </FeedbackNotice>
             </div>
           ) : null}
 
@@ -93,7 +102,7 @@ export function DashboardSharedMyDialogs({
                 {identity.status === "approved" ? (
                   <div className="flex justify-end">
                     <Button
-                      className="h-11 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
+                      size="default"
                       onClick={() => {
                         identity.setEditing(true);
                         identity.setDraft(identity.value);
@@ -136,7 +145,7 @@ export function DashboardSharedMyDialogs({
                 {passport.status === "approved" ? (
                   <div className="flex justify-end">
                     <Button
-                      className="h-11 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
+                      size="default"
                       onClick={() => {
                         passport.setEditing(true);
                         passport.setDraft(passport.value);
@@ -164,43 +173,47 @@ export function DashboardSharedMyDialogs({
                   {assetDialog.photoAssets.map((photo, index) => (
                     <article
                       key={photo.id}
-                      className="rounded-[24px] border border-[#ebe7e1] bg-white p-3 shadow-[0_10px_24px_rgba(96,113,128,0.05)]"
+                      className="rounded-[24px] border border-border-subtle bg-white p-3 shadow-[var(--surface-shadow-interactive)]"
                     >
-                      <div className="aspect-[4/5] overflow-hidden rounded-[18px] bg-[#ece9e4]">
+                      <div className="aspect-[4/5] overflow-hidden rounded-[18px] bg-surface-inset">
                         <LazyDashboardImagePreview
                           alt={photo.original_name}
                           asset={photo}
                           className="h-full w-full"
                           errorFallback={
-                            <div className="flex h-full items-center justify-center text-sm text-[#7d8890]">
+                            <div className="flex h-full items-center justify-center text-sm text-content-muted">
                               {copy.previewUnavailable}
                             </div>
                           }
                           imageClassName="h-full w-full object-cover"
-                          loadingFallback={<div className="motion-skeleton h-full w-full bg-[#e7e3dd]" />}
+                          loadingFallback={
+                            <div className="motion-skeleton h-full w-full bg-surface-inset" />
+                          }
                         />
                       </div>
                       <div className="mt-3 space-y-3 px-1">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-[#2b3942]">
+                            <p className="truncate text-sm font-semibold text-content-strong">
                               {copy.photoItem(index + 1)}
                             </p>
-                            <p className="truncate text-xs text-[#7d8890]">
+                            <p className="truncate text-xs text-content-muted">
                               {photo.original_name}
                             </p>
                           </div>
                           <StatusChip status={photo.status} />
                         </div>
-                        <button
-                          className="inline-flex h-9 items-center gap-1 rounded-full bg-[#fceaea] px-3 text-xs font-medium text-[#c43d3d]"
+                        <DesignButton
+                          className="inline-flex h-9 items-center gap-1 rounded-full bg-surface-inset px-3 text-xs font-medium text-content-muted"
                           disabled={ui.busyKey !== null}
-                          onClick={() => void assetDialog.deletePhotoAssets([photo])}
+                          onClick={() =>
+                            void assetDialog.deletePhotoAssets([photo])
+                          }
                           type="button"
                         >
                           <Trash2 className="size-3.5" />
                           {copy.delete}
-                        </button>
+                        </DesignButton>
                       </div>
                     </article>
                   ))}
@@ -228,9 +241,9 @@ export function DashboardSharedMyDialogs({
                   {assetDialog.videoAssets.map((video) => (
                     <article
                       key={video.id}
-                      className="rounded-[24px] border border-[#ebe7e1] bg-white p-3 shadow-[0_10px_24px_rgba(96,113,128,0.05)]"
+                      className="rounded-[24px] border border-border-subtle bg-white p-3 shadow-[var(--surface-shadow-interactive)]"
                     >
-                      <div className="overflow-hidden rounded-[18px] bg-[#172029]">
+                      <div className="overflow-hidden rounded-[18px] bg-surface-inset">
                         <LazyDashboardVideoPreview
                           asset={video}
                           className="aspect-video w-full"
@@ -239,32 +252,36 @@ export function DashboardSharedMyDialogs({
                               {copy.previewUnavailable}
                             </div>
                           }
-                          loadingFallback={<div className="motion-skeleton h-full w-full bg-white/8" />}
+                          loadingFallback={
+                            <div className="motion-skeleton h-full w-full bg-white/8" />
+                          }
                           preload="metadata"
-                          videoClassName="aspect-video w-full bg-[#172029] object-cover"
+                          videoClassName="aspect-video w-full bg-surface-inset object-cover"
                         />
                       </div>
                       <div className="mt-3 space-y-3 px-1">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-[#2b3942]">
+                            <p className="truncate text-sm font-semibold text-content-strong">
                               {video.original_name}
                             </p>
-                            <p className="truncate text-xs text-[#7d8890]">
+                            <p className="truncate text-xs text-content-muted">
                               {formatFileSize(video.file_size_bytes)}
                             </p>
                           </div>
                           <StatusChip status={video.status} />
                         </div>
-                        <button
-                          className="inline-flex h-9 items-center gap-1 rounded-full bg-[#fceaea] px-3 text-xs font-medium text-[#c43d3d]"
+                        <DesignButton
+                          className="inline-flex h-9 items-center gap-1 rounded-full bg-surface-inset px-3 text-xs font-medium text-content-muted"
                           disabled={ui.busyKey !== null}
-                          onClick={() => void assetDialog.deleteVideoAssets([video])}
+                          onClick={() =>
+                            void assetDialog.deleteVideoAssets([video])
+                          }
                           type="button"
                         >
                           <Trash2 className="size-3.5" />
                           {copy.delete}
-                        </button>
+                        </DesignButton>
                       </div>
                     </article>
                   ))}
@@ -290,19 +307,19 @@ export function DashboardSharedMyDialogs({
         >
           {profileDialog.notice ? (
             <div className="mb-5">
-              <PageBanner tone={profileDialog.notice.tone}>
+              <FeedbackNotice tone={profileDialog.notice.tone}>
                 {profileDialog.notice.message}
-              </PageBanner>
+              </FeedbackNotice>
             </div>
           ) : null}
 
-          <div className="rounded-[24px] border border-[#ece8e1] bg-white p-6 shadow-[0_10px_24px_rgba(96,113,128,0.06)]">
-            <div className="flex items-center gap-3 text-[#486782]">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#eef3f6]">
+          <div className="rounded-[24px] border border-border-subtle bg-white p-6 shadow-[var(--surface-shadow-interactive)]">
+            <div className="flex items-center gap-3 text-primary">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-status-info-soft">
                 <UserRound className="size-5" />
               </div>
               <div>
-                <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase">
+                <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
                   {copy.editProfile}
                 </p>
               </div>
@@ -310,11 +327,11 @@ export function DashboardSharedMyDialogs({
 
             <div className="mt-5 space-y-4">
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-[#486782]">
+                <span className="text-sm font-medium text-primary">
                   {copy.nameLabel}
                 </span>
-                <input
-                  className="h-13 w-full rounded-[18px] border border-[#e1ddd7] bg-[#fbfaf8] px-4 text-[15px] text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+                <FormControls.Input
+                  className="h-13 w-full rounded-[18px] border border-border-subtle bg-surface-inset px-4 text-[15px] text-content-strong outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30"
                   onChange={(event) =>
                     profileDialog.setNameDraft(event.target.value)
                   }
@@ -324,11 +341,11 @@ export function DashboardSharedMyDialogs({
               </label>
 
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-[#486782]">
+                <span className="text-sm font-medium text-primary">
                   {copy.cityLabel}
                 </span>
-                <input
-                  className="h-13 w-full rounded-[18px] border border-[#e1ddd7] bg-[#fbfaf8] px-4 text-[15px] text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+                <FormControls.Input
+                  className="h-13 w-full rounded-[18px] border border-border-subtle bg-surface-inset px-4 text-[15px] text-content-strong outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30"
                   onChange={(event) =>
                     profileDialog.setCityDraft(event.target.value)
                   }
@@ -339,7 +356,8 @@ export function DashboardSharedMyDialogs({
 
               <div className="flex justify-end">
                 <Button
-                  className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+                  variant="primary"
+                  size="default"
                   disabled={
                     !profileDialog.nameDraft.trim() ||
                     !profileDialog.cityDraft.trim() ||

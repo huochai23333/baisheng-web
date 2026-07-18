@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { DashboardMetricCard } from "./dashboard-metric-card";
+import { MetricCard } from "@/components/ui/data-display";
 
 export type DashboardSectionHeaderMetric = {
   accent: "blue" | "gold" | "green";
@@ -56,12 +56,13 @@ export function DashboardSectionHeader({
 }: DashboardSectionHeaderProps) {
   const asideMetrics = metricsPlacement === "aside" ? metrics : [];
   const belowMetrics = metricsPlacement === "below" ? metrics : [];
-  const hasAside = asideMetrics.length > 0 || Boolean(actions) || Boolean(asideFooter);
+  const hasAside =
+    asideMetrics.length > 0 || Boolean(actions) || Boolean(asideFooter);
 
   return (
     <section
       className={cn(
-        "motion-surface-enter rounded-[24px] border border-white/90 bg-[#f4f3f1]/92 p-5 shadow-[0_18px_45px_rgba(96,113,128,0.08)] sm:rounded-[28px] sm:p-6 xl:p-8",
+        "motion-surface-enter rounded-[24px] border border-white/90 bg-surface-chrome/92 p-5 shadow-[var(--surface-shadow-header)] sm:rounded-[28px] sm:p-6 xl:p-8",
         className,
       )}
     >
@@ -74,7 +75,7 @@ export function DashboardSectionHeader({
         <div className={cn("max-w-3xl", contentClassName)}>
           <span
             className={cn(
-              "inline-flex items-center gap-2 rounded-full bg-[#e4edf3] px-2.5 py-1 text-[11px] font-semibold text-[#486782] sm:px-3 sm:text-xs",
+              "inline-flex items-center gap-2 rounded-full bg-surface-brand-soft px-2.5 py-1 text-[11px] font-semibold text-primary sm:px-3 sm:text-xs",
               badgeClassName,
             )}
           >
@@ -83,7 +84,7 @@ export function DashboardSectionHeader({
           </span>
           <h2
             className={cn(
-              "mt-3 text-3xl font-bold leading-tight tracking-tight text-[#1f2a32] sm:mt-4 sm:text-4xl",
+              "mt-3 text-3xl font-bold leading-tight tracking-tight text-content-strong sm:mt-4 sm:text-4xl",
               titleClassName,
             )}
           >
@@ -92,7 +93,7 @@ export function DashboardSectionHeader({
           {description ? (
             <p
               className={cn(
-                "mt-2 text-sm leading-7 text-[#65717b] sm:mt-3 sm:text-[15px] sm:leading-8",
+                "mt-2 text-sm leading-7 text-content-muted sm:mt-3 sm:text-[15px] sm:leading-8",
                 descriptionClassName,
               )}
             >
@@ -147,14 +148,26 @@ function HeaderMetricGrid({
   metrics: readonly DashboardSectionHeaderMetric[];
 }) {
   return (
-    <div className={cn("grid w-full grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3", className)}>
+    <div
+      className={cn(
+        "grid w-full grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3",
+        className,
+      )}
+    >
       {metrics.map((metric, index) => (
-        <DashboardMetricCard
-          accent={metric.accent}
+        <MetricCard
+          compact
           icon={metric.icon}
           key={metric.key ?? `${metric.label}-${index}`}
           label={metric.label}
           labelClassName={metric.labelClassName}
+          tone={
+            metric.accent === "blue"
+              ? "info"
+              : metric.accent === "green"
+                ? "success"
+                : "warning"
+          }
           value={metric.value}
         />
       ))}

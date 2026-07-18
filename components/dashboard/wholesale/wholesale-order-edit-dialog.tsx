@@ -1,8 +1,12 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Select } from "@/components/ui/select";
 import {
   DashboardFilterField,
   dashboardFilterInputClassName,
@@ -29,7 +33,6 @@ import {
 } from "./wholesale-order-edit-form-utils";
 import {
   WholesaleField,
-  WholesaleSelect,
   WholesaleSubmitButton,
 } from "./wholesale-ui";
 type WholesaleOrderEditDialogProps = {
@@ -118,11 +121,15 @@ export function WholesaleOrderEditDialog({
           onOpenChange(false);
         }}
       >
-        <input name="order_id" type="hidden" value={order.id} />
+        <FormControls.Input name="order_id" type="hidden" value={order.id} />
         {!canReassignOrder ? (
           <>
-            <input name="customer_id" type="hidden" value={order.customer_id} />
-            <input
+            <FormControls.Input
+              name="customer_id"
+              type="hidden"
+              value={order.customer_id}
+            />
+            <FormControls.Input
               name="sales_user_id"
               type="hidden"
               value={order.sales_user_id ?? ""}
@@ -130,37 +137,47 @@ export function WholesaleOrderEditDialog({
           </>
         ) : null}
 
-        <WholesaleSelect
-          defaultValue={order.customer_id}
-          disabled={!canReassignOrder}
-          label={uiText("attribute001")}
-          name="customer_id"
-          required
-        >
-          <option value="">
-            <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text001" />
-          </option>
-          {customers.map((customer) => (
-            <option key={customer.id} value={customer.id}>
-              {customer.unique_name}
-            </option>
-          ))}
-        </WholesaleSelect>
-        <WholesaleSelect
-          defaultValue={order.sales_user_id ?? ""}
-          disabled={!canReassignOrder}
-          label={uiText("attribute002")}
-          name="sales_user_id"
-        >
-          <option value="">
-            <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text002" />
-          </option>
-          {salesAccounts.map((profile) => (
-            <option key={profile.user_id} value={profile.user_id}>
-              {profile.name || profile.email}
-            </option>
-          ))}
-        </WholesaleSelect>
+        <DashboardFilterField label={uiText("attribute001")}>
+          <Select
+            aria-label={uiText("attribute001")}
+            defaultValue={order.customer_id}
+            disabled={!canReassignOrder}
+            name="customer_id"
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text001" />
+                ),
+                value: "",
+              },
+              ...customers.map((customer) => ({
+                label: customer.unique_name,
+                value: customer.id,
+              })),
+            ]}
+            required
+          />
+        </DashboardFilterField>
+        <DashboardFilterField label={uiText("attribute002")}>
+          <Select
+            aria-label={uiText("attribute002")}
+            defaultValue={order.sales_user_id ?? ""}
+            disabled={!canReassignOrder}
+            name="sales_user_id"
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text002" />
+                ),
+                value: "",
+              },
+              ...salesAccounts.map((profile) => ({
+                label: profile.name || profile.email,
+                value: profile.user_id,
+              })),
+            ]}
+          />
+        </DashboardFilterField>
         <WholesaleField
           defaultValue={order.small_order_count}
           label={uiText("attribute003")}
@@ -214,21 +231,26 @@ export function WholesaleOrderEditDialog({
           label={uiText("attribute008")}
           name="courier_company"
         />
-        <WholesaleSelect
-          defaultValue={defaultCurrency}
-          label={uiText("attribute009")}
-          name="customer_payment_currency"
-          required
-        >
-          <option value="">
-            <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text003" />
-          </option>
-          {currencyOptions.map((option) => (
-            <option key={option.currency} value={option.currency}>
-              {option.currency}
-            </option>
-          ))}
-        </WholesaleSelect>
+        <DashboardFilterField label={uiText("attribute009")}>
+          <Select
+            aria-label={uiText("attribute009")}
+            defaultValue={defaultCurrency}
+            name="customer_payment_currency"
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text003" />
+                ),
+                value: "",
+              },
+              ...currencyOptions.map((option) => ({
+                label: option.currency,
+                value: option.currency,
+              })),
+            ]}
+            required
+          />
+        </DashboardFilterField>
         <WholesaleField
           defaultValue={formatEditableNumericValue(
             order.customer_payment_amount,
@@ -240,30 +262,36 @@ export function WholesaleOrderEditDialog({
           step="0.01"
           type="number"
         />
-        <WholesaleSelect
-          defaultValue={order.payment_platform ?? ""}
-          label={uiText("attribute011")}
-          name="payment_platform"
-        >
-          <option value="">
-            <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text004" />
-          </option>
-          {WHOLESALE_PAYMENT_PLATFORM_OPTIONS.map((platform) => (
-            <option key={platform} value={platform}>
-              {platform}
-            </option>
-          ))}
-        </WholesaleSelect>
-        <WholesaleField
-          defaultValue={toMonthInputValue(order.order_month)}
-          label={uiText("attribute012")}
-          name="order_month"
-          required
-          type="month"
-        />
+        <DashboardFilterField label={uiText("attribute011")}>
+          <Select
+            aria-label={uiText("attribute011")}
+            defaultValue={order.payment_platform ?? ""}
+            name="payment_platform"
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_edit_dialog.text004" />
+                ),
+                value: "",
+              },
+              ...WHOLESALE_PAYMENT_PLATFORM_OPTIONS.map((platform) => ({
+                label: platform,
+                value: platform,
+              })),
+            ]}
+          />
+        </DashboardFilterField>
+        <DashboardFilterField label={uiText("attribute012")}>
+          <DatePicker
+            defaultValue={toMonthInputValue(order.order_month)}
+            mode="month"
+            name="order_month"
+            required
+          />
+        </DashboardFilterField>
         <div className="md:col-span-2 xl:col-span-4">
           <DashboardFilterField label={uiText("attribute013")}>
-            <textarea
+            <FormControls.Textarea
               className={`${dashboardFilterInputClassName} h-auto min-h-24 py-3 sm:h-auto`}
               defaultValue={order.notes ?? ""}
               name="notes"
@@ -273,13 +301,13 @@ export function WholesaleOrderEditDialog({
         {isRequestMode ? (
           <div className="md:col-span-2 xl:col-span-4">
             <DashboardFilterField label={uiText("attribute014")}>
-              <textarea
+              <FormControls.Textarea
                 className={`${dashboardFilterInputClassName} h-auto min-h-24 py-3 sm:h-auto`}
                 name="request_note"
                 placeholder={uiText("attribute015")}
               />
               {requestNoteError ? (
-                <p className="mt-2 text-sm leading-6 text-[#b13d3d]">
+                <p className="mt-2 text-sm leading-6 text-status-danger">
                   {requestNoteError}
                 </p>
               ) : null}

@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import type { ReactNode } from "react";
 
 import {
@@ -97,17 +99,14 @@ export function DashboardHomeWidgetCard({
 }: DashboardHomeWidgetCardProps) {
   const Icon = widgetIcons[widget.type];
   const widgetLabel = copy.widgets[widget.type].title;
-  const {
-    handleResizePointerLeave,
-    handleResizePointerMove,
-    resizeHandle,
-  } = useDashboardHomeWidgetResizeHandle({
-    deleting,
-    dragging,
-    editing,
-    entering,
-    resizing,
-  });
+  const { handleResizePointerLeave, handleResizePointerMove, resizeHandle } =
+    useDashboardHomeWidgetResizeHandle({
+      deleting,
+      dragging,
+      editing,
+      entering,
+      resizing,
+    });
   const cardRef = useDashboardHomeWidgetLayoutAnimation({
     disabled: !editing || !resizing || deleting || entering,
     resizing,
@@ -116,19 +115,19 @@ export function DashboardHomeWidgetCard({
   return (
     <article
       className={cn(
-        "group relative min-w-0 overflow-hidden rounded-[24px] border border-white/85 bg-white/76 p-5 shadow-[0_18px_45px_rgba(96,113,128,0.06)] transition-[box-shadow,border-color,opacity] duration-200 will-change-transform",
+        "group relative min-w-0 overflow-hidden rounded-[24px] border border-white/85 bg-white/76 p-5 shadow-[var(--surface-shadow-interactive)] transition-[box-shadow,border-color,opacity] duration-200 will-change-transform",
         editing &&
           !deleting &&
           !entering &&
           !dragging &&
           !resizing &&
-          "dashboard-home-wiggle cursor-grab border-[#bfd2e1] bg-white/88 shadow-[0_22px_52px_rgba(72,103,130,0.12)] active:cursor-grabbing",
+          "dashboard-home-wiggle cursor-grab border-ring bg-white/88 shadow-[var(--surface-shadow-interactive)] active:cursor-grabbing",
         editing &&
           (deleting || entering || resizing) &&
-          "border-[#bfd2e1] bg-white/88 shadow-[0_22px_52px_rgba(72,103,130,0.12)]",
+          "border-ring bg-white/88 shadow-[var(--surface-shadow-interactive)]",
         deleting && "dashboard-home-widget-exit pointer-events-none",
         dragging &&
-          "scale-[1.01] opacity-72 shadow-[0_28px_62px_rgba(72,103,130,0.18)] ring-4 ring-[#bfd2e1]/45",
+          "scale-[1.01] opacity-72 shadow-[var(--surface-shadow-interactive)] ring-4 ring-ring/45",
         entering && "dashboard-home-widget-enter",
         resizing && "dashboard-home-widget-resizing",
       )}
@@ -155,9 +154,9 @@ export function DashboardHomeWidgetCard({
     >
       {editing ? (
         <>
-          <button
+          <DesignButton
             aria-label={copy.removeWidget}
-            className="absolute left-1/2 top-3 z-40 inline-flex size-9 -translate-x-1/2 items-center justify-center rounded-full border border-[#dfe5ea] bg-white/95 text-[#8a4b4b] shadow-sm transition hover:bg-[#f8e6e6]"
+            className="absolute left-1/2 top-3 z-40 inline-flex size-9 -translate-x-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-content-muted shadow-sm transition hover:bg-surface-inset"
             data-home-widget-control="true"
             onClick={(event) => {
               event.stopPropagation();
@@ -168,12 +167,12 @@ export function DashboardHomeWidgetCard({
             type="button"
           >
             <Trash2 className="size-4" />
-          </button>
+          </DesignButton>
           {resizeHandle ? (
-            <button
+            <DesignButton
               aria-label={copy.resizeWidget}
               className={cn(
-                "absolute z-30 inline-flex -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-[#bfd2e1] bg-[#486782] text-white shadow-[0_12px_26px_rgba(72,103,130,0.24)] transition-[opacity,transform,background-color] duration-150 hover:bg-[#3e5f79]",
+                "absolute z-30 inline-flex -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-ring bg-primary text-white shadow-[var(--surface-shadow-interactive)] transition-[opacity,transform,background-color] duration-150 hover:bg-brand-hover",
                 getResizeHandleButtonClass(resizeHandle.direction),
                 resizeHandle.visible
                   ? "scale-100 opacity-100"
@@ -198,20 +197,18 @@ export function DashboardHomeWidgetCard({
               type="button"
             >
               <HomeWidgetResizeHandleMark direction={resizeHandle.direction} />
-            </button>
+            </DesignButton>
           ) : null}
         </>
       ) : null}
 
-      <div className={cn("h-full min-h-0", editing && "pt-11")}>
-        {children}
-      </div>
+      <div className={cn("h-full min-h-0", editing && "pt-11")}>{children}</div>
 
       {editing ? (
-        <div className="absolute bottom-3 right-3 z-20 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-2 rounded-full border border-[#dfe5ea] bg-white/94 px-3 py-1 text-xs font-semibold text-[#53616d] shadow-sm">
-          <Icon className="size-3.5 shrink-0 text-[#486782]" />
+        <div className="absolute bottom-3 right-3 z-20 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-2 rounded-full border border-border bg-white/94 px-3 py-1 text-xs font-semibold text-content-muted shadow-sm">
+          <Icon className="size-3.5 shrink-0 text-primary" />
           <span className="min-w-0 truncate">{widgetLabel}</span>
-          <span className="shrink-0 text-[#7b858d]">
+          <span className="shrink-0 text-content-muted">
             {copy.sizeLabel(widget.width, widget.height)}
           </span>
         </div>
@@ -232,11 +229,7 @@ function getResizeHandleButtonClass(direction: string) {
   return "size-9 rounded-[14px]";
 }
 
-function HomeWidgetResizeHandleMark({
-  direction,
-}: {
-  direction: string;
-}) {
+function HomeWidgetResizeHandleMark({ direction }: { direction: string }) {
   if (direction === "left" || direction === "right") {
     return (
       <span
@@ -264,10 +257,8 @@ function HomeWidgetResizeHandleMark({
         "block size-4",
         direction === "top-left" && "border-l-2 border-t-2 border-white/95",
         direction === "top-right" && "border-r-2 border-t-2 border-white/95",
-        direction === "bottom-right" &&
-          "border-b-2 border-r-2 border-white/95",
-        direction === "bottom-left" &&
-          "border-b-2 border-l-2 border-white/95",
+        direction === "bottom-right" && "border-b-2 border-r-2 border-white/95",
+        direction === "bottom-left" && "border-b-2 border-l-2 border-white/95",
       )}
       data-resize-handle-shape="corner"
     />
@@ -287,27 +278,27 @@ export function DashboardHomeWidgetSidebar({
 }: DashboardHomeWidgetSidebarProps) {
   return (
     <section
-      className="flex h-full min-h-0 flex-col rounded-[24px] border border-white/80 bg-white/72 p-4 shadow-[0_18px_38px_rgba(96,113,128,0.08)]"
+      className="flex h-full min-h-0 flex-col rounded-[24px] border border-white/80 bg-white/72 p-4 shadow-[var(--surface-shadow-interactive)]"
       data-testid="home-widget-sidebar"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="break-words text-lg font-bold text-[#23313a]">
+          <h3 className="break-words text-lg font-bold text-content-strong">
             {copy.sidebarTitle}
           </h3>
-          <p className="mt-2 break-words text-sm leading-6 text-[#69747d]">
+          <p className="mt-2 break-words text-sm leading-6 text-content-muted">
             {copy.sidebarDescription}
           </p>
         </div>
-        <button
+        <DesignButton
           aria-label={copy.reset}
-          className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-[#dfe5ea] bg-white text-[#66727d] transition hover:bg-[#edf2f5]"
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-white text-content-muted transition hover:bg-surface-inset"
           onClick={onReset}
           title={copy.reset}
           type="button"
         >
           <RotateCcw className="size-4" />
-        </button>
+        </DesignButton>
       </div>
 
       <div className="mt-5 grid min-h-0 gap-3 overflow-y-auto pr-1">
@@ -316,24 +307,26 @@ export function DashboardHomeWidgetSidebar({
 
           return (
             <div
-              className="rounded-[20px] border border-[#e2e7eb] bg-[#fbfaf8] p-4"
+              className="rounded-[20px] border border-border-subtle bg-surface-inset p-4"
               key={type}
             >
               <div className="flex items-start gap-3">
-                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-[16px] bg-[#edf2f5] text-[#486782]">
+                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-[16px] bg-surface-inset text-primary">
                   <Icon className="size-5" />
                 </span>
                 <div className="min-w-0">
-                  <h4 className="break-words text-sm font-semibold text-[#23313a]">
+                  <h4 className="break-words text-sm font-semibold text-content-strong">
                     {copy.widgets[type].title}
                   </h4>
-                  <p className="mt-1 break-words text-xs leading-5 text-[#69747d]">
+                  <p className="mt-1 break-words text-xs leading-5 text-content-muted">
                     {copy.widgets[type].description}
                   </p>
                 </div>
               </div>
               <Button
-                className="mt-4 h-10 w-full rounded-[16px] bg-[#486782] text-white hover:bg-[#3e5f79]"
+                variant="primary"
+                size="compact"
+                className="mt-4 w-full"
                 onClick={() => onAddWidget(type)}
                 type="button"
               >

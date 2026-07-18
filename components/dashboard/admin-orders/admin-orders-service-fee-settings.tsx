@@ -12,7 +12,7 @@ import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useLocale } from "@/components/i18n/locale-provider";
 
 import { DashboardListSection } from "../dashboard-section-panel";
-import { PageBanner, type NoticeTone } from "../dashboard-shared-ui";
+import { FeedbackNotice, type FeedbackTone } from "../dashboard-shared-ui";
 import {
   getServiceFeeRowsByScope,
   sortServiceFeeRows,
@@ -28,7 +28,7 @@ import {
   type ServiceFeeRuleLine,
 } from "./admin-orders-service-fee-tier-section";
 
-type PageFeedback = { tone: NoticeTone; message: string } | null;
+type PageFeedback = { tone: FeedbackTone; message: string } | null;
 type DiscountLocale = Parameters<typeof formatDiscountRatioValue>[1];
 
 export function AdminOrdersServiceFeeSettings({
@@ -70,7 +70,11 @@ export function AdminOrdersServiceFeeSettings({
     setFeedback(null);
 
     try {
-      const updated = await updateServiceFeeType(supabase, row.id, parsed.value);
+      const updated = await updateServiceFeeType(
+        supabase,
+        row.id,
+        parsed.value,
+      );
       const nextRows = sortServiceFeeRows(
         rows.map((item) => (item.id === updated.id ? updated : item)),
       );
@@ -78,9 +82,15 @@ export function AdminOrdersServiceFeeSettings({
       onRowsChange?.(nextRows);
       setEditingId(null);
       setEditValue("");
-      setFeedback({ tone: "success", message: t("settings.serviceFees.updateSuccess") });
+      setFeedback({
+        tone: "success",
+        message: t("settings.serviceFees.updateSuccess"),
+      });
     } catch (error) {
-      setFeedback({ tone: "error", message: toServiceFeeErrorMessage(error, t) });
+      setFeedback({
+        tone: "error",
+        message: toServiceFeeErrorMessage(error, t),
+      });
     } finally {
       setPendingAction(null);
     }
@@ -109,10 +119,10 @@ export function AdminOrdersServiceFeeSettings({
   };
 
   return (
-    <DashboardListSection
-      bodyClassName="flex flex-col gap-5"
-    >
-      {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
+    <DashboardListSection bodyClassName="flex flex-col gap-5">
+      {feedback ? (
+        <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+      ) : null}
 
       <AdminOrdersServiceFeeTierSection
         copy={tierCopy}
@@ -135,7 +145,6 @@ export function AdminOrdersServiceFeeSettings({
         onSave={(row) => void handleSave(row)}
         onStartEditing={startEditing}
       />
-
     </DashboardListSection>
   );
 }

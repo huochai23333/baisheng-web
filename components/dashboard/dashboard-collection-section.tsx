@@ -47,8 +47,8 @@ export function DashboardCollectionFooter({
   count: ReactNode;
 }) {
   return (
-    <div className="mt-5 flex flex-col gap-3 border-t border-[#e7e3dc] pt-4 sm:flex-row sm:items-center sm:justify-between">
-      <p className="min-w-0 break-words text-sm text-[#6d7780]">{count}</p>
+    <div className="mt-5 flex flex-col gap-3 border-t border-border-subtle pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="min-w-0 break-words text-sm text-content-muted">{count}</p>
       {controls ? (
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
           {controls}
@@ -88,7 +88,7 @@ export function DashboardPaginationActions({
         <ChevronLeft className="size-4" />
         {t("previous")}
       </Button>
-      <p className="min-w-[84px] text-center text-xs font-medium text-[#486782] sm:min-w-[120px] sm:text-sm">
+      <p className="min-w-[84px] text-center text-xs font-medium text-primary sm:min-w-[120px] sm:text-sm">
         {t("page", { page, pageCount })}
       </p>
       <Button
@@ -146,7 +146,11 @@ export function DashboardPaginationFooter({
           pageCount={pageCount}
         />
       }
-      count={t("range", { end: endIndex, start: startIndex, total: totalItems })}
+      count={t("range", {
+        end: endIndex,
+        start: startIndex,
+        total: totalItems,
+      })}
     />
   );
 }
@@ -177,17 +181,3 @@ export function DashboardLoadMoreButton({
 }
 
 /** 所有双形态列表共用同一个断点和外层间距。 */
-export function DashboardResponsiveCollection({
-  desktop,
-  mobile,
-}: {
-  desktop: ReactNode;
-  mobile: ReactNode;
-}) {
-  return (
-    <>
-      <div className="hidden md:block">{desktop}</div>
-      <div className="grid gap-3 md:hidden">{mobile}</div>
-    </>
-  );
-}

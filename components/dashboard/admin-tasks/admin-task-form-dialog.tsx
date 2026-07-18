@@ -2,11 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import {
-  LoaderCircle,
-  PencilLine,
-  Plus,
-} from "lucide-react";
+import { LoaderCircle, PencilLine, Plus } from "lucide-react";
 
 import {
   type AdminTaskRow,
@@ -16,7 +12,7 @@ import {
 } from "@/lib/admin-tasks";
 
 import { Button } from "@/components/ui/button";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { FeedbackNotice } from "@/components/dashboard/dashboard-shared-ui";
 
 import {
   canEditTask,
@@ -26,13 +22,18 @@ import {
 import {
   CreateTaskAttachmentsField,
   EditTaskAttachmentsField,
+} from "./admin-task-attachment-fields";
+import {
   TaskEditSummaryCard,
   TaskFormFields,
 } from "./admin-task-form-sections";
 import { type PageFeedback } from "./admin-tasks-view-model-shared";
 
 const DashboardDialog = dynamic(
-  () => import("@/components/dashboard/dashboard-dialog").then((mod) => mod.DashboardDialog),
+  () =>
+    import("@/components/dashboard/dashboard-dialog").then(
+      (mod) => mod.DashboardDialog,
+    ),
   { ssr: false },
 );
 
@@ -61,12 +62,18 @@ type TaskFormDialogProps = {
   title: string;
 };
 
-type CreateTaskDialogProps = Omit<TaskFormDialogProps, "description" | "selectedTask" | "submitLabel" | "title"> & {
+type CreateTaskDialogProps = Omit<
+  TaskFormDialogProps,
+  "description" | "selectedTask" | "submitLabel" | "title"
+> & {
   onFilesChange: (files: File[]) => void;
   onRemoveFile: (index: number) => void;
 };
 
-type EditTaskDialogProps = Omit<TaskFormDialogProps, "description" | "submitLabel" | "title">;
+type EditTaskDialogProps = Omit<
+  TaskFormDialogProps,
+  "description" | "submitLabel" | "title"
+>;
 
 export function CreateTaskDialog({
   feedback,
@@ -164,7 +171,9 @@ export function EditTaskDialog({
       submitLabel={t("editDialog.submit")}
       taskTypeOptions={taskTypeOptions}
       targetRoleOptions={targetRoleOptions}
-      title={t("editDialog.titleWithName", { taskName: selectedTask.task_name })}
+      title={t("editDialog.titleWithName", {
+        taskName: selectedTask.task_name,
+      })}
     />
   );
 }
@@ -198,21 +207,25 @@ function TaskFormDialog({
 }) {
   const t = useTranslations("Tasks.admin");
   const createMode = selectedTask === null;
-  const canChangeAssignment = selectedTask ? canReassignTask(selectedTask) : true;
+  const canChangeAssignment = selectedTask
+    ? canReassignTask(selectedTask)
+    : true;
 
   return open ? (
     <DashboardDialog
       actions={
         <>
           <Button
-            className="h-11 rounded-full border border-[#d8e2e8] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
+            variant="outline"
+            size="default"
             onClick={() => onOpenChange(false)}
             type="button"
           >
             {createMode ? t("createDialog.cancel") : t("editDialog.cancel")}
           </Button>
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             disabled={pending}
             onClick={onSubmit}
             type="button"
@@ -235,13 +248,15 @@ function TaskFormDialog({
     >
       <div className="space-y-6">
         {feedback ? (
-          <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner>
+          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
         ) : null}
 
         {selectedTask ? <TaskEditSummaryCard task={selectedTask} /> : null}
 
         {selectedTask && !canChangeAssignment ? (
-          <PageBanner tone="info">{t("editDialog.targetRolesLockedHint")}</PageBanner>
+          <FeedbackNotice tone="info">
+            {t("editDialog.targetRolesLockedHint")}
+          </FeedbackNotice>
         ) : null}
 
         <TaskFormFields

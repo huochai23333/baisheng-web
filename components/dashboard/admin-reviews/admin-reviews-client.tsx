@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  FileBadge2,
-  ImageIcon,
-  UserRound,
-} from "lucide-react";
+import { FileBadge2, ImageIcon, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { AdminReviewsPageData } from "@/lib/admin-reviews";
@@ -27,7 +23,11 @@ const reviewTabIconMap = {
   privacy: FileBadge2,
 } as const;
 
-export function AdminReviewsClient({ initialData }: { initialData: AdminReviewsPageData }) {
+export function AdminReviewsClient({
+  initialData,
+}: {
+  initialData: AdminReviewsPageData;
+}) {
   const t = useTranslations("Reviews");
   const {
     activeTab,
@@ -110,7 +110,10 @@ export function AdminReviewsClient({ initialData }: { initialData: AdminReviewsP
         </DashboardListSection>
       )}
 
-      <MediaPreviewDialog asset={previewAsset} onOpenChange={closePreviewDialog} />
+      <MediaPreviewDialog
+        asset={previewAsset}
+        onOpenChange={closePreviewDialog}
+      />
     </DashboardPageShell>
   );
 }

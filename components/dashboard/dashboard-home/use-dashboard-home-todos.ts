@@ -15,7 +15,7 @@ import {
   type UserTodoUpdateInput,
 } from "@/lib/user-todos";
 
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "../workspace-session-provider";
 import {
   createEmptyHomeTodoForm,
@@ -29,7 +29,7 @@ import {
   type HomeTodoFormState,
 } from "./dashboard-home-todo-display";
 
-type Feedback = { message: string; tone: NoticeTone } | null;
+type Feedback = { message: string; tone: FeedbackTone } | null;
 type PendingAction =
   | "create"
   | "edit"

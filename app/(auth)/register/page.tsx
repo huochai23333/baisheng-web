@@ -38,23 +38,30 @@ export default async function RegisterPage({
     <ScopedIntlProvider namespaces={["LanguageToggle", "RegisterForm"]}>
       <AuthShell
         copy={authShellCopy}
+        footer={{
+          linkHref: "/login",
+          linkLabel: t("footerLinkLabel"),
+          prompt: t("footerPrompt"),
+        }}
+        form={{
+          description: t("headerDescription"),
+          title: companyText.registerHeaderTitle,
+        }}
+        hero={{
+          compactNote: {
+            description: companyText.inviteAccessDescription,
+            title: t("mobileNoteTitle"),
+          },
+          description: t("asideDescription"),
+          note: {
+            description: companyText.inviteAccessDescription,
+            title: t("noteTitle"),
+          },
+          title: renderConfiguredTitle(companyText.registerAsideTitle),
+        }}
         mode="register"
-        asideDescription={t("asideDescription")}
-        asideTitle={renderConfiguredTitle(companyText.registerAsideTitle)}
-        footerLinkHref="/login"
-        footerLinkLabel={t("footerLinkLabel")}
-        footerPrompt={t("footerPrompt")}
-        headerDescription={t("headerDescription")}
-        headerTitle={companyText.registerHeaderTitle}
-        noteDescription={companyText.inviteAccessDescription}
-        noteTitle={t("noteTitle")}
       >
         <RegisterForm initialInviteCode={initialInviteCode} />
-
-        <div className="mt-8 rounded-[26px] border border-[#d5dde3] bg-[#eff4f7] p-5 text-sm text-[#627380] shadow-[0_14px_34px_rgba(115,127,139,0.07)] sm:hidden">
-          <p className="mb-2 font-semibold text-[#33424d]">{t("mobileNoteTitle")}</p>
-          <p className="leading-7">{companyText.inviteAccessDescription}</p>
-        </div>
       </AuthShell>
     </ScopedIntlProvider>
   );

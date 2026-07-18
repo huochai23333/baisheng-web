@@ -7,6 +7,7 @@ import {
   loginWithAccount,
 } from "./helpers/auth";
 import { getPeerSalesmanRegressionAccount } from "./helpers/accounts";
+import { expectSelectOptions } from "./helpers/select-control";
 
 const PEER_CUSTOMER_NAME = "业务员协作客户";
 const PEER_ORDER_ID = "c2000000-0000-4000-8000-000000000100";
@@ -46,13 +47,10 @@ test.describe("批发业务员全员协作", () => {
     });
     const customerSalesSelect = customerEditDialog.getByLabel("关联业务员");
     await expect(customerSalesSelect).toBeEnabled();
-    await expect(
-      customerSalesSelect.getByRole("option", { name: "本地业务员" }),
-    ).toHaveCount(1);
-    await expect(
-      customerSalesSelect.getByRole("option", { name: "本地协作业务员" }),
-    ).toHaveCount(1);
-    await page.keyboard.press("Escape");
+    await expectSelectOptions(customerSalesSelect, [
+      "本地业务员",
+      "本地协作业务员",
+    ]);
     await page.keyboard.press("Escape");
 
     await page.goto("/salesman/wholesale/orders");
@@ -74,12 +72,10 @@ test.describe("批发业务员全员协作", () => {
     await expect(orderEditDialog.getByLabel("客户名")).toBeEnabled();
     const orderSalesSelect = orderEditDialog.getByLabel("关联业务员");
     await expect(orderSalesSelect).toBeEnabled();
-    await expect(
-      orderSalesSelect.getByRole("option", { name: "本地业务员" }),
-    ).toHaveCount(1);
-    await expect(
-      orderSalesSelect.getByRole("option", { name: "本地协作业务员" }),
-    ).toHaveCount(1);
+    await expectSelectOptions(orderSalesSelect, [
+      "本地业务员",
+      "本地协作业务员",
+    ]);
     await expectNoDocumentHorizontalOverflow(page);
   });
 

@@ -1,6 +1,9 @@
 import { LockKeyhole, Package, Plane } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { InteractiveButton } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 import type { SignupBusiness } from "./register-form-types";
 import { RegisterStepActions } from "./register-step-actions";
 
@@ -24,7 +27,7 @@ export function RegisterStepBusiness({
   return (
     <div className="space-y-6">
       {locked ? (
-        <div className="flex items-start gap-3 rounded-[20px] border border-[#cddce7] bg-[#edf4f8] p-4 text-sm leading-6 text-[#4c667b]">
+        <div className="flex items-start gap-3 rounded-[20px] border border-status-info/25 bg-status-info-soft p-4 text-sm leading-6 text-status-info">
           <LockKeyhole className="mt-0.5 size-4 shrink-0" />
           <span>{t("businessLocked")}</span>
         </div>
@@ -70,28 +73,32 @@ function BusinessCard({
   onClick: () => void;
 }) {
   return (
-    <button
+    <InteractiveButton
       aria-pressed={checked}
-      className={`min-w-0 rounded-[24px] border p-5 text-left transition-all disabled:cursor-not-allowed disabled:opacity-45 ${
+      className={cn(
+        // 业务选择卡仍是按钮，但外观只组合语义令牌，不再维护另一套按钮状态。
+        "h-auto min-w-0 flex-col items-start whitespace-normal rounded-[24px] p-5 text-left",
         checked
-          ? "border-[#6f91ac] bg-[#eef4f8] shadow-[0_12px_28px_rgba(72,103,130,0.13)]"
-          : "border-[#e0e5e8] bg-white hover:border-[#bfd0dc] hover:bg-[#f8fafb]"
-      }`}
+          ? "border-primary/45 bg-status-info-soft shadow-[var(--surface-shadow-panel)]"
+          : "border-border-subtle bg-surface-panel hover:border-primary/30 hover:bg-surface-interactive",
+      )}
       disabled={disabled}
       onClick={onClick}
       type="button"
     >
       <span
         className={`mb-4 flex size-10 items-center justify-center rounded-[14px] ${
-          checked ? "bg-[#486782] text-white" : "bg-[#edf1f3] text-[#6e7e8a]"
+          checked
+            ? "bg-primary text-primary-foreground"
+            : "bg-surface-inset text-content-muted"
         }`}
       >
         {icon}
       </span>
-      <span className="block font-semibold text-[#2b3d49]">{label}</span>
-      <span className="mt-2 block text-sm leading-6 text-[#75828c]">
+      <span className="block font-semibold text-content-strong">{label}</span>
+      <span className="mt-2 block text-sm leading-6 text-content-muted">
         {description}
       </span>
-    </button>
+    </InteractiveButton>
   );
 }

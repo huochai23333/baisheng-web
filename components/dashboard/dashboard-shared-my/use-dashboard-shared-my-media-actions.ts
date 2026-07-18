@@ -8,13 +8,13 @@ import {
   uploadUserMedia,
   type CurrentUserBundle,
 } from "@/lib/user-self-service";
-import { toErrorMessage, type NoticeTone } from "../dashboard-shared-ui";
+import { toErrorMessage, type FeedbackTone } from "../dashboard-shared-ui";
 import type {
   DashboardSharedCopy,
   DashboardSharedMyStateCopy,
 } from "./dashboard-shared-my-state-copy";
 
-type DialogNotice = { tone: NoticeTone; message: string } | null;
+type DialogNotice = { tone: FeedbackTone; message: string } | null;
 type RefreshBundle = (options?: {
   dialogMessage?: string;
   pageMessage?: string;

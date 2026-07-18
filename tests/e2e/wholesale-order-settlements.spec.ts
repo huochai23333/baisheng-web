@@ -5,6 +5,8 @@ import {
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
+import { fillDateControl } from "./helpers/date-control";
+import { chooseSelectOption } from "./helpers/select-control";
 
 test.describe("wholesale order settlements", () => {
   test("admin can record multiple settlements with a selected date", async ({
@@ -22,7 +24,7 @@ test.describe("wholesale order settlements", () => {
     await page.getByRole("button", { name: "新建订单" }).click();
 
     const createDialog = page.getByRole("dialog", { name: "新建批发订单" });
-    await createDialog.getByLabel("客户名").selectOption({
+    await chooseSelectOption(createDialog.getByLabel("客户名"), {
       label: "Wholesale Alpha",
     });
     await createDialog.getByLabel("小单数量").fill("1");
@@ -31,12 +33,17 @@ test.describe("wholesale order settlements", () => {
     await createDialog.getByLabel("其他费用").fill("0");
     await createDialog.getByLabel("推荐佣金费用").fill("0");
     await createDialog.getByLabel("快递公司").fill("DHL");
-    await createDialog.getByLabel("客户支付币种").selectOption("USD");
+    await chooseSelectOption(createDialog.getByLabel("客户支付币种"), {
+      value: "USD",
+    });
     await createDialog.getByLabel("客户支付金额").fill("300");
-    await createDialog.getByLabel("收款平台").selectOption({
+    await chooseSelectOption(createDialog.getByLabel("收款平台"), {
       label: "Wise",
     });
-    await createDialog.getByLabel("订单计入月份").fill(currentMonth);
+    await fillDateControl(
+      createDialog.getByLabel("订单计入月份"),
+      currentMonth,
+    );
     await createDialog.getByLabel("备注").fill(uniqueNote);
     await createDialog.getByRole("button", { name: "保存订单" }).click();
 
@@ -106,7 +113,10 @@ async function recordSettlement(
   const settlementDialog = page.getByRole("dialog", { name: "确认结汇" });
   await expect(settlementDialog).toBeVisible();
   await settlementDialog.getByLabel("本次结汇金额").fill(amount);
-  await settlementDialog.getByLabel("结汇日期").fill(settlementDate);
+  await fillDateControl(
+    settlementDialog.getByLabel("结汇日期"),
+    settlementDate,
+  );
   await expect(settlementDialog.getByText("7.18", { exact: true }).first()).toBeVisible();
   await settlementDialog.getByRole("button", { name: "保存结汇记录" }).click();
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { useMemo } from "react";
 
 import { ChevronDown } from "lucide-react";
@@ -45,12 +47,11 @@ export function AdminShellDesktopNav({
     resolvedPendingHref,
   } = useAdminShellNavigation(items);
   const activeGroupKey = activeItem?.groupKey ?? null;
-  const { toggleGroup, visibleOpenGroups } =
-    useWorkspaceNavigationPreference({
-      activeGroupKey,
-      groups,
-      initialOpenGroupKeys,
-    });
+  const { toggleGroup, visibleOpenGroups } = useWorkspaceNavigationPreference({
+    activeGroupKey,
+    groups,
+    initialOpenGroupKeys,
+  });
 
   return (
     <nav
@@ -71,24 +72,26 @@ export function AdminShellDesktopNav({
       ))}
 
       {groups.length === 0 ? (
-        <p className="mx-1 rounded-[18px] border border-[#e2e7eb] bg-white/62 px-4 py-3 text-sm leading-6 text-[#6d767c]">
+        <p className="mx-1 rounded-[18px] border border-border-subtle bg-white/62 px-4 py-3 text-sm leading-6 text-content-muted">
           {emptyGroupsLabel}
         </p>
       ) : null}
 
       {groups.map((group) => {
         const isOpen = visibleOpenGroups.has(group.key);
-        const isGroupActive = group.items.some((item) => item.href === pathname);
+        const isGroupActive = group.items.some(
+          (item) => item.href === pathname,
+        );
 
         return (
           <div className="space-y-1" key={group.key}>
-            <button
+            <DesignButton
               aria-expanded={isOpen}
               className={cn(
                 "mx-1 flex w-[calc(100%-0.5rem)] items-center justify-between gap-3 rounded-[18px] px-4 py-3 text-left text-sm font-semibold transition-all duration-200",
                 isGroupActive
-                  ? "bg-[#eef3f6] text-[#314b61]"
-                  : "text-[#415f76]/76 hover:bg-[#e5e3df] hover:text-[#314b61]",
+                  ? "bg-status-info-soft text-content-muted"
+                  : "text-content-muted/76 hover:bg-surface-inset hover:text-content-muted",
               )}
               onClick={() => toggleGroup(group.key, isOpen)}
               type="button"
@@ -100,7 +103,7 @@ export function AdminShellDesktopNav({
                   isOpen ? "rotate-180" : "rotate-0",
                 )}
               />
-            </button>
+            </DesignButton>
 
             <div
               aria-hidden={!isOpen}

@@ -1,0 +1,256 @@
+"use client";
+
+import {
+  useId,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
+
+import { cva, type VariantProps } from "class-variance-authority";
+
+import { cn } from "@/lib/utils";
+import {
+  FormFieldContextProvider,
+  useFormFieldControlAttributes,
+  useFormFieldControlDensity,
+  type FormFieldDensity,
+} from "@/components/ui/form-field-context";
+
+const controlVariants = cva(
+  "w-full border bg-surface-interactive text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring disabled:cursor-not-allowed disabled:bg-surface-inset disabled:text-content-muted disabled:opacity-70 aria-invalid:border-status-danger aria-invalid:ring-status-danger/20",
+  {
+    variants: {
+      controlSize: {
+        compact: "h-10 rounded-[14px] px-3 text-xs",
+        default:
+          "h-11 rounded-[16px] px-3 text-sm sm:h-12 sm:rounded-[18px] sm:px-4",
+        large: "h-[52px] rounded-[22px] px-4 text-[15px]",
+      },
+      density: {
+        // 普通表单需要更明确的静止边界；筛选区一排控件较多，使用更轻的层级减少视觉噪音。
+        default: "border-control-border",
+        filter:
+          "border-filter-control-border hover:border-filter-control-hover",
+      },
+    },
+    defaultVariants: {
+      controlSize: "default",
+      density: "default",
+    },
+  },
+);
+
+/**
+ * 字段容器统一生成输入框 id 和说明关联。
+ * 输入组件会读取这里的上下文，因此业务页面不需要重复拼接 aria-describedby。
+ */
+export function Field({
+  children,
+  className,
+  controlId,
+  density = "default",
+  error,
+  hint,
+  hintTone = "neutral",
+  label,
+  labelAction,
+  required = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  controlId?: string;
+  density?: FormFieldDensity;
+  error?: ReactNode;
+  hint?: ReactNode;
+  hintTone?: "neutral" | "success" | "warning";
+  label: ReactNode;
+  labelAction?: ReactNode;
+  required?: boolean;
+}) {
+  const generatedId = useId();
+  const resolvedControlId = controlId ?? generatedId;
+  const hintId = hint ? `${resolvedControlId}-hint` : undefined;
+  const errorId = error ? `${resolvedControlId}-error` : undefined;
+  const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
+
+  return (
+    <FormFieldContextProvider
+      value={{
+        controlId: resolvedControlId,
+        describedBy,
+        density,
+        invalid: Boolean(error),
+      }}
+    >
+      <div
+        className={cn(
+          "grid min-w-0",
+          density === "default" ? "gap-2" : "gap-1.5 sm:gap-2",
+          className,
+        )}
+        data-density={density}
+        data-slot="field"
+      >
+        <div
+          className={cn(
+            "flex items-center justify-between gap-4",
+            density === "default" && "px-1",
+          )}
+          data-slot="field-heading"
+        >
+          <label
+            className={cn(
+              "font-semibold uppercase",
+              density === "default"
+                ? "font-label text-[11px] tracking-[0.18em] text-content-muted"
+                : "text-[10px] tracking-[0.14em] text-content-subtle sm:text-[11px] sm:tracking-[0.16em]",
+            )}
+            data-slot="field-label"
+            htmlFor={resolvedControlId}
+          >
+            {label}
+            {required ? (
+              <span aria-hidden="true" className="ml-1 text-status-danger">
+                *
+              </span>
+            ) : null}
+          </label>
+          {labelAction}
+        </div>
+        {children}
+        {hint ? (
+          <p
+            className={cn(
+              "px-1 text-xs leading-5",
+              hintTone === "neutral" && "text-content-muted",
+              hintTone === "success" && "text-status-success",
+              hintTone === "warning" && "text-status-warning",
+            )}
+            data-slot="field-hint"
+            id={hintId}
+          >
+            {hint}
+          </p>
+        ) : null}
+        {error ? (
+          <p
+            aria-live="polite"
+            className="text-xs leading-5 text-status-danger"
+            data-slot="field-error"
+            id={errorId}
+          >
+            {error}
+          </p>
+        ) : null}
+      </div>
+    </FormFieldContextProvider>
+  );
+}
+
+type ControlSizeProps = Pick<
+  VariantProps<typeof controlVariants>,
+  "controlSize"
+>;
+
+type InputProps = Omit<ComponentProps<"input">, "size"> & ControlSizeProps;
+
+export function Input({
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+  className,
+  controlSize,
+  id,
+  ...props
+}: InputProps) {
+  const density = useFormFieldControlDensity();
+  const fieldAttributes = useFormFieldControlAttributes({
+    ariaDescribedBy,
+    ariaInvalid,
+    id,
+  });
+
+  return (
+    <input
+      className={cn(controlVariants({ controlSize, density }), className)}
+      data-control-size={controlSize ?? "default"}
+      data-slot="input"
+      {...fieldAttributes}
+      {...props}
+    />
+  );
+}
+
+type TextareaProps = ComponentProps<"textarea"> & ControlSizeProps;
+
+export function Textarea({
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+  className,
+  controlSize,
+  id,
+  ...props
+}: TextareaProps) {
+  const density = useFormFieldControlDensity();
+  const fieldAttributes = useFormFieldControlAttributes({
+    ariaDescribedBy,
+    ariaInvalid,
+    id,
+  });
+
+  return (
+    <textarea
+      className={cn(
+        controlVariants({ controlSize, density }),
+        "min-h-32 resize-y py-3 leading-7",
+        className,
+      )}
+      data-control-size={controlSize ?? "default"}
+      data-slot="textarea"
+      {...fieldAttributes}
+      {...props}
+    />
+  );
+}
+
+type ChoiceProps = Omit<ComponentProps<"input">, "size" | "type"> & {
+  type: "checkbox" | "radio";
+};
+
+function Choice({ className, type, ...props }: ChoiceProps) {
+  return (
+    <input
+      className={cn(
+        "size-4 shrink-0 accent-primary outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      data-slot={type}
+      type={type}
+      {...props}
+    />
+  );
+}
+
+export function Checkbox(props: Omit<ChoiceProps, "type">) {
+  return <Choice type="checkbox" {...props} />;
+}
+
+export function Radio(props: Omit<ChoiceProps, "type">) {
+  return <Choice type="radio" {...props} />;
+}
+
+export function Switch({ className, ...props }: Omit<ChoiceProps, "type">) {
+  return (
+    <input
+      className={cn(
+        "peer relative h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-muted outline-none transition before:absolute before:left-1 before:top-1 before:size-4 before:rounded-full before:bg-white before:shadow-sm before:transition checked:bg-primary checked:before:translate-x-5 focus-visible:ring-4 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+        className,
+      )}
+      data-slot="switch"
+      role="switch"
+      type="checkbox"
+      {...props}
+    />
+  );
+}
+
+export { controlVariants };

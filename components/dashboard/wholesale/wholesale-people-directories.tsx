@@ -1,4 +1,10 @@
 "use client";
+
+import { StatusBadge } from "@/components/ui/status-badge";
+
+import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
+
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { UserCog, UsersRound } from "lucide-react";
@@ -6,12 +12,7 @@ import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-pa
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import { WholesaleDetailGrid } from "./wholesale-detail-grid";
 import { formatDate } from "./wholesale-display";
-import {
-  WholesaleEmptyState,
-  WholesaleStatusBadge,
-  WholesaleTd,
-  WholesaleTh,
-} from "./wholesale-ui";
+import { WholesaleEmptyState, WholesaleTd, WholesaleTh } from "./wholesale-ui";
 export function WholesaleCustomerDirectory({
   customers,
   onSelect,
@@ -36,130 +37,137 @@ export function WholesaleCustomerDirectory({
   }
   return (
     <>
-      <div className="hidden md:block">
-        <DashboardTableFrame>
-          <table className="w-full table-fixed border-collapse text-left text-sm">
-            <colgroup>
-              <col className="w-[28%]" />
-              <col className="w-[24%]" />
-              <col className="w-[20%]" />
-              <col className="w-[14%]" />
-              <col className="w-[14%]" />
-            </colgroup>
-            <thead>
-              <tr>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text001" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text002" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text003" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text004" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text005" />
-                </WholesaleTh>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map((customer) => (
-                <tr
-                  className="cursor-pointer transition-colors hover:bg-[#fcfbf8]"
-                  key={customer.id}
-                  onClick={() => onSelect(customer)}
-                >
-                  <WholesaleTd className="whitespace-normal">
-                    <p className="font-semibold">{customer.unique_name}</p>
-                    <p className="mt-1 text-xs text-[#71808d]">
-                      {customer.other_names.length > 0
-                        ? customer.other_names.join("、")
-                        : t("fallbacks.noOtherNames")}
+      <ResponsiveDataView
+        desktop={
+          <>
+            <DashboardTableFrame>
+              <table className="w-full table-fixed border-collapse text-left text-sm">
+                <colgroup>
+                  <col className="w-[28%]" />
+                  <col className="w-[24%]" />
+                  <col className="w-[20%]" />
+                  <col className="w-[14%]" />
+                  <col className="w-[14%]" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text001" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text002" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text003" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text004" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text005" />
+                    </WholesaleTh>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customers.map((customer) => (
+                    <tr
+                      className="cursor-pointer transition-colors hover:bg-surface-inset"
+                      key={customer.id}
+                      onClick={() => onSelect(customer)}
+                    >
+                      <WholesaleTd className="whitespace-normal">
+                        <p className="font-semibold">{customer.unique_name}</p>
+                        <p className="mt-1 text-xs text-content-muted">
+                          {customer.other_names.length > 0
+                            ? customer.other_names.join("、")
+                            : t("fallbacks.noOtherNames")}
+                        </p>
+                      </WholesaleTd>
+                      <WholesaleTd className="whitespace-normal">
+                        <p>
+                          {customer.contact_details ??
+                            t("fallbacks.notRecorded")}
+                        </p>
+                        <p className="mt-1 text-xs text-content-muted">
+                          {customer.source ?? t("fallbacks.noSource")}
+                        </p>
+                      </WholesaleTd>
+                      <WholesaleTd className="whitespace-normal">
+                        {getLocalizedProfileName(
+                          profilesById,
+                          customer.assigned_sales_user_id,
+                          t("fallbacks.unassigned"),
+                        )}
+                      </WholesaleTd>
+                      <WholesaleTd className="whitespace-normal">
+                        <StatusBadge>
+                          {t(`customerKinds.${customer.customer_kind}`)}
+                        </StatusBadge>
+                        <p className="mt-2 text-xs text-content-muted">
+                          {customer.registered_user_id
+                            ? getLocalizedProfileName(
+                                profilesById,
+                                customer.registered_user_id,
+                                t("fallbacks.unnamed"),
+                              )
+                            : t("fallbacks.notLinkedAccount")}
+                        </p>
+                      </WholesaleTd>
+                      <WholesaleTd className="whitespace-normal">
+                        {formatDate(customer.created_at)}
+                      </WholesaleTd>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </DashboardTableFrame>
+          </>
+        }
+        mobile={
+          <>
+            {customers.map((customer) => (
+              <DesignButton
+                className="rounded-[22px] border border-border-subtle bg-white p-4 text-left shadow-[var(--surface-shadow-interactive)]"
+                key={customer.id}
+                onClick={() => onSelect(customer)}
+                type="button"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="break-words font-semibold text-content-strong">
+                      {customer.unique_name}
                     </p>
-                  </WholesaleTd>
-                  <WholesaleTd className="whitespace-normal">
-                    <p>
-                      {customer.contact_details ?? t("fallbacks.notRecorded")}
+                    <p className="mt-1 break-words text-sm text-content-muted">
+                      {customer.contact_details ?? t("fallbacks.noContact")}
                     </p>
-                    <p className="mt-1 text-xs text-[#71808d]">
-                      {customer.source ?? t("fallbacks.noSource")}
-                    </p>
-                  </WholesaleTd>
-                  <WholesaleTd className="whitespace-normal">
-                    {getLocalizedProfileName(
-                      profilesById,
-                      customer.assigned_sales_user_id,
-                      t("fallbacks.unassigned"),
-                    )}
-                  </WholesaleTd>
-                  <WholesaleTd className="whitespace-normal">
-                    <WholesaleStatusBadge>
-                      {t(`customerKinds.${customer.customer_kind}`)}
-                    </WholesaleStatusBadge>
-                    <p className="mt-2 text-xs text-[#71808d]">
-                      {customer.registered_user_id
-                        ? getLocalizedProfileName(
-                            profilesById,
-                            customer.registered_user_id,
-                            t("fallbacks.unnamed"),
-                          )
-                        : t("fallbacks.notLinkedAccount")}
-                    </p>
-                  </WholesaleTd>
-                  <WholesaleTd className="whitespace-normal">
-                    {formatDate(customer.created_at)}
-                  </WholesaleTd>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </DashboardTableFrame>
-      </div>
-      <div className="grid gap-3 md:hidden">
-        {customers.map((customer) => (
-          <button
-            className="rounded-[22px] border border-[#ebe7e1] bg-white p-4 text-left shadow-[0_10px_24px_rgba(96,113,128,0.05)]"
-            key={customer.id}
-            onClick={() => onSelect(customer)}
-            type="button"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="break-words font-semibold text-[#23313a]">
-                  {customer.unique_name}
-                </p>
-                <p className="mt-1 break-words text-sm text-[#6f7b85]">
-                  {customer.contact_details ?? t("fallbacks.noContact")}
-                </p>
-              </div>
-              <WholesaleStatusBadge>
-                {t(`customerKinds.${customer.customer_kind}`)}
-              </WholesaleStatusBadge>
-            </div>
-            <p className="mt-3 text-sm text-[#6f7b85]">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text006" />
-              {getLocalizedProfileName(
-                profilesById,
-                customer.assigned_sales_user_id,
-                t("fallbacks.unassigned"),
-              )}
-            </p>
-            <p className="mt-1 text-sm text-[#6f7b85]">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text007" />
-              {customer.registered_user_id
-                ? getLocalizedProfileName(
+                  </div>
+                  <StatusBadge>
+                    {t(`customerKinds.${customer.customer_kind}`)}
+                  </StatusBadge>
+                </div>
+                <p className="mt-3 text-sm text-content-muted">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text006" />
+                  {getLocalizedProfileName(
                     profilesById,
-                    customer.registered_user_id,
-                    t("fallbacks.unnamed"),
-                  )
-                : t("fallbacks.notLinked")}
-            </p>
-          </button>
-        ))}
-      </div>
+                    customer.assigned_sales_user_id,
+                    t("fallbacks.unassigned"),
+                  )}
+                </p>
+                <p className="mt-1 text-sm text-content-muted">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text007" />
+                  {customer.registered_user_id
+                    ? getLocalizedProfileName(
+                        profilesById,
+                        customer.registered_user_id,
+                        t("fallbacks.unnamed"),
+                      )
+                    : t("fallbacks.notLinked")}
+                </p>
+              </DesignButton>
+            ))}
+          </>
+        }
+      />
     </>
   );
 }
@@ -185,112 +193,122 @@ export function WholesaleSalesAccountDirectory({
   }
   return (
     <>
-      <div className="hidden md:block">
-        <DashboardTableFrame>
-          <table className="w-full min-w-[760px] table-fixed border-collapse text-left text-sm">
-            <colgroup>
-              <col className="w-[28%]" />
-              <col className="w-[28%]" />
-              <col className="w-[18%]" />
-              <col className="w-[13%]" />
-              <col className="w-[13%]" />
-            </colgroup>
-            <thead>
-              <tr>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text008" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text009" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text010" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text011" />
-                </WholesaleTh>
-                <WholesaleTh className="whitespace-normal">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text012" />
-                </WholesaleTh>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((profile) => (
-                <tr
-                  className="cursor-pointer transition-colors hover:bg-[#fcfbf8]"
-                  key={profile.user_id}
-                  onClick={() => onSelect(profile)}
-                >
-                  <WholesaleTd className="whitespace-normal">
-                    {profile.name ?? t("fallbacks.notProvided")}
-                  </WholesaleTd>
-                  <WholesaleTd className="whitespace-normal">
-                    <p>{profile.email ?? t("fallbacks.noEmail")}</p>
-                    <p className="mt-1 text-xs text-[#71808d]">
-                      {profile.phone ?? t("fallbacks.noPhone")}
-                    </p>
-                  </WholesaleTd>
-                  <WholesaleTd className="whitespace-normal">
-                    {profile.city ?? t("fallbacks.notProvided")}
-                  </WholesaleTd>
-                  <WholesaleTd className="whitespace-normal">
-                    {profile.role === "promoter"
-                      ? t("roles.promoter")
-                      : t("roles.salesman")}
-                  </WholesaleTd>
-                  <WholesaleTd className="whitespace-normal">
-                    <WholesaleStatusBadge
-                      tone={profile.status === "active" ? "success" : "warning"}
+      <ResponsiveDataView
+        desktop={
+          <>
+            <DashboardTableFrame>
+              <table className="w-full min-w-[760px] table-fixed border-collapse text-left text-sm">
+                <colgroup>
+                  <col className="w-[28%]" />
+                  <col className="w-[28%]" />
+                  <col className="w-[18%]" />
+                  <col className="w-[13%]" />
+                  <col className="w-[13%]" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text008" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text009" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text010" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text011" />
+                    </WholesaleTh>
+                    <WholesaleTh className="whitespace-normal">
+                      <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text012" />
+                    </WholesaleTh>
+                  </tr>
+                </thead>
+                <tbody>
+                  {accounts.map((profile) => (
+                    <tr
+                      className="cursor-pointer transition-colors hover:bg-surface-inset"
+                      key={profile.user_id}
+                      onClick={() => onSelect(profile)}
                     >
-                      {profile.status === "active"
-                        ? t("statuses.active")
-                        : t("statuses.inactive")}
-                    </WholesaleStatusBadge>
-                  </WholesaleTd>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </DashboardTableFrame>
-      </div>
-      <div className="grid gap-3 md:hidden">
-        {accounts.map((profile) => (
-          <button
-            className="rounded-[8px] border border-[#e4e8ec] bg-white p-4 text-left transition hover:border-[#bfcbd7]"
-            key={profile.user_id}
-            onClick={() => onSelect(profile)}
-            type="button"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="break-words font-semibold text-[#23313a]">
-                  {profile.name ?? t("fallbacks.notProvided")}
-                </p>
-                <p className="mt-1 break-words text-sm text-[#6f7b85]">
-                  {profile.email ?? profile.phone ?? t("fallbacks.noContact")}
-                </p>
-              </div>
-              <WholesaleStatusBadge
-                tone={profile.status === "active" ? "success" : "warning"}
+                      <WholesaleTd className="whitespace-normal">
+                        {profile.name ?? t("fallbacks.notProvided")}
+                      </WholesaleTd>
+                      <WholesaleTd className="whitespace-normal">
+                        <p>{profile.email ?? t("fallbacks.noEmail")}</p>
+                        <p className="mt-1 text-xs text-content-muted">
+                          {profile.phone ?? t("fallbacks.noPhone")}
+                        </p>
+                      </WholesaleTd>
+                      <WholesaleTd className="whitespace-normal">
+                        {profile.city ?? t("fallbacks.notProvided")}
+                      </WholesaleTd>
+                      <WholesaleTd className="whitespace-normal">
+                        {profile.role === "promoter"
+                          ? t("roles.promoter")
+                          : t("roles.salesman")}
+                      </WholesaleTd>
+                      <WholesaleTd className="whitespace-normal">
+                        <StatusBadge
+                          tone={
+                            profile.status === "active" ? "success" : "warning"
+                          }
+                        >
+                          {profile.status === "active"
+                            ? t("statuses.active")
+                            : t("statuses.inactive")}
+                        </StatusBadge>
+                      </WholesaleTd>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </DashboardTableFrame>
+          </>
+        }
+        mobile={
+          <>
+            {accounts.map((profile) => (
+              <DesignButton
+                className="rounded-[8px] border border-border-subtle bg-white p-4 text-left transition hover:border-border-subtle"
+                key={profile.user_id}
+                onClick={() => onSelect(profile)}
+                type="button"
               >
-                {profile.status === "active"
-                  ? t("statuses.active")
-                  : t("statuses.inactive")}
-              </WholesaleStatusBadge>
-            </div>
-            <p className="mt-3 text-sm text-[#6f7b85]">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text013" />
-              {profile.role === "promoter"
-                ? t("roles.promoter")
-                : t("roles.salesman")}
-            </p>
-            <p className="mt-1 text-sm text-[#6f7b85]">
-              <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text014" />
-              {profile.city ?? t("fallbacks.notProvided")}
-            </p>
-          </button>
-        ))}
-      </div>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="break-words font-semibold text-content-strong">
+                      {profile.name ?? t("fallbacks.notProvided")}
+                    </p>
+                    <p className="mt-1 break-words text-sm text-content-muted">
+                      {profile.email ??
+                        profile.phone ??
+                        t("fallbacks.noContact")}
+                    </p>
+                  </div>
+                  <StatusBadge
+                    tone={profile.status === "active" ? "success" : "warning"}
+                  >
+                    {profile.status === "active"
+                      ? t("statuses.active")
+                      : t("statuses.inactive")}
+                  </StatusBadge>
+                </div>
+                <p className="mt-3 text-sm text-content-muted">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text013" />
+                  {profile.role === "promoter"
+                    ? t("roles.promoter")
+                    : t("roles.salesman")}
+                </p>
+                <p className="mt-1 text-sm text-content-muted">
+                  <UiMessage id="components_dashboard_wholesale_wholesale_people_directories.text014" />
+                  {profile.city ?? t("fallbacks.notProvided")}
+                </p>
+              </DesignButton>
+            ))}
+          </>
+        }
+      />
     </>
   );
 }

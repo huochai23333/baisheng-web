@@ -1,7 +1,7 @@
 "use client";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { FeedbackNotice } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { WholesalePageData } from "@/lib/wholesale";
 import {
@@ -97,12 +97,13 @@ export function WholesaleClient({
 
       {initialData.section === "orders" && !initialData.orderPage ? (
         <div className="space-y-4">
-          <PageBanner tone="error">
+          <FeedbackNotice tone="error">
             {initialData.orderPageError ??
               "批发订单暂时没有加载成功，请稍后重试。"}
-          </PageBanner>
+          </FeedbackNotice>
           <Button
-            className="rounded-full bg-[#486782] text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             onClick={() => window.location.reload()}
             type="button"
           >
@@ -123,9 +124,7 @@ export function WholesaleClient({
       ) : null}
 
       {initialData.section === "order-claims" && !initialData.claimPage ? (
-        <PageBanner tone="error">
-          {uiText("claimsLoadError")}
-        </PageBanner>
+        <FeedbackNotice tone="error">{uiText("claimsLoadError")}</FeedbackNotice>
       ) : null}
 
       {initialData.section === "logistics" ? (
@@ -140,7 +139,7 @@ export function WholesaleClient({
             profiles={initialData.profiles}
           />
         ) : (
-          <PageBanner tone="error">{uiText("text002")}</PageBanner>
+          <FeedbackNotice tone="error">{uiText("text002")}</FeedbackNotice>
         )
       ) : null}
 

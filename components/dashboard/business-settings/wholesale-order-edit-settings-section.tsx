@@ -1,4 +1,6 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -8,8 +10,8 @@ import {
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import {
-  PageBanner,
-  type NoticeTone,
+  FeedbackNotice,
+  type FeedbackTone,
 } from "@/components/dashboard/dashboard-shared-ui";
 import { DashboardInlineEditActions } from "@/components/dashboard/dashboard-framework-primitives";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
@@ -19,7 +21,7 @@ import {
 } from "@/lib/wholesale-order-edit-settings";
 type PageFeedback = {
   message: string;
-  tone: NoticeTone;
+  tone: FeedbackTone;
 } | null;
 export function WholesaleOrderEditSettingsSection({
   initialSettings,
@@ -78,13 +80,13 @@ export function WholesaleOrderEditSettingsSection({
       title={uiText("attribute001")}
     >
       {feedback ? (
-        <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner>
+        <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <DashboardFilterField label={uiText("attribute002")}>
           <div className="relative">
-            <input
+            <FormControls.Input
               className={dashboardFilterInputClassName}
               disabled={!editing || pending}
               min={0}
@@ -94,7 +96,7 @@ export function WholesaleOrderEditSettingsSection({
               value={draftDays}
             />
           </div>
-          <p className="mt-2 text-sm leading-6 text-[#6f7b85]">
+          <p className="mt-2 text-sm leading-6 text-content-muted">
             <UiMessage id="components_dashboard_business_settings_wholesale_order_edit_settings_section.text001" />
           </p>
         </DashboardFilterField>

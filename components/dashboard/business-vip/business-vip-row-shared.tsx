@@ -1,26 +1,27 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 import type { BusinessVipRow } from "@/lib/business-vip-management";
 import type { Locale } from "@/lib/locale";
 
 import {
   formatBusinessVipDate,
-  getBusinessVipStatusChipClass,
+  getBusinessVipStatusTone,
 } from "./business-vip-display";
 
 export function BusinessVipCustomerCell({ row }: { row: BusinessVipRow }) {
   return (
     <div className="min-w-0">
-      <p className="break-words font-semibold text-[#23313a] [overflow-wrap:anywhere]">
+      <p className="break-words font-semibold text-content-strong [overflow-wrap:anywhere]">
         {row.customerLabel}
       </p>
-      <p className="mt-1 break-words text-xs leading-5 text-[#7b858d] [overflow-wrap:anywhere]">
+      <p className="mt-1 break-words text-xs leading-5 text-content-muted [overflow-wrap:anywhere]">
         {row.contactLabel}
       </p>
       {row.secondaryLabel ? (
-        <p className="mt-1 break-words text-xs leading-5 text-[#8a949c] [overflow-wrap:anywhere]">
+        <p className="mt-1 break-words text-xs leading-5 text-content-subtle [overflow-wrap:anywhere]">
           {row.secondaryLabel}
         </p>
       ) : null}
@@ -42,19 +43,19 @@ export function BusinessVipStatusBlock({
     <div className="flex min-w-0 flex-col items-start gap-2">
       <BusinessVipStatusChip status={row.status} />
       {row.business === "wholesale" ? (
-        <p className="text-xs leading-5 text-[#6f7b85]">
+        <p className="text-xs leading-5 text-content-muted">
           {t("status.startedAt", {
             value: formatBusinessVipDate(row.startedAt, locale, fallback),
           })}
         </p>
       ) : null}
-      <p className="text-xs leading-5 text-[#6f7b85]">
+      <p className="text-xs leading-5 text-content-muted">
         {t("status.expiresAt", {
           value: formatBusinessVipDate(row.expiresAt, locale, fallback),
         })}
       </p>
       {row.business === "tourism" ? (
-        <p className="text-xs leading-5 text-[#8a949c]">
+        <p className="text-xs leading-5 text-content-subtle">
           {t("status.latestPaidAt", {
             value: formatBusinessVipDate(row.latestPaidAt, locale, fallback),
           })}
@@ -72,8 +73,8 @@ export function BusinessVipStatusChip({
   const t = useTranslations("BusinessVip");
 
   return (
-    <span className={getBusinessVipStatusChipClass(status)}>
+    <StatusBadge size="md" tone={getBusinessVipStatusTone(status)}>
       {t(`status.labels.${status}`)}
-    </span>
+    </StatusBadge>
   );
 }

@@ -185,8 +185,8 @@ export function getOperatorReimbursementStatusTone(
   status: OperatorReimbursementStatus,
 ) {
   return status === "reimbursed"
-    ? "border-[#d4e7d6] bg-[#f1f8f2] text-[#42624b]"
-    : "border-[#eadbbf] bg-[#fff8ec] text-[#856225]";
+    ? "border-border-subtle bg-surface-inset text-content-muted"
+    : "border-border-subtle bg-surface-inset text-content-muted";
 }
 
 function sumOperatorReimbursements(

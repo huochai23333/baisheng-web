@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import type { NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import type { FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 import type {
   BusinessVipAdjustmentAction,
   BusinessVipMembershipAction,
@@ -21,7 +21,7 @@ import {
 import type { BusinessVipDialogState } from "./business-vip-dialogs";
 import type { BusinessVipWholesaleDialogState } from "./business-vip-wholesale-dialogs";
 
-type BusinessVipFeedback = { message: string; tone: NoticeTone } | null;
+type BusinessVipFeedback = { message: string; tone: FeedbackTone } | null;
 type BusinessVipActiveDialogState = BusinessVipDialogState | BusinessVipWholesaleDialogState;
 type BusinessVipMutationPayload =
   | { business: BusinessVipPageData["business"]; note: string; operation: "request"; targetId: string }

@@ -1,11 +1,14 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+import { Select } from "@/components/ui/select";
+
 import {
-  DashboardFormDialog,
+  FormDialog,
   DashboardFormTextarea,
   dashboardFormInputClassName,
 } from "@/components/dashboard/dashboard-form-dialog";
-import type { NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import type { FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 import type { WorkspaceFeedbackType } from "@/lib/workspace-feedback";
 
 import {
@@ -26,7 +29,7 @@ type WorkspaceFeedbackDialogProps = {
     typeLabel: string;
     typeOptions: Record<WorkspaceFeedbackType, string>;
   };
-  feedback: { tone: NoticeTone; message: string } | null;
+  feedback: { tone: FeedbackTone; message: string } | null;
   formState: WorkspaceFeedbackFormState;
   onOpenChange: (open: boolean) => void;
   onSubmit: () => void;
@@ -49,7 +52,7 @@ export function WorkspaceFeedbackDialog({
   pending,
 }: WorkspaceFeedbackDialogProps) {
   return (
-    <DashboardFormDialog
+    <FormDialog
       cancelLabel={copy.cancel}
       description={copy.description}
       feedback={feedback}
@@ -60,46 +63,38 @@ export function WorkspaceFeedbackDialog({
       submitLabel={copy.submit}
       title={copy.title}
     >
-        <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-          {copy.typeLabel}
-          <select
-            className={dashboardFormInputClassName}
-            onChange={(event) =>
-              onUpdateField(
-                "feedbackType",
-                event.target.value as WorkspaceFeedbackType,
-              )
-            }
-            value={formState.feedbackType}
-          >
-            {workspaceFeedbackTypeValues.map((feedbackType) => (
-              <option key={feedbackType} value={feedbackType}>
-                {copy.typeOptions[feedbackType]}
-              </option>
-            ))}
-          </select>
-        </label>
+      <label className="grid gap-2 text-sm font-semibold text-content-strong">
+        {copy.typeLabel}
+        <Select
+          onValueChange={(value) => onUpdateField("feedbackType", value)}
+          options={workspaceFeedbackTypeValues.map((feedbackType) => ({
+            label: copy.typeOptions[feedbackType],
+            value: feedbackType,
+          }))}
+          value={formState.feedbackType}
+        />
+      </label>
 
-        <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-          {copy.titleLabel}
-          <input
-            className={dashboardFormInputClassName}
-            onChange={(event) => onUpdateField("title", event.target.value)}
-            placeholder={copy.titlePlaceholder}
-            type="text"
-            value={formState.title}
-          />
-        </label>
+      <label className="grid gap-2 text-sm font-semibold text-content-strong">
+        {copy.titleLabel}
+        <FormControls.Input
+          className={dashboardFormInputClassName}
+          onChange={(event) => onUpdateField("title", event.target.value)}
+          placeholder={copy.titlePlaceholder}
+          type="text"
+          value={formState.title}
+        />
+      </label>
 
-        <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-          {copy.contentLabel}
-          <DashboardFormTextarea
-            className="min-h-[180px]"
-            onChange={(event) => onUpdateField("content", event.target.value)}
-            placeholder={copy.contentPlaceholder}
-            value={formState.content}
-          />
-        </label>
-    </DashboardFormDialog>
+      <label className="grid gap-2 text-sm font-semibold text-content-strong">
+        {copy.contentLabel}
+        <DashboardFormTextarea
+          className="min-h-[180px]"
+          onChange={(event) => onUpdateField("content", event.target.value)}
+          placeholder={copy.contentPlaceholder}
+          value={formState.content}
+        />
+      </label>
+    </FormDialog>
   );
 }

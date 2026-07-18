@@ -21,7 +21,7 @@ export function ReviewHeaderCell({
   return (
     <div
       className={cn(
-        "font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase",
+        "font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase",
         className,
       )}
     >
@@ -41,12 +41,12 @@ export function ReviewValueCell({
 }) {
   return (
     <div className="min-w-0">
-      <p className="mb-1 font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase lg:hidden">
+      <p className="mb-1 font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase lg:hidden">
         {label}
       </p>
       <p
         className={cn(
-          "truncate text-sm font-medium text-[#2b3942] lg:text-[15px]",
+          "truncate text-sm font-medium text-content-strong lg:text-[15px]",
           mono && "tracking-[0.12em]",
         )}
         title={value}
@@ -71,7 +71,8 @@ export function ReviewActionGroup({
   return (
     <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
       <Button
-        className="h-10 rounded-full bg-[#4c7259] px-4 text-white hover:bg-[#43664e]"
+        variant="success"
+        size="compact"
         disabled={Boolean(busyAction)}
         onClick={onApprove}
       >
@@ -83,10 +84,10 @@ export function ReviewActionGroup({
         {t("actions.approve")}
       </Button>
       <Button
-        className="h-10 rounded-full border-[#efd6d6] bg-white px-4 text-[#b13d3d] hover:bg-[#fff4f4]"
+        size="compact"
         disabled={Boolean(busyAction)}
         onClick={onReject}
-        variant="outline"
+        variant="danger"
       >
         {busyAction === "reject" ? (
           <LoaderCircle className="size-4 animate-spin" />

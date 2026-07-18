@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import {
-  BriefcaseBusiness,
-  Copy,
-  LoaderCircle,
-} from "lucide-react";
+import { BriefcaseBusiness, Copy, LoaderCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { buildBoardInviteLink } from "@/lib/business-referrals";
@@ -40,7 +36,9 @@ export function DashboardBusinessReferralPanel({
 }: DashboardBusinessReferralPanelProps) {
   const t = useTranslations("DashboardMy");
   const supabase = getBrowserSupabaseClient();
-  const [salesmanBoards, setSalesmanBoards] = useState<SalesmanBusinessBoard[]>([]);
+  const [salesmanBoards, setSalesmanBoards] = useState<SalesmanBusinessBoard[]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState<LocalNotice | null>(null);
 
@@ -81,7 +79,8 @@ export function DashboardBusinessReferralPanel({
     return null;
   }
 
-  const boardLabel = (board: SalesmanBusinessBoard) => t(BOARD_COPY_KEYS[board]);
+  const boardLabel = (board: SalesmanBusinessBoard) =>
+    t(BOARD_COPY_KEYS[board]);
 
   const copyInviteLink = async (board: SalesmanBusinessBoard) => {
     if (!referralCode || typeof window === "undefined") {
@@ -107,16 +106,16 @@ export function DashboardBusinessReferralPanel({
   };
 
   return (
-    <div className="mt-6 border-t border-[#e0ddd8] pt-6">
+    <div className="mt-6 border-t border-border-subtle pt-6">
       <div className="flex items-start gap-3">
-        <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-2xl bg-white text-[#486782]">
+        <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-2xl bg-white text-primary">
           <BriefcaseBusiness className="size-4.5" />
         </span>
         <div className="min-w-0 flex-1">
-          <h4 className="text-base font-semibold text-[#24323c]">
+          <h4 className="text-base font-semibold text-content-muted">
             {t("businessInviteTitle")}
           </h4>
-          <p className="mt-1 text-sm leading-6 text-[#6d767c]">
+          <p className="mt-1 text-sm leading-6 text-content-muted">
             {t("businessInviteDescription")}
           </p>
         </div>
@@ -126,8 +125,8 @@ export function DashboardBusinessReferralPanel({
         <p
           className={
             notice.tone === "success"
-              ? "mt-4 text-sm leading-6 text-[#487155]"
-              : "mt-4 text-sm leading-6 text-[#9d3a35]"
+              ? "mt-4 text-sm leading-6 text-status-success"
+              : "mt-4 text-sm leading-6 text-content-muted"
           }
         >
           {notice.message}
@@ -135,7 +134,7 @@ export function DashboardBusinessReferralPanel({
       ) : null}
 
       {loading ? (
-        <p className="mt-4 flex items-center gap-2 text-sm text-[#6d767c]">
+        <p className="mt-4 flex items-center gap-2 text-sm text-content-muted">
           <LoaderCircle className="size-4 animate-spin" />
           {t("businessReferralLoading")}
         </p>
@@ -168,18 +167,27 @@ function SalesmanInviteActions({
   t: (key: string, values?: Record<string, string>) => string;
 }) {
   if (!referralCode) {
-    return <p className="mt-4 text-sm text-[#9d3a35]">{t("businessInviteNoCode")}</p>;
+    return (
+      <p className="mt-4 text-sm text-content-muted">
+        {t("businessInviteNoCode")}
+      </p>
+    );
   }
 
   if (boards.length === 0) {
-    return <p className="mt-4 text-sm text-[#6d767c]">{t("businessInviteNoAccess")}</p>;
+    return (
+      <p className="mt-4 text-sm text-content-muted">
+        {t("businessInviteNoAccess")}
+      </p>
+    );
   }
 
   return (
     <div className="mt-4 flex flex-wrap gap-3">
       {boards.map((board) => (
         <Button
-          className="h-auto min-h-11 rounded-full border-[#d4d8dc] bg-white px-5 py-2 text-[#486782] hover:bg-[#f2f4f6]"
+          size="default"
+          className="h-auto min-h-11"
           key={board}
           onClick={() => void copyInviteLink(board)}
           type="button"

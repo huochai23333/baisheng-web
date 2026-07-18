@@ -1,5 +1,7 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+
 import { useTranslations } from "next-intl";
 
 import { DashboardOrderFilterSection } from "@/components/dashboard/dashboard-order-filter-section";
@@ -8,6 +10,7 @@ import {
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   getDefaultOrderDateRange,
   type OrderDatePreset,
@@ -60,7 +63,7 @@ export function WholesaleClaimsFiltersPanel({
     >
       <DashboardFilterField label={uiText("attribute005")}>
         <div className="grid gap-2">
-          <input
+          <FormControls.Input
             className={dashboardFilterInputClassName}
             onChange={(event) => onChange({ searchText: event.target.value })}
             placeholder={uiText("attribute006")}
@@ -79,7 +82,7 @@ export function WholesaleClaimsFiltersPanel({
         </div>
       </DashboardFilterField>
       <DashboardFilterField label={uiText("recipientFilterLabel")}>
-        <input
+        <FormControls.Input
           className={dashboardFilterInputClassName}
           onChange={(event) => onChange({ recipientName: event.target.value })}
           placeholder={uiText("recipientFilterPlaceholder")}
@@ -87,33 +90,28 @@ export function WholesaleClaimsFiltersPanel({
           value={filters.recipientName}
         />
       </DashboardFilterField>
-      <DashboardFilterField label={uiText("purchaseFromLabel")}>
-        <input
-          id="wholesale-claims-date-from"
-          className={dashboardFilterInputClassName}
-          onChange={(event) => {
-            const nextDate = event.target.value;
+      <DashboardFilterField
+        controlId="wholesale-claims-date-from"
+        label={uiText("purchaseFromLabel")}
+      >
+        <DatePicker
+          onValueChange={(nextDate) => {
             if (!nextDate) return;
             onChange({
               fromDate: nextDate,
               exactOrderNumber: "",
               searchMode: "date_range",
-              ...(filters.toDate < nextDate
-                ? { toDate: nextDate }
-                : {}),
+              ...(filters.toDate < nextDate ? { toDate: nextDate } : {}),
             });
           }}
           required
-          type="date"
           value={filters.fromDate}
         />
       </DashboardFilterField>
       <DashboardFilterField label={uiText("purchaseToLabel")}>
-        <input
-          className={dashboardFilterInputClassName}
+        <DatePicker
           min={filters.fromDate}
-          onChange={(event) => {
-            const nextDate = event.target.value;
+          onValueChange={(nextDate) => {
             if (!nextDate) return;
             onChange({
               exactOrderNumber: "",
@@ -122,7 +120,6 @@ export function WholesaleClaimsFiltersPanel({
             });
           }}
           required
-          type="date"
           value={filters.toDate}
         />
       </DashboardFilterField>
@@ -148,8 +145,8 @@ export function WholesaleClaimsBulkToolbar({
   }
 
   return (
-    <div className="mt-4 flex flex-col gap-3 rounded-[18px] border border-[#d7e1e8] bg-[#f1f6f8] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm font-semibold leading-6 text-[#344b5d]">
+    <div className="mt-4 flex flex-col gap-3 rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm font-semibold leading-6 text-content-muted">
         {uiText("selectedCount", { count: selectedCount })}
       </p>
       <div className="flex flex-wrap gap-2">
@@ -162,7 +159,9 @@ export function WholesaleClaimsBulkToolbar({
           {uiText("clearSelection")}
         </Button>
         <Button
-          className="min-h-10 whitespace-normal rounded-full bg-[#486782] text-white hover:bg-[#3e5f79]"
+          variant="primary"
+          size="default"
+          className="min-h-10 whitespace-normal"
           onClick={onClaim}
           type="button"
         >

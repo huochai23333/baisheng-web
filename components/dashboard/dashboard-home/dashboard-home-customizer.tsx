@@ -138,7 +138,8 @@ export function DashboardHomeCustomizer({
       <div className="flex justify-end">
         {editing ? (
           <Button
-            className="h-11 rounded-[16px] bg-[#486782] px-4 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             data-testid="home-edit-done-button"
             onClick={stopEditing}
             type="button"
@@ -148,7 +149,9 @@ export function DashboardHomeCustomizer({
           </Button>
         ) : (
           <Button
-            className="h-11 rounded-[16px] border border-[#dfe5ea] bg-white/80 px-4 text-[#23313a] hover:bg-[#edf2f5]"
+            variant="outline"
+            size="default"
+            className="text-content-strong"
             data-testid="home-edit-button"
             onClick={startEditing}
             type="button"
@@ -163,7 +166,7 @@ export function DashboardHomeCustomizer({
         <div
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute -inset-2 rounded-[30px] border-2 border-dashed border-[#d44d4d] opacity-0 transition-opacity duration-200",
+            "pointer-events-none absolute -inset-2 rounded-[30px] border-2 border-dashed border-border-subtle opacity-0 transition-opacity duration-200",
             editing && "opacity-100",
           )}
           data-testid="home-widget-placement-boundary"
@@ -174,11 +177,11 @@ export function DashboardHomeCustomizer({
           style={{ gridAutoRows: `${HOME_WIDGET_ROW_UNIT_PX}px` }}
         >
           {widgets.length === 0 ? (
-            <div className="col-span-5 rounded-[24px] border border-dashed border-[#bfd2e1] bg-white/68 p-8 text-center">
-              <h2 className="text-xl font-bold text-[#23313a]">
+            <div className="col-span-5 rounded-[24px] border border-dashed border-ring bg-white/68 p-8 text-center">
+              <h2 className="text-xl font-bold text-content-strong">
                 {customizerCopy.emptyTitle}
               </h2>
-              <p className="mx-auto mt-2 max-w-md break-words text-sm leading-7 text-[#69747d]">
+              <p className="mx-auto mt-2 max-w-md break-words text-sm leading-7 text-content-muted">
                 {customizerCopy.emptyDescription}
               </p>
             </div>

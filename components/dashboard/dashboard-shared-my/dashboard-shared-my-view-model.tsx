@@ -51,22 +51,27 @@ export function createDashboardSharedMyViewModel({
   sharedCopy: DashboardSharedCopy;
 }) {
   const authUser = bundle?.authUser ?? null;
-  const mediaAssets: CurrentUserBundle["mediaAssets"] = bundle?.mediaAssets ?? [];
+  const mediaAssets: CurrentUserBundle["mediaAssets"] =
+    bundle?.mediaAssets ?? [];
   const privacyData = bundle?.privacyData ?? null;
   const privacyRequests: CurrentUserBundle["privacyRequests"] =
     bundle?.privacyRequests ?? [];
   const profile = bundle?.profile ?? null;
   const vipMembership = bundle?.vipMembership ?? null;
 
-  const approvedIdentityValue = normalizeOptionalString(privacyData?.id_card) ?? "";
-  const approvedPassportValue = normalizeOptionalString(privacyData?.passport) ?? "";
+  const approvedIdentityValue =
+    normalizeOptionalString(privacyData?.id_card) ?? "";
+  const approvedPassportValue =
+    normalizeOptionalString(privacyData?.passport) ?? "";
   const pendingIdentityRequest = privacyRequests.find(
     (request) =>
-      request.status === "pending" && normalizeOptionalString(request.id_card_requests),
+      request.status === "pending" &&
+      normalizeOptionalString(request.id_card_requests),
   );
   const pendingPassportRequest = privacyRequests.find(
     (request) =>
-      request.status === "pending" && normalizeOptionalString(request.passport_requests),
+      request.status === "pending" &&
+      normalizeOptionalString(request.passport_requests),
   );
 
   const identityStatus: ReviewStatus = pendingIdentityRequest
@@ -124,7 +129,9 @@ export function createDashboardSharedMyViewModel({
     vipMembership?.status === "active" &&
     (!vipMembership.expires_at ||
       new Date(vipMembership.expires_at).getTime() > Date.now());
-  const membershipLabel = hasActiveVip ? copy.vipMembership : copy.standardMembership;
+  const membershipLabel = hasActiveVip
+    ? copy.vipMembership
+    : copy.standardMembership;
 
   const assets = [
     {
@@ -162,7 +169,12 @@ export function createDashboardSharedMyViewModel({
       title: copy.videosTitle,
       status: getStatusLabel("videos", videoStatus, sharedCopy),
       tone: videoStatus,
-      body: <VideoPreview count={videoAssets.length} title={videoAssets[0]?.original_name} />,
+      body: (
+        <VideoPreview
+          count={videoAssets.length}
+          title={videoAssets[0]?.original_name}
+        />
+      ),
     },
   ];
 
@@ -171,7 +183,11 @@ export function createDashboardSharedMyViewModel({
     { label: copy.emailLabel, value: displayEmail },
     { label: copy.passwordLabel, value: copy.passwordValue, mono: true },
     { label: copy.inviteCodeLabel, value: displayReferralCode, mono: true },
-    { label: copy.accountStatusLabel, value: displayStatus.label, accent: displayStatus.accent },
+    {
+      label: copy.accountStatusLabel,
+      value: displayStatus.label,
+      accent: displayStatus.accent,
+    },
     { label: copy.lastLoginLabel, value: displayLastLogin },
   ] as const;
 

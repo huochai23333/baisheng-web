@@ -4,10 +4,10 @@ import type {
 } from "@/lib/admin-tasks";
 import type { DashboardPaginationSlice } from "@/lib/dashboard-pagination";
 
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 
 export type PageFeedbackValue = {
-  tone: NoticeTone;
+  tone: FeedbackTone;
   message: string;
 };
 
@@ -16,11 +16,9 @@ export type PageFeedback = PageFeedbackValue | null;
 export type AdminTasksPagination = DashboardPaginationSlice<AdminTaskRow>;
 
 export const taskInputClassName =
-  "h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30";
-export const taskSelectClassName =
-  "h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30";
+  "h-12 w-full rounded-[18px] border border-border bg-white px-4 text-sm text-content-strong outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30";
 export const taskTextareaClassName =
-  "min-h-[150px] w-full rounded-[22px] border border-[#dfe5ea] bg-white px-4 py-3 text-sm leading-7 text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30";
+  "min-h-[150px] w-full rounded-[22px] border border-border bg-white px-4 py-3 text-sm leading-7 text-content-strong outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30";
 
 export function areAdminTaskFiltersEqual(
   left: AdminTasksFilters,

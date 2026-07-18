@@ -50,13 +50,15 @@ export function AdminTaskReviewSection({
     <DashboardListSection
       actions={
         <Button
-          className="h-10 rounded-full border border-[#d8e2e8] bg-white px-4 text-[#486782] hover:bg-[#eef3f6]"
+          size="compact"
           disabled={isRefreshing}
           onClick={onRefresh}
           type="button"
           variant="outline"
         >
-          <RefreshCw className={["size-4", isRefreshing ? "animate-spin" : ""].join(" ")} />
+          <RefreshCw
+            className={["size-4", isRefreshing ? "animate-spin" : ""].join(" ")}
+          />
           {t("reviewBoard.refresh")}
         </Button>
       }
@@ -65,12 +67,12 @@ export function AdminTaskReviewSection({
       title={t("reviewBoard.title")}
     >
       <AdminTaskReviewList
-            assetBusyKey={assetBusyKey}
-            busyRows={busyRows}
-            onAction={onReviewAction}
-            onOpenAsset={(row, asset) => void onOpenAsset(row, asset)}
-            rows={rows}
-          />
+        assetBusyKey={assetBusyKey}
+        busyRows={busyRows}
+        onAction={onReviewAction}
+        onOpenAsset={(row, asset) => void onOpenAsset(row, asset)}
+        rows={rows}
+      />
     </DashboardListSection>
   );
 }

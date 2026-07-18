@@ -1,4 +1,6 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -27,19 +29,19 @@ export function WholesaleCustomerOtherNames({
   );
   const [isAdding, setIsAdding] = useState(false);
   return (
-    <section className="rounded-[18px] border border-[#ebe7e1] bg-white p-4">
+    <section className="rounded-[18px] border border-border-subtle bg-white p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h4 className="text-sm font-semibold text-[#263640]">
+          <h4 className="text-sm font-semibold text-content-muted">
             <UiMessage id="components_dashboard_wholesale_wholesale_customer_other_names.text001" />
           </h4>
-          <p className="mt-1 text-xs leading-5 text-[#6f7b85]">
+          <p className="mt-1 text-xs leading-5 text-content-muted">
             <UiMessage id="components_dashboard_wholesale_wholesale_customer_other_names.text002" />
           </p>
         </div>
         {canEdit ? (
           <Button
-            className="h-9 rounded-full border border-[#d8e2e8] bg-white px-3 text-xs text-[#486782] hover:bg-[#eef3f6]"
+            size="compact"
             onClick={() => setIsAdding((current) => !current)}
             type="button"
             variant="outline"
@@ -58,14 +60,14 @@ export function WholesaleCustomerOtherNames({
         {customer.other_names.length > 0 ? (
           customer.other_names.map((name) => (
             <span
-              className="rounded-full bg-[#f0efec] px-3 py-1 text-xs leading-5 text-[#53616b]"
+              className="rounded-full bg-surface-inset px-3 py-1 text-xs leading-5 text-content-muted"
               key={name}
             >
               {name}
             </span>
           ))
         ) : (
-          <p className="text-sm leading-6 text-[#7a8791]">
+          <p className="text-sm leading-6 text-content-muted">
             <UiMessage id="components_dashboard_wholesale_wholesale_customer_other_names.text003" />
           </p>
         )}
@@ -84,9 +86,13 @@ export function WholesaleCustomerOtherNames({
             setIsAdding(false);
           }}
         >
-          <input name="customer_id" type="hidden" value={customer.id} />
+          <FormControls.Input
+            name="customer_id"
+            type="hidden"
+            value={customer.id}
+          />
           <DashboardFilterField label={uiText("attribute001")}>
-            <input
+            <FormControls.Input
               className={dashboardFilterInputClassName}
               name="other_names"
               placeholder={uiText("attribute002")}

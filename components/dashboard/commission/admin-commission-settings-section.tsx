@@ -13,8 +13,8 @@ import {
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useLocale } from "@/components/i18n/locale-provider";
 import {
-  PageBanner,
-  type NoticeTone,
+  FeedbackNotice,
+  type FeedbackTone,
 } from "@/components/dashboard/dashboard-shared-ui";
 import { DashboardListSection } from "@/components/dashboard/dashboard-section-panel";
 
@@ -30,7 +30,7 @@ import {
   type RuleDraft,
 } from "./admin-commission-settings-ui";
 
-type PageFeedback = { message: string; tone: NoticeTone } | null;
+type PageFeedback = { message: string; tone: FeedbackTone } | null;
 type SettingsErrorKey =
   | "settings.errors.permission"
   | "settings.errors.unknown"
@@ -53,9 +53,13 @@ export function AdminCommissionSettingsSection({
   const t = useTranslations("Commission");
   const { locale } = useLocale();
   const [settingsRows, setSettingsRows] = useState(() => sortRows(rows));
-  const [editingRule, setEditingRule] = useState<CommissionRuleCode | null>(null);
+  const [editingRule, setEditingRule] = useState<CommissionRuleCode | null>(
+    null,
+  );
   const [draft, setDraft] = useState<RuleDraft>({});
-  const [pendingRule, setPendingRule] = useState<CommissionRuleCode | null>(null);
+  const [pendingRule, setPendingRule] = useState<CommissionRuleCode | null>(
+    null,
+  );
   const [feedback, setFeedback] = useState<PageFeedback>(null);
 
   useEffect(() => {
@@ -134,7 +138,10 @@ export function AdminCommissionSettingsSection({
       setSettingsRows(nextRows);
       onRowsChange?.(nextRows);
       clearEditing();
-      setFeedback({ tone: "success", message: t("settings.feedback.updateSuccess") });
+      setFeedback({
+        tone: "success",
+        message: t("settings.feedback.updateSuccess"),
+      });
     } catch (error) {
       setFeedback({ tone: "error", message: toSettingsErrorMessage(error, t) });
     } finally {
@@ -143,10 +150,10 @@ export function AdminCommissionSettingsSection({
   }
 
   return (
-    <DashboardListSection
-      bodyClassName="flex flex-col gap-5"
-    >
-      {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
+    <DashboardListSection bodyClassName="flex flex-col gap-5">
+      {feedback ? (
+        <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+      ) : null}
 
       <CommissionSettingsRulesTable
         canManageSettings={canManageSettings}
@@ -247,11 +254,10 @@ function sortRows(rows: CommissionRuleSetting[]) {
   return [...rows].sort((left, right) => left.sortOrder - right.sortOrder);
 }
 
-function toSettingsErrorMessage(
-  error: unknown,
-  t: SettingsErrorTranslator,
-) {
-  const message = String((error as { message?: string })?.message ?? "").toLowerCase();
+function toSettingsErrorMessage(error: unknown, t: SettingsErrorTranslator) {
+  const message = String(
+    (error as { message?: string })?.message ?? "",
+  ).toLowerCase();
 
   if (message.includes("permission")) {
     return t("settings.errors.permission");

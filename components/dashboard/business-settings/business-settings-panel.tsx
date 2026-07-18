@@ -1,14 +1,8 @@
 "use client";
 
-import {
-  AdminOrdersServiceFeeSettings,
-} from "@/components/dashboard/admin-orders/admin-orders-service-fee-settings";
-import {
-  AdminOrdersServiceOrderSettings,
-} from "@/components/dashboard/admin-orders/admin-orders-service-order-settings";
-import {
-  AdminCommissionSettingsSection,
-} from "@/components/dashboard/commission/admin-commission-settings-section";
+import { AdminOrdersServiceFeeSettings } from "@/components/dashboard/admin-orders/admin-orders-service-fee-settings";
+import { AdminOrdersServiceOrderSettings } from "@/components/dashboard/admin-orders/admin-orders-service-order-settings";
+import { AdminCommissionSettingsSection } from "@/components/dashboard/commission/admin-commission-settings-section";
 import type { BusinessSettingsPageData } from "@/lib/business-settings";
 import type { WorkspaceBusinessSettingsModule } from "@/lib/workspace-business-modules";
 
@@ -44,7 +38,9 @@ export function BusinessSettingsPanel({
     rows: BusinessSettingsPageData["serviceOrderPriceOptions"],
   ) => void;
   onWholesaleOrderEditSettingsChange: (
-    settings: NonNullable<BusinessSettingsPageData["wholesaleOrderEditSettings"]>,
+    settings: NonNullable<
+      BusinessSettingsPageData["wholesaleOrderEditSettings"]
+    >,
   ) => void;
   orderDiscountOptions: BusinessSettingsPageData["orderDiscountOptions"];
   settingsModule: WorkspaceBusinessSettingsModule | undefined;

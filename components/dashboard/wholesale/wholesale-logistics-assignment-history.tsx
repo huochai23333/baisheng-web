@@ -47,13 +47,19 @@ export function WholesaleLogisticsAssignmentHistory({
     [customers],
   );
 
-  const endAssignment = async (assignment: WholesaleLogisticsStoreAssignment) => {
+  const endAssignment = async (
+    assignment: WholesaleLogisticsStoreAssignment,
+  ) => {
     // 结束会改变此后的订单归属，因此提交前让业务人员再次确认店铺名称。
-    if (!(await confirm({
-      description: t("assignments.confirmEnd", { store: assignment.store_name }),
-      title: confirmT("title"),
-      tone: "warning",
-    }))) {
+    if (
+      !(await confirm({
+        description: t("assignments.confirmEnd", {
+          store: assignment.store_name,
+        }),
+        title: confirmT("title"),
+        tone: "warning",
+      }))
+    ) {
       return;
     }
     await onEnd(assignment.id, new Date().toISOString());
@@ -62,28 +68,28 @@ export function WholesaleLogisticsAssignmentHistory({
   return (
     <section>
       <div className="flex min-w-0 items-center gap-2">
-        <Store className="size-5 shrink-0 text-[#486782]" />
-        <h4 className="font-semibold text-[#23313a]">
+        <Store className="size-5 shrink-0 text-primary" />
+        <h4 className="font-semibold text-content-strong">
           {t("assignments.history")}
         </h4>
       </div>
       <div className="mt-3 grid gap-3">
         {assignments.length === 0 ? (
-          <p className="rounded-[18px] border border-dashed border-[#d9dfe3] p-4 text-sm text-[#77838c]">
+          <p className="rounded-[18px] border border-dashed border-border-subtle p-4 text-sm text-content-muted">
             {t("assignments.noHistory")}
           </p>
         ) : (
           assignments.map((assignment) => (
             <article
-              className="min-w-0 rounded-[18px] border border-[#e5e1da] bg-white p-4"
+              className="min-w-0 rounded-[18px] border border-border-subtle bg-white p-4"
               key={assignment.id}
             >
               <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <p className="break-words font-semibold text-[#23313a]">
+                  <p className="break-words font-semibold text-content-strong">
                     {assignment.store_name}
                   </p>
-                  <p className="mt-1 break-words text-sm text-[#596771]">
+                  <p className="mt-1 break-words text-sm text-content-muted">
                     {getWholesaleLogisticsProfileName(
                       profilesById,
                       assignment.sales_user_id,
@@ -96,13 +102,19 @@ export function WholesaleLogisticsAssignmentHistory({
                       t("fallbacks.noCustomer"),
                     )}
                   </p>
-                  <p className="mt-1 break-words text-xs leading-5 text-[#7b868e]">
+                  <p className="mt-1 break-words text-xs leading-5 text-content-muted">
                     {t("assignments.range", {
                       from: assignment.effective_from
-                        ? formatWholesaleLogisticsDateTime(assignment.effective_from, locale)
+                        ? formatWholesaleLogisticsDateTime(
+                            assignment.effective_from,
+                            locale,
+                          )
                         : t("assignments.allHistory"),
                       to: assignment.effective_to
-                        ? formatWholesaleLogisticsDateTime(assignment.effective_to, locale)
+                        ? formatWholesaleLogisticsDateTime(
+                            assignment.effective_to,
+                            locale,
+                          )
                         : t("assignments.current"),
                     })}
                   </p>
@@ -112,7 +124,7 @@ export function WholesaleLogisticsAssignmentHistory({
                     className="min-h-9 whitespace-normal rounded-full"
                     disabled={Boolean(pendingKey)}
                     onClick={() => onEdit(assignment)}
-                    size="sm"
+                    size="compact"
                     type="button"
                     variant="outline"
                   >
@@ -120,10 +132,10 @@ export function WholesaleLogisticsAssignmentHistory({
                   </Button>
                   {!assignment.effective_to ? (
                     <Button
-                      className="min-h-9 whitespace-normal rounded-full text-[#a33d38]"
+                      className="min-h-9 whitespace-normal rounded-full text-content-muted"
                       disabled={Boolean(pendingKey)}
                       onClick={() => void endAssignment(assignment)}
-                      size="sm"
+                      size="compact"
                       type="button"
                       variant="outline"
                     >

@@ -1,8 +1,12 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Select } from "@/components/ui/select";
 import {
   DashboardFilterField,
   dashboardFilterInputClassName,
@@ -20,7 +24,6 @@ import {
 } from "./wholesale-settlement-release-display";
 import { WholesaleSettlementReleaseOrderPicker } from "./wholesale-settlement-release-order-picker";
 import {
-  WholesaleSelect,
   WholesaleSubmitButton,
   WholesaleTextarea,
 } from "./wholesale-ui";
@@ -73,29 +76,34 @@ export function WholesaleSettlementReleaseCreateDialog({
           onOpenChange(false);
         }}
       >
-        <WholesaleSelect
-          label={uiText("attribute003")}
-          name="customer_id"
-          onChange={(event) => {
-            setSelectedCustomerId(event.target.value);
-            if (event.target.value) {
-              setManualCustomerName("");
-            }
-          }}
-          value={selectedCustomerId}
-        >
-          <option value="">
-            <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_dialogs.text001" />
-          </option>
-          {customers.map((customer) => (
-            <option key={customer.id} value={customer.id}>
-              {customer.unique_name}
-            </option>
-          ))}
-        </WholesaleSelect>
+        <DashboardFilterField label={uiText("attribute003")}>
+          <Select
+            aria-label={uiText("attribute003")}
+            name="customer_id"
+            onValueChange={(value) => {
+              setSelectedCustomerId(value);
+              if (value) {
+                setManualCustomerName("");
+              }
+            }}
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_dialogs.text001" />
+                ),
+                value: "",
+              },
+              ...customers.map((customer) => ({
+                label: customer.unique_name,
+                value: customer.id,
+              })),
+            ]}
+            value={selectedCustomerId}
+          />
+        </DashboardFilterField>
 
         <DashboardFilterField label={uiText("attribute004")}>
-          <input
+          <FormControls.Input
             className={dashboardFilterInputClassName}
             disabled={Boolean(selectedCustomer)}
             name="customer_name"
@@ -104,13 +112,13 @@ export function WholesaleSettlementReleaseCreateDialog({
             required={!selectedCustomer}
             value={selectedCustomer?.unique_name ?? manualCustomerName}
           />
-          <p className="mt-2 text-xs leading-5 text-[#7b8790]">
+          <p className="mt-2 text-xs leading-5 text-content-muted">
             <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_dialogs.text002" />
           </p>
         </DashboardFilterField>
 
         <DashboardFilterField label={uiText("attribute006")}>
-          <input
+          <FormControls.Input
             className={dashboardFilterInputClassName}
             min={0.01}
             name="release_amount"
@@ -121,26 +129,24 @@ export function WholesaleSettlementReleaseCreateDialog({
           />
         </DashboardFilterField>
 
-        <WholesaleSelect
-          defaultValue={currencyOptions[0] ?? "USD"}
-          label={uiText("attribute008")}
-          name="release_currency"
-          required
-        >
-          {currencyOptions.map((currency) => (
-            <option key={currency} value={currency}>
-              {currency}
-            </option>
-          ))}
-        </WholesaleSelect>
+        <DashboardFilterField label={uiText("attribute008")}>
+          <Select
+            aria-label={uiText("attribute008")}
+            defaultValue={currencyOptions[0] ?? "USD"}
+            name="release_currency"
+            options={currencyOptions.map((currency) => ({
+              label: currency,
+              value: currency,
+            }))}
+            required
+          />
+        </DashboardFilterField>
 
         <DashboardFilterField label={uiText("attribute009")}>
-          <input
-            className={dashboardFilterInputClassName}
+          <DatePicker
             defaultValue={getBeijingDateString()}
             name="received_on"
             required
-            type="date"
           />
         </DashboardFilterField>
 
@@ -221,7 +227,11 @@ export function WholesaleSettlementReleaseClaimDialog({
           onOpenChange(false);
         }}
       >
-        <input name="release_id" type="hidden" value={release.id} />
+        <FormControls.Input
+          name="release_id"
+          type="hidden"
+          value={release.id}
+        />
         <ReadOnlyField
           label={uiText("attribute014")}
           value={formatSettlementReleaseSummary(release)}
@@ -248,7 +258,7 @@ export function WholesaleSettlementReleaseClaimDialog({
 function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <DashboardFilterField label={label}>
-      <div className="min-h-11 rounded-[16px] border border-[#d9e2e8] bg-white px-4 py-3 text-sm leading-6 text-[#2b3942] [overflow-wrap:anywhere]">
+      <div className="min-h-11 rounded-[16px] border border-border-subtle bg-white px-4 py-3 text-sm leading-6 text-content-strong [overflow-wrap:anywhere]">
         {value}
       </div>
     </DashboardFilterField>

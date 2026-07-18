@@ -31,7 +31,11 @@ const DashboardConfirmContext = createContext<DashboardConfirm | null>(null);
  * 全工作台只挂载一个确认弹窗。新的确认请求不会覆盖仍在等待用户选择的请求，
  * 这样每个调用方都能收到确定的 true 或 false，不会留下永远等待的 Promise。
  */
-export function DashboardConfirmProvider({ children }: { children: ReactNode }) {
+export function DashboardConfirmProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const t = useTranslations("DashboardFramework.confirm");
   const activeRef = useRef(false);
   const resolverRef = useRef<((value: boolean) => void) | null>(null);
@@ -74,15 +78,16 @@ export function DashboardConfirmProvider({ children }: { children: ReactNode }) 
                 {options.cancelLabel ?? t("cancel")}
               </Button>
               <Button
-                className={
-                  tone === "danger"
-                    ? "h-11 rounded-full bg-[#b64a4a] px-5 text-white hover:bg-[#9f3f3f]"
-                    : tone === "warning"
-                      ? "h-11 rounded-full bg-[#a66f16] px-5 text-white hover:bg-[#8f5f12]"
-                      : "h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-                }
                 onClick={() => settle(true)}
+                size="default"
                 type="button"
+                variant={
+                  tone === "danger"
+                    ? "danger"
+                    : tone === "warning"
+                      ? "secondary"
+                      : "primary"
+                }
               >
                 {options.confirmLabel ?? t("accept")}
               </Button>
@@ -105,7 +110,9 @@ export function DashboardConfirmProvider({ children }: { children: ReactNode }) 
 export function useDashboardConfirm() {
   const confirm = useContext(DashboardConfirmContext);
   if (!confirm) {
-    throw new Error("useDashboardConfirm 必须在 DashboardConfirmProvider 中使用。");
+    throw new Error(
+      "useDashboardConfirm 必须在 DashboardConfirmProvider 中使用。",
+    );
   }
   return confirm;
 }

@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import {
   expectForbiddenPage,
@@ -7,6 +7,11 @@ import {
   loginAs,
   type RegressionRole,
 } from "./helpers/auth";
+import {
+  expectDateControlValue,
+  fillDateControl,
+} from "./helpers/date-control";
+import { expectSelectValue } from "./helpers/select-control";
 import {
   restoreDefaultAdminBusinessGroups,
   setDesktopBusinessGroupExpanded,
@@ -201,15 +206,15 @@ test.describe("workspace entrypoint regression", () => {
 
     const defaultRange = getLast30DaysDateRange();
 
-    await expect(orderedFromInput).toHaveValue(defaultRange.from);
-    await expect(orderedToInput).toHaveValue(defaultRange.to);
+    await expectDateControlValue(orderedFromInput, defaultRange.from);
+    await expectDateControlValue(orderedToInput, defaultRange.to);
     await expect(clearFiltersButton).toBeDisabled();
 
-    await fillDateInput(orderedFromInput, "2099-01-01");
-    await fillDateInput(orderedToInput, "2099-01-31");
+    await fillDateControl(orderedFromInput, "2099-01-01");
+    await fillDateControl(orderedToInput, "2099-01-31");
 
-    await expect(orderedFromInput).toHaveValue("2099-01-01");
-    await expect(orderedToInput).toHaveValue("2099-01-31");
+    await expectDateControlValue(orderedFromInput, "2099-01-01");
+    await expectDateControlValue(orderedToInput, "2099-01-31");
     await expect(clearFiltersButton).toBeEnabled();
     await expect(assessmentButton).toBeDisabled();
     await expect(
@@ -218,8 +223,8 @@ test.describe("workspace entrypoint regression", () => {
 
     await clearFiltersButton.click();
 
-    await expect(orderedFromInput).toHaveValue(defaultRange.from);
-    await expect(orderedToInput).toHaveValue(defaultRange.to);
+    await expectDateControlValue(orderedFromInput, defaultRange.from);
+    await expectDateControlValue(orderedToInput, defaultRange.to);
 
     await page.route("**/api/wholesale/order-assessment", async (route) => {
       await route.fulfill({
@@ -366,7 +371,8 @@ test.describe("workspace entrypoint regression", () => {
       .first()
       .click();
     const claimDialog = page.getByRole("dialog", { name: "认领采购订单" });
-    await expect(claimDialog.getByLabel("客户")).toHaveValue(
+    await expectSelectValue(
+      claimDialog.getByLabel("客户"),
       "c1000000-0000-4000-8000-000000000002",
     );
     await expect(claimDialog.getByLabel("搜索批发订单")).toBeEnabled();
@@ -415,25 +421,26 @@ test.describe("workspace entrypoint regression", () => {
 
     await expect(createdFromInput).toBeVisible();
     await expect(createdToInput).toBeVisible();
-    await expect(createdFromInput).toHaveValue(defaultRange.from);
-    await expect(createdToInput).toHaveValue(defaultRange.to);
+    await expectDateControlValue(createdFromInput, defaultRange.from);
+    await expectDateControlValue(createdToInput, defaultRange.to);
     await page.waitForTimeout(1000);
 
-    await fillDateInput(createdFromInput, "2099-01-01");
-    await fillDateInput(createdToInput, "2099-01-31");
+    await fillDateControl(createdFromInput, "2099-01-01");
+    await fillDateControl(createdToInput, "2099-01-31");
 
-    await expect(createdFromInput).toHaveValue("2099-01-01");
-    await expect(createdToInput).toHaveValue("2099-01-31");
+    await expectDateControlValue(createdFromInput, "2099-01-01");
+    await expectDateControlValue(createdToInput, "2099-01-31");
     await expect(page.getByText("没有匹配结果")).toBeVisible();
     await expect(clearFiltersButton).toBeEnabled();
 
     await clearFiltersButton.click();
 
-    await expect(createdFromInput).toHaveValue(defaultRange.from);
-    await expect(createdToInput).toHaveValue(defaultRange.to);
+    await expectDateControlValue(createdFromInput, defaultRange.from);
+    await expectDateControlValue(createdToInput, defaultRange.to);
 
-    await fillDateInput(createdFromInput, "");
-    await expect(createdFromInput).toHaveValue(defaultRange.from);
+    await fillDateControl(createdFromInput, "");
+    await expectDateControlValue(createdFromInput, defaultRange.from);
+    await expect(createdFromInput).toHaveAttribute("aria-invalid", "true");
   });
 });
 
@@ -452,20 +459,6 @@ async function mockClipboard(page: Page) {
       },
     });
   });
-}
-
-async function fillDateInput(locator: Locator, value: string) {
-  await locator.evaluate((element, nextValue) => {
-    const input = element as HTMLInputElement;
-    const valueSetter = Object.getOwnPropertyDescriptor(
-      HTMLInputElement.prototype,
-      "value",
-    )?.set;
-
-    valueSetter?.call(input, nextValue);
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
-  }, value);
 }
 
 function getLast30DaysDateRange() {

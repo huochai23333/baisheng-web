@@ -60,7 +60,7 @@ export function AuthRouteLink({
   return (
     <Link
       aria-busy={pending}
-      className={cn(className, pending && "text-[#36536a]")}
+      className={cn(className, pending && "text-brand-hover")}
       href={href}
       onClick={handleClick}
       onFocus={prefetchRoute}

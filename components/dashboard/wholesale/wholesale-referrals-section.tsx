@@ -1,4 +1,6 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -9,6 +11,7 @@ import {
   DashboardListSection,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import type { WholesaleCustomer, WholesaleReferral } from "@/lib/wholesale";
 import { formatDate } from "./wholesale-display";
 import {
@@ -19,7 +22,6 @@ import {
 import {
   WholesaleEmptyState,
   WholesalePageShell,
-  WholesaleSelect,
   WholesaleSubmitButton,
 } from "./wholesale-ui";
 type WholesaleReferralsSectionProps = {
@@ -63,7 +65,8 @@ export function WholesaleReferralsSection({
       actions={
         canEdit ? (
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             onClick={() => setDialogOpen(true)}
             type="button"
           >
@@ -85,10 +88,10 @@ export function WholesaleReferralsSection({
       >
         <div className="mb-5">
           <DashboardFilterField label={uiText("attribute005")}>
-            <div className="flex items-center gap-3 rounded-[18px] border border-[#dfe5ea] bg-white px-4 shadow-[0_8px_18px_rgba(96,113,128,0.04)]">
-              <Search className="size-4 text-[#7a8790]" />
-              <input
-                className="h-12 w-full bg-transparent text-sm text-[#23313a] outline-none placeholder:text-[#8a949c]"
+            <div className="flex items-center gap-3 rounded-[18px] border border-border bg-white px-4 shadow-[var(--surface-shadow-interactive)]">
+              <Search className="size-4 text-content-muted" />
+              <FormControls.Input
+                className="h-12 w-full bg-transparent text-sm text-content-strong outline-none placeholder:text-content-subtle"
                 onChange={(event) => setSearchText(event.target.value)}
                 placeholder={uiText("attribute006")}
                 type="search"
@@ -131,34 +134,44 @@ export function WholesaleReferralsSection({
             setDialogOpen(false);
           }}
         >
-          <WholesaleSelect
-            label={uiText("attribute011")}
-            name="referrer_customer_id"
-            required
-          >
-            <option value="">
-              <UiMessage id="components_dashboard_wholesale_wholesale_referrals_section.text002" />
-            </option>
-            {customers.map((customer) => (
-              <option key={customer.id} value={customer.id}>
-                {customer.unique_name}
-              </option>
-            ))}
-          </WholesaleSelect>
-          <WholesaleSelect
-            label={uiText("attribute012")}
-            name="referred_customer_id"
-            required
-          >
-            <option value="">
-              <UiMessage id="components_dashboard_wholesale_wholesale_referrals_section.text003" />
-            </option>
-            {customers.map((customer) => (
-              <option key={customer.id} value={customer.id}>
-                {customer.unique_name}
-              </option>
-            ))}
-          </WholesaleSelect>
+          <DashboardFilterField label={uiText("attribute011")}>
+            <Select
+              aria-label={uiText("attribute011")}
+              name="referrer_customer_id"
+              options={[
+                {
+                  label: (
+                    <UiMessage id="components_dashboard_wholesale_wholesale_referrals_section.text002" />
+                  ),
+                  value: "",
+                },
+                ...customers.map((customer) => ({
+                  label: customer.unique_name,
+                  value: customer.id,
+                })),
+              ]}
+              required
+            />
+          </DashboardFilterField>
+          <DashboardFilterField label={uiText("attribute012")}>
+            <Select
+              aria-label={uiText("attribute012")}
+              name="referred_customer_id"
+              options={[
+                {
+                  label: (
+                    <UiMessage id="components_dashboard_wholesale_wholesale_referrals_section.text003" />
+                  ),
+                  value: "",
+                },
+                ...customers.map((customer) => ({
+                  label: customer.unique_name,
+                  value: customer.id,
+                })),
+              ]}
+              required
+            />
+          </DashboardFilterField>
           <div className="flex justify-end md:col-span-2">
             <WholesaleSubmitButton pending={pendingKey === "referral:create"}>
               <UiMessage id="components_dashboard_wholesale_wholesale_referrals_section.text004" />
@@ -175,13 +188,15 @@ function ReferralTreeNode({ node }: { node: WholesaleReferralTreeNode }) {
   return (
     <div
       className={[
-        "rounded-[22px] border bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]",
-        isCompanyNode ? "border-[#d6e3ec] bg-[#f6fbfd]" : "border-[#ebe7e1]",
+        "rounded-[22px] border bg-white p-4 shadow-[var(--surface-shadow-interactive)]",
+        isCompanyNode
+          ? "border-border-subtle bg-surface-inset"
+          : "border-border-subtle",
       ].join(" ")}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 gap-3">
-          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#eef3f6] text-[#486782]">
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-status-info-soft text-primary">
             {isCompanyNode ? (
               <Building2 className="size-5" />
             ) : (
@@ -189,10 +204,10 @@ function ReferralTreeNode({ node }: { node: WholesaleReferralTreeNode }) {
             )}
           </div>
           <div className="min-w-0">
-            <p className="break-words font-semibold text-[#23313a]">
+            <p className="break-words font-semibold text-content-strong">
               {node.name}
             </p>
-            <p className="mt-1 text-sm leading-6 text-[#71808d]">
+            <p className="mt-1 text-sm leading-6 text-content-muted">
               {getReferralNodeHelper(node, t)}
             </p>
           </div>
@@ -201,8 +216,8 @@ function ReferralTreeNode({ node }: { node: WholesaleReferralTreeNode }) {
           className={[
             "inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold",
             isCompanyNode
-              ? "bg-[#e4edf3] text-[#486782]"
-              : "bg-[#eef3f6] text-[#486782]",
+              ? "bg-surface-inset text-primary"
+              : "bg-status-info-soft text-primary",
           ].join(" ")}
         >
           {isCompanyNode
@@ -211,7 +226,7 @@ function ReferralTreeNode({ node }: { node: WholesaleReferralTreeNode }) {
         </span>
       </div>
       {node.children.length > 0 ? (
-        <div className="mt-3 space-y-3 border-l border-[#dfe5ea] pl-4">
+        <div className="mt-3 space-y-3 border-l border-border pl-4">
           {node.children.map((child) => (
             <ReferralTreeNode key={child.id} node={child} />
           ))}

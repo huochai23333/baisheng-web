@@ -6,9 +6,9 @@ import type {
   TeamSalesmanCandidate,
 } from "@/lib/team-management";
 
-import type { NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import type { FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 
-export type PageFeedback = { tone: NoticeTone; message: string } | null;
+export type PageFeedback = { tone: FeedbackTone; message: string } | null;
 
 export type TeamManagementDataState = {
   dataKey: string;

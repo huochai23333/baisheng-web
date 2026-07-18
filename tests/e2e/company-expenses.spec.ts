@@ -6,6 +6,8 @@ import {
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
+import { fillDateControl } from "./helpers/date-control";
+import { chooseSelectOption } from "./helpers/select-control";
 
 test.describe("company expenses", () => {
   test("administrator can open company expenses", async ({ page }) => {
@@ -43,11 +45,16 @@ test.describe("company expenses", () => {
     await page.getByRole("button", { name: "新增费用" }).click();
     const dialog = page.getByRole("dialog", { name: "新增费用" });
     await expect(dialog).toBeVisible();
-    await dialog.getByLabel("所属月份").fill(getCurrentMonthValue());
+    await fillDateControl(
+      dialog.getByLabel("所属月份"),
+      getCurrentMonthValue(),
+    );
     await dialog.getByLabel("费用名称").fill(title);
-    await dialog.getByLabel("费用分类").selectOption("office");
+    await chooseSelectOption(dialog.getByLabel("费用分类"), {
+      value: "office",
+    });
     await dialog.getByLabel("金额").fill("123.45");
-    await dialog.getByLabel("币种").selectOption("CNY");
+    await chooseSelectOption(dialog.getByLabel("币种"), { value: "CNY" });
     await dialog.getByLabel("收款方").fill("自动测试收款方");
     await dialog.getByLabel("备注").fill("用于公司费用页面回归测试");
     await dialog.getByRole("button", { name: "保存费用" }).click();

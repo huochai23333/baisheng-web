@@ -12,14 +12,14 @@ import {
 import type { getBrowserSupabaseClient } from "@/lib/supabase";
 import type { TaskCommissionRow } from "@/lib/task-commissions";
 
-import type { NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import type { FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 
 import { toCommissionErrorMessage } from "./commission-display";
 
 type PageFeedbackValue = {
   message: string;
-  tone: NoticeTone;
+  tone: FeedbackTone;
 };
 
 export function useManagedCommissionSettlement({

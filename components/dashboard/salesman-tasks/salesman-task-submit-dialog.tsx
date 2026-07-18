@@ -1,5 +1,9 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
+import * as FormControls from "@/components/ui/form-controls";
+
 import { useTranslations } from "next-intl";
 import { LoaderCircle, Paperclip, Trash2, Upload } from "lucide-react";
 
@@ -15,14 +19,14 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   formatFileSize,
-  PageBanner,
-  type NoticeTone,
+  FeedbackNotice,
+  type FeedbackTone,
 } from "@/components/dashboard/dashboard-shared-ui";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { DashboardFilePicker } from "@/components/dashboard/dashboard-framework-primitives";
 import type { SalesmanTaskRow } from "@/lib/salesman-tasks";
 
-type DialogFeedback = { tone: NoticeTone; message: string } | null;
+type DialogFeedback = { tone: FeedbackTone; message: string } | null;
 
 export function SalesmanTaskSubmitDialog({
   feedback,
@@ -57,7 +61,7 @@ export function SalesmanTaskSubmitDialog({
       actions={
         <>
           <Button
-            className="h-10 rounded-full border border-[#d8e2e8] bg-white px-4 text-[#486782] hover:bg-[#eef3f6]"
+            size="compact"
             disabled={pending}
             onClick={() => onOpenChange(false)}
             type="button"
@@ -66,7 +70,9 @@ export function SalesmanTaskSubmitDialog({
             {t("cancel")}
           </Button>
           <Button
-            className="h-10 rounded-full bg-[#4c7259] px-4 text-white hover:bg-[#43664f] disabled:opacity-70"
+            variant="success"
+            size="compact"
+            className="disabled:opacity-70"
             disabled={pending}
             onClick={onSubmit}
             type="button"
@@ -92,22 +98,28 @@ export function SalesmanTaskSubmitDialog({
       title={t("title")}
     >
       <div className="space-y-5">
-        {feedback ? <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner> : null}
+        {feedback ? (
+          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+        ) : null}
 
         {task?.review_reject_reason ? (
-          <div className="rounded-[22px] border border-[#f1d1d1] bg-[#fff6f6] p-4">
-            <p className="text-sm font-semibold text-[#b13d3d]">{t("rejectReasonLabel")}</p>
-            <p className="mt-2 text-sm leading-7 text-[#7b4f4f]">{task.review_reject_reason}</p>
+          <div className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+            <p className="text-sm font-semibold text-status-danger">
+              {t("rejectReasonLabel")}
+            </p>
+            <p className="mt-2 text-sm leading-7 text-content-muted">
+              {task.review_reject_reason}
+            </p>
           </div>
         ) : null}
 
         <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-[#23313a]">
+          <span className="mb-2 block text-sm font-semibold text-content-strong">
             {requiresAttachment ? t("noteLabel") : t("noteRequiredLabel")}
           </span>
-          <textarea
+          <FormControls.Textarea
             aria-required={!requiresAttachment}
-            className="min-h-[140px] w-full rounded-[22px] border border-[#dfe5ea] bg-white px-4 py-3 text-sm leading-7 text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+            className="min-h-[140px] w-full rounded-[22px] border border-border bg-white px-4 py-3 text-sm leading-7 text-content-strong outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30"
             onChange={(event) => onNoteChange(event.target.value)}
             placeholder={t("notePlaceholder")}
             value={note}
@@ -115,7 +127,7 @@ export function SalesmanTaskSubmitDialog({
         </label>
 
         <div>
-          <p className="mb-2 text-sm font-semibold text-[#23313a]">
+          <p className="mb-2 text-sm font-semibold text-content-strong">
             {requiresAttachment ? t("filesLabel") : t("filesOptionalLabel")}
           </p>
           <DashboardFilePicker
@@ -123,50 +135,56 @@ export function SalesmanTaskSubmitDialog({
             multiple
             onFiles={onFilesChange}
           />
-          <p className="mt-2 text-xs leading-6 text-[#6f7b85]">
-                {requiresAttachment
-                  ? t("filesHint", {
-                      maxFiles: TASK_REVIEW_SUBMISSION_MAX_FILES,
-                      imageMaxPerFile: formatFileSize(IMAGE_UPLOAD_MAX_SIZE_BYTES),
-                      videoMaxPerFile: formatFileSize(VIDEO_UPLOAD_MAX_SIZE_BYTES),
-                      otherMaxPerFile: formatFileSize(OTHER_UPLOAD_MAX_SIZE_BYTES),
-                      maxTotal: formatFileSize(TASK_REVIEW_SUBMISSION_MAX_TOTAL_SIZE_BYTES),
-                    })
-                  : t("filesOptionalHint", {
-                      maxFiles: TASK_REVIEW_SUBMISSION_MAX_FILES,
-                      imageMaxPerFile: formatFileSize(IMAGE_UPLOAD_MAX_SIZE_BYTES),
-                      videoMaxPerFile: formatFileSize(VIDEO_UPLOAD_MAX_SIZE_BYTES),
-                      otherMaxPerFile: formatFileSize(OTHER_UPLOAD_MAX_SIZE_BYTES),
-                      maxTotal: formatFileSize(TASK_REVIEW_SUBMISSION_MAX_TOTAL_SIZE_BYTES),
-                    })}
+          <p className="mt-2 text-xs leading-6 text-content-muted">
+            {requiresAttachment
+              ? t("filesHint", {
+                  maxFiles: TASK_REVIEW_SUBMISSION_MAX_FILES,
+                  imageMaxPerFile: formatFileSize(IMAGE_UPLOAD_MAX_SIZE_BYTES),
+                  videoMaxPerFile: formatFileSize(VIDEO_UPLOAD_MAX_SIZE_BYTES),
+                  otherMaxPerFile: formatFileSize(OTHER_UPLOAD_MAX_SIZE_BYTES),
+                  maxTotal: formatFileSize(
+                    TASK_REVIEW_SUBMISSION_MAX_TOTAL_SIZE_BYTES,
+                  ),
+                })
+              : t("filesOptionalHint", {
+                  maxFiles: TASK_REVIEW_SUBMISSION_MAX_FILES,
+                  imageMaxPerFile: formatFileSize(IMAGE_UPLOAD_MAX_SIZE_BYTES),
+                  videoMaxPerFile: formatFileSize(VIDEO_UPLOAD_MAX_SIZE_BYTES),
+                  otherMaxPerFile: formatFileSize(OTHER_UPLOAD_MAX_SIZE_BYTES),
+                  maxTotal: formatFileSize(
+                    TASK_REVIEW_SUBMISSION_MAX_TOTAL_SIZE_BYTES,
+                  ),
+                })}
           </p>
 
           {files.length > 0 ? (
             <div className="mt-4 space-y-2">
               {files.map((file, index) => (
                 <div
-                  className="flex items-center justify-between gap-3 rounded-[18px] border border-[#e6ebef] bg-white px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-[18px] border border-border-subtle bg-white px-4 py-3"
                   key={`${file.name}-${file.size}-${index}`}
                 >
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2 text-sm font-medium text-[#23313a]">
-                      <Paperclip className="size-4 shrink-0 text-[#486782]" />
+                    <div className="flex items-center gap-2 text-sm font-medium text-content-strong">
+                      <Paperclip className="size-4 shrink-0 text-primary" />
                       <span className="truncate">{file.name}</span>
                     </div>
-                    <p className="mt-1 text-xs text-[#6f7b85]">{formatFileSize(file.size)}</p>
+                    <p className="mt-1 text-xs text-content-muted">
+                      {formatFileSize(file.size)}
+                    </p>
                   </div>
-                  <button
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#fff2f2] text-[#b13d3d] transition hover:bg-[#fce5e5]"
+                  <DesignButton
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-status-danger-soft text-status-danger transition hover:bg-status-danger-soft"
                     onClick={() => onRemoveFile(index)}
                     type="button"
                   >
                     <Trash2 className="size-4" />
-                  </button>
+                  </DesignButton>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="mt-3 text-sm leading-7 text-[#6f7b85]">
+            <p className="mt-3 text-sm leading-7 text-content-muted">
               {requiresAttachment ? t("filesEmpty") : t("filesOptionalEmpty")}
             </p>
           )}

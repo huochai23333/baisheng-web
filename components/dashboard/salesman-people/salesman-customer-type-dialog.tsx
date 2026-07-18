@@ -1,5 +1,7 @@
 "use client";
 
+import { Select } from "@/components/ui/select";
+
 import { LoaderCircle, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -50,7 +52,8 @@ export function SalesmanCustomerTypeDialog({
       actions={
         <>
           <Button
-            className="h-10 rounded-full border border-[#d9e0e5] bg-white px-5 text-[#486782] hover:bg-[#f3f6f8]"
+            variant="outline"
+            size="compact"
             disabled={saving}
             onClick={onClose}
             type="button"
@@ -58,7 +61,8 @@ export function SalesmanCustomerTypeDialog({
             {t("actions.cancel")}
           </Button>
           <Button
-            className="h-10 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="compact"
             disabled={!canSave}
             onClick={onSave}
             type="button"
@@ -87,18 +91,18 @@ export function SalesmanCustomerTypeDialog({
     >
       {customer ? (
         <div className="space-y-5">
-          <div className="rounded-[22px] border border-[#e4e9ed] bg-white p-5">
-            <p className="text-lg font-semibold text-[#23313a]">
+          <div className="rounded-[22px] border border-border-subtle bg-white p-5">
+            <p className="text-lg font-semibold text-content-strong">
               {getSalesmanCustomerName(customer, t("fallback.unnamedCustomer"))}
             </p>
-            <p className="mt-1 break-all text-sm text-[#6a7680]">
+            <p className="mt-1 break-all text-sm text-content-muted">
               {getSalesmanCustomerContact(customer, fallback)}
             </p>
-            <div className="mt-4 rounded-[18px] bg-[#f6f4f0] px-4 py-3">
-              <p className="text-[11px] font-semibold tracking-[0.14em] text-[#88939b] uppercase">
+            <div className="mt-4 rounded-[18px] bg-surface-inset px-4 py-3">
+              <p className="text-[11px] font-semibold tracking-[0.14em] text-content-subtle uppercase">
                 {t("dialog.currentType")}
               </p>
-              <p className="mt-1 text-sm font-semibold text-[#23313a]">
+              <p className="mt-1 text-sm font-semibold text-content-strong">
                 {getSalesmanCustomerTypeLabel(
                   customer.customer_type,
                   customerTypeLabels,
@@ -109,22 +113,21 @@ export function SalesmanCustomerTypeDialog({
           </div>
 
           <label className="block">
-            <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+            <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
               {t("dialog.nextType")}
             </span>
-            <select
-              className="h-12 w-full rounded-[18px] border border-[#dfe5ea] bg-white px-4 text-sm text-[#23313a] outline-none transition focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30"
+            <Select
               disabled={saving}
-              onChange={(event) => onDraftTypeChange(event.target.value)}
+              onValueChange={onDraftTypeChange}
+              options={[
+                { label: t("dialog.typePlaceholder"), value: "" },
+                ...customerTypeOptions.map((customerType) => ({
+                  label: customerTypeLabels[customerType],
+                  value: customerType,
+                })),
+              ]}
               value={draftType}
-            >
-              <option value="">{t("dialog.typePlaceholder")}</option>
-              {customerTypeOptions.map((customerType) => (
-                <option key={customerType} value={customerType}>
-                  {customerTypeLabels[customerType]}
-                </option>
-              ))}
-            </select>
+            />
           </label>
         </div>
       ) : null}

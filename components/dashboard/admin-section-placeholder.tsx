@@ -20,22 +20,26 @@ export function AdminSectionPlaceholder({
 
   return (
     <DashboardPageShell className="gap-6">
-      <div className="rounded-[28px] border border-white/80 bg-white/72 p-8 shadow-[0_18px_45px_rgba(96,113,128,0.08)] backdrop-blur">
-        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eef3ef] text-[#4c7259]">
+      <div className="rounded-[28px] border border-white/80 bg-white/72 p-8 shadow-[var(--surface-shadow-interactive)] backdrop-blur">
+        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-inset text-status-success">
           <Sparkles className="size-6" />
         </div>
-        <h2 className="text-3xl font-bold tracking-tight text-[#23313a]">{title}</h2>
-        <p className="mt-4 max-w-2xl text-[15px] leading-8 text-[#65717b]">{description}</p>
+        <h2 className="text-3xl font-bold tracking-tight text-content-strong">
+          {title}
+        </h2>
+        <p className="mt-4 max-w-2xl text-[15px] leading-8 text-content-muted">
+          {description}
+        </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href={homeHref}
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-[#486782] px-5 text-sm font-medium text-white transition-colors hover:bg-[#3e5f79]"
+            className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-white transition-colors hover:bg-brand-hover"
           >
             {t("viewMyPage")}
             <ArrowRight className="size-4" />
           </Link>
-          <div className="rounded-full border border-[#d8dcdf] bg-[#f6f5f2] px-4 py-3 text-sm text-[#70808e]">
+          <div className="rounded-full border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
             {t("badge")}
           </div>
         </div>

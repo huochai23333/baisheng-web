@@ -1,8 +1,11 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   DashboardFilterField,
   dashboardFilterInputClassName,
@@ -98,7 +101,7 @@ export function WholesaleOrderSettlementDialog({
           onOpenChange(false);
         }}
       >
-        <input name="order_id" type="hidden" value={order.id} />
+        <FormControls.Input name="order_id" type="hidden" value={order.id} />
         <ReadOnlyRateField
           label={uiText("attribute002")}
           value={order.order_number}
@@ -118,7 +121,7 @@ export function WholesaleOrderSettlementDialog({
           )}
         />
         <DashboardFilterField label={uiText("attribute005")}>
-          <input
+          <FormControls.Input
             className={dashboardFilterInputClassName}
             max={remainingAmount}
             min={0.01}
@@ -130,20 +133,18 @@ export function WholesaleOrderSettlementDialog({
             type="number"
             value={settlementAmount}
           />
-          <p className="mt-2 text-xs leading-5 text-[#7b8790]">
+          <p className="mt-2 text-xs leading-5 text-content-muted">
             <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text001" />
           </p>
         </DashboardFilterField>
         <DashboardFilterField label={uiText("attribute007")}>
-          <input
-            className={dashboardFilterInputClassName}
+          <DatePicker
             name="settlement_date"
-            onChange={(event) => setSettlementDate(event.target.value)}
+            onValueChange={setSettlementDate}
             required
-            type="date"
             value={settlementDate}
           />
-          <p className="mt-2 text-xs leading-5 text-[#7b8790]">
+          <p className="mt-2 text-xs leading-5 text-content-muted">
             <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text002" />
           </p>
         </DashboardFilterField>
@@ -177,7 +178,7 @@ export function WholesaleOrderSettlementDialog({
 function ReadOnlyRateField({ label, value }: { label: string; value: string }) {
   return (
     <DashboardFilterField label={label}>
-      <div className="min-h-11 rounded-[16px] border border-[#d9e2e8] bg-white px-4 py-3 text-sm leading-5 text-[#2b3942] [overflow-wrap:anywhere]">
+      <div className="min-h-11 rounded-[16px] border border-border-subtle bg-white px-4 py-3 text-sm leading-5 text-content-strong [overflow-wrap:anywhere]">
         {value}
       </div>
     </DashboardFilterField>
@@ -192,20 +193,20 @@ function SettlementRecordList({
 }) {
   if (settlements.length === 0) {
     return (
-      <div className="rounded-[16px] border border-[#d9e2e8] bg-white px-4 py-3 text-sm leading-6 text-[#6d7881]">
+      <div className="rounded-[16px] border border-border-subtle bg-white px-4 py-3 text-sm leading-6 text-content-muted">
         <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text004" />
       </div>
     );
   }
   return (
-    <div className="rounded-[16px] border border-[#d9e2e8] bg-white p-3">
-      <p className="mb-2 text-xs font-semibold text-[#6d7881]">
+    <div className="rounded-[16px] border border-border-subtle bg-white p-3">
+      <p className="mb-2 text-xs font-semibold text-content-muted">
         <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text005" />
       </p>
       <div className="grid gap-2">
         {settlements.map((settlement) => (
           <div
-            className="grid gap-1 rounded-[12px] bg-[#f7fafb] p-3 text-xs leading-5 text-[#4f606b] sm:grid-cols-4"
+            className="grid gap-1 rounded-[12px] bg-surface-inset p-3 text-xs leading-5 text-content-muted sm:grid-cols-4"
             key={settlement.id}
           >
             <span>{formatDate(settlement.settled_on)}</span>

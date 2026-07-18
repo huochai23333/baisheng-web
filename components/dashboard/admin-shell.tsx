@@ -77,90 +77,94 @@ export async function AdminShell({ children, config }: AdminShellProps) {
     <ScopedIntlProvider namespaces={["DashboardShell", "LanguageToggle"]}>
       <DashboardConfirmProvider>
         <WorkspaceSessionProvider>
-        <WorkspaceCustomizationSidebarProvider>
-        <div className="min-h-screen bg-[#faf9f7] text-[#1c262d]">
-          <div className="pointer-events-none fixed inset-0 overflow-hidden">
-            <div className="absolute right-[-10%] top-[-18%] h-[30rem] w-[30rem] rounded-full bg-[rgba(187,208,223,0.24)] blur-3xl" />
-            <div className="absolute bottom-[-14%] left-[-10%] h-[24rem] w-[24rem] rounded-full bg-[rgba(208,226,217,0.2)] blur-3xl" />
-          </div>
+          <WorkspaceCustomizationSidebarProvider>
+            <div className="min-h-screen bg-background text-foreground">
+              <div className="pointer-events-none fixed inset-0 overflow-hidden">
+                <div className="absolute right-[-10%] top-[-18%] h-[30rem] w-[30rem] rounded-full bg-[var(--workspace-glow-blue)] blur-3xl" />
+                <div className="absolute bottom-[-14%] left-[-10%] h-[24rem] w-[24rem] rounded-full bg-[var(--workspace-glow-green)] blur-3xl" />
+              </div>
 
-          <div className="relative flex min-h-screen">
-            <WorkspaceDesktopSidebar
-              defaultContent={
-                <>
-                  <div className="mb-10 flex items-center gap-3 px-3">
-                    <BrandMark priority size={48} />
-                    <div>
-                      <h2 className="text-sm font-bold tracking-wide text-[#415f76]">
-                        {workspace.title}
-                      </h2>
-                    <p className="text-xs text-[#415f76]/60">
-                      {workspace.subtitle}
-                    </p>
+              <div className="relative flex min-h-screen">
+                <WorkspaceDesktopSidebar
+                  defaultContent={
+                    <>
+                      <div className="mb-10 flex items-center gap-3 px-3">
+                        <BrandMark priority size={48} />
+                        <div>
+                          <h2 className="text-sm font-bold tracking-wide text-primary">
+                            {workspace.title}
+                          </h2>
+                          <p className="text-xs text-content-muted/60">
+                            {workspace.subtitle}
+                          </p>
+                        </div>
+                      </div>
+
+                      <AdminShellNav
+                        emptyGroupsLabel={t("business.noAccess")}
+                        globalItems={workspace.globalNavItems}
+                        groups={workspace.navGroups}
+                        initialOpenGroupKeys={
+                          initialNavigationPreference?.open_business_keys ??
+                          null
+                        }
+                        mode="desktop"
+                      />
+
+                      <AdminShellLogoutButton label={t("logout")} />
+                    </>
+                  }
+                />
+
+                <div className="flex min-h-screen min-w-0 flex-1 flex-col md:ml-[284px]">
+                  <header className="sticky top-0 z-10 border-b border-white/50 bg-background/82 backdrop-blur">
+                    <div className="mx-auto grid w-full max-w-[1600px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-3 py-3 sm:flex sm:justify-between sm:px-6 sm:py-4 lg:px-8">
+                      <div className="min-w-[4.5rem] sm:min-w-0">
+                        <p className="font-label whitespace-nowrap text-[10px] tracking-[0.08em] text-content-muted uppercase sm:text-[11px] sm:tracking-[0.2em]">
+                          {workspace.workspaceLabel}
+                        </p>
+                        <h1 className="hidden text-xl font-bold tracking-tight text-primary sm:block sm:text-3xl">
+                          {companyText.productName}
+                        </h1>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 sm:gap-3">
+                        <LanguageToggle />
+                        <WorkspaceHeaderActions
+                          accountLabel={workspace.accountLabel}
+                          initialAnnouncementsState={initialAnnouncementsState}
+                          initials={workspace.initials}
+                          myHref={workspace.myHref}
+                        />
+                      </div>
+
+                      <h1 className="col-span-2 break-words text-2xl font-bold tracking-tight text-primary sm:hidden">
+                        {companyText.productName}
+                      </h1>
                     </div>
-                  </div>
 
-                  <AdminShellNav
-                    emptyGroupsLabel={t("business.noAccess")}
-                    globalItems={workspace.globalNavItems}
-                    groups={workspace.navGroups}
-                    initialOpenGroupKeys={
-                      initialNavigationPreference?.open_business_keys ?? null
-                    }
-                    mode="desktop"
-                  />
+                    <div className="px-3 pb-3 md:hidden">
+                      <AdminShellNav
+                        emptyGroupsLabel={t("business.noAccess")}
+                        globalItems={workspace.globalNavItems}
+                        groups={workspace.navGroups}
+                        initialOpenGroupKeys={
+                          initialNavigationPreference?.open_business_keys ??
+                          null
+                        }
+                        mode="mobile"
+                      />
+                    </div>
+                  </header>
 
-                  <AdminShellLogoutButton label={t("logout")} />
-                </>
-              }
-            />
-
-            <div className="flex min-h-screen min-w-0 flex-1 flex-col md:ml-[284px]">
-              <header className="sticky top-0 z-10 border-b border-white/50 bg-[#faf9f7]/82 backdrop-blur">
-                <div className="mx-auto grid w-full max-w-[1600px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-3 py-3 sm:flex sm:justify-between sm:px-6 sm:py-4 lg:px-8">
-                  <div className="min-w-[4.5rem] sm:min-w-0">
-                    <p className="font-label whitespace-nowrap text-[10px] tracking-[0.08em] text-[#8e99a3] uppercase sm:text-[11px] sm:tracking-[0.2em]">
-                      {workspace.workspaceLabel}
-                    </p>
-                    <h1 className="hidden text-xl font-bold tracking-tight text-[#486782] sm:block sm:text-3xl">
-                      {companyText.productName}
-                    </h1>
-                  </div>
-
-                  <div className="flex items-center justify-end gap-2 sm:gap-3">
-                    <LanguageToggle />
-                    <WorkspaceHeaderActions
-                      accountLabel={workspace.accountLabel}
-                      initialAnnouncementsState={initialAnnouncementsState}
-                      initials={workspace.initials}
-                      myHref={workspace.myHref}
-                    />
-                  </div>
-
-                  <h1 className="col-span-2 break-words text-2xl font-bold tracking-tight text-[#486782] sm:hidden">
-                    {companyText.productName}
-                  </h1>
+                  <main className="flex-1 px-3 py-5 sm:px-6 sm:py-6 lg:px-8">
+                    {children}
+                  </main>
+                  <AiAssistantClient />
                 </div>
-
-                <div className="px-3 pb-3 md:hidden">
-                  <AdminShellNav
-                    emptyGroupsLabel={t("business.noAccess")}
-                    globalItems={workspace.globalNavItems}
-                    groups={workspace.navGroups}
-                    initialOpenGroupKeys={
-                      initialNavigationPreference?.open_business_keys ?? null
-                    }
-                    mode="mobile"
-                  />
-                </div>
-              </header>
-
-              <main className="flex-1 px-3 py-5 sm:px-6 sm:py-6 lg:px-8">{children}</main>
-              <AiAssistantClient />
+              </div>
             </div>
-          </div>
-        </div>
-        </WorkspaceCustomizationSidebarProvider>
+          </WorkspaceCustomizationSidebarProvider>
         </WorkspaceSessionProvider>
       </DashboardConfirmProvider>
     </ScopedIntlProvider>

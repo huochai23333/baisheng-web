@@ -8,6 +8,8 @@ import {
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
+import { fillDateControl } from "./helpers/date-control";
+import { chooseSelectOption } from "./helpers/select-control";
 
 test.describe("wholesale 1688 import", () => {
   test("salesman can open claim creation and group adjustment", async ({
@@ -69,14 +71,14 @@ test.describe("wholesale 1688 import", () => {
     const orderSearch = dialog.getByLabel("搜索批发订单");
     await expect(orderSearch).toBeDisabled();
 
-    await customerSelect.selectOption({ label: "Wholesale Alpha" });
+    await chooseSelectOption(customerSelect, { label: "Wholesale Alpha" });
     await expect(orderSearch).toBeEnabled();
     const firstOrderCheckbox = dialog.getByRole("checkbox").first();
     await expect(firstOrderCheckbox.locator("xpath=..")).toContainText(" · ");
 
     await firstOrderCheckbox.check();
     await expect(dialog.getByText("已选择 1 笔")).toBeVisible();
-    await customerSelect.selectOption({ label: "Wholesale Beta" });
+    await chooseSelectOption(customerSelect, { label: "Wholesale Beta" });
     await expect(dialog.getByText("已选择 0 笔")).toBeVisible();
 
     await expectNoDocumentHorizontalOverflow(page);
@@ -122,8 +124,14 @@ test.describe("wholesale 1688 import", () => {
     await expect(page.getByText(orderNumbers[1]).first()).toBeVisible();
     await expect(page.getByText(orderNumbers[2])).toBeVisible();
 
-    await page.getByLabel("采购开始日期").fill(shanghaiDateDaysAgo(3));
-    await page.getByLabel("采购结束日期").fill(shanghaiDateDaysAgo(0));
+    await fillDateControl(
+      page.getByLabel("采购开始日期"),
+      shanghaiDateDaysAgo(3),
+    );
+    await fillDateControl(
+      page.getByLabel("采购结束日期"),
+      shanghaiDateDaysAgo(0),
+    );
     await expect(page.getByText(orderNumbers[0]).first()).toBeVisible();
     await expect(page.getByText(orderNumbers[1]).first()).toBeVisible();
     await expect(page.getByText(orderNumbers[2]).first()).toBeVisible();
@@ -141,7 +149,7 @@ test.describe("wholesale 1688 import", () => {
     await page.getByRole("button", { name: "批量认领" }).click();
 
     const bulkDialog = page.getByRole("dialog", { name: "认领采购订单" });
-    await bulkDialog.getByLabel("客户").selectOption({
+    await chooseSelectOption(bulkDialog.getByLabel("客户"), {
       label: "Wholesale Alpha",
     });
     await bulkDialog.getByRole("checkbox").first().check();

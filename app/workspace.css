@@ -13,4 +13,5 @@
 @source "../components/brand";
 @source "../components/dashboard";
 @source "../components/motion";
-@source "../components/ui/button.tsx";
+/* 工作台直接消费整套设计系统，必须让 Tailwind 扫描全部共享 UI。 */
+@source "../components/ui";

@@ -1,13 +1,19 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+import { Select } from "@/components/ui/select";
+
 import {
-  DashboardFormDialog,
+  FormDialog,
   DashboardFormTextarea,
   dashboardFormInputClassName,
 } from "@/components/dashboard/dashboard-form-dialog";
-import type { AnnouncementAudience, AnnouncementRow } from "@/lib/announcements";
+import type {
+  AnnouncementAudience,
+  AnnouncementRow,
+} from "@/lib/announcements";
 
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 import {
   announcementAudienceValues,
   type AnnouncementFormState,
@@ -30,7 +36,7 @@ type AnnouncementFormDialogProps = {
     titlePlaceholder: string;
   };
   editingAnnouncement: AnnouncementRow | null;
-  feedback: { tone: NoticeTone; message: string } | null;
+  feedback: { tone: FeedbackTone; message: string } | null;
   formState: AnnouncementFormState;
   onOpenChange: (open: boolean) => void;
   onSubmit: () => void;
@@ -56,7 +62,7 @@ export function AnnouncementFormDialog({
   const createMode = !editingAnnouncement;
 
   return (
-    <DashboardFormDialog
+    <FormDialog
       cancelLabel={copy.cancel}
       description={createMode ? copy.createDescription : copy.editDescription}
       feedback={feedback}
@@ -67,46 +73,38 @@ export function AnnouncementFormDialog({
       submitLabel={createMode ? copy.createSubmit : copy.editSubmit}
       title={createMode ? copy.createTitle : copy.editTitle}
     >
-        <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-          {copy.titleLabel}
-          <input
-            className={dashboardFormInputClassName}
-            onChange={(event) => onUpdateField("title", event.target.value)}
-            placeholder={copy.titlePlaceholder}
-            type="text"
-            value={formState.title}
-          />
-        </label>
+      <label className="grid gap-2 text-sm font-semibold text-content-strong">
+        {copy.titleLabel}
+        <FormControls.Input
+          className={dashboardFormInputClassName}
+          onChange={(event) => onUpdateField("title", event.target.value)}
+          placeholder={copy.titlePlaceholder}
+          type="text"
+          value={formState.title}
+        />
+      </label>
 
-        <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-          {copy.audienceLabel}
-          <select
-            className={dashboardFormInputClassName}
-            onChange={(event) =>
-              onUpdateField(
-                "audience",
-                event.target.value as AnnouncementAudience,
-              )
-            }
-            value={formState.audience}
-          >
-            {announcementAudienceValues.map((audience) => (
-              <option key={audience} value={audience}>
-                {copy.audienceOptions[audience]}
-              </option>
-            ))}
-          </select>
-        </label>
+      <label className="grid gap-2 text-sm font-semibold text-content-strong">
+        {copy.audienceLabel}
+        <Select
+          onValueChange={(value) => onUpdateField("audience", value)}
+          options={announcementAudienceValues.map((audience) => ({
+            label: copy.audienceOptions[audience],
+            value: audience,
+          }))}
+          value={formState.audience}
+        />
+      </label>
 
-        <label className="grid gap-2 text-sm font-semibold text-[#31424e]">
-          {copy.contentLabel}
-          <DashboardFormTextarea
-            className="min-h-[180px]"
-            onChange={(event) => onUpdateField("content", event.target.value)}
-            placeholder={copy.contentPlaceholder}
-            value={formState.content}
-          />
-        </label>
-    </DashboardFormDialog>
+      <label className="grid gap-2 text-sm font-semibold text-content-strong">
+        {copy.contentLabel}
+        <DashboardFormTextarea
+          className="min-h-[180px]"
+          onChange={(event) => onUpdateField("content", event.target.value)}
+          placeholder={copy.contentPlaceholder}
+          value={formState.content}
+        />
+      </label>
+    </FormDialog>
   );
 }

@@ -12,7 +12,7 @@ import type { AppRole, UserProfileRow } from "@/lib/user-self-service";
 
 import {
   toErrorMessage,
-  type NoticeTone,
+  type FeedbackTone,
 } from "../dashboard-shared-ui";
 import type {
   DashboardSharedCopy,
@@ -20,7 +20,7 @@ import type {
 } from "./dashboard-shared-my-state-copy";
 
 type ProfileNotice = {
-  tone: NoticeTone;
+  tone: FeedbackTone;
   message: string;
 } | null;
 

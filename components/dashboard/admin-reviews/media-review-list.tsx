@@ -1,4 +1,6 @@
-﻿"use client";
+"use client";
+
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
 
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -47,21 +49,30 @@ export function MediaReviewList({
   }
 
   return (
-    <div className="overflow-hidden rounded-[24px] border border-[#ebe7e1] bg-white shadow-[0_10px_24px_rgba(96,113,128,0.06)]">
-      <div className="hidden grid-cols-[132px_minmax(0,1fr)_minmax(0,1fr)_minmax(150px,0.8fr)_220px] gap-5 border-b border-[#efebe5] bg-[#f7f5f2] px-6 py-4 lg:grid">
+    <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-white shadow-[var(--surface-shadow-interactive)]">
+      <div className="hidden grid-cols-[132px_minmax(0,1fr)_minmax(0,1fr)_minmax(150px,0.8fr)_220px] gap-5 border-b border-border-subtle bg-surface-inset px-6 py-4 lg:grid">
         <ReviewHeaderCell>{t("media.columns.preview")}</ReviewHeaderCell>
         <ReviewHeaderCell>{t("media.columns.name")}</ReviewHeaderCell>
         <ReviewHeaderCell>{t("media.columns.email")}</ReviewHeaderCell>
         <ReviewHeaderCell>{t("media.columns.aiReview")}</ReviewHeaderCell>
-        <ReviewHeaderCell className="text-right">{t("media.columns.actions")}</ReviewHeaderCell>
+        <ReviewHeaderCell className="text-right">
+          {t("media.columns.actions")}
+        </ReviewHeaderCell>
       </div>
 
-      <div className="divide-y divide-[#efebe5]">
+      <div className="divide-y divide-border-subtle">
         {rows.map((row) => {
           const rowKey = `media:${row.asset_id}`;
           const busyAction = busyRows[rowKey];
-          const displayName = getDisplayName(row.name, row.email, t("fallback.unnamedUser"));
-          const displayEmail = getDisplayEmail(row.email, t("fallback.notProvided"));
+          const displayName = getDisplayName(
+            row.name,
+            row.email,
+            t("fallback.unnamedUser"),
+          );
+          const displayEmail = getDisplayEmail(
+            row.email,
+            t("fallback.notProvided"),
+          );
 
           return (
             <article
@@ -69,14 +80,14 @@ export function MediaReviewList({
               className="grid gap-4 px-4 py-5 lg:grid-cols-[132px_minmax(0,1fr)_minmax(0,1fr)_minmax(150px,0.8fr)_220px] lg:items-center lg:px-6"
             >
               <div>
-                <p className="mb-2 font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase lg:hidden">
+                <p className="mb-2 font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase lg:hidden">
                   {t("media.columns.preview")}
                 </p>
-                <button
+                <DesignButton
                   className={cn(
-                    "group relative block h-[92px] w-[124px] overflow-hidden rounded-[18px] border border-[#ebe7e1] bg-[#eef2f5] text-left shadow-[0_8px_20px_rgba(96,113,128,0.08)] transition-transform duration-200",
+                    "group relative block h-[92px] w-[124px] overflow-hidden rounded-[18px] border border-border-subtle bg-surface-inset text-left shadow-[var(--surface-shadow-interactive)] transition-transform duration-200",
                     row.previewUrl
-                      ? "cursor-zoom-in hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-[#bfd2e1]/40 focus-visible:outline-none"
+                      ? "cursor-zoom-in hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-ring/40 focus-visible:outline-none"
                       : "cursor-not-allowed opacity-80",
                   )}
                   disabled={!row.previewUrl}
@@ -85,8 +96,8 @@ export function MediaReviewList({
                 >
                   <MediaPreview asset={row} />
                   {row.previewUrl ? (
-                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[rgba(28,38,45,0.18)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-[#486782] shadow-[0_8px_18px_rgba(28,38,45,0.12)]">
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-surface-panel opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-primary shadow-[var(--surface-shadow-interactive)]">
                         {row.kind === "video" ? (
                           <Play className="ml-0.5 size-4 fill-current" />
                         ) : (
@@ -95,11 +106,17 @@ export function MediaReviewList({
                       </div>
                     </div>
                   ) : null}
-                </button>
+                </DesignButton>
               </div>
 
-              <ReviewValueCell label={t("media.columns.name")} value={displayName} />
-              <ReviewValueCell label={t("media.columns.email")} value={displayEmail} />
+              <ReviewValueCell
+                label={t("media.columns.name")}
+                value={displayName}
+              />
+              <ReviewValueCell
+                label={t("media.columns.email")}
+                value={displayEmail}
+              />
               <AiReviewCell asset={row} />
 
               <div className="lg:justify-self-end">
@@ -158,7 +175,7 @@ export function MediaPreviewDialog({
     >
       {asset ? (
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-[26px] border border-[#ebe7e1] bg-[#f4f3f1] shadow-[0_12px_30px_rgba(96,113,128,0.08)]">
+          <div className="overflow-hidden rounded-[26px] border border-border-subtle bg-surface-inset shadow-[var(--surface-shadow-interactive)]">
             {asset.previewUrl ? (
               asset.kind === "video" ? (
                 <video
@@ -179,18 +196,22 @@ export function MediaPreviewDialog({
                 />
               )
             ) : (
-              <div className="flex min-h-[360px] items-center justify-center bg-[linear-gradient(135deg,#edf2f5_0%,#dfe8ee_100%)]">
+              <div className="flex min-h-[360px] items-center justify-center bg-[linear-gradient(135deg,var(--chart-1)_0%,var(--chart-1)_100%)]">
                 <MediaPreviewFallback
                   kind={asset.kind}
-                  label={asset.kind === "video" ? t("media.video") : t("media.image")}
+                  label={
+                    asset.kind === "video" ? t("media.video") : t("media.image")
+                  }
                 />
               </div>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-sm text-[#66727d]">
-            <span className="inline-flex items-center rounded-full bg-[#eef3f6] px-3 py-1 font-medium text-[#486782]">
-              {asset.kind === "video" ? t("media.videoPreview") : t("media.imagePreview")}
+          <div className="flex flex-wrap items-center gap-3 text-sm text-content-muted">
+            <span className="inline-flex items-center rounded-full bg-status-info-soft px-3 py-1 font-medium text-primary">
+              {asset.kind === "video"
+                ? t("media.videoPreview")
+                : t("media.imagePreview")}
             </span>
             <span className="truncate">{asset.original_name}</span>
           </div>
@@ -206,7 +227,7 @@ function AiReviewCell({ asset }: { asset: PendingMediaReviewWithPreview }) {
 
   return (
     <div className="min-w-0">
-      <p className="mb-1 font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase lg:hidden">
+      <p className="mb-1 font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase lg:hidden">
         {t("media.columns.aiReview")}
       </p>
       <span
@@ -229,55 +250,56 @@ function getAiReviewDisplay(
   if (asset.kind !== "image") {
     return {
       label: t("media.aiReview.videoSkipped"),
-      className: "bg-[#f1f3f5] text-[#66727d]",
+      className: "bg-surface-inset text-content-muted",
     };
   }
 
   if (!asset.ai_review_status || asset.ai_review_status === "queued") {
     return {
       label: t("media.aiReview.queued"),
-      className: "bg-[#eef3f6] text-[#486782]",
+      className: "bg-status-info-soft text-primary",
     };
   }
 
   if (asset.ai_review_status === "processing") {
     return {
       label: t("media.aiReview.processing"),
-      className: "bg-[#fff6d8] text-[#8a6a1f]",
+      className: "bg-surface-inset text-content-muted",
     };
   }
 
   if (asset.ai_review_status === "failed") {
     return {
       label: t("media.aiReview.failed"),
-      className: "bg-[#fff0f0] text-[#b13d3d]",
+      className: "bg-surface-inset text-status-danger",
     };
   }
 
   if (asset.ai_review_decision === "auto_pass") {
     return {
       label: t("media.aiReview.autoPass"),
-      className: "bg-[#edf7ee] text-[#4c7259]",
+      className: "bg-surface-inset text-status-success",
     };
   }
 
   if (asset.ai_review_reasons?.includes("not_configured")) {
     return {
       label: t("media.aiReview.notConfigured"),
-      className: "bg-[#f1f3f5] text-[#66727d]",
+      className: "bg-surface-inset text-content-muted",
     };
   }
 
   return {
     label: t("media.aiReview.manualReview"),
-    className: "bg-[#fff6d8] text-[#8a6a1f]",
+    className: "bg-surface-inset text-content-muted",
   };
 }
 
 function MediaPreview({ asset }: { asset: PendingMediaReviewWithPreview }) {
   const t = useTranslations("ReviewsUI");
   const [previewFailed, setPreviewFailed] = useState(false);
-  const kindLabel = asset.kind === "video" ? t("media.video") : t("media.image");
+  const kindLabel =
+    asset.kind === "video" ? t("media.video") : t("media.image");
 
   if (!asset.previewUrl || previewFailed) {
     return <MediaPreviewFallback kind={asset.kind} label={kindLabel} />;
@@ -285,7 +307,7 @@ function MediaPreview({ asset }: { asset: PendingMediaReviewWithPreview }) {
 
   if (asset.kind === "video") {
     return (
-      <div className="relative h-full w-full overflow-hidden bg-[#172029]">
+      <div className="relative h-full w-full overflow-hidden bg-surface-inset">
         <video
           className="h-full w-full object-cover"
           muted
@@ -300,7 +322,7 @@ function MediaPreview({ asset }: { asset: PendingMediaReviewWithPreview }) {
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#eef2f5]">
+    <div className="relative h-full w-full overflow-hidden bg-surface-inset">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         alt={asset.original_name}
@@ -325,12 +347,14 @@ function MediaPreviewFallback({
   const Icon = kind === "video" ? Video : ImageIcon;
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,#e9eef2_0%,#dce6ec_100%)] text-[#486782]">
+    <div className="relative flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,var(--chart-1)_0%,var(--chart-1)_100%)] text-primary">
       <div className="flex flex-col items-center gap-2">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/88 shadow-[0_8px_18px_rgba(96,113,128,0.12)]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/88 shadow-[var(--surface-shadow-interactive)]">
           <Icon className="size-5" />
         </div>
-        <span className="text-xs font-medium text-[#5f717f]">{t("media.previewUnavailable")}</span>
+        <span className="text-xs font-medium text-content-muted">
+          {t("media.previewUnavailable")}
+        </span>
       </div>
       <MediaPreviewBadge>{label}</MediaPreviewBadge>
     </div>
@@ -339,7 +363,7 @@ function MediaPreviewFallback({
 
 function MediaPreviewBadge({ children }: { children: ReactNode }) {
   return (
-    <span className="absolute left-2.5 top-2.5 inline-flex items-center rounded-full bg-[rgba(28,38,45,0.72)] px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+    <span className="absolute left-2.5 top-2.5 inline-flex items-center rounded-full bg-surface-panel px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
       {children}
     </span>
   );

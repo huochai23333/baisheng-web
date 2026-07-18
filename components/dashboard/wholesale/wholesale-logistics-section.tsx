@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { Settings2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -8,13 +10,10 @@ import {
   DashboardOrderListSection,
   DashboardOrderLoadMoreButton,
 } from "@/components/dashboard/dashboard-order-list-section";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { FeedbackNotice } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { AppRole } from "@/lib/auth-routing";
-import type {
-  WholesaleCustomer,
-  WholesaleProfile,
-} from "@/lib/wholesale";
+import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import type {
   WholesaleLogisticsFilters,
   WholesaleLogisticsPage,
@@ -61,7 +60,8 @@ export function WholesaleLogisticsSection({
     initialPage,
     initialStoreOptions,
   });
-  const canManage = currentRole === "administrator" || currentRole === "salesman";
+  const canManage =
+    currentRole === "administrator" || currentRole === "salesman";
   const profilesById = useMemo(
     () => new Map(profiles.map((profile) => [profile.user_id, profile])),
     [profiles],
@@ -76,7 +76,9 @@ export function WholesaleLogisticsSection({
       actions={
         canManage ? (
           <Button
-            className="min-h-10 whitespace-normal rounded-full bg-[#486782] px-4 py-2 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
+            className="min-h-10 whitespace-normal"
             onClick={() => setSettingsOpen(true)}
             type="button"
           >
@@ -90,22 +92,24 @@ export function WholesaleLogisticsSection({
       title={t("title")}
     >
       {logistics.feedback?.scope === "page" ? (
-        <PageBanner tone={logistics.feedback.tone}>
+        <FeedbackNotice tone={logistics.feedback.tone}>
           <div className="flex min-w-0 items-start justify-between gap-3">
-            <span className="min-w-0 break-words">{logistics.feedback.message}</span>
-            <button
+            <span className="min-w-0 break-words">
+              {logistics.feedback.message}
+            </span>
+            <DesignButton
               className="shrink-0 text-xs font-semibold underline underline-offset-2"
               onClick={logistics.dismissFeedback}
               type="button"
             >
               {t("actions.dismiss")}
-            </button>
+            </DesignButton>
           </div>
-        </PageBanner>
+        </FeedbackNotice>
       ) : null}
 
       {logistics.updatingSource ? (
-        <p className="rounded-[18px] border border-[#dce6ec] bg-[#f3f8fa] px-4 py-3 text-sm text-[#526b7d]">
+        <p className="rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
           {t("updating")}
         </p>
       ) : null}
@@ -146,10 +150,10 @@ export function WholesaleLogisticsSection({
         title={t("list.title")}
       >
         {logistics.loading ? (
-          <p className="mb-3 text-sm text-[#6f7b85]">{t("list.loading")}</p>
+          <p className="mb-3 text-sm text-content-muted">{t("list.loading")}</p>
         ) : null}
         {logistics.loadError ? (
-          <PageBanner tone="error">{logistics.loadError}</PageBanner>
+          <FeedbackNotice tone="error">{logistics.loadError}</FeedbackNotice>
         ) : null}
 
         <WholesaleLogisticsRecords

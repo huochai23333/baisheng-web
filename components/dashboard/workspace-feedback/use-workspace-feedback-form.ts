@@ -8,7 +8,7 @@ import { markBrowserCloudSyncActivity } from "@/lib/browser-sync-recovery";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { submitWorkspaceFeedback } from "@/lib/workspace-feedback";
 
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 import {
   createEmptyWorkspaceFeedbackForm,
   validateWorkspaceFeedbackForm,
@@ -16,7 +16,7 @@ import {
   type WorkspaceFeedbackValidationCopy,
 } from "./workspace-feedback-display";
 
-type Feedback = { tone: NoticeTone; message: string } | null;
+type Feedback = { tone: FeedbackTone; message: string } | null;
 
 type UseWorkspaceFeedbackFormOptions = {
   copy: WorkspaceFeedbackValidationCopy & {

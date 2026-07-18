@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { FileSpreadsheet, LoaderCircle, Upload } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -90,7 +92,8 @@ export function WholesaleClaimsSection({
       actions={
         canManageClaims ? (
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             onClick={() => setUploadDialogOpen(true)}
             type="button"
           >
@@ -146,17 +149,18 @@ export function WholesaleClaimsSection({
         }
         title={uiText("attribute004")}
       >
-
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
           {WHOLESALE_CLAIM_BOARDS.map((board) => (
-            <button
+            <DesignButton
               className={
                 claims.activeBoard === board.key
-                  ? "rounded-[18px] bg-[#486782] px-4 py-3 text-left text-sm font-semibold text-white shadow-[0_12px_24px_rgba(72,103,130,0.18)]"
-                  : "rounded-[18px] border border-[#dfe5ea] bg-white px-4 py-3 text-left text-sm font-semibold text-[#486782] hover:bg-[#f4f8fa]"
+                  ? "rounded-[18px] bg-primary px-4 py-3 text-left text-sm font-semibold text-white shadow-[var(--surface-shadow-interactive)]"
+                  : "rounded-[18px] border border-border bg-white px-4 py-3 text-left text-sm font-semibold text-primary hover:bg-surface-inset"
               }
               key={board.key}
-              onClick={() => claims.setActiveBoard(board.key as WholesaleClaimBoardKey)}
+              onClick={() =>
+                claims.setActiveBoard(board.key as WholesaleClaimBoardKey)
+              }
               type="button"
             >
               <span className="block">{board.label}</span>
@@ -170,7 +174,7 @@ export function WholesaleClaimsSection({
                       count: claims.page.boardCounts[board.key],
                     })}
               </span>
-            </button>
+            </DesignButton>
           ))}
         </div>
 
@@ -185,7 +189,7 @@ export function WholesaleClaimsSection({
         ) : null}
 
         {claims.loadError ? (
-          <div className="mt-4 rounded-[18px] border border-[#efcaca] bg-[#fff4f4] px-4 py-3 text-sm text-[#9b3535]">
+          <div className="mt-4 rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
             {claims.loadError}
           </div>
         ) : null}
@@ -193,7 +197,7 @@ export function WholesaleClaimsSection({
         <div className="relative mt-5 min-h-24">
           {claims.loading ? (
             <div className="absolute inset-0 z-10 flex items-start justify-center rounded-[18px] bg-white/75 pt-8">
-              <LoaderCircle className="size-6 animate-spin text-[#486782]" />
+              <LoaderCircle className="size-6 animate-spin text-primary" />
             </div>
           ) : null}
           {claims.activeBoard === "claimed" ? (
@@ -249,7 +253,6 @@ export function WholesaleClaimsSection({
             />
           )}
         </div>
-
       </DashboardOrderListSection>
 
       <Wholesale1688UploadDialog

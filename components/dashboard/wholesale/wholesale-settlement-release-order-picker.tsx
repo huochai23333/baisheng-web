@@ -2,16 +2,14 @@
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import type {
-  WholesaleCustomer,
-  WholesaleOrder,
-} from "@/lib/wholesale";
+import { DashboardFilterField } from "@/components/dashboard/dashboard-section-panel";
+import { Select } from "@/components/ui/select";
+import type { WholesaleCustomer, WholesaleOrder } from "@/lib/wholesale";
 import type { WholesaleSettlementRelease } from "@/lib/wholesale-settlement-releases";
 import {
   formatWholesaleOrderLinkOption,
   getWholesaleOrderLinkOptionsForCustomer,
 } from "./wholesale-order-link-options";
-import { WholesaleSelect } from "./wholesale-ui";
 type WholesaleSettlementReleaseOrderPickerProps = {
   baseCandidates: WholesaleOrder[];
   customers: WholesaleCustomer[];
@@ -58,7 +56,7 @@ export function WholesaleSettlementReleaseOrderPicker({
   }, [matchingOrders, selectedOrderId]);
   const hasSelectedOrder = Boolean(
     selectedOrderId &&
-      matchingOrders.some((order) => order.id === selectedOrderId),
+    matchingOrders.some((order) => order.id === selectedOrderId),
   );
   useEffect(() => {
     onSelectableOrderChange(hasSelectedOrder);
@@ -66,45 +64,50 @@ export function WholesaleSettlementReleaseOrderPicker({
 
   return (
     <div className="grid gap-4">
-      <WholesaleSelect
-        disabled={Boolean(fixedCustomerId)}
-        label={uiText("customerLabel")}
-        name="customer_id"
-        onChange={(event) => {
-          setSelectedCustomerId(event.target.value);
-          // 改选客户后必须重新确认订单，不能保留上一位客户的选择。
-          setSelectedOrderId("");
-        }}
-        required
-        value={selectedCustomerId}
-      >
-        <option value="">{uiText("selectCustomer")}</option>
-        {availableCustomers.map((customer) => (
-          <option key={customer.id} value={customer.id}>
-            {customer.unique_name}
-          </option>
-        ))}
-      </WholesaleSelect>
+      <DashboardFilterField label={uiText("customerLabel")}>
+        <Select
+          aria-label={uiText("customerLabel")}
+          disabled={Boolean(fixedCustomerId)}
+          name="customer_id"
+          onValueChange={(value) => {
+            setSelectedCustomerId(value);
+            // 改选客户后必须重新确认订单，不能保留上一位客户的选择。
+            setSelectedOrderId("");
+          }}
+          options={[
+            { label: uiText("selectCustomer"), value: "" },
+            ...availableCustomers.map((customer) => ({
+              label: customer.unique_name,
+              value: customer.id,
+            })),
+          ]}
+          required
+          value={selectedCustomerId}
+        />
+      </DashboardFilterField>
 
-      <WholesaleSelect
-        disabled={!selectedCustomerId || matchingOrders.length === 0}
-        label={uiText("orderLabel")}
-        name="order_id"
-        onChange={(event) => setSelectedOrderId(event.target.value)}
-        required
-        value={selectedOrderId}
-      >
-        <option value="">
-          {selectedCustomerId
-            ? uiText("selectOrder")
-            : uiText("selectCustomerFirst")}
-        </option>
-        {matchingOrders.map((order) => (
-          <option key={order.id} value={order.id}>
-            {formatWholesaleOrderLinkOption(order)}
-          </option>
-        ))}
-      </WholesaleSelect>
+      <DashboardFilterField label={uiText("orderLabel")}>
+        <Select
+          aria-label={uiText("orderLabel")}
+          disabled={!selectedCustomerId || matchingOrders.length === 0}
+          name="order_id"
+          onValueChange={setSelectedOrderId}
+          options={[
+            {
+              label: selectedCustomerId
+                ? uiText("selectOrder")
+                : uiText("selectCustomerFirst"),
+              value: "",
+            },
+            ...matchingOrders.map((order) => ({
+              label: formatWholesaleOrderLinkOption(order),
+              value: order.id,
+            })),
+          ]}
+          required
+          value={selectedOrderId}
+        />
+      </DashboardFilterField>
 
       {baseCandidates.length === 0 ? (
         <OrderPickerNotice>
@@ -125,7 +128,7 @@ function OrderPickerNotice({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-[16px] border border-[#eadbbf] bg-[#fff8ec] px-4 py-3 text-sm leading-6 text-[#856225]">
+    <div className="rounded-[16px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
       {children}
     </div>
   );

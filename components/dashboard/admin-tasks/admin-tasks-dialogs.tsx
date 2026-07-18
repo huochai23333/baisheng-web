@@ -1,11 +1,10 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import {
-  LoaderCircle,
-  Shuffle,
-} from "lucide-react";
+import { LoaderCircle, Shuffle } from "lucide-react";
 
 import {
   type AdminTaskRow,
@@ -14,23 +13,21 @@ import {
 } from "@/lib/admin-tasks";
 
 import { Button } from "@/components/ui/button";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { FeedbackNotice } from "@/components/dashboard/dashboard-shared-ui";
 import {
   getTaskTargetRoleLabel,
   getTaskTargetRolesLabel,
 } from "@/components/dashboard/tasks/tasks-display";
 
-import {
-  canReassignTask,
-  type AssignmentFormState,
-} from "./admin-tasks-utils";
-import {
-  TaskStatusPill,
-} from "./admin-tasks-ui";
+import { canReassignTask, type AssignmentFormState } from "./admin-tasks-utils";
+import { TaskStatusPill } from "./admin-tasks-ui";
 import { type PageFeedback } from "./admin-tasks-view-model-shared";
 
 const DashboardDialog = dynamic(
-  () => import("@/components/dashboard/dashboard-dialog").then((mod) => mod.DashboardDialog),
+  () =>
+    import("@/components/dashboard/dashboard-dialog").then(
+      (mod) => mod.DashboardDialog,
+    ),
   { ssr: false },
 );
 
@@ -59,21 +56,25 @@ export function AssignmentDialog({
 }) {
   const t = useTranslations("Tasks.admin");
   const sharedT = useTranslations("Tasks.shared");
-  const canChangeAssignment = selectedTask ? canReassignTask(selectedTask) : false;
+  const canChangeAssignment = selectedTask
+    ? canReassignTask(selectedTask)
+    : false;
 
   return open ? (
     <DashboardDialog
       actions={
         <>
           <Button
-            className="h-11 rounded-full border border-[#d8e2e8] bg-white px-5 text-[#486782] hover:bg-[#eef3f6]"
+            variant="outline"
+            size="default"
             onClick={() => onOpenChange(false)}
             type="button"
           >
             {t("assignmentDialog.cancel")}
           </Button>
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             disabled={pending || !selectedTask || !canChangeAssignment}
             onClick={onSubmit}
             type="button"
@@ -100,30 +101,35 @@ export function AssignmentDialog({
     >
       <div className="space-y-6">
         {feedback ? (
-          <PageBanner tone={feedback.tone}>{feedback.message}</PageBanner>
+          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
         ) : null}
 
         {selectedTask ? (
           <>
-            <div className="rounded-[24px] border border-[#e6ebef] bg-[#f8fbfc] p-5">
+            <div className="rounded-[24px] border border-border-subtle bg-surface-inset p-5">
               <div className="flex flex-wrap items-center gap-2">
                 <TaskStatusPill status={selectedTask.status} />
               </div>
-              <p className="mt-4 text-lg font-semibold tracking-tight text-[#23313a]">
+              <p className="mt-4 text-lg font-semibold tracking-tight text-content-strong">
                 {selectedTask.task_name}
               </p>
-              <p className="mt-2 text-sm leading-7 text-[#6f7b85]">
+              <p className="mt-2 text-sm leading-7 text-content-muted">
                 {t("assignmentDialog.currentTargetRoles", {
-                  targetRoles: getTaskTargetRolesLabel(selectedTask.target_roles, sharedT),
+                  targetRoles: getTaskTargetRolesLabel(
+                    selectedTask.target_roles,
+                    sharedT,
+                  ),
                 })}
               </p>
             </div>
 
             {!canChangeAssignment ? (
-              <PageBanner tone="info">{t("assignmentDialog.viewOnlyNotice")}</PageBanner>
+              <FeedbackNotice tone="info">
+                {t("assignmentDialog.viewOnlyNotice")}
+              </FeedbackNotice>
             ) : (
               <div>
-                <p className="mb-2 block text-sm font-semibold text-[#23313a]">
+                <p className="mb-2 block text-sm font-semibold text-content-strong">
                   {t("assignmentDialog.targetRolesLabel")}
                 </p>
                 <div className="grid gap-2 sm:grid-cols-2">
@@ -135,20 +141,19 @@ export function AssignmentDialog({
                         className={[
                           "flex min-h-11 items-center gap-3 rounded-[16px] border px-3 py-2 text-sm font-medium transition",
                           checked
-                            ? "border-[#486782] bg-[#eef4f8] text-[#23313a]"
-                            : "border-[#dfe6eb] bg-white text-[#60717d]",
+                            ? "border-primary bg-surface-inset text-content-strong"
+                            : "border-border-subtle bg-white text-content-muted",
                           pending
                             ? "cursor-not-allowed opacity-60"
-                            : "cursor-pointer hover:bg-[#f8fbfd]",
+                            : "cursor-pointer hover:bg-surface-inset",
                         ].join(" ")}
                         key={option.role}
                       >
-                        <input
+                        <FormControls.Checkbox
                           checked={checked}
-                          className="size-4 accent-[#486782]"
+                          className="size-4 accent-primary"
                           disabled={pending}
                           onChange={() => onTargetRoleToggle(option.role)}
-                          type="checkbox"
                         />
                         {getTaskTargetRoleLabel(option.role, sharedT)}
                       </label>

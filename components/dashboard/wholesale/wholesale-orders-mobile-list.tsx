@@ -1,4 +1,8 @@
 "use client";
+
+import { StatusBadge } from "@/components/ui/status-badge";
+
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type {
@@ -17,7 +21,6 @@ import {
 } from "./wholesale-display";
 import { WholesaleOrderDetailsDialog } from "./wholesale-order-details-dialog";
 import type { WholesaleOrderEditAction } from "./wholesale-orders-table";
-import { WholesaleStatusBadge } from "./wholesale-ui";
 type WholesaleOrdersMobileListProps = {
   canMarkOrderSettled: (order: WholesaleOrderListItem) => boolean;
   canManageOrderListAttachments: (order: WholesaleOrderListItem) => boolean;
@@ -63,11 +66,10 @@ export function WholesaleOrdersMobileList({
     "UiText.components_dashboard_wholesale_wholesale_orders_mobile_list",
   );
   const t = useTranslations("WholesaleBusiness.ordersUi");
-  const [selectedOrder, setSelectedOrder] = useState<WholesaleOrderListItem | null>(
-    null,
-  );
+  const [selectedOrder, setSelectedOrder] =
+    useState<WholesaleOrderListItem | null>(null);
   return (
-    <div className="grid gap-3 md:hidden">
+    <div className="grid gap-3">
       {orders.map((order) => {
         const settlements = orderSettlementsByOrderId.get(order.id) ?? [];
         const settledAmount = settlements.reduce(
@@ -75,8 +77,8 @@ export function WholesaleOrdersMobileList({
           0,
         );
         return (
-          <button
-            className="min-w-0 rounded-[22px] border border-[#e6e1d9] bg-white p-4 text-left shadow-sm transition active:scale-[0.99]"
+          <DesignButton
+            className="min-w-0 rounded-[22px] border border-border-subtle bg-white p-4 text-left shadow-sm transition active:scale-[0.99]"
             data-testid={`wholesale-order-card-${order.id}`}
             key={order.id}
             onClick={() => setSelectedOrder(order)}
@@ -84,18 +86,18 @@ export function WholesaleOrdersMobileList({
           >
             <div className="flex min-w-0 items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="break-words font-semibold text-[#263640] [overflow-wrap:anywhere]">
+                <p className="break-words font-semibold text-content-muted [overflow-wrap:anywhere]">
                   {order.order_number}
                 </p>
-                <p className="mt-1 truncate text-sm text-[#71808d]">
+                <p className="mt-1 truncate text-sm text-content-muted">
                   {getCustomerName(customersById, order.customer_id)}
                 </p>
               </div>
-              <WholesaleStatusBadge
+              <StatusBadge
                 tone={order.status === "settled" ? "success" : "warning"}
               >
                 {t(`statuses.${order.status}`)}
-              </WholesaleStatusBadge>
+              </StatusBadge>
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -119,16 +121,16 @@ export function WholesaleOrdersMobileList({
                 value={formatDateTime(order.ordered_at)}
               />
             </div>
-          </button>
+          </DesignButton>
         );
       })}
 
       {selectedOrder ? (
         <WholesaleOrderDetailsDialog
           canMarkOrderSettled={canMarkOrderSettled(selectedOrder)}
-          canManageOrderListAttachments={
-            canManageOrderListAttachments(selectedOrder)
-          }
+          canManageOrderListAttachments={canManageOrderListAttachments(
+            selectedOrder,
+          )}
           canViewInternalFields={canViewInternalFields}
           customerName={getCustomerName(
             customersById,
@@ -164,9 +166,9 @@ export function WholesaleOrdersMobileList({
 }
 function MobileOrderValue({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-[14px] bg-[#f7f9fa] px-3 py-2">
-      <p className="text-xs text-[#7b8790]">{label}</p>
-      <p className="mt-1 break-words font-medium text-[#354650] [overflow-wrap:anywhere]">
+    <div className="min-w-0 rounded-[14px] bg-surface-inset px-3 py-2">
+      <p className="text-xs text-content-muted">{label}</p>
+      <p className="mt-1 break-words font-medium text-content-muted [overflow-wrap:anywhere]">
         {value}
       </p>
     </div>

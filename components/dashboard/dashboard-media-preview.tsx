@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useEffectEvent, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import {
@@ -108,14 +114,22 @@ export function LazyDashboardVideoPreview({
 }
 
 function useLazyDashboardMediaPreview(asset: PreviewAsset, rootMargin: string) {
-  const [previewState, setPreviewState] = useState(() => createPreviewState(asset));
+  const [previewState, setPreviewState] = useState(() =>
+    createPreviewState(asset),
+  );
   const ref = useRef<HTMLDivElement>(null);
   const resolvedPreviewState =
-    previewState.assetId === asset.id ? previewState : createPreviewState(asset);
+    previewState.assetId === asset.id
+      ? previewState
+      : createPreviewState(asset);
   const { previewStatus, previewUrl } = resolvedPreviewState;
 
   const resolvePreviewUrl = useEffectEvent(async () => {
-    if (previewUrl || previewStatus === "loading" || previewStatus === "ready") {
+    if (
+      previewUrl ||
+      previewStatus === "loading" ||
+      previewStatus === "ready"
+    ) {
       return;
     }
 
@@ -134,7 +148,10 @@ function useLazyDashboardMediaPreview(asset: PreviewAsset, rootMargin: string) {
       previewStatus: "loading",
     }));
 
-    const nextPreviewUrl = await createUserMediaAssetPreviewUrl(supabase, asset);
+    const nextPreviewUrl = await createUserMediaAssetPreviewUrl(
+      supabase,
+      asset,
+    );
 
     if (nextPreviewUrl) {
       setPreviewState({
@@ -152,7 +169,11 @@ function useLazyDashboardMediaPreview(asset: PreviewAsset, rootMargin: string) {
   });
 
   useEffect(() => {
-    if (previewUrl || previewStatus === "loading" || previewStatus === "ready") {
+    if (
+      previewUrl ||
+      previewStatus === "loading" ||
+      previewStatus === "ready"
+    ) {
       return;
     }
 

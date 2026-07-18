@@ -7,9 +7,7 @@ import { useTranslations } from "next-intl";
 import { DashboardInlineEditActions } from "@/components/dashboard/dashboard-framework-primitives";
 
 export type ServiceOrderSettingsEditingTarget =
-  | { kind: "discount"; id: string }
-  | { kind: "price"; id: string }
-  | null;
+  { kind: "discount"; id: string } | { kind: "price"; id: string } | null;
 
 export type ServiceOrderPriceDraft = {
   amountUsd: string;
@@ -25,10 +23,10 @@ export function ServiceOrderSettingsSectionTitle({
 }) {
   return (
     <div className="min-w-0">
-      <h4 className="text-lg font-bold tracking-tight text-[#23313a] sm:text-xl">
+      <h4 className="text-lg font-bold tracking-tight text-content-strong sm:text-xl">
         {title}
       </h4>
-      <p className="mt-1.5 text-sm leading-6 text-[#6f7b85] sm:leading-7">
+      <p className="mt-1.5 text-sm leading-6 text-content-muted sm:leading-7">
         {description}
       </p>
     </div>
@@ -76,7 +74,7 @@ export function ServiceOrderMobileField({
 }) {
   return (
     <div>
-      <p className="mb-1.5 font-label text-[10px] font-semibold tracking-[0.14em] text-[#7d8890] uppercase">
+      <p className="mb-1.5 font-label text-[10px] font-semibold tracking-[0.14em] text-content-muted uppercase">
         {label}
       </p>
       {children}
@@ -93,7 +91,7 @@ export function ServiceOrderHeaderCell({
 }) {
   return (
     <th
-      className={`px-4 py-4 text-left font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase sm:px-5 ${className}`}
+      className={`px-4 py-4 text-left font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase sm:px-5 ${className}`}
     >
       {children}
     </th>

@@ -8,8 +8,9 @@ import {
   DashboardOrderListSection,
   DashboardOrderLoadMoreButton,
 } from "@/components/dashboard/dashboard-order-list-section";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { FeedbackNotice } from "@/components/dashboard/dashboard-shared-ui";
 import { UiMessage } from "@/components/i18n/ui-message";
+import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
 import { Button } from "@/components/ui/button";
 import type { WholesaleOrderPage } from "@/lib/wholesale-order-page";
 
@@ -80,9 +81,9 @@ export function WholesaleOrdersListSection({
 
       {loadError ? (
         <div className="mb-4 space-y-3">
-          <PageBanner tone="error">{loadError}</PageBanner>
+          <FeedbackNotice tone="error">{loadError}</FeedbackNotice>
           <Button
-            className="rounded-full border border-[#d8dde2] bg-white text-[#486782]"
+            size="default"
             onClick={onRetry}
             type="button"
             variant="outline"
@@ -93,13 +94,13 @@ export function WholesaleOrdersListSection({
       ) : null}
 
       {page?.warnings.map((warning) => (
-        <PageBanner key={`${warning.area}:${warning.message}`} tone="info">
+        <FeedbackNotice key={`${warning.area}:${warning.message}`} tone="info">
           {warning.message}
-        </PageBanner>
+        </FeedbackNotice>
       ))}
 
       {loading ? (
-        <div className="flex min-h-40 items-center justify-center gap-2 text-sm text-[#71808d]">
+        <div className="flex min-h-40 items-center justify-center gap-2 text-sm text-content-muted">
           <LoaderCircle className="size-4 animate-spin" />
           <UiMessage id="components_dashboard_wholesale_wholesale_orders_section.text003" />
         </div>
@@ -110,20 +111,22 @@ export function WholesaleOrdersListSection({
           title={uiText("attribute006")}
         />
       ) : page ? (
-        <>
-          <div className="hidden md:block">
+        <ResponsiveDataView
+          desktop={
             <WholesaleOrdersTable
               {...renderProps}
               canViewInternalFields={page.canViewInternalFields}
               orders={page.orders}
             />
-          </div>
-          <WholesaleOrdersMobileList
-            {...renderProps}
-            canViewInternalFields={page.canViewInternalFields}
-            orders={page.orders}
-          />
-        </>
+          }
+          mobile={
+            <WholesaleOrdersMobileList
+              {...renderProps}
+              canViewInternalFields={page.canViewInternalFields}
+              orders={page.orders}
+            />
+          }
+        />
       ) : null}
     </DashboardOrderListSection>
   );

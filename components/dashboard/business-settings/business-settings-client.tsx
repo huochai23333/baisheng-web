@@ -20,7 +20,9 @@ export function BusinessSettingsClient({
   initialData: BusinessSettingsPageData;
 }) {
   const t = useTranslations("SystemSettings");
-  const settingsModule = getWorkspaceBusinessSettingsModule(initialData.business);
+  const settingsModule = getWorkspaceBusinessSettingsModule(
+    initialData.business,
+  );
   const viewModel = useBusinessSettingsViewModel(initialData);
 
   return (
@@ -35,7 +37,11 @@ export function BusinessSettingsClient({
               ? t(settingsModule.descriptionKey)
               : t("businessHeader.description")
           }
-          title={settingsModule ? t(settingsModule.titleKey) : t("businessHeader.title")}
+          title={
+            settingsModule
+              ? t(settingsModule.titleKey)
+              : t("businessHeader.title")
+          }
         />
       }
     >
@@ -53,7 +59,9 @@ export function BusinessSettingsClient({
           onOrderDiscountRowsChange={viewModel.setOrderDiscountOptions}
           onServiceFeeRowsChange={viewModel.setServiceFeeTypeOptions}
           onServiceOrderPriceRowsChange={viewModel.setServiceOrderPriceOptions}
-          onWholesaleOrderEditSettingsChange={viewModel.setWholesaleOrderEditSettings}
+          onWholesaleOrderEditSettingsChange={
+            viewModel.setWholesaleOrderEditSettings
+          }
           orderDiscountOptions={viewModel.orderDiscountOptions}
           settingsModule={settingsModule}
           serviceFeeTypeOptions={viewModel.serviceFeeTypeOptions}

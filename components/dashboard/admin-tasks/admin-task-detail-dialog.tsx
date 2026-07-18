@@ -2,10 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import {
-  Paperclip,
-  UsersRound,
-} from "lucide-react";
+import { Paperclip, UsersRound } from "lucide-react";
 
 import type { AdminTaskRow } from "@/lib/admin-tasks";
 import type { AdminTaskSubmissionMedia } from "@/lib/admin-task-submission-media";
@@ -36,7 +33,10 @@ import { AdminTaskSubmissionMediaPanel } from "./admin-task-submission-media";
 import { canEditTask } from "./admin-tasks-utils";
 
 const DashboardDialog = dynamic(
-  () => import("@/components/dashboard/dashboard-dialog").then((mod) => mod.DashboardDialog),
+  () =>
+    import("@/components/dashboard/dashboard-dialog").then(
+      (mod) => mod.DashboardDialog,
+    ),
   { ssr: false },
 );
 
@@ -67,17 +67,20 @@ export function AdminTaskDetailDialog({
 
   const canEdit = canEditTask(task);
   const targetRolesLabel = getTaskTargetRolesLabel(task.target_roles, sharedT);
-  const taskTypeLabel = getTaskTypeLabel(task.task_type_label, task.task_type_code, sharedT);
-  const commissionLabel = formatTaskCommissionMoney(task.commission_amount_rmb, locale);
+  const taskTypeLabel = getTaskTypeLabel(
+    task.task_type_label,
+    task.task_type_code,
+    sharedT,
+  );
+  const commissionLabel = formatTaskCommissionMoney(
+    task.commission_amount_rmb,
+    locale,
+  );
   const progressLabel = getTaskAcceptanceProgressLabel(task, sharedT);
   const shouldShowAssigneeList = task.parent_task_id === null;
 
   return (
-    <DashboardDialog
-      onOpenChange={onOpenChange}
-      open
-      title={t("detailsTitle")}
-    >
+    <DashboardDialog onOpenChange={onOpenChange} open title={t("detailsTitle")}>
       <div className="space-y-6">
         <div className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -90,7 +93,10 @@ export function AdminTaskDetailDialog({
             <DataPill accent="gold">{commissionLabel}</DataPill>
             <DataPill accent="blue">{progressLabel}</DataPill>
             <DataPill accent="blue">
-              {getTaskReviewRequirementLabel(task.review_requires_attachment, sharedT)}
+              {getTaskReviewRequirementLabel(
+                task.review_requires_attachment,
+                sharedT,
+              )}
             </DataPill>
             {task.attachments.length > 0 ? (
               <DataPill accent="blue">
@@ -99,57 +105,95 @@ export function AdminTaskDetailDialog({
               </DataPill>
             ) : null}
           </div>
-          <h3 className="break-words text-2xl font-bold tracking-tight text-[#23313a]">
+          <h3 className="break-words text-2xl font-bold tracking-tight text-content-strong">
             {task.task_name}
           </h3>
         </div>
 
-        <section className="rounded-[24px] border border-[#ebe7e1] bg-white p-5">
-          <p className="text-sm font-semibold text-[#23313a]">{t("introTitle")}</p>
-          <p className="mt-3 break-words text-sm leading-7 text-[#6f7b85]">
+        <section className="rounded-[24px] border border-border-subtle bg-white p-5">
+          <p className="text-sm font-semibold text-content-strong">
+            {t("introTitle")}
+          </p>
+          <p className="mt-3 break-words text-sm leading-7 text-content-muted">
             {getTaskIntroText(task.task_intro, sharedT)}
           </p>
         </section>
 
         <section className="space-y-3">
-          <p className="text-sm font-semibold text-[#23313a]">{t("infoTitle")}</p>
+          <p className="text-sm font-semibold text-content-strong">
+            {t("infoTitle")}
+          </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <InfoTile label={t("assignmentLabel")} value={targetRolesLabel} />
             <InfoTile label={t("taskTypeLabel")} value={taskTypeLabel} />
-            <InfoTile label={t("commissionAmountLabel")} value={commissionLabel} />
+            <InfoTile
+              label={t("commissionAmountLabel")}
+              value={commissionLabel}
+            />
             <InfoTile
               label={t("acceptanceLimitLabel")}
               value={getTaskAcceptanceLimitLabel(task, sharedT)}
             />
-            <InfoTile label={t("acceptanceProgressLabel")} value={progressLabel} />
+            <InfoTile
+              label={t("acceptanceProgressLabel")}
+              value={progressLabel}
+            />
             <InfoTile
               label={t("reviewRequirementLabel")}
-              value={getTaskReviewRequirementLabel(task.review_requires_attachment, sharedT)}
+              value={getTaskReviewRequirementLabel(
+                task.review_requires_attachment,
+                sharedT,
+              )}
             />
             <InfoTile
               label={t("creatorLabel")}
-              value={resolveTaskActorLabel(task.creator, task.created_by_user_id, sharedT)}
+              value={resolveTaskActorLabel(
+                task.creator,
+                task.created_by_user_id,
+                sharedT,
+              )}
             />
-            <InfoTile label={t("createdAtLabel")} value={formatDateTime(task.created_at)} />
+            <InfoTile
+              label={t("createdAtLabel")}
+              value={formatDateTime(task.created_at)}
+            />
             {!shouldShowAssigneeList ? (
               <>
                 <InfoTile
                   label={t("assigneeLabel")}
-                  value={resolveTaskActorLabel(task.accepted_by, task.accepted_by_user_id, sharedT)}
+                  value={resolveTaskActorLabel(
+                    task.accepted_by,
+                    task.accepted_by_user_id,
+                    sharedT,
+                  )}
                 />
-                <InfoTile label={t("acceptedAtLabel")} value={formatDateTime(task.accepted_at)} />
-                <InfoTile label={t("submittedAtLabel")} value={formatDateTime(task.submitted_at)} />
-                <InfoTile label={t("reviewedAtLabel")} value={formatDateTime(task.reviewed_at)} />
-                <InfoTile label={t("completedAtLabel")} value={formatDateTime(task.completed_at)} />
+                <InfoTile
+                  label={t("acceptedAtLabel")}
+                  value={formatDateTime(task.accepted_at)}
+                />
+                <InfoTile
+                  label={t("submittedAtLabel")}
+                  value={formatDateTime(task.submitted_at)}
+                />
+                <InfoTile
+                  label={t("reviewedAtLabel")}
+                  value={formatDateTime(task.reviewed_at)}
+                />
+                <InfoTile
+                  label={t("completedAtLabel")}
+                  value={formatDateTime(task.completed_at)}
+                />
               </>
             ) : null}
           </div>
         </section>
 
         {task.review_reject_reason ? (
-          <section className="rounded-[22px] border border-[#f1d1d1] bg-[#fff6f6] p-4">
-            <p className="text-sm font-semibold text-[#b13d3d]">{t("reviewRejectReasonLabel")}</p>
-            <p className="mt-2 break-words text-sm leading-7 text-[#7b4f4f]">
+          <section className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+            <p className="text-sm font-semibold text-status-danger">
+              {t("reviewRejectReasonLabel")}
+            </p>
+            <p className="mt-2 break-words text-sm leading-7 text-content-muted">
               {task.review_reject_reason}
             </p>
           </section>
@@ -158,9 +202,13 @@ export function AdminTaskDetailDialog({
         {shouldShowAssigneeList ? (
           <section className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-semibold text-[#23313a]">{t("assigneeListTitle")}</p>
+              <p className="text-sm font-semibold text-content-strong">
+                {t("assigneeListTitle")}
+              </p>
               <DataPill accent="blue">
-                {t("assigneeListCount", { count: task.acceptance_assignees.length })}
+                {t("assigneeListCount", {
+                  count: task.acceptance_assignees.length,
+                })}
               </DataPill>
             </div>
 
@@ -168,10 +216,10 @@ export function AdminTaskDetailDialog({
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {task.acceptance_assignees.map((assignee) => (
                   <div
-                    className="min-w-0 rounded-[18px] border border-[#e6ebef] bg-[#f8fbfc] p-4"
+                    className="min-w-0 rounded-[18px] border border-border-subtle bg-surface-inset p-4"
                     key={assignee.accepted_task_id}
                   >
-                    <p className="break-words text-sm font-semibold text-[#23313a]">
+                    <p className="break-words text-sm font-semibold text-content-strong">
                       {resolveTaskActorLabel(
                         { name: assignee.name, email: assignee.email },
                         assignee.user_id,
@@ -179,21 +227,22 @@ export function AdminTaskDetailDialog({
                       )}
                     </p>
                     {assignee.email ? (
-                      <p className="mt-1 break-all text-xs leading-5 text-[#6f7b85]">
+                      <p className="mt-1 break-all text-xs leading-5 text-content-muted">
                         {assignee.email}
                       </p>
                     ) : null}
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <TaskStatusPill status={assignee.task_status} />
-                      <span className="text-xs font-medium leading-5 text-[#6f7b85]">
-                        {t("assigneeAcceptedAtLabel")}: {formatDateTime(assignee.accepted_at)}
+                      <span className="text-xs font-medium leading-5 text-content-muted">
+                        {t("assigneeAcceptedAtLabel")}:{" "}
+                        {formatDateTime(assignee.accepted_at)}
                       </span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="rounded-[18px] bg-[#f7f5f2] px-4 py-3 text-sm leading-7 text-[#6f7b85]">
+              <p className="rounded-[18px] bg-surface-inset px-4 py-3 text-sm leading-7 text-content-muted">
                 {t("assigneeListEmpty")}
               </p>
             )}
@@ -201,19 +250,23 @@ export function AdminTaskDetailDialog({
         ) : null}
 
         {task.attachments.length > 0 ? (
-          <section className="rounded-[22px] border border-[#e6ebef] bg-[#f8fbfc] p-4">
-            <p className="text-sm font-semibold text-[#486782]">{t("attachmentsOverview")}</p>
+          <section className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+            <p className="text-sm font-semibold text-primary">
+              {t("attachmentsOverview")}
+            </p>
             <div className="mt-3 space-y-2">
               {task.attachments.map((attachment) => (
                 <div
-                  className="flex flex-col gap-2 rounded-[18px] bg-white px-3 py-2 text-sm text-[#23313a] sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 rounded-[18px] bg-white px-3 py-2 text-sm text-content-strong sm:flex-row sm:items-center sm:justify-between"
                   key={attachment.id}
                 >
                   <span className="flex min-w-0 items-start gap-2">
-                    <Paperclip className="mt-1 size-3.5 shrink-0 text-[#486782]" />
-                    <span className="break-all">{attachment.original_name}</span>
+                    <Paperclip className="mt-1 size-3.5 shrink-0 text-primary" />
+                    <span className="break-all">
+                      {attachment.original_name}
+                    </span>
                   </span>
-                  <span className="shrink-0 text-xs font-semibold text-[#6f7b85]">
+                  <span className="shrink-0 text-xs font-semibold text-content-muted">
                     {formatFileSize(attachment.file_size_bytes)}
                   </span>
                 </div>
@@ -233,7 +286,9 @@ export function AdminTaskDetailDialog({
         ) : null}
 
         {!canEdit ? (
-          <p className="text-xs leading-6 text-[#8a949c]">{t("completedLockedNotice")}</p>
+          <p className="text-xs leading-6 text-content-subtle">
+            {t("completedLockedNotice")}
+          </p>
         ) : null}
       </div>
     </DashboardDialog>

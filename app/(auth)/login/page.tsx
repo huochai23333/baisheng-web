@@ -35,18 +35,30 @@ export default async function LoginPage({
     <ScopedIntlProvider namespaces={["LanguageToggle", "LoginForm"]}>
       <AuthShell
         copy={authShellCopy}
+        footer={{
+          linkHref: "/register",
+          linkLabel: t("footerLinkLabel"),
+          prompt: t("footerPrompt"),
+        }}
+        form={{
+          description: t("headerDescription"),
+          title: t("headerTitle"),
+        }}
+        hero={{
+          compactNote: {
+            description: t("mobileNoteDescription"),
+            title: t("mobileNoteTitle"),
+          },
+          description: t("asideDescription"),
+          note: {
+            description: t("noteDescription"),
+            title: t("noteTitle"),
+          },
+          title: t.rich("asideTitle", {
+            br: () => <br />,
+          }),
+        }}
         mode="login"
-        asideDescription={t("asideDescription")}
-        asideTitle={t.rich("asideTitle", {
-          br: () => <br />,
-        })}
-        footerLinkHref="/register"
-        footerLinkLabel={t("footerLinkLabel")}
-        footerPrompt={t("footerPrompt")}
-        headerDescription={t("headerDescription")}
-        headerTitle={t("headerTitle")}
-        noteDescription={t("noteDescription")}
-        noteTitle={t("noteTitle")}
       >
         <LoginForm
           passwordReset={params.passwordReset === "1"}
@@ -59,11 +71,6 @@ export default async function LoginPage({
             locale={locale}
           />
         </Suspense>
-
-        <div className="mt-8 rounded-[26px] border border-[#e7e5e0] bg-white/72 p-5 text-sm text-[#707981] shadow-[0_12px_32px_rgba(115,127,139,0.07)] sm:hidden">
-          <p className="mb-2 font-semibold text-[#33424d]">{t("mobileNoteTitle")}</p>
-          <p className="leading-7">{t("mobileNoteDescription")}</p>
-        </div>
       </AuthShell>
     </ScopedIntlProvider>
   );

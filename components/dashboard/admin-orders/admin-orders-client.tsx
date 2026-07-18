@@ -16,10 +16,7 @@ import {
   OrdersTableSection,
 } from "./admin-orders-sections";
 import { type OrdersClientMode } from "./admin-orders-client-config";
-import {
-  OrderDetailsDialog,
-  OrderFormDialog,
-} from "./admin-orders-ui";
+import { OrderDetailsDialog, OrderFormDialog } from "./admin-orders-ui";
 import { buildOrderCurrencyOptions } from "./admin-orders-utils";
 import { useAdminOrdersViewModel } from "./use-admin-orders-view-model";
 

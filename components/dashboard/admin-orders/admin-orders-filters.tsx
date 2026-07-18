@@ -1,5 +1,8 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+import { DatePicker } from "@/components/ui/date-picker";
+
 import { useTranslations } from "next-intl";
 
 import { DashboardOrderFilterSection } from "@/components/dashboard/dashboard-order-filter-section";
@@ -57,11 +60,11 @@ export function AdminOrdersFilterPanel({
   const defaultRange = getDefaultOrderDateRange();
   const hasActiveFilters = Boolean(
     filters.orderNumber ||
-      filters.orderEntryUser ||
-      filters.orderingUser ||
-      filters.createdFromDate !== defaultRange.fromDate ||
-      filters.createdToDate !== defaultRange.toDate ||
-      filters.searchMode !== "date_range",
+    filters.orderEntryUser ||
+    filters.orderingUser ||
+    filters.createdFromDate !== defaultRange.fromDate ||
+    filters.createdToDate !== defaultRange.toDate ||
+    filters.searchMode !== "date_range",
   );
 
   return (
@@ -85,81 +88,79 @@ export function AdminOrdersFilterPanel({
       onReset={onClearFilters}
       resetDisabled={!hasActiveFilters}
     >
-        <DashboardFilterField label={t("filters.orderNumberLabel")}>
-          <div className="flex min-w-0 flex-col gap-2">
-            <input
-              className={`${dashboardFilterInputClassName} min-w-0`}
-              onChange={(event) => onOrderNumberChange(event.target.value)}
-              placeholder={t("filters.orderNumberPlaceholder")}
-              type="text"
-              value={filters.orderNumber}
-            />
-            <Button
-              className="w-full"
-              disabled={!filters.orderNumber.trim()}
-              onClick={onSearchExactOrderAllTime}
-              type="button"
-              variant="outline"
-            >
-              {frameworkT("exactSearch.action")}
-            </Button>
-          </div>
-        </DashboardFilterField>
-
-        {showOrderEntryFilter ? (
-          <DashboardFilterField label={t("filters.orderEntryUserLabel")}>
-            <input
-              className={dashboardFilterInputClassName}
-              onChange={(event) => onOrderEntryUserChange(event.target.value)}
-              placeholder={t("filters.orderEntryUserPlaceholder")}
-              type="text"
-              value={filters.orderEntryUser}
-            />
-          </DashboardFilterField>
-        ) : null}
-
-        {showOrderingFilter ? (
-          <DashboardFilterField label={t("filters.orderingUserLabel")}>
-            <input
-              className={dashboardFilterInputClassName}
-              onChange={(event) => onOrderingUserChange(event.target.value)}
-              placeholder={t("filters.orderingUserPlaceholder")}
-              type="text"
-              value={filters.orderingUser}
-            />
-          </DashboardFilterField>
-        ) : null}
-
-        <DashboardFilterField label={t("filters.createdFromDateLabel")}>
-          <input
-            id="admin-order-date-from"
-            className={dashboardFilterInputClassName}
-            onChange={(event) => onCreatedFromDateChange(event.target.value)}
-            required
-            type="date"
-            value={filters.createdFromDate}
+      <DashboardFilterField label={t("filters.orderNumberLabel")}>
+        <div className="flex min-w-0 flex-col gap-2">
+          <FormControls.Input
+            className={`${dashboardFilterInputClassName} min-w-0`}
+            onChange={(event) => onOrderNumberChange(event.target.value)}
+            placeholder={t("filters.orderNumberPlaceholder")}
+            type="text"
+            value={filters.orderNumber}
           />
-        </DashboardFilterField>
-
-        <DashboardFilterField label={t("filters.createdToDateLabel")}>
-          <input
-            className={dashboardFilterInputClassName}
-            min={filters.createdFromDate}
-            onChange={(event) => onCreatedToDateChange(event.target.value)}
-            required
-            type="date"
-            value={filters.createdToDate}
-          />
-        </DashboardFilterField>
-
-        <div className="flex flex-col justify-end gap-3 lg:items-end">
-          <p className="text-sm text-[#69747d]">
-            {t("filters.resultSummary", {
-              total: totalOrdersCount,
-              matched: matchedOrdersCount,
-            })}
-          </p>
+          <Button
+            className="w-full"
+            disabled={!filters.orderNumber.trim()}
+            onClick={onSearchExactOrderAllTime}
+            type="button"
+            variant="outline"
+          >
+            {frameworkT("exactSearch.action")}
+          </Button>
         </div>
+      </DashboardFilterField>
+
+      {showOrderEntryFilter ? (
+        <DashboardFilterField label={t("filters.orderEntryUserLabel")}>
+          <FormControls.Input
+            className={dashboardFilterInputClassName}
+            onChange={(event) => onOrderEntryUserChange(event.target.value)}
+            placeholder={t("filters.orderEntryUserPlaceholder")}
+            type="text"
+            value={filters.orderEntryUser}
+          />
+        </DashboardFilterField>
+      ) : null}
+
+      {showOrderingFilter ? (
+        <DashboardFilterField label={t("filters.orderingUserLabel")}>
+          <FormControls.Input
+            className={dashboardFilterInputClassName}
+            onChange={(event) => onOrderingUserChange(event.target.value)}
+            placeholder={t("filters.orderingUserPlaceholder")}
+            type="text"
+            value={filters.orderingUser}
+          />
+        </DashboardFilterField>
+      ) : null}
+
+      <DashboardFilterField
+        controlId="admin-order-date-from"
+        label={t("filters.createdFromDateLabel")}
+      >
+        <DatePicker
+          onValueChange={onCreatedFromDateChange}
+          required
+          value={filters.createdFromDate}
+        />
+      </DashboardFilterField>
+
+      <DashboardFilterField label={t("filters.createdToDateLabel")}>
+        <DatePicker
+          min={filters.createdFromDate}
+          onValueChange={onCreatedToDateChange}
+          required
+          value={filters.createdToDate}
+        />
+      </DashboardFilterField>
+
+      <div className="flex flex-col justify-end gap-3 lg:items-end">
+        <p className="text-sm text-content-muted">
+          {t("filters.resultSummary", {
+            total: totalOrdersCount,
+            matched: matchedOrdersCount,
+          })}
+        </p>
+      </div>
     </DashboardOrderFilterSection>
   );
 }

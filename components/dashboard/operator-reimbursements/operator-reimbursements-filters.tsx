@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Select } from "@/components/ui/select";
 
 import type {
   OperatorReimbursementPeriod,
@@ -10,7 +10,6 @@ import type {
 import {
   DashboardFilterField,
   DashboardSearchInput,
-  dashboardFilterInputClassName,
 } from "../dashboard-section-panel";
 import { DashboardResourceFilterSection } from "../dashboard-resource-filter-section";
 import { formatOperatorReimbursementPeriod } from "./operator-reimbursements-display";
@@ -56,44 +55,40 @@ export function OperatorReimbursementsFilterSection({
       }
     >
       <DashboardSearchInput
-        icon={<Search className="size-4 text-[#7c8a96]" />}
+        ariaLabel={copy.searchPlaceholder}
         onChange={onSearchQueryChange}
         placeholder={copy.searchPlaceholder}
         value={searchQuery}
       />
 
       <DashboardFilterField label={copy.periodLabel}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) => onPeriodFilterChange(event.target.value)}
+        <Select
+          onValueChange={onPeriodFilterChange}
+          options={[
+            { label: copy.allPeriods, value: "all" },
+            // 周期选项来自已存在的记录；没有记录的周期不展示，避免用户选到空月份。
+            ...periodOptions.map((period) => ({
+              label: formatOperatorReimbursementPeriod(period, locale),
+              value: period.start,
+            })),
+          ]}
           value={periodFilter}
-        >
-          <option value="all">{copy.allPeriods}</option>
-          {/* 周期选项来自已存在的记录；没有记录的周期不展示，避免用户选到空月份。 */}
-          {periodOptions.map((period) => (
-            <option key={period.start} value={period.start}>
-              {formatOperatorReimbursementPeriod(period, locale)}
-            </option>
-          ))}
-        </select>
+        />
       </DashboardFilterField>
 
       <DashboardFilterField label={copy.statusLabel}>
-        <select
-          className={dashboardFilterInputClassName}
-          onChange={(event) =>
-            onStatusFilterChange(
-              event.target.value as OperatorReimbursementStatus | "all",
-            )
-          }
+        <Select
+          onValueChange={onStatusFilterChange}
+          options={[
+            { label: copy.allStatuses, value: "all" },
+            {
+              label: copy.statusOptions.unreimbursed,
+              value: "unreimbursed",
+            },
+            { label: copy.statusOptions.reimbursed, value: "reimbursed" },
+          ]}
           value={statusFilter}
-        >
-          <option value="all">{copy.allStatuses}</option>
-          <option value="unreimbursed">
-            {copy.statusOptions.unreimbursed}
-          </option>
-          <option value="reimbursed">{copy.statusOptions.reimbursed}</option>
-        </select>
+        />
       </DashboardFilterField>
     </DashboardResourceFilterSection>
   );

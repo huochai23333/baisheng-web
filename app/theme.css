@@ -1,5 +1,3 @@
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -35,6 +33,39 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-surface-panel: var(--surface-panel);
+  --color-surface-inset: var(--surface-inset);
+  --color-surface-interactive: var(--surface-interactive);
+  --color-surface-chrome: var(--surface-chrome);
+  --color-surface-brand-soft: var(--surface-brand-soft);
+  --color-content-strong: var(--content-strong);
+  --color-content-muted: var(--content-muted);
+  --color-content-subtle: var(--content-subtle);
+  --color-border-subtle: var(--border-subtle);
+  --color-control-border: var(--control-border);
+  --color-filter-control-border: var(--filter-control-border);
+  --color-filter-control-hover: var(--filter-control-hover);
+  --color-brand-hover: var(--brand-hover);
+  --color-status-info: var(--status-info);
+  --color-status-info-soft: var(--status-info-soft);
+  --color-status-success: var(--status-success);
+  --color-status-success-soft: var(--status-success-soft);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-soft: var(--status-warning-soft);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-soft: var(--status-danger-soft);
+  --color-status-neutral-soft: var(--status-neutral-soft);
+  --color-status-neutral-border: var(--status-neutral-border);
+  --color-status-info-border: var(--status-info-border);
+  --color-status-success-border: var(--status-success-border);
+  --color-status-warning-border: var(--status-warning-border);
+  --color-status-danger-border: var(--status-danger-border);
+  --color-metric-info-surface: var(--metric-info-surface);
+  --color-metric-info-border: var(--metric-info-border);
+  --color-metric-success-surface: var(--metric-success-surface);
+  --color-metric-success-border: var(--metric-success-border);
+  --color-metric-warning-surface: var(--metric-warning-surface);
+  --color-metric-warning-border: var(--metric-warning-border);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -62,7 +93,7 @@
   --destructive: #b42318;
   --border: #dadcde;
   --input: #ebe8e3;
-  --ring: #bfd2e1;
+  --ring: #6f8fa5;
   --chart-1: #486782;
   --chart-2: #4c7259;
   --chart-3: #91a6b8;
@@ -77,38 +108,92 @@
   --sidebar-accent-foreground: #25313b;
   --sidebar-border: #dadcde;
   --sidebar-ring: #bfd2e1;
-}
 
-.dark {
-  --background: #14191d;
-  --foreground: #f6f7f8;
-  --card: #1b2228;
-  --card-foreground: #f6f7f8;
-  --popover: #1b2228;
-  --popover-foreground: #f6f7f8;
-  --primary: #a9c3d7;
-  --primary-foreground: #13202a;
-  --secondary: #95c1a3;
-  --secondary-foreground: #102115;
-  --muted: #242c33;
-  --muted-foreground: #a3afb8;
-  --accent: #25303a;
-  --accent-foreground: #f6f7f8;
-  --destructive: #ff7a72;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.14);
-  --ring: #6b879b;
-  --chart-1: #a9c3d7;
-  --chart-2: #95c1a3;
-  --chart-3: #f4d6b7;
-  --chart-4: #3d4d59;
-  --chart-5: #728390;
-  --sidebar: #182028;
-  --sidebar-foreground: #f6f7f8;
-  --sidebar-primary: #a9c3d7;
-  --sidebar-primary-foreground: #13202a;
-  --sidebar-accent: #232b33;
-  --sidebar-accent-foreground: #f6f7f8;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: #6b879b;
+  /*
+   * 下面这些变量描述的是“用途”而不是某个具体页面的颜色。
+   * 业务组件只使用语义名称，后续调整品牌色或表面层级时就不需要逐文件修改。
+   */
+  --surface-panel: rgba(255, 255, 255, 0.72);
+  --surface-inset: #fbfaf8;
+  --surface-interactive: #ffffff;
+  --surface-chrome: #f4f3f1;
+  --surface-brand-soft: #e4edf3;
+  --content-strong: #23313a;
+  --content-muted: #66737e;
+  --content-subtle: #6d7881;
+  --border-subtle: #ebe7e1;
+  --control-border: #8a949c;
+  --filter-control-border: #dfe5ea;
+  --filter-control-hover: #c5d0d8;
+  --brand-hover: #3e5f79;
+  --status-info: #486782;
+  --status-info-soft: #eef5f8;
+  --status-success: #4c7259;
+  --status-success-soft: #e8f4ec;
+  --status-warning: #8a620d;
+  --status-warning-soft: #fff5db;
+  --status-danger: #a33f3f;
+  --status-danger-soft: #fbe6e6;
+
+  /* 状态边框与统计卡表面沿用暂存前工作台的层级，不依赖透明度猜测。 */
+  --status-neutral-soft: #f5f7f8;
+  --status-neutral-border: #dfe5ea;
+  --status-info-border: #cadbe5;
+  --status-success-border: #cce2d3;
+  --status-warning-border: #ead9a9;
+  --status-danger-border: #eccaca;
+  --metric-info-surface: #f4f8fb;
+  --metric-info-border: #d9e3eb;
+  --metric-success-surface: #f2f7f3;
+  --metric-success-border: #dce8df;
+  --metric-warning-surface: #fbf5e8;
+  --metric-warning-border: #eadfbf;
+
+  /* 页面底色和工作台固定环境光分开维护，分别对应暂存前的两层柔和光晕。 */
+  --page-glow-blue: rgba(190, 209, 222, 0.35);
+  --page-glow-green: rgba(204, 221, 213, 0.22);
+  --workspace-glow-blue: rgba(187, 208, 223, 0.24);
+  --workspace-glow-green: rgba(208, 226, 217, 0.2);
+
+  /*
+   * 认证页可以拥有独立的照片和玻璃材质，但仍只能从这一组语义变量取值。
+   * 这样它是同一设计系统中的页面级变体，而不是散落在组件里的第二套色板。
+   */
+  --auth-glass-surface: rgba(255, 255, 255, 0.72);
+  --auth-glass-fallback: #fffdfa;
+  --auth-glass-border: rgba(255, 255, 255, 0.75);
+  --auth-glass-blur: 16px;
+  --auth-shell-shadow: 0 24px 80px rgba(86, 103, 119, 0.12);
+  --auth-grid-dot: rgba(72, 103, 130, 0.12);
+  --auth-aside-overlay: linear-gradient(
+    180deg,
+    rgba(244, 243, 241, 0.34),
+    rgba(244, 243, 241, 0.46),
+    rgba(244, 243, 241, 0.66)
+  );
+  --auth-aside-glow: radial-gradient(
+    circle at bottom,
+    rgba(72, 103, 130, 0.07),
+    transparent 60%
+  );
+  --auth-form-surface: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.62),
+    rgba(250, 249, 247, 0.94)
+  );
+
+  --control-height-compact: 2.5rem;
+  --control-height-default: 2.75rem;
+  --control-height-large: 3.25rem;
+  --control-radius-compact: 0.875rem;
+  --control-radius-default: 1.125rem;
+  --control-radius-large: 1.375rem;
+  --surface-radius-panel: 1.75rem;
+  --surface-radius-inset: 1.375rem;
+  --surface-shadow-panel: 0 18px 45px rgba(96, 113, 128, 0.06);
+  --surface-shadow-header: 0 18px 45px rgba(96, 113, 128, 0.08);
+  --surface-shadow-navigation: 0 18px 45px rgba(96, 113, 128, 0.12);
+  --surface-shadow-inset: 0 10px 24px rgba(96, 113, 128, 0.04);
+  --surface-shadow-interactive: 0 10px 24px rgba(96, 113, 128, 0.06);
+  --surface-shadow-floating: 0 20px 60px rgba(35, 49, 58, 0.18);
 }

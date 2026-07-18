@@ -101,10 +101,10 @@ export function AdminPeopleAccountDetails({
       />
 
       <section>
-        <p className="text-sm font-semibold text-[#23313a]">
+        <p className="text-sm font-semibold text-content-strong">
           {t("details.noteTitle")}
         </p>
-      <div className="mt-3 min-w-0 rounded-[18px] border border-[#e4e9ed] bg-white px-4 py-3 text-sm leading-6 text-[#53616d]">
+        <div className="mt-3 min-w-0 rounded-[18px] border border-border-subtle bg-white px-4 py-3 text-sm leading-6 text-content-muted">
           <p className="break-words [overflow-wrap:anywhere]">
             {person.private_note ?? t("fallback.noPrivateNote")}
           </p>
@@ -123,7 +123,7 @@ function DetailSection({
 }) {
   return (
     <section className="min-w-0">
-      <p className="text-sm font-semibold text-[#23313a]">{title}</p>
+      <p className="text-sm font-semibold text-content-strong">{title}</p>
       <div className="mt-3 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <DetailItem item={item} key={item.label} />
@@ -135,11 +135,11 @@ function DetailSection({
 
 function DetailItem({ item }: { item: AccountDetailItem }) {
   return (
-    <div className="min-w-0 rounded-[18px] border border-[#e4e9ed] bg-white px-4 py-3">
-      <p className="text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+    <div className="min-w-0 rounded-[18px] border border-border-subtle bg-white px-4 py-3">
+      <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {item.label}
       </p>
-      <p className="mt-1 break-words text-sm leading-6 text-[#53616d] [overflow-wrap:anywhere]">
+      <p className="mt-1 break-words text-sm leading-6 text-content-muted [overflow-wrap:anywhere]">
         {item.value}
       </p>
     </div>

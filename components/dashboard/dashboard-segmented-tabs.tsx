@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { useId, type ReactNode } from "react";
 
 import { LoaderCircle } from "lucide-react";
@@ -36,7 +38,7 @@ export function DashboardSegmentedTabs<Key extends string>({
     <LayoutGroup id={layoutGroupId}>
       <div
         className={cn(
-          "flex w-full flex-col gap-2 rounded-[22px] border border-[#dfe5ea] bg-white/78 p-2 shadow-[0_12px_28px_rgba(96,113,128,0.06)] sm:flex-row",
+          "flex w-full flex-col gap-2 rounded-[22px] border border-border bg-white/78 p-2 shadow-[var(--surface-shadow-interactive)] sm:flex-row",
           className,
         )}
         data-motion-segmented-tabs="true"
@@ -46,14 +48,14 @@ export function DashboardSegmentedTabs<Key extends string>({
           const isPending = option.key === pendingValue;
 
           return (
-            <button
+            <DesignButton
               aria-pressed={isActive}
               aria-busy={isPending}
               className={cn(
                 "relative flex min-h-12 flex-1 items-center gap-3 overflow-hidden rounded-[16px] px-4 py-3 text-left text-sm transition-colors",
                 isActive
                   ? "text-white"
-                  : "bg-[#f5f7f8] text-[#52616d] hover:bg-[#edf2f5] hover:text-[#23313a]",
+                  : "bg-surface-inset text-content-muted hover:bg-surface-inset hover:text-content-strong",
               )}
               key={option.key}
               onClick={() => onChange(option.key)}
@@ -61,7 +63,7 @@ export function DashboardSegmentedTabs<Key extends string>({
             >
               {isActive ? (
                 <motion.span
-                  className="absolute inset-0 rounded-[16px] bg-[#486782] shadow-[0_12px_24px_rgba(72,103,130,0.18)]"
+                  className="absolute inset-0 rounded-[16px] bg-primary shadow-[var(--surface-shadow-interactive)]"
                   layoutId="dashboard-segmented-tab-active"
                   transition={{ bounce: 0.1, duration: 0.28, type: "spring" }}
                 />
@@ -73,7 +75,7 @@ export function DashboardSegmentedTabs<Key extends string>({
                       "inline-flex size-8 shrink-0 items-center justify-center rounded-full",
                       isActive
                         ? "bg-white/16 text-white"
-                        : "bg-white text-[#486782]",
+                        : "bg-white text-primary",
                     )}
                   >
                     {isPending ? (
@@ -92,7 +94,7 @@ export function DashboardSegmentedTabs<Key extends string>({
                           "inline-flex min-w-7 items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold",
                           isActive
                             ? "bg-white/18 text-white"
-                            : "bg-white text-[#486782]",
+                            : "bg-white text-primary",
                         )}
                       >
                         {option.badge}
@@ -103,7 +105,7 @@ export function DashboardSegmentedTabs<Key extends string>({
                     <span
                       className={cn(
                         "mt-1 block text-xs leading-5",
-                        isActive ? "text-white/78" : "text-[#72808a]",
+                        isActive ? "text-white/78" : "text-content-muted",
                       )}
                     >
                       {option.description}
@@ -111,7 +113,7 @@ export function DashboardSegmentedTabs<Key extends string>({
                   ) : null}
                 </span>
               </span>
-            </button>
+            </DesignButton>
           );
         })}
       </div>

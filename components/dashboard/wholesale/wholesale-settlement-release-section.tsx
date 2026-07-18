@@ -1,4 +1,6 @@
 "use client";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
@@ -9,6 +11,7 @@ import {
   dashboardFilterInputClassName,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import type {
   WholesaleCustomer,
   WholesaleOrder,
@@ -121,7 +124,8 @@ export function WholesaleSettlementReleaseSection({
       actions={
         canPublish ? (
           <Button
-            className="h-11 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
             onClick={() => setCreateDialogOpen(true)}
             type="button"
           >
@@ -146,7 +150,7 @@ export function WholesaleSettlementReleaseSection({
       <DashboardListSection
         actions={
           <Button
-            className="rounded-full border border-[#d8dde2] bg-white text-[#486782] hover:bg-[#eef3f6]"
+            size="default"
             disabled={!hasActiveFilters}
             onClick={() => {
               setSearchText("");
@@ -164,7 +168,7 @@ export function WholesaleSettlementReleaseSection({
       >
         <div className="mb-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
           <DashboardFilterField label={uiText("attribute005")}>
-            <input
+            <FormControls.Input
               aria-label={uiText("attribute006")}
               className={dashboardFilterInputClassName}
               onChange={(event) => setSearchText(event.target.value)}
@@ -173,22 +177,22 @@ export function WholesaleSettlementReleaseSection({
             />
           </DashboardFilterField>
           <DashboardFilterField label={uiText("attribute008")}>
-            <select
-              className={dashboardFilterInputClassName}
-              onChange={(event) => setStatusFilter(event.target.value)}
+            <Select
+              aria-label={uiText("attribute008")}
+              onValueChange={setStatusFilter}
+              options={[
+                {
+                  label: (
+                    <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_section.text003" />
+                  ),
+                  value: ALL,
+                },
+                ...Object.entries(
+                  WHOLESALE_SETTLEMENT_RELEASE_STATUS_LABELS,
+                ).map(([status, label]) => ({ label, value: status })),
+              ]}
               value={statusFilter}
-            >
-              <option value={ALL}>
-                <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_section.text003" />
-              </option>
-              {Object.entries(WHOLESALE_SETTLEMENT_RELEASE_STATUS_LABELS).map(
-                ([status, label]) => (
-                  <option key={status} value={status}>
-                    {label}
-                  </option>
-                ),
-              )}
-            </select>
+            />
           </DashboardFilterField>
         </div>
 

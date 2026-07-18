@@ -1,12 +1,11 @@
-﻿"use client";
+"use client";
+
+import { StatusBadge } from "@/components/ui/status-badge";
 
 import { useTranslations } from "next-intl";
-import {
-  Search,
-} from "lucide-react";
+import { Search } from "lucide-react";
 
 import type { TaskCommissionRow } from "@/lib/task-commissions";
-import { cn } from "@/lib/utils";
 import { useLocale } from "@/components/i18n/locale-provider";
 import {
   DashboardListSection,
@@ -49,48 +48,70 @@ export function SalesmanTaskCommissionSection({
         />
       ) : (
         <DashboardTableFrame>
-          <table className="min-w-[900px] w-full divide-y divide-[#e6e2db] text-sm">
+          <table className="min-w-[900px] w-full divide-y divide-border-subtle text-sm">
             <thead>
-              <tr className="text-left text-xs font-semibold tracking-[0.16em] text-[#8b959c] uppercase">
-                <th className="px-4 py-3">{t("salesmanTaskSection.table.columns.task")}</th>
-                <th className="px-4 py-3">{t("salesmanTaskSection.table.columns.typeScope")}</th>
-                <th className="px-4 py-3">{t("salesmanTaskSection.table.columns.amount")}</th>
-                <th className="px-4 py-3">{t("salesmanTaskSection.table.columns.settlement")}</th>
-                <th className="px-4 py-3">{t("salesmanTaskSection.table.columns.time")}</th>
+              <tr className="text-left text-xs font-semibold tracking-[0.16em] text-content-muted uppercase">
+                <th className="px-4 py-3">
+                  {t("salesmanTaskSection.table.columns.task")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("salesmanTaskSection.table.columns.typeScope")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("salesmanTaskSection.table.columns.amount")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("salesmanTaskSection.table.columns.settlement")}
+                </th>
+                <th className="px-4 py-3">
+                  {t("salesmanTaskSection.table.columns.time")}
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#efebe5]">
+            <tbody className="divide-y divide-border-subtle">
               {rows.map((row) => (
-                <tr key={row.id} className="align-top transition-colors hover:bg-[#f7f7f5]">
+                <tr
+                  key={row.id}
+                  className="align-top transition-colors hover:bg-surface-inset"
+                >
                   <td className="px-4 py-4">
-                    <div className="font-medium text-[#22313a]">{row.taskName}</div>
+                    <div className="font-medium text-content-strong">
+                      {row.taskName}
+                    </div>
                     {row.settlementNote ? (
-                      <p className="mt-2 max-w-sm text-xs leading-6 text-[#79848d]">
+                      <p className="mt-2 max-w-sm text-xs leading-6 text-content-muted">
                         {t("shared.note", { note: row.settlementNote })}
                       </p>
                     ) : null}
                   </td>
                   <td className="px-4 py-4">
-                    <div className="font-medium text-[#22313a]">
-                      {getTaskTypeLabel(row.taskTypeName, row.taskTypeCode, sharedTaskT)}
+                    <div className="font-medium text-content-strong">
+                      {getTaskTypeLabel(
+                        row.taskTypeName,
+                        row.taskTypeCode,
+                        sharedTaskT,
+                      )}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <InlineChip tone="blue">
+                      <StatusBadge tone="info">
                         {row.taskScope === "team" && row.teamName
                           ? `${getTaskScopeLabel(row.taskScope, sharedTaskT)} 路 ${row.teamName}`
                           : getTaskScopeLabel(row.taskScope, sharedTaskT)}
-                      </InlineChip>
+                      </StatusBadge>
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="font-semibold text-[#22313a]">
+                    <div className="font-semibold text-content-strong">
                       {formatCommissionMoney(row.commissionAmountRmb, locale)}
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <InlineChip tone={getSettlementTone(row.settlementStatus)}>
-                      {getCommissionSettlementStatusLabel(row.settlementStatus, t)}
-                    </InlineChip>
+                    <StatusBadge tone={getSettlementTone(row.settlementStatus)}>
+                      {getCommissionSettlementStatusLabel(
+                        row.settlementStatus,
+                        t,
+                      )}
+                    </StatusBadge>
                   </td>
                   <td className="px-4 py-4">
                     <DetailLine
@@ -112,37 +133,10 @@ export function SalesmanTaskCommissionSection({
   );
 }
 
-function InlineChip({
-  children,
-  tone,
-}: {
-  children: string;
-  tone: "blue" | "green" | "gold";
-}) {
+function DetailLine({ label, value }: { label: string; value: string }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold",
-        tone === "blue" && "bg-[#e4edf3] text-[#486782]",
-        tone === "green" && "bg-[#e7f3ea] text-[#4c7259]",
-        tone === "gold" && "bg-[#fbf1d9] text-[#9a6a07]",
-      )}
-    >
-      {children}
-    </span>
-  );
-}
-
-function DetailLine({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="leading-7 text-[#66727b]">
-      <span className="text-xs text-[#8a949c]">{label}: </span>
+    <div className="leading-7 text-content-muted">
+      <span className="text-xs text-content-subtle">{label}: </span>
       <span>{value}</span>
     </div>
   );
@@ -150,12 +144,12 @@ function DetailLine({
 
 function getSettlementTone(status: TaskCommissionRow["settlementStatus"]) {
   if (status === "paid") {
-    return "green";
+    return "success";
   }
 
   if (status === "pending" || status === "reversed") {
-    return "gold";
+    return "warning";
   }
 
-  return "blue";
+  return "info";
 }

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  CheckCircle2,
-  LoaderCircle,
-  Plus,
-  ReceiptText,
-} from "lucide-react";
+import { CheckCircle2, LoaderCircle, Plus, ReceiptText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { OperatorReimbursementPeriod } from "@/lib/operator-reimbursements";
@@ -45,16 +40,13 @@ export function OperatorReimbursementsHeaderSection({
     <DashboardSectionHeader
       actions={
         <>
-          <Button
-            className="h-12 rounded-full border-[#d4d8dc] bg-white px-5 text-[#486782] hover:bg-[#f2f4f6]"
-            onClick={onCreate}
-            variant="outline"
-          >
+          <Button size="default" onClick={onCreate} variant="outline">
             <Plus className="size-4" />
             {copy.create}
           </Button>
           <Button
-            className="h-12 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79] disabled:bg-[#9eacb6]"
+            variant="primary"
+            size="default"
             disabled={reimburseDisabled}
             onClick={onReimburseCurrent}
           >
@@ -68,15 +60,15 @@ export function OperatorReimbursementsHeaderSection({
         </>
       }
       asideFooter={
-        <p className="max-w-full break-words text-sm leading-7 text-[#66737e] [overflow-wrap:anywhere] min-[1360px]:text-right">
-          <span className="font-semibold text-[#405160]">
+        <p className="max-w-full break-words text-sm leading-7 text-content-muted [overflow-wrap:anywhere] min-[1360px]:text-right">
+          <span className="font-semibold text-content-muted">
             {copy.currentPeriodLabel}
           </span>
           {formatOperatorReimbursementPeriod(currentPeriod, locale)}
         </p>
       }
       badge={copy.title}
-      badgeClassName="bg-[#e8f0f5] text-[#486782]"
+      badgeClassName="bg-surface-inset text-primary"
       badgeIcon={<ReceiptText className="size-3.5" />}
       description={copy.description}
       descriptionClassName="max-w-2xl text-sm leading-7"

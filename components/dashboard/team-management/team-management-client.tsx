@@ -53,7 +53,8 @@ export function TeamManagementClient({
 
       {!viewModel.canView ? (
         <NoPermissionSection />
-      ) : viewModel.viewerRole === "manager" && viewModel.overviews.length === 0 ? (
+      ) : viewModel.viewerRole === "manager" &&
+        viewModel.overviews.length === 0 ? (
         <ManagerSetupSection
           busyKey={viewModel.busyKey}
           onSave={() => void viewModel.handleSaveTeam()}
@@ -64,7 +65,8 @@ export function TeamManagementClient({
         <NoTeamDataSection />
       ) : (
         <>
-          {viewModel.overviews.length > 1 || viewModel.viewerRole !== "manager" ? (
+          {viewModel.overviews.length > 1 ||
+          viewModel.viewerRole !== "manager" ? (
             <TeamOverviewSection
               detailMembers={viewModel.detail.members}
               onSelectTeam={(teamId) => void viewModel.handleSelectTeam(teamId)}

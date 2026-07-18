@@ -1,7 +1,11 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
+import { Search } from "lucide-react";
+
+import { controlVariants, Field, Input } from "@/components/ui/form-controls";
+import { Surface, surfaceVariants } from "@/components/ui/surface";
 import { cn } from "@/lib/utils";
 
 type DashboardSectionPanelProps = {
@@ -38,10 +42,10 @@ type DashboardTableFrameProps = DashboardSectionPanelProps & {
 };
 
 type DashboardSearchInputProps = {
+  ariaLabel?: string;
   className?: string;
-  icon: ReactNode;
-  inputClassName?: string;
   onChange: (value: string) => void;
+  onKeyDown?: ComponentProps<"input">["onKeyDown"];
   placeholder: string;
   value: string;
 };
@@ -51,14 +55,12 @@ export function DashboardSectionPanel({
   className,
 }: DashboardSectionPanelProps) {
   return (
-    <section
-      className={cn(
-        "motion-surface-enter rounded-[24px] border border-white/85 bg-white/72 p-4 shadow-[0_18px_45px_rgba(96,113,128,0.06)] sm:rounded-[28px] sm:p-6 xl:p-8",
-        className,
-      )}
+    <Surface
+      className={cn("motion-surface-enter", className)}
+      padding="spacious"
     >
       {children}
-    </section>
+    </Surface>
   );
 }
 
@@ -73,9 +75,15 @@ export function DashboardFilterPanel({
     <div
       className={cn(
         variant === "inset" &&
-          "motion-surface-enter rounded-[20px] border border-[#ebe7e1] bg-[#fbfaf8] p-3 shadow-[0_10px_24px_rgba(96,113,128,0.04)] sm:rounded-[24px] sm:p-4",
+          cn(
+            surfaceVariants({ padding: "compact", variant: "inset" }),
+            "motion-surface-enter",
+          ),
         variant === "standalone" &&
-          "motion-surface-enter rounded-[24px] border border-white/85 bg-white/72 p-4 shadow-[0_18px_45px_rgba(96,113,128,0.06)] sm:rounded-[28px] sm:p-6",
+          cn(
+            surfaceVariants({ padding: "regular", variant: "panel" }),
+            "motion-surface-enter",
+          ),
         className,
       )}
     >
@@ -101,25 +109,27 @@ export function DashboardListHeader({
     >
       <div className="min-w-0">
         {eyebrow ? (
-          <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-[#7d8890] uppercase">
+          <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
             {eyebrow}
           </p>
         ) : null}
         <h3
           className={cn(
-            "text-xl font-bold tracking-tight text-[#23313a] sm:text-2xl",
+            "text-xl font-bold tracking-tight text-content-strong sm:text-2xl",
             eyebrow ? "mt-2" : "",
           )}
         >
           {title}
         </h3>
         {description ? (
-          <p className="mt-1.5 text-sm leading-6 text-[#6f7b85] sm:mt-2 sm:leading-7">
+          <p className="mt-1.5 text-sm leading-6 text-content-muted sm:mt-2 sm:leading-7">
             {description}
           </p>
         ) : null}
       </div>
-      {actions ? <div className="flex flex-wrap gap-2 sm:justify-end">{actions}</div> : null}
+      {actions ? (
+        <div className="flex flex-wrap gap-2 sm:justify-end">{actions}</div>
+      ) : null}
     </div>
   );
 }
@@ -166,7 +176,8 @@ export function DashboardTableFrame({
   return (
     <div
       className={cn(
-        "motion-surface-enter overflow-hidden rounded-[20px] border border-[#ebe7e1] bg-white shadow-[0_10px_24px_rgba(96,113,128,0.06)] sm:rounded-[24px]",
+        surfaceVariants({ padding: null, variant: "interactive" }),
+        "motion-surface-enter overflow-hidden hover:border-border-subtle sm:rounded-[24px]",
         className,
       )}
     >
@@ -176,57 +187,66 @@ export function DashboardTableFrame({
       >
         {children}
       </div>
-      {footer ? <div className="px-4 pb-4 sm:px-5 sm:pb-5">{footer}</div> : null}
+      {footer ? (
+        <div className="px-4 pb-4 sm:px-5 sm:pb-5">{footer}</div>
+      ) : null}
     </div>
   );
 }
 
-export const dashboardFilterInputClassName =
-  "h-11 w-full rounded-[16px] border border-[#dfe5ea] bg-white px-3 text-sm text-[#23313a] outline-none transition placeholder:text-[#8a949c] focus:border-[#bfd2e1] focus:ring-4 focus:ring-[#bfd2e1]/30 sm:h-12 sm:rounded-[18px] sm:px-4";
+/**
+ * 筛选控件使用较浅的静止边界，避免一排选项同时抢夺注意力。
+ * 悬停和键盘聚焦仍会加深，因此浅色不是通过牺牲交互反馈实现的。
+ */
+export const dashboardFilterInputClassName = cn(
+  controlVariants({ controlSize: "default", density: "filter" }),
+);
 
 export function DashboardFilterField({
   children,
+  controlId,
   label,
 }: {
   children: ReactNode;
+  controlId?: string;
   label: ReactNode;
 }) {
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-[10px] font-semibold tracking-[0.14em] text-[#88939b] uppercase sm:mb-2 sm:text-[11px] sm:tracking-[0.16em]">
-        {label}
-      </span>
+    <Field controlId={controlId} density="filter" label={label}>
       {children}
-    </label>
+    </Field>
   );
 }
 
 export function DashboardSearchInput({
+  ariaLabel,
   className,
-  icon,
-  inputClassName,
   onChange,
+  onKeyDown,
   placeholder,
   value,
 }: DashboardSearchInputProps) {
   return (
-    <label
-      className={cn(
-        "flex items-center gap-3 rounded-[18px] border border-[#dfe5ea] bg-white px-4 shadow-[0_8px_18px_rgba(96,113,128,0.04)]",
-        className,
-      )}
+    <div
+      className={cn("relative min-w-0", className)}
+      data-slot="dashboard-search-input"
     >
-      {icon}
-      <input
-        className={cn(
-          "h-12 w-full bg-transparent text-sm text-[#23313a] outline-none placeholder:text-[#8a949c]",
-          inputClassName,
-        )}
+      <Search
+        aria-hidden="true"
+        className="pointer-events-none absolute start-3 top-1/2 z-10 size-4 -translate-y-1/2 text-content-subtle"
+        data-slot="dashboard-search-input-icon"
+      />
+      <Input
+        // `ps-10!` 会覆盖桌面断点的普通横向内边距，始终为图标保留完整文字槽位。
+        aria-label={ariaLabel}
+        className="ps-10!"
+        controlSize="default"
         onChange={(event) => onChange(event.target.value)}
+        onKeyDown={onKeyDown}
         placeholder={placeholder}
-        type="text"
+        type="search"
         value={value}
       />
-    </label>
+    </div>
   );
 }

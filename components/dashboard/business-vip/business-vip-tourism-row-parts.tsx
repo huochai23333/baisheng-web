@@ -1,9 +1,18 @@
 "use client";
 
-import { CalendarClock, Check, Clock3, History, Send, Settings2, X } from "lucide-react";
+import {
+  CalendarClock,
+  Check,
+  Clock3,
+  History,
+  Send,
+  Settings2,
+  X,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type {
   BusinessVipRequest,
   BusinessVipReviewAction,
@@ -14,7 +23,7 @@ import type { Locale } from "@/lib/locale";
 import {
   formatBusinessVipDate,
   formatBusinessVipMoney,
-  getBusinessVipRequestChipClass,
+  getBusinessVipRequestTone,
 } from "./business-vip-display";
 
 export function BusinessVipRequestList({
@@ -39,7 +48,7 @@ export function BusinessVipRequestList({
   const visibleRequests = row.requests.slice(0, 3);
 
   if (visibleRequests.length === 0) {
-    return <p className="text-sm text-[#8a949c]">{t("requests.empty")}</p>;
+    return <p className="text-sm text-content-subtle">{t("requests.empty")}</p>;
   }
 
   return (
@@ -50,29 +59,29 @@ export function BusinessVipRequestList({
 
         return (
           <div
-            className="rounded-[16px] border border-[#ebe7e1] bg-[#fbfaf8] px-3 py-2.5"
+            className="rounded-[16px] border border-border-subtle bg-surface-inset px-3 py-2.5"
             key={request.id}
           >
             <div className="flex flex-wrap items-center gap-2">
-              <span className={getBusinessVipRequestChipClass(request.status)}>
+              <StatusBadge tone={getBusinessVipRequestTone(request.status)}>
                 {t(`requests.status.${request.status}`)}
-              </span>
-              <span className="text-xs text-[#7b858d]">
+              </StatusBadge>
+              <span className="text-xs text-content-muted">
                 {formatBusinessVipDate(request.createdAt, locale, fallback)}
               </span>
             </div>
-            <p className="mt-1 break-words text-xs leading-5 text-[#53616d] [overflow-wrap:anywhere]">
+            <p className="mt-1 break-words text-xs leading-5 text-content-muted [overflow-wrap:anywhere]">
               {request.requestedByName ??
                 request.requestedByEmail ??
                 t("requests.unknownRequester")}
             </p>
             {request.note ? (
-              <p className="mt-1 break-words text-xs leading-5 text-[#7b858d] [overflow-wrap:anywhere]">
+              <p className="mt-1 break-words text-xs leading-5 text-content-muted [overflow-wrap:anywhere]">
                 {request.note}
               </p>
             ) : null}
             {request.reviewNote ? (
-              <p className="mt-1 break-words text-xs leading-5 text-[#7b858d] [overflow-wrap:anywhere]">
+              <p className="mt-1 break-words text-xs leading-5 text-content-muted [overflow-wrap:anywhere]">
                 {request.reviewNote}
               </p>
             ) : null}
@@ -112,44 +121,52 @@ export function BusinessVipHistoryList({
   const latestAdjustment = row.adjustments[0] ?? null;
 
   if (!latestRecharge && !latestAdjustment) {
-    return <p className="text-sm text-[#8a949c]">{t("history.empty")}</p>;
+    return <p className="text-sm text-content-subtle">{t("history.empty")}</p>;
   }
 
   return (
     <div className="space-y-2">
       {latestRecharge ? (
-        <div className="rounded-[16px] border border-[#ebe7e1] bg-white px-3 py-2.5">
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#486782]">
+        <div className="rounded-[16px] border border-border-subtle bg-white px-3 py-2.5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-primary">
             <History className="size-3.5" />
             {t("history.latestRecharge")}
           </div>
-          <p className="mt-1 text-xs leading-5 text-[#53616d]">
+          <p className="mt-1 text-xs leading-5 text-content-muted">
             {formatBusinessVipMoney(latestRecharge, fallback)}
           </p>
-          <p className="text-xs leading-5 text-[#7b858d]">
-            {formatBusinessVipDate(latestRecharge.confirmedAt, locale, fallback)}
+          <p className="text-xs leading-5 text-content-muted">
+            {formatBusinessVipDate(
+              latestRecharge.confirmedAt,
+              locale,
+              fallback,
+            )}
           </p>
           {latestRecharge.orderNumber ? (
-            <p className="break-all text-xs leading-5 text-[#8a949c]">
+            <p className="break-all text-xs leading-5 text-content-subtle">
               {latestRecharge.orderNumber}
             </p>
           ) : null}
         </div>
       ) : null}
       {latestAdjustment ? (
-        <div className="rounded-[16px] border border-[#ebe7e1] bg-white px-3 py-2.5">
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#486782]">
+        <div className="rounded-[16px] border border-border-subtle bg-white px-3 py-2.5">
+          <div className="flex items-center gap-2 text-xs font-semibold text-primary">
             <Settings2 className="size-3.5" />
             {t("history.latestAdjustment")}
           </div>
-          <p className="mt-1 text-xs leading-5 text-[#53616d]">
+          <p className="mt-1 text-xs leading-5 text-content-muted">
             {t(`adjustments.action.${latestAdjustment.action}`)}
           </p>
-          <p className="text-xs leading-5 text-[#7b858d]">
-            {formatBusinessVipDate(latestAdjustment.createdAt, locale, fallback)}
+          <p className="text-xs leading-5 text-content-muted">
+            {formatBusinessVipDate(
+              latestAdjustment.createdAt,
+              locale,
+              fallback,
+            )}
           </p>
           {latestAdjustment.note ? (
-            <p className="break-words text-xs leading-5 text-[#8a949c] [overflow-wrap:anywhere]">
+            <p className="break-words text-xs leading-5 text-content-subtle [overflow-wrap:anywhere]">
               {latestAdjustment.note}
             </p>
           ) : null}
@@ -187,12 +204,17 @@ export function BusinessVipActionButtons({
     <div className="flex min-w-0 flex-col items-start gap-2 sm:flex-row sm:flex-wrap lg:flex-col">
       {canRequest ? (
         <Button
-          className="h-9 rounded-full bg-[#486782] px-3 text-white hover:bg-[#3e5f79] disabled:bg-[#d9dee2] disabled:text-[#7c8790]"
+          variant="primary"
+          size="compact"
           disabled={hasPendingRequest || Boolean(pendingActionKey)}
           onClick={() => onOpenRequest(row)}
           type="button"
         >
-          {requestPending ? <Clock3 className="size-4" /> : <Send className="size-4" />}
+          {requestPending ? (
+            <Clock3 className="size-4" />
+          ) : (
+            <Send className="size-4" />
+          )}
           {hasPendingRequest
             ? t("actions.pending")
             : row.status === "active"
@@ -202,7 +224,7 @@ export function BusinessVipActionButtons({
       ) : null}
       {canAdmin ? (
         <Button
-          className="h-9 rounded-full border border-[#d9e0e5] bg-white px-3 text-[#486782] hover:bg-[#f3f6f8] disabled:bg-[#f4f3f1] disabled:text-[#9aa4ab]"
+          size="compact"
           disabled={row.status === "none" || Boolean(pendingActionKey)}
           onClick={() => onOpenAdjust(row)}
           type="button"
@@ -236,15 +258,11 @@ function ReviewButton({
 
   return (
     <Button
-      className={
-        approving
-          ? "h-8 rounded-full bg-[#4c7259] px-2.5 text-xs text-white hover:bg-[#42654d]"
-          : "h-8 rounded-full border-[#efd6d6] bg-white px-2.5 text-xs text-[#b13d3d] hover:bg-[#fff4f4]"
-      }
       disabled={disabled}
       onClick={onClick}
+      size="compact"
       type="button"
-      variant={approving ? "default" : "outline"}
+      variant={approving ? "success" : "danger"}
     >
       {loading ? (
         <Clock3 className="size-3.5" />

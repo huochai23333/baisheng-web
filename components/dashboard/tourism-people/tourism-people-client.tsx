@@ -1,12 +1,14 @@
 "use client";
 
-import { Search, UserCheck, UsersRound } from "lucide-react";
+import { Select } from "@/components/ui/select";
+
+import { UserCheck, UsersRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import {
   DashboardFilterField,
-  dashboardFilterInputClassName,
+  DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { DashboardCollectionSection } from "@/components/dashboard/dashboard-collection-section";
@@ -17,7 +19,6 @@ import {
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import { useLocale } from "@/components/i18n/locale-provider";
 import type { AdminPeoplePageData } from "@/lib/admin-people";
-import { cn } from "@/lib/utils";
 
 import { getTourismPersonName } from "./tourism-people-display";
 import { TourismPersonDetails } from "./tourism-person-details";
@@ -78,34 +79,25 @@ export function TourismPeopleClient({
         resetDisabled={!viewModel.hasFilters}
         resetLabel={t("resetFilters")}
       >
-          <DashboardFilterField label={t("searchLabel")}>
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#8a949c]" />
-              <input
-                className={cn(dashboardFilterInputClassName, "pl-10")}
-                onChange={(event) =>
-                  viewModel.setSearchText(event.target.value)
-                }
-                placeholder={t("searchPlaceholder")}
-                type="search"
-                value={viewModel.searchText}
-              />
-            </div>
-          </DashboardFilterField>
-          <DashboardFilterField label={t("statusLabel")}>
-            <select
-              className={dashboardFilterInputClassName}
-              onChange={(event) =>
-                viewModel.setStatusFilter(event.target.value)
-              }
-              value={viewModel.statusFilter}
-            >
-              <option value="all">{t("allStatuses")}</option>
-              <option value="active">{t("statuses.active")}</option>
-              <option value="inactive">{t("statuses.inactive")}</option>
-              <option value="suspended">{t("statuses.suspended")}</option>
-            </select>
-          </DashboardFilterField>
+        <DashboardFilterField label={t("searchLabel")}>
+          <DashboardSearchInput
+            onChange={viewModel.setSearchText}
+            placeholder={t("searchPlaceholder")}
+            value={viewModel.searchText}
+          />
+        </DashboardFilterField>
+        <DashboardFilterField label={t("statusLabel")}>
+          <Select
+            onValueChange={viewModel.setStatusFilter}
+            options={[
+              { label: t("allStatuses"), value: "all" },
+              { label: t("statuses.active"), value: "active" },
+              { label: t("statuses.inactive"), value: "inactive" },
+              { label: t("statuses.suspended"), value: "suspended" },
+            ]}
+            value={viewModel.statusFilter}
+          />
+        </DashboardFilterField>
       </DashboardResourceFilterSection>
 
       <DashboardCollectionSection
@@ -115,12 +107,12 @@ export function TourismPeopleClient({
         })}
         title={t("listTitle")}
       >
-          <TourismPeopleTable
-            locale={locale}
-            onSelect={viewModel.openDetails}
-            people={viewModel.filteredPeople}
-            tab="promoters"
-          />
+        <TourismPeopleTable
+          locale={locale}
+          onSelect={viewModel.openDetails}
+          people={viewModel.filteredPeople}
+          tab="promoters"
+        />
       </DashboardCollectionSection>
 
       <DashboardDialog

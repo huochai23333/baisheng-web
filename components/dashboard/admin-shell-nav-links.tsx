@@ -87,10 +87,10 @@ export function DesktopAdminNavLink({
         "mx-1 flex items-center gap-3 rounded-[18px] px-4 py-3 text-sm transition-all duration-200",
         compact ? "py-2.5" : "",
         isActive
-          ? "translate-x-1 bg-[#486782] text-white shadow-[0_12px_24px_rgba(72,103,130,0.24)]"
+          ? "translate-x-1 bg-primary text-white shadow-[var(--surface-shadow-interactive)]"
           : isPending
-            ? "translate-x-1 bg-[#dbe6ee] text-[#36536a] shadow-[0_10px_20px_rgba(72,103,130,0.1)]"
-            : "text-[#415f76]/72 hover:bg-[#e5e3df] hover:text-[#314b61]",
+            ? "translate-x-1 bg-surface-inset text-brand-hover shadow-[var(--surface-shadow-interactive)]"
+            : "text-content-muted/72 hover:bg-surface-inset hover:text-content-muted",
       )}
       href={item.href}
       onClick={(event) => handleNavClick(event, item.href)}
@@ -134,10 +134,10 @@ export function MobileAdminNavLink({
       className={cn(
         "flex min-h-11 min-w-0 items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm transition-colors",
         isActive
-          ? "bg-[#486782] text-white shadow-[0_10px_20px_rgba(72,103,130,0.18)]"
+          ? "bg-primary text-white shadow-[var(--surface-shadow-interactive)]"
           : isPending
-            ? "bg-[#dbe6ee] text-[#36536a]"
-            : "text-[#486782] hover:bg-[#eef3f6]",
+            ? "bg-surface-inset text-brand-hover"
+            : "text-primary hover:bg-status-info-soft",
       )}
       href={item.href}
       onClick={(event) => {

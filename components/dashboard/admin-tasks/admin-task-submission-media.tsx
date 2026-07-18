@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Download, Eye, ImageIcon, LoaderCircle, Play, Video } from "lucide-react";
+import {
+  Download,
+  Eye,
+  ImageIcon,
+  LoaderCircle,
+  Play,
+  Video,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { AdminTaskSubmissionMedia } from "@/lib/admin-task-submission-media";
@@ -33,26 +40,28 @@ export function AdminTaskSubmissionMediaPanel({
   const t = useTranslations("Tasks.admin.submissionMedia");
 
   return (
-    <div className="rounded-[22px] border border-[#dfe8ee] bg-[#f7fbfc] p-4">
+    <div className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-[#486782]">{t("title")}</p>
-          <p className="mt-1 text-xs leading-6 text-[#6f7b85]">{t("description")}</p>
+          <p className="text-sm font-semibold text-primary">{t("title")}</p>
+          <p className="mt-1 text-xs leading-6 text-content-muted">
+            {t("description")}
+          </p>
         </div>
 
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[#486782]">
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-primary">
           <ImageIcon className="size-3.5" />
           {t("count", { count: media.length })}
         </span>
       </div>
 
       {loading ? (
-        <div className="mt-4 flex items-center gap-2 rounded-[18px] border border-[#e6ebef] bg-white px-4 py-3 text-sm text-[#60707d]">
+        <div className="mt-4 flex items-center gap-2 rounded-[18px] border border-border-subtle bg-white px-4 py-3 text-sm text-content-muted">
           <LoaderCircle className="size-4 animate-spin" />
           {t("loading")}
         </div>
       ) : media.length === 0 ? (
-        <p className="mt-4 rounded-[18px] border border-[#e6ebef] bg-white px-4 py-3 text-sm leading-7 text-[#6f7b85]">
+        <p className="mt-4 rounded-[18px] border border-border-subtle bg-white px-4 py-3 text-sm leading-7 text-content-muted">
           {t("empty")}
         </p>
       ) : (
@@ -62,11 +71,11 @@ export function AdminTaskSubmissionMediaPanel({
 
             return (
               <article
-                className="min-w-0 rounded-[20px] border border-[#e6ebef] bg-white p-4"
+                className="min-w-0 rounded-[20px] border border-border-subtle bg-white p-4"
                 key={item.id}
               >
                 <div className="flex min-w-0 items-start gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[#eef3f6] text-[#486782]">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-status-info-soft text-primary">
                     {item.kind === "video" ? (
                       <Video className="size-5" />
                     ) : (
@@ -75,23 +84,33 @@ export function AdminTaskSubmissionMediaPanel({
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-[#23313a]" title={item.original_name}>
+                    <p
+                      className="truncate text-sm font-semibold text-content-strong"
+                      title={item.original_name}
+                    >
                       {item.original_name}
                     </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[#6f7b85]">
-                      <span>{item.kind === "video" ? t("video") : t("image")}</span>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-content-muted">
+                      <span>
+                        {item.kind === "video" ? t("video") : t("image")}
+                      </span>
                       <span>{formatFileSize(item.file_size_bytes)}</span>
-                      <span>{t("round", { round: item.submission_round })}</span>
+                      <span>
+                        {t("round", { round: item.submission_round })}
+                      </span>
                     </div>
-                    <p className="mt-1 text-xs text-[#8a949c]">
-                      {t("submittedAt", { time: formatDateTime(item.submitted_at) })}
+                    <p className="mt-1 text-xs text-content-subtle">
+                      {t("submittedAt", {
+                        time: formatDateTime(item.submitted_at),
+                      })}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button
-                    className="h-9 rounded-full border border-[#d8e2e8] bg-white px-3 text-xs text-[#486782] hover:bg-[#eef3f6]"
+                    variant="outline"
+                    size="compact"
                     disabled={busy}
                     onClick={() => onPreview(item)}
                     type="button"
@@ -104,7 +123,8 @@ export function AdminTaskSubmissionMediaPanel({
                     {t("preview")}
                   </Button>
                   <Button
-                    className="h-9 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
+                    variant="primary"
+                    size="compact"
                     disabled={busy}
                     onClick={() => onDownload(item)}
                     type="button"
@@ -161,7 +181,8 @@ export function AdminTaskSubmissionMediaPreviewDialog({
       actions={
         media ? (
           <Button
-            className="h-10 rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="compact"
             onClick={() => onDownload(media)}
             type="button"
           >
@@ -183,7 +204,7 @@ export function AdminTaskSubmissionMediaPreviewDialog({
     >
       {media ? (
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-[24px] border border-[#ebe7e1] bg-[#111820]">
+          <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-surface-inset">
             {media.kind === "video" ? (
               <video
                 ref={videoRef}
@@ -204,8 +225,8 @@ export function AdminTaskSubmissionMediaPreviewDialog({
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-sm text-[#66727d]">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#eef3f6] px-3 py-1 font-medium text-[#486782]">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-content-muted">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-status-info-soft px-3 py-1 font-medium text-primary">
               {media.kind === "video" ? (
                 <Play className="size-3.5" />
               ) : (
@@ -214,7 +235,9 @@ export function AdminTaskSubmissionMediaPreviewDialog({
               {media.kind === "video" ? t("video") : t("image")}
             </span>
             <span>{t("round", { round: media.submission_round })}</span>
-            <span>{t("submittedAt", { time: formatDateTime(media.submitted_at) })}</span>
+            <span>
+              {t("submittedAt", { time: formatDateTime(media.submitted_at) })}
+            </span>
           </div>
         </div>
       ) : null}

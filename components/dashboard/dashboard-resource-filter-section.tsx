@@ -38,14 +38,15 @@ export function DashboardResourceFilterSection({
   title?: ReactNode;
 }) {
   const t = useTranslations("DashboardFramework.filters");
-  const resolvedFooter = summary || footer ? (
-    <div className="flex flex-col gap-3">
-      {summary ? (
-        <div className="text-sm leading-6 text-[#69747d]">{summary}</div>
-      ) : null}
-      {footer}
-    </div>
-  ) : undefined;
+  const resolvedFooter =
+    summary || footer ? (
+      <div className="flex flex-col gap-3">
+        {summary ? (
+          <div className="text-sm leading-6 text-content-muted">{summary}</div>
+        ) : null}
+        {footer}
+      </div>
+    ) : undefined;
 
   return (
     <DashboardSectionPanel className="p-4 sm:p-6">

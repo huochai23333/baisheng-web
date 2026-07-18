@@ -59,7 +59,7 @@ export function BusinessVipTable({
           <col className="w-[25%]" />
           <col className="w-[18%]" />
         </colgroup>
-        <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
+        <thead className="bg-surface-inset text-xs font-semibold text-content-muted">
           <tr>
             <th className="px-3 py-3">{t("directory.columns.customer")}</th>
             <th className="px-3 py-3">{t("directory.columns.status")}</th>
@@ -68,7 +68,7 @@ export function BusinessVipTable({
             <th className="px-3 py-3">{t("directory.columns.actions")}</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#eee9e1]">
+        <tbody className="divide-y divide-border-subtle">
           {rows.map((row) => (
             <tr className="align-top" key={row.targetId}>
               <td className="px-3 py-4">
@@ -122,14 +122,14 @@ export function BusinessVipMobileCard({
   const t = useTranslations("BusinessVip");
 
   return (
-    <article className="rounded-[18px] border border-[#ebe7e1] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
+    <article className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <BusinessVipCustomerCell row={row} />
         <BusinessVipStatusChip status={row.status} />
       </div>
       <div className="mt-4 grid gap-4">
         <section>
-          <h4 className="text-xs font-semibold text-[#66727d]">
+          <h4 className="text-xs font-semibold text-content-muted">
             {t("directory.columns.status")}
           </h4>
           <div className="mt-2">
@@ -137,7 +137,7 @@ export function BusinessVipMobileCard({
           </div>
         </section>
         <section>
-          <h4 className="text-xs font-semibold text-[#66727d]">
+          <h4 className="text-xs font-semibold text-content-muted">
             {t("directory.columns.requests")}
           </h4>
           <div className="mt-2">
@@ -151,7 +151,7 @@ export function BusinessVipMobileCard({
           </div>
         </section>
         <section>
-          <h4 className="text-xs font-semibold text-[#66727d]">
+          <h4 className="text-xs font-semibold text-content-muted">
             {t("directory.columns.records")}
           </h4>
           <div className="mt-2">

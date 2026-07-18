@@ -11,10 +11,7 @@ import {
 } from "./dashboard-collection-section";
 
 export type DashboardOrderListUnit =
-  | "claimGroups"
-  | "logisticsOrders"
-  | "orders"
-  | "purchaseOrders";
+  "claimGroups" | "logisticsOrders" | "orders" | "purchaseOrders";
 
 export type DashboardOrderListProgress =
   | {
@@ -48,7 +45,9 @@ export function DashboardOrderListSection({
   progress?: DashboardOrderListProgress | null;
   title: ReactNode;
 }) {
-  const count = progress ? <DashboardOrderProgressText progress={progress} /> : null;
+  const count = progress ? (
+    <DashboardOrderProgressText progress={progress} />
+  ) : null;
 
   return (
     <DashboardCollectionSection

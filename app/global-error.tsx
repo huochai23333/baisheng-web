@@ -6,6 +6,8 @@ import "./root.css";
 
 import { MotionSystemProvider } from "@/components/motion/motion-system-provider";
 import { PageReveal } from "@/components/motion/page-reveal";
+import { Button } from "@/components/ui/button";
+import { PublicStateCard } from "@/components/ui/public-state-card";
 import {
   DEFAULT_LOCALE,
   getDocumentLanguage,
@@ -32,7 +34,8 @@ const GLOBAL_ERROR_COPY = {
   en: {
     badge: "Global Error",
     title: "Something went wrong",
-    description: "Try again first. If the problem persists, reload the page and return to this view.",
+    description:
+      "Try again first. If the problem persists, reload the page and return to this view.",
     retry: "Try again",
     reload: "Reload",
   },
@@ -68,37 +71,26 @@ export default function GlobalError({ error, reset }: GlobalErrorPageProps) {
 
   return (
     <html lang={getDocumentLanguage(locale)}>
-      <body className="min-h-screen bg-[linear-gradient(160deg,#f6f2ea_0%,#f3f7fa_48%,#edf2f6_100%)]">
+      <body className="min-h-screen bg-background">
         <MotionSystemProvider>
           <PageReveal className="min-h-screen">
             <main className="flex min-h-screen items-center justify-center px-6 py-16">
-              <section className="w-full max-w-xl rounded-[32px] border border-white/90 bg-white/92 p-8 shadow-[0_24px_80px_rgba(35,49,58,0.12)] sm:p-10">
-            <span className="inline-flex rounded-full bg-[#eef3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
-              {copy.badge}
-            </span>
-            <h1 className="mt-5 text-3xl font-bold tracking-tight text-[#23313a]">
-              {copy.title}
-            </h1>
-            <p className="mt-3 text-sm leading-7 text-[#69747d]">
-              {copy.description}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <button
-                className="inline-flex h-11 items-center justify-center rounded-full bg-[#486782] px-5 text-sm font-semibold text-white transition hover:bg-[#3e5f79]"
-                onClick={() => reset()}
-                type="button"
-              >
-                {copy.retry}
-              </button>
-              <button
-                className="inline-flex h-11 items-center justify-center rounded-full border border-[#d8e2e8] bg-white px-5 text-sm font-semibold text-[#486782] transition hover:bg-[#eef3f6]"
-                onClick={() => window.location.reload()}
-                type="button"
-              >
-                {copy.reload}
-              </button>
-            </div>
-              </section>
+              <PublicStateCard
+                actions={
+                  <>
+                    <Button onClick={() => reset()}>{copy.retry}</Button>
+                    <Button
+                      onClick={() => window.location.reload()}
+                      variant="outline"
+                    >
+                      {copy.reload}
+                    </Button>
+                  </>
+                }
+                badge={copy.badge}
+                description={copy.description}
+                title={copy.title}
+              />
             </main>
           </PageReveal>
         </MotionSystemProvider>
@@ -117,7 +109,9 @@ function getPreferredGlobalErrorLocale(): Locale {
   }
 
   if (typeof navigator !== "undefined") {
-    return normalizeLocale(navigator.language.toLowerCase().startsWith("en") ? "en" : "zh");
+    return normalizeLocale(
+      navigator.language.toLowerCase().startsWith("en") ? "en" : "zh",
+    );
   }
 
   return DEFAULT_LOCALE;

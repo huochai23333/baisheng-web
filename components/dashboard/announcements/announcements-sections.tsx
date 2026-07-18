@@ -1,5 +1,7 @@
 "use client";
 
+import { Select } from "@/components/ui/select";
+
 import {
   Edit3,
   LoaderCircle,
@@ -10,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type {
   AnnouncementAudience,
   AnnouncementRow,
@@ -21,7 +24,6 @@ import { DashboardResourceFilterSection } from "../dashboard-resource-filter-sec
 import {
   DashboardFilterField,
   DashboardListSection,
-  dashboardFilterInputClassName,
 } from "../dashboard-section-panel";
 import { EmptyState } from "../dashboard-shared-ui";
 import {
@@ -88,16 +90,13 @@ export function AnnouncementsHeaderSection({
   return (
     <DashboardSectionHeader
       actions={
-        <Button
-          className="h-12 rounded-full bg-[#486782] px-5 text-white hover:bg-[#3e5f79]"
-          onClick={onCreate}
-        >
+        <Button variant="primary" size="default" onClick={onCreate}>
           <Megaphone className="size-4" />
           {copy.create}
         </Button>
       }
       badge={copy.title}
-      badgeClassName="bg-[#dff0e4] text-[#487155]"
+      badgeClassName="bg-surface-inset text-status-success"
       badgeIcon={<Megaphone className="size-3.5" />}
       description={copy.description}
       descriptionClassName="max-w-2xl text-sm leading-7"
@@ -121,41 +120,33 @@ export function AnnouncementsFilterSection({
       onReset={onReset}
       resetDisabled={audienceFilter === "all" && statusFilter === "all"}
     >
-        <DashboardFilterField label={copy.statusLabel}>
-          <select
-            className={dashboardFilterInputClassName}
-            onChange={(event) =>
-              onStatusFilterChange(event.target.value as AnnouncementStatus | "all")
-            }
-            value={statusFilter}
-          >
-            <option value="all">{copy.allStatuses}</option>
-            {announcementStatusValues.map((status) => (
-              <option key={status} value={status}>
-                {copy.statusOptions[status]}
-              </option>
-            ))}
-          </select>
-        </DashboardFilterField>
+      <DashboardFilterField label={copy.statusLabel}>
+        <Select
+          onValueChange={onStatusFilterChange}
+          options={[
+            { label: copy.allStatuses, value: "all" },
+            ...announcementStatusValues.map((status) => ({
+              label: copy.statusOptions[status],
+              value: status,
+            })),
+          ]}
+          value={statusFilter}
+        />
+      </DashboardFilterField>
 
-        <DashboardFilterField label={copy.audienceLabel}>
-          <select
-            className={dashboardFilterInputClassName}
-            onChange={(event) =>
-              onAudienceFilterChange(
-                event.target.value as AnnouncementAudience | "all",
-              )
-            }
-            value={audienceFilter}
-          >
-            <option value="all">{copy.allAudiences}</option>
-            {announcementAudienceValues.map((audience) => (
-              <option key={audience} value={audience}>
-                {copy.audienceOptions[audience]}
-              </option>
-            ))}
-          </select>
-        </DashboardFilterField>
+      <DashboardFilterField label={copy.audienceLabel}>
+        <Select
+          onValueChange={onAudienceFilterChange}
+          options={[
+            { label: copy.allAudiences, value: "all" },
+            ...announcementAudienceValues.map((audience) => ({
+              label: copy.audienceOptions[audience],
+              value: audience,
+            })),
+          ]}
+          value={audienceFilter}
+        />
+      </DashboardFilterField>
     </DashboardResourceFilterSection>
   );
 }
@@ -191,26 +182,28 @@ export function AnnouncementsListSection({
 
             return (
               <article
-                className="rounded-[24px] border border-[#e2e7eb] bg-[#fbfaf8] p-5"
+                className="rounded-[24px] border border-border-subtle bg-surface-inset p-5"
                 key={announcement.id}
               >
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap gap-2">
-                      <StatusBadge status={announcement.status}>
+                      <StatusBadge
+                        tone={getAnnouncementStatusTone(announcement.status)}
+                      >
                         {copy.statusOptions[announcement.status]}
                       </StatusBadge>
-                      <span className="inline-flex min-h-7 items-center rounded-full bg-[#edf3f6] px-3 py-1 text-xs font-semibold text-[#486782]">
+                      <span className="inline-flex min-h-7 items-center rounded-full bg-status-info-soft px-3 py-1 text-xs font-semibold text-primary">
                         {copy.audienceOptions[announcement.audience]}
                       </span>
                     </div>
-                    <h3 className="mt-3 text-xl font-bold text-[#23313a]">
+                    <h3 className="mt-3 text-xl font-bold text-content-strong">
                       {announcement.title}
                     </h3>
-                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#53616d]">
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-content-muted">
                       {announcement.content}
                     </p>
-                    <dl className="mt-4 grid gap-2 text-xs text-[#7b858d] sm:grid-cols-3">
+                    <dl className="mt-4 grid gap-2 text-xs text-content-muted sm:grid-cols-3">
                       <DateMeta
                         label={copy.publishedAt}
                         value={formatAnnouncementDate(
@@ -220,17 +213,23 @@ export function AnnouncementsListSection({
                       />
                       <DateMeta
                         label={copy.updatedAt}
-                        value={formatAnnouncementDate(announcement.updated_at, locale)}
+                        value={formatAnnouncementDate(
+                          announcement.updated_at,
+                          locale,
+                        )}
                       />
                       <DateMeta
                         label={copy.createdAt}
-                        value={formatAnnouncementDate(announcement.created_at, locale)}
+                        value={formatAnnouncementDate(
+                          announcement.created_at,
+                          locale,
+                        )}
                       />
                     </dl>
                   </div>
                   <div className="flex flex-wrap gap-2 xl:justify-end">
                     <Button
-                      className="h-10 rounded-full border-[#d4d8dc] bg-white px-4 text-[#486782] hover:bg-[#f2f4f6]"
+                      size="compact"
                       disabled={actionPending}
                       onClick={() => onEdit(announcement)}
                       variant="outline"
@@ -240,10 +239,10 @@ export function AnnouncementsListSection({
                     </Button>
                     {announcement.status === "published" ? (
                       <Button
-                        className="h-10 rounded-full border-[#e5c6c6] bg-white px-4 text-[#b64a4a] hover:bg-[#fff2f2]"
+                        size="compact"
                         disabled={actionPending}
                         onClick={() => onOffline(announcement)}
-                        variant="outline"
+                        variant="danger"
                       >
                         {offlinePending ? (
                           <LoaderCircle className="size-4 animate-spin" />
@@ -254,7 +253,8 @@ export function AnnouncementsListSection({
                       </Button>
                     ) : (
                       <Button
-                        className="h-10 rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79]"
+                        variant="primary"
+                        size="compact"
                         disabled={actionPending}
                         onClick={() => onPublish(announcement)}
                       >
@@ -267,10 +267,10 @@ export function AnnouncementsListSection({
                       </Button>
                     )}
                     <Button
-                      className="h-10 rounded-full border-[#e5c6c6] bg-white px-4 text-[#b64a4a] hover:bg-[#fff2f2]"
+                      size="compact"
                       disabled={actionPending}
                       onClick={() => onDelete(announcement)}
-                      variant="outline"
+                      variant="danger"
                     >
                       {deletePending ? (
                         <LoaderCircle className="size-4 animate-spin" />
@@ -290,31 +290,16 @@ export function AnnouncementsListSection({
   );
 }
 
-function StatusBadge({
-  children,
-  status,
-}: {
-  children: string;
-  status: AnnouncementStatus;
-}) {
-  const className =
-    status === "published"
-      ? "bg-[#e8f4ec] text-[#4c7259]"
-      : status === "draft"
-        ? "bg-[#fff5db] text-[#9a6a07]"
-        : "bg-[#f1efeb] text-[#69747d]";
-
-  return (
-    <span className={`inline-flex min-h-7 items-center rounded-full px-3 py-1 text-xs font-semibold ${className}`}>
-      {children}
-    </span>
-  );
+function getAnnouncementStatusTone(status: AnnouncementStatus) {
+  if (status === "published") return "success" as const;
+  if (status === "draft") return "warning" as const;
+  return "neutral" as const;
 }
 
 function DateMeta({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="font-semibold text-[#596773]">{label}</dt>
+      <dt className="font-semibold text-content-muted">{label}</dt>
       <dd className="mt-1">{value || "-"}</dd>
     </div>
   );

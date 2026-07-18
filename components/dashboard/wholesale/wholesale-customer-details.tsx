@@ -1,8 +1,14 @@
 "use client";
+
+import { StatusBadge } from "@/components/ui/status-badge";
+
+import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { Link2, PencilLine, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DashboardFilterField } from "@/components/dashboard/dashboard-section-panel";
+import { Select } from "@/components/ui/select";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import { WholesaleCustomerOtherNames } from "./wholesale-customer-other-names";
 import { WholesaleDetailGrid } from "./wholesale-detail-grid";
@@ -13,8 +19,6 @@ import {
 } from "./wholesale-display";
 import {
   WholesaleEmptyState,
-  WholesaleSelect,
-  WholesaleStatusBadge,
   WholesaleSubmitButton,
 } from "./wholesale-ui";
 type WholesaleCustomerDetailsProps = {
@@ -63,9 +67,9 @@ export function WholesaleCustomerDetails({
     {
       label: "客户类型",
       value: (
-        <WholesaleStatusBadge>
+        <StatusBadge>
           {WHOLESALE_STATUS_LABELS[customer.customer_kind]}
-        </WholesaleStatusBadge>
+        </StatusBadge>
       ),
     },
     {
@@ -82,7 +86,7 @@ export function WholesaleCustomerDetails({
       {canEdit ? (
         <div className="flex flex-wrap justify-end gap-2">
           <Button
-            className="h-9 rounded-full border border-[#d8e2e8] bg-white px-3 text-xs text-[#486782] hover:bg-[#eef3f6]"
+            size="compact"
             onClick={onEditCustomer}
             type="button"
             variant="outline"
@@ -91,7 +95,8 @@ export function WholesaleCustomerDetails({
             <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text001" />
           </Button>
           <Button
-            className="h-9 rounded-full border border-[#f0caca] bg-white px-3 text-xs text-[#a33b3b] hover:bg-[#fff1f1]"
+            size="compact"
+            className="text-content-muted"
             onClick={onDeleteCustomer}
             type="button"
             variant="outline"
@@ -109,13 +114,13 @@ export function WholesaleCustomerDetails({
         pending={pendingKey === `customer:add-other-name:${customer.id}`}
       />
       {customer.registered_user_id ? (
-        <p className="rounded-[18px] border border-[#dfe8df] bg-[#f5fbf5] px-4 py-3 text-sm leading-6 text-[#42614b]">
+        <p className="rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
           <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text003" />
         </p>
       ) : canLinkAccount ? (
-        <div className="rounded-[18px] border border-[#ebe7e1] bg-white p-4">
-          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#263640]">
-            <Link2 className="size-4 text-[#486782]" />
+        <div className="rounded-[18px] border border-border-subtle bg-white p-4">
+          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-content-muted">
+            <Link2 className="size-4 text-primary" />
             <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text004" />
           </div>
           {availableRegisteredAccounts.length > 0 ? (
@@ -127,21 +132,30 @@ export function WholesaleCustomerDetails({
                 await onLinkRegisteredUser(new FormData(event.currentTarget));
               }}
             >
-              <input name="customer_id" type="hidden" value={customer.id} />
-              <WholesaleSelect
-                label={uiText("attribute001")}
-                name="registered_user_id"
-                required
-              >
-                <option value="">
-                  <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text005" />
-                </option>
-                {availableRegisteredAccounts.map((profile) => (
-                  <option key={profile.user_id} value={profile.user_id}>
-                    {getRegisteredAccountLabel(profile)}
-                  </option>
-                ))}
-              </WholesaleSelect>
+              <FormControls.Input
+                name="customer_id"
+                type="hidden"
+                value={customer.id}
+              />
+              <DashboardFilterField label={uiText("attribute001")}>
+                <Select
+                  aria-label={uiText("attribute001")}
+                  name="registered_user_id"
+                  options={[
+                    {
+                      label: (
+                        <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text005" />
+                      ),
+                      value: "",
+                    },
+                    ...availableRegisteredAccounts.map((profile) => ({
+                      label: getRegisteredAccountLabel(profile),
+                      value: profile.user_id,
+                    })),
+                  ]}
+                  required
+                />
+              </DashboardFilterField>
               <div className="flex items-end justify-end">
                 <WholesaleSubmitButton
                   pending={
@@ -151,7 +165,7 @@ export function WholesaleCustomerDetails({
                   <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text006" />
                 </WholesaleSubmitButton>
               </div>
-              <p className="text-sm leading-6 text-[#6f7b85] sm:col-span-2">
+              <p className="text-sm leading-6 text-content-muted sm:col-span-2">
                 <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text007" />
               </p>
             </form>

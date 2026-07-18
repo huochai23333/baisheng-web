@@ -13,7 +13,7 @@ import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useDashboardPagination } from "@/lib/use-dashboard-pagination";
 import {
   normalizeSearchText,
-  type NoticeTone,
+  type FeedbackTone,
 } from "@/components/dashboard/dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "@/components/dashboard/workspace-session-provider";
 
@@ -30,7 +30,7 @@ import {
 } from "./commission-display";
 import { useManagedCommissionSettlement } from "./use-managed-commission-settlement";
 
-type PageFeedback = { message: string; tone: NoticeTone } | null;
+type PageFeedback = { message: string; tone: FeedbackTone } | null;
 type CommissionBoard = "normal" | "task";
 
 const EMPTY_FILTERS: CommissionFilters = {
@@ -42,7 +42,9 @@ const EMPTY_FILTERS: CommissionFilters = {
 };
 
 /** 管理端佣金页面的查询、筛选、分页和结算状态统一由 view-model 管理。 */
-export function useAdminCommissionViewModel(initialData: AdminCommissionPageData) {
+export function useAdminCommissionViewModel(
+  initialData: AdminCommissionPageData,
+) {
   const supabase = getBrowserSupabaseClient();
   const t = useTranslations("Commission");
   const [pageFeedback, setPageFeedback] = useState<PageFeedback>(null);
@@ -102,19 +104,23 @@ export function useAdminCommissionViewModel(initialData: AdminCommissionPageData
       if (
         filters.beneficiaryUserId &&
         commission.beneficiary.userId !== filters.beneficiaryUserId
-      ) return false;
+      )
+        return false;
       if (
         filters.settlementStatus !== "all" &&
         commission.settlementStatus !== filters.settlementStatus
-      ) return false;
+      )
+        return false;
       if (
         filters.category !== "all" &&
         commission.category !== filters.category
-      ) return false;
+      )
+        return false;
       if (
         orderValue &&
         !normalizeSearchText(commission.orderNumber).includes(orderValue)
-      ) return false;
+      )
+        return false;
       if (!searchValue) return true;
 
       return [
@@ -142,22 +148,52 @@ export function useAdminCommissionViewModel(initialData: AdminCommissionPageData
   const settlementOptions = useMemo(
     () => [
       { value: "all" as SettlementFilter, label: t("options.settlement.all") },
-      { value: "pending" as SettlementFilter, label: t("options.settlement.pending") },
-      { value: "paid" as SettlementFilter, label: t("options.settlement.paid") },
-      { value: "cancelled" as SettlementFilter, label: t("options.settlement.cancelled") },
-      { value: "reversed" as SettlementFilter, label: t("options.settlement.reversed") },
+      {
+        value: "pending" as SettlementFilter,
+        label: t("options.settlement.pending"),
+      },
+      {
+        value: "paid" as SettlementFilter,
+        label: t("options.settlement.paid"),
+      },
+      {
+        value: "cancelled" as SettlementFilter,
+        label: t("options.settlement.cancelled"),
+      },
+      {
+        value: "reversed" as SettlementFilter,
+        label: t("options.settlement.reversed"),
+      },
     ],
     [t],
   );
   const categoryOptions = useMemo(
     () => [
       { value: "all" as CategoryFilter, label: t("options.category.all") },
-      { value: "salesman_purchase" as CategoryFilter, label: t("options.category.salesmanPurchase") },
-      { value: "salesman_service" as CategoryFilter, label: t("options.category.salesmanService") },
-      { value: "referral_purchase" as CategoryFilter, label: t("options.category.referralPurchase") },
-      { value: "referral_service" as CategoryFilter, label: t("options.category.referralService") },
-      { value: "referral_vip_first_year_bonus" as CategoryFilter, label: t("options.category.referralVipFirstYearBonus") },
-      { value: "manual_adjustment" as CategoryFilter, label: t("options.category.manualAdjustment") },
+      {
+        value: "salesman_purchase" as CategoryFilter,
+        label: t("options.category.salesmanPurchase"),
+      },
+      {
+        value: "salesman_service" as CategoryFilter,
+        label: t("options.category.salesmanService"),
+      },
+      {
+        value: "referral_purchase" as CategoryFilter,
+        label: t("options.category.referralPurchase"),
+      },
+      {
+        value: "referral_service" as CategoryFilter,
+        label: t("options.category.referralService"),
+      },
+      {
+        value: "referral_vip_first_year_bonus" as CategoryFilter,
+        label: t("options.category.referralVipFirstYearBonus"),
+      },
+      {
+        value: "manual_adjustment" as CategoryFilter,
+        label: t("options.category.manualAdjustment"),
+      },
     ],
     [t],
   );
@@ -211,10 +247,10 @@ export function useAdminCommissionViewModel(initialData: AdminCommissionPageData
     handleMarkTaskCommissionAsPaid,
     hasActiveFilters: Boolean(
       filters.searchText ||
-        filters.beneficiaryUserId ||
-        filters.orderNumber ||
-        filters.settlementStatus !== "all" ||
-        filters.category !== "all"
+      filters.beneficiaryUserId ||
+      filters.orderNumber ||
+      filters.settlementStatus !== "all" ||
+      filters.category !== "all",
     ),
     hasPermission,
     pageFeedback,
@@ -226,4 +262,3 @@ export function useAdminCommissionViewModel(initialData: AdminCommissionPageData
     taskCommissions,
   };
 }
-

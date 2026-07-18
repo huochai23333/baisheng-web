@@ -3,12 +3,7 @@
 import type { ReactNode } from "react";
 
 import { useTranslations } from "next-intl";
-import {
-  LoaderCircle,
-  Search,
-  UserMinus,
-  UserPlus,
-} from "lucide-react";
+import { LoaderCircle, UserMinus, UserPlus } from "lucide-react";
 
 import { useLocale } from "@/components/i18n/locale-provider";
 import type {
@@ -18,7 +13,7 @@ import type {
 } from "@/lib/team-management";
 
 import { Button } from "@/components/ui/button";
-import { DashboardPill } from "@/components/dashboard/dashboard-pill";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   DashboardListHeader,
   DashboardSearchInput,
@@ -44,19 +39,13 @@ export function SectionHeader({
   return <DashboardListHeader description={description} title={title} />;
 }
 
-export function MiniMetric({
-  label,
-  value,
-}: {
-  label: string;
-  value: number;
-}) {
+export function MiniMetric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-[18px] bg-[#f7f5f2] px-3 py-3">
-      <p className="text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+    <div className="rounded-[18px] bg-surface-inset px-3 py-3">
+      <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {label}
       </p>
-      <p className="mt-1 text-lg font-bold text-[#23313a]">{value}</p>
+      <p className="mt-1 text-lg font-bold text-content-strong">{value}</p>
     </div>
   );
 }
@@ -69,9 +58,11 @@ export function InsightCard({
   description: string;
 }) {
   return (
-    <article className="rounded-[22px] border border-[#ebe7e1] bg-[#fbfaf8] p-4 shadow-[0_10px_24px_rgba(96,113,128,0.04)]">
-      <p className="text-lg font-semibold tracking-tight text-[#23313a]">{title}</p>
-      <p className="mt-2 text-sm leading-7 text-[#6f7b85]">{description}</p>
+    <article className="rounded-[22px] border border-border-subtle bg-surface-inset p-4 shadow-[var(--surface-shadow-interactive)]">
+      <p className="text-lg font-semibold tracking-tight text-content-strong">
+        {title}
+      </p>
+      <p className="mt-2 text-sm leading-7 text-content-muted">{description}</p>
     </article>
   );
 }
@@ -90,21 +81,24 @@ export function MemberCard({
   const t = useTranslations("TeamManagement");
   const sharedT = useTranslations("DashboardShared");
   const { locale } = useLocale();
-  const status = mapUserStatus(member.status, createDashboardSharedCopy(sharedT));
+  const status = mapUserStatus(
+    member.status,
+    createDashboardSharedCopy(sharedT),
+  );
 
   return (
-    <article className="rounded-[24px] border border-[#ebe7e1] bg-white p-5 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
+    <article className="rounded-[24px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-lg font-semibold tracking-tight text-[#23313a]">
+            <p className="truncate text-lg font-semibold tracking-tight text-content-strong">
               {member.name ?? member.email ?? member.user_id}
             </p>
             <DataPill accent={status.accent === "success" ? "green" : "gold"}>
               {status.label}
             </DataPill>
           </div>
-          <p className="mt-2 text-sm leading-7 text-[#6f7b85]">
+          <p className="mt-2 text-sm leading-7 text-content-muted">
             {t("memberCard.emailAndClients", {
               email: getOptionalEmailLabel(member.email, t),
               count: member.client_count,
@@ -114,10 +108,10 @@ export function MemberCard({
 
         {canManage ? (
           <Button
-            className="h-10 rounded-full border-[#f1d1d1] bg-[#fff2f2] px-4 text-[#b13d3d] hover:bg-[#fce5e5]"
+            size="compact"
             disabled={busy}
             onClick={() => void onRemove(member.user_id)}
-            variant="outline"
+            variant="danger"
           >
             {busy ? (
               <LoaderCircle className="size-4 animate-spin" />
@@ -154,28 +148,32 @@ export function CandidateCard({
 }) {
   const t = useTranslations("TeamManagement");
   const sharedT = useTranslations("DashboardShared");
-  const status = mapUserStatus(candidate.status, createDashboardSharedCopy(sharedT));
+  const status = mapUserStatus(
+    candidate.status,
+    createDashboardSharedCopy(sharedT),
+  );
 
   return (
-    <article className="rounded-[22px] border border-[#ebe7e1] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
+    <article className="rounded-[22px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]">
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate text-lg font-semibold tracking-tight text-[#23313a]">
+              <p className="truncate text-lg font-semibold tracking-tight text-content-strong">
                 {candidate.name ?? candidate.email ?? candidate.user_id}
               </p>
               <DataPill accent={status.accent === "success" ? "green" : "gold"}>
                 {status.label}
               </DataPill>
             </div>
-            <p className="mt-2 text-sm leading-7 text-[#6f7b85]">
+            <p className="mt-2 text-sm leading-7 text-content-muted">
               {getOptionalEmailLabel(candidate.email, t)}
             </p>
           </div>
 
           <Button
-            className="h-10 rounded-full bg-[#486782] px-4 text-white hover:bg-[#3e5f79] disabled:bg-[#9baab6]"
+            variant="primary"
+            size="compact"
             disabled={!candidate.assignable || busy}
             onClick={() => void onAdd(candidate.user_id)}
           >
@@ -184,14 +182,19 @@ export function CandidateCard({
             ) : (
               <UserPlus className="size-4" />
             )}
-            {candidate.assignable ? t("candidateCard.add") : t("candidateCard.disabled")}
+            {candidate.assignable
+              ? t("candidateCard.add")
+              : t("candidateCard.disabled")}
           </Button>
         </div>
 
         <div className="grid grid-cols-1 gap-3">
           <MiniInfo
             label={t("candidateCard.currentTeam")}
-            value={getOptionalTeamAssignmentLabel(candidate.current_team_name, t)}
+            value={getOptionalTeamAssignmentLabel(
+              candidate.current_team_name,
+              t,
+            )}
           />
           <MiniInfo
             label={t("candidateCard.directClientCount")}
@@ -209,14 +212,17 @@ export function ClientCard({ client }: { client: TeamClient }) {
   const t = useTranslations("TeamManagement");
   const sharedT = useTranslations("DashboardShared");
   const { locale } = useLocale();
-  const status = mapUserStatus(client.status, createDashboardSharedCopy(sharedT));
+  const status = mapUserStatus(
+    client.status,
+    createDashboardSharedCopy(sharedT),
+  );
 
   return (
-    <article className="rounded-[22px] border border-[#ebe7e1] bg-white p-5 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
+    <article className="rounded-[22px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-lg font-semibold tracking-tight text-[#23313a]">
+            <p className="truncate text-lg font-semibold tracking-tight text-content-strong">
               {client.name ?? client.email ?? client.user_id}
             </p>
             <DataPill accent={status.accent === "success" ? "green" : "gold"}>
@@ -226,7 +232,7 @@ export function ClientCard({ client }: { client: TeamClient }) {
               <DataPill accent="blue">{t("shared.pills.vip")}</DataPill>
             ) : null}
           </div>
-          <p className="mt-2 text-sm leading-7 text-[#6f7b85]">
+          <p className="mt-2 text-sm leading-7 text-content-muted">
             {getOptionalEmailLabel(client.email, t)}
           </p>
         </div>
@@ -257,9 +263,7 @@ export function SearchField({
 }) {
   return (
     <DashboardSearchInput
-      className="rounded-full py-3 shadow-[0_10px_24px_rgba(96,113,128,0.04)]"
-      icon={<Search className="size-4 text-[#7a8790]" />}
-      inputClassName="h-auto"
+      ariaLabel={placeholder}
       onChange={onChange}
       placeholder={placeholder}
       value={value}
@@ -275,25 +279,24 @@ export function DataPill({
   accent: "blue" | "green" | "gold";
 }) {
   return (
-    <DashboardPill accent={accent} className="px-2.5 text-[11px]">
+    <StatusBadge
+      className="px-2.5 text-[11px]"
+      tone={
+        accent === "green" ? "success" : accent === "gold" ? "warning" : "info"
+      }
+    >
       {children}
-    </DashboardPill>
+    </StatusBadge>
   );
 }
 
-function MiniInfo({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function MiniInfo({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[18px] bg-[#f7f5f2] px-4 py-3">
-      <p className="text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+    <div className="rounded-[18px] bg-surface-inset px-4 py-3">
+      <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {label}
       </p>
-      <p className="mt-1 text-sm font-medium text-[#23313a]">{value}</p>
+      <p className="mt-1 text-sm font-medium text-content-strong">{value}</p>
     </div>
   );
 }

@@ -38,7 +38,7 @@ export function LinkedPurchaseOrders({
     useState<WholesaleLinked1688Order | null>(null);
 
   if (purchaseOrders.length === 0) {
-    return <span className="text-[#71808d]">{uiText("text001")}</span>;
+    return <span className="text-content-muted">{uiText("text001")}</span>;
   }
 
   return (
@@ -46,7 +46,8 @@ export function LinkedPurchaseOrders({
       <div className="max-h-24 space-y-2 overflow-y-auto pr-1">
         {purchaseOrders.map((purchaseOrder) => (
           <Button
-            className="h-auto w-full justify-start rounded-full border border-[#d8e2e8] bg-white px-3 py-1.5 text-left text-xs font-semibold text-[#486782] hover:bg-[#eef3f6]"
+            size="default"
+            className="h-auto w-full justify-start py-1.5 text-left"
             key={purchaseOrder.id}
             onClick={() => setSelectedPurchaseOrder(purchaseOrder)}
             type="button"
@@ -92,7 +93,12 @@ function getLinkedPurchaseOrderDetailRows(
     { label: "商品", value: purchaseOrder.item_summary ?? "未记录" },
     { label: "数量", value: formatNumber(purchaseOrder.quantity) },
     ...(canViewInternalFields
-      ? [{ label: "采购金额", value: formatCurrency(purchaseOrder.purchase_amount) }]
+      ? [
+          {
+            label: "采购金额",
+            value: formatCurrency(purchaseOrder.purchase_amount),
+          },
+        ]
       : []),
     { label: "订单状态", value: purchaseOrder.order_status ?? "未记录" },
     { label: "采购时间", value: formatDateTime(purchaseOrder.purchased_at) },

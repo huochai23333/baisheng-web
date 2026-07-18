@@ -47,7 +47,7 @@ export function BusinessVipWholesaleRecordTable({
               <col className="w-[22%]" />
               <col className="w-[20%]" />
             </colgroup>
-            <thead className="bg-[#f6f4f0] text-xs font-semibold text-[#66727d]">
+            <thead className="bg-surface-inset text-xs font-semibold text-content-muted">
               <tr>
                 <th className="px-4 py-3">
                   {t("operationRecords.columns.customer")}
@@ -63,25 +63,25 @@ export function BusinessVipWholesaleRecordTable({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#eee9e1]">
+            <tbody className="divide-y divide-border-subtle">
               {records.map((record) => (
                 <tr className="align-top" key={record.id}>
                   <td className="px-4 py-4">
-                    <p className="break-words font-semibold text-[#23313a] [overflow-wrap:anywhere]">
+                    <p className="break-words font-semibold text-content-strong [overflow-wrap:anywhere]">
                       {record.customerLabel}
                     </p>
                   </td>
                   <td className="px-4 py-4">
                     <OperationRecordSummary locale={locale} record={record} />
                   </td>
-                  <td className="px-4 py-4 text-sm text-[#53616d]">
+                  <td className="px-4 py-4 text-sm text-content-muted">
                     {formatBusinessVipDate(
                       record.createdAt,
                       locale,
                       t("fallback.noRecord"),
                     )}
                   </td>
-                  <td className="px-4 py-4 text-sm text-[#53616d]">
+                  <td className="px-4 py-4 text-sm text-content-muted">
                     {record.actorName ?? t("operationRecords.actorFallback")}
                   </td>
                 </tr>
@@ -94,14 +94,14 @@ export function BusinessVipWholesaleRecordTable({
       <div className="grid gap-3 lg:hidden">
         {records.map((record) => (
           <article
-            className="rounded-[18px] border border-[#ebe7e1] bg-white p-4 shadow-[0_10px_24px_rgba(96,113,128,0.05)]"
+            className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]"
             key={record.id}
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <p className="break-words font-semibold text-[#23313a] [overflow-wrap:anywhere]">
+              <p className="break-words font-semibold text-content-strong [overflow-wrap:anywhere]">
                 {record.customerLabel}
               </p>
-              <span className="text-xs text-[#7b858d]">
+              <span className="text-xs text-content-muted">
                 {formatBusinessVipDate(
                   record.createdAt,
                   locale,
@@ -112,7 +112,7 @@ export function BusinessVipWholesaleRecordTable({
             <div className="mt-3">
               <OperationRecordSummary locale={locale} record={record} />
             </div>
-            <p className="mt-3 text-sm text-[#53616d]">
+            <p className="mt-3 text-sm text-content-muted">
               {record.actorName ?? t("operationRecords.actorFallback")}
             </p>
           </article>
@@ -134,10 +134,10 @@ function OperationRecordSummary({
 
   return (
     <div className="min-w-0">
-      <p className="font-semibold text-[#486782]">
+      <p className="font-semibold text-primary">
         {t(`operationRecords.types.${record.kind}`)}
       </p>
-      <p className="mt-1 break-words text-xs leading-5 text-[#6f7b85] [overflow-wrap:anywhere]">
+      <p className="mt-1 break-words text-xs leading-5 text-content-muted [overflow-wrap:anywhere]">
         {t("operationRecords.expiresChange", {
           next: formatBusinessVipDate(record.nextExpiresAt, locale, fallback),
           previous: formatBusinessVipDate(
@@ -148,7 +148,7 @@ function OperationRecordSummary({
         })}
       </p>
       {record.amount !== null ? (
-        <p className="mt-1 break-words text-xs leading-5 text-[#6f7b85] [overflow-wrap:anywhere]">
+        <p className="mt-1 break-words text-xs leading-5 text-content-muted [overflow-wrap:anywhere]">
           {t("operationRecords.annualFee", {
             amount: formatBusinessVipAmount(
               record.amount,
@@ -159,7 +159,7 @@ function OperationRecordSummary({
         </p>
       ) : null}
       {record.note ? (
-        <p className="mt-1 break-words text-xs leading-5 text-[#8a949c] [overflow-wrap:anywhere]">
+        <p className="mt-1 break-words text-xs leading-5 text-content-subtle [overflow-wrap:anywhere]">
           {record.note}
         </p>
       ) : null}

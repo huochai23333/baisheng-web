@@ -1,5 +1,7 @@
 "use client";
 
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
 import { useState } from "react";
 
 import { LoaderCircle, LogOut } from "lucide-react";
@@ -11,9 +13,7 @@ type AdminShellLogoutButtonProps = {
   label: string;
 };
 
-export function AdminShellLogoutButton({
-  label,
-}: AdminShellLogoutButtonProps) {
+export function AdminShellLogoutButton({ label }: AdminShellLogoutButtonProps) {
   const supabase = getBrowserSupabaseClient();
   const [pending, setPending] = useState(false);
 
@@ -28,8 +28,8 @@ export function AdminShellLogoutButton({
 
   return (
     <div className="mt-auto px-1">
-      <button
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#fceaea] py-3 text-sm font-semibold text-[#c43d3d] transition-colors hover:bg-[#f8dddd] disabled:cursor-not-allowed disabled:opacity-70"
+      <DesignButton
+        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-surface-inset py-3 text-sm font-semibold text-content-muted transition-colors hover:bg-surface-inset disabled:cursor-not-allowed disabled:opacity-70"
         disabled={pending}
         onClick={handleLogout}
         type="button"
@@ -40,7 +40,7 @@ export function AdminShellLogoutButton({
           <LogOut className="size-4" />
         )}
         {label}
-      </button>
+      </DesignButton>
     </div>
   );
 }

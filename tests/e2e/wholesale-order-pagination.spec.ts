@@ -276,14 +276,16 @@ test.describe("wholesale order pagination", () => {
       await expectNoDocumentHorizontalOverflow(clientPage);
 
       await adminPage.bringToFront();
-      adminPage.once("dialog", (dialog) => dialog.accept());
       await attachmentDialog
         .locator(`[data-attachment-name="${fileName}"]`)
         .getByRole("button", { name: "删除" })
         .click();
+      await adminPage
+        .getByRole("dialog", { name: "请确认这项操作" })
+        .getByRole("button", { name: "确认操作" })
+        .click();
       await expect(adminPage.getByText("Order List 附件已删除。")).toBeVisible();
       await expect(attachmentDialog.getByText(fileName)).toHaveCount(0);
-      adminPage.once("dialog", (dialog) => dialog.accept());
       const secondDeleteButton = attachmentDialog
         .locator(`[data-attachment-name="${secondFileName}"]`)
         .getByRole("button", { name: "删除" });
@@ -291,6 +293,10 @@ test.describe("wholesale order pagination", () => {
       // 第一次删除会让弹窗列表重新排版；直接触发第二个按钮，避免测试框架
       // 在列表动画结束前反复等待元素位置稳定。
       await secondDeleteButton.evaluate((button: HTMLButtonElement) => button.click());
+      await adminPage
+        .getByRole("dialog", { name: "请确认这项操作" })
+        .getByRole("button", { name: "确认操作" })
+        .click();
       await expect(attachmentDialog.getByText(secondFileName)).toHaveCount(0);
     } finally {
       await adminContext.close();

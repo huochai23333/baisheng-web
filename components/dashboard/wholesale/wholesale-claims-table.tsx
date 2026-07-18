@@ -1,5 +1,9 @@
 "use client";
 
+import { StatusBadge } from "@/components/ui/status-badge";
+
+import * as FormControls from "@/components/ui/form-controls";
+
 import { Trash2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
@@ -13,7 +17,6 @@ import {
 } from "./wholesale-display";
 import type { WholesaleClaimRow } from "@/lib/wholesale-claims-page";
 import {
-  WholesaleStatusBadge,
   WholesaleTable,
   WholesaleTd,
   WholesaleTh,
@@ -24,9 +27,9 @@ import {
 const stickyOrderThClassName = `${wholesaleStickyFirstThClassName} min-w-[220px] whitespace-nowrap`;
 const stickyOrderTdClassName = `${wholesaleStickyFirstTdClassName} min-w-[220px] whitespace-nowrap`;
 const selectionThClassName =
-  "sticky left-0 z-40 w-[56px] min-w-[56px] border-r border-[#efebe5] bg-[#f7f5f2] text-center";
+  "sticky left-0 z-40 w-[56px] min-w-[56px] border-r border-border-subtle bg-surface-inset text-center";
 const selectionTdClassName =
-  "sticky left-0 z-30 w-[56px] min-w-[56px] border-r border-[#efebe5] bg-white text-center group-hover:bg-[#fcfbf8]";
+  "sticky left-0 z-30 w-[56px] min-w-[56px] border-r border-border-subtle bg-white text-center group-hover:bg-surface-inset";
 
 export type WholesaleClaimsTableSelection = {
   allSelected: boolean;
@@ -72,16 +75,30 @@ export function WholesaleClaimsTable({
           >
             <Header name="text001" />
           </WholesaleTh>
-          <WholesaleTh><Header name="text002" /></WholesaleTh>
-          <WholesaleTh><Header name="text003" /></WholesaleTh>
+          <WholesaleTh>
+            <Header name="text002" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <Header name="text003" />
+          </WholesaleTh>
           <WholesaleTh className="min-w-[260px] whitespace-normal">
             <Header name="text007" />
           </WholesaleTh>
-          <WholesaleTh><Header name="text008" /></WholesaleTh>
-          <WholesaleTh><Header name="text009" /></WholesaleTh>
-          <WholesaleTh><Header name="text010" /></WholesaleTh>
-          <WholesaleTh><Header name="text012" /></WholesaleTh>
-          <WholesaleTh><Header name="text013" /></WholesaleTh>
+          <WholesaleTh>
+            <Header name="text008" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <Header name="text009" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <Header name="text010" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <Header name="text012" />
+          </WholesaleTh>
+          <WholesaleTh>
+            <Header name="text013" />
+          </WholesaleTh>
         </tr>
       </thead>
       <tbody>
@@ -128,14 +145,13 @@ function WholesaleClaimTableRow({
     <tr className="group">
       {selection ? (
         <WholesaleTd className={selectionTdClassName}>
-          <input
+          <FormControls.Checkbox
             aria-label={uiText("selectOrder", {
               orderNumber: purchaseOrder.external_order_number,
             })}
             checked={selection.selectedIds.has(purchaseOrder.id)}
-            className="size-4 cursor-pointer accent-[#486782]"
+            className="size-4 cursor-pointer accent-primary"
             onChange={() => selection.onToggleOne(purchaseOrder.id)}
-            type="checkbox"
           />
         </WholesaleTd>
       ) : null}
@@ -152,7 +168,8 @@ function WholesaleClaimTableRow({
         <div className="mt-2">
           {canEdit ? (
             <Button
-              className="h-8 rounded-full bg-[#486782] px-3 text-xs text-white hover:bg-[#3e5f79]"
+              variant="primary"
+              size="compact"
               disabled={pendingKey === "1688:create-claim-group"}
               onClick={() => onOpenClaim(row)}
               type="button"
@@ -160,12 +177,12 @@ function WholesaleClaimTableRow({
               {uiText("text017")}
             </Button>
           ) : (
-            <WholesaleStatusBadge tone="warning">
+            <StatusBadge tone="warning">
               {uiText(row.board === "assisted" ? "text019" : "text016")}
-            </WholesaleStatusBadge>
+            </StatusBadge>
           )}
         </div>
-        <div className="mt-2 text-xs leading-5 text-[#71808d]">
+        <div className="mt-2 text-xs leading-5 text-content-muted">
           {purchaseOrder.order_status ?? uiText("missingStatus")}
         </div>
       </WholesaleTd>
@@ -175,10 +192,10 @@ function WholesaleClaimTableRow({
       <WholesaleTd className="min-w-[180px] whitespace-normal">
         {purchaseOrder.assisted_customer_id ? (
           <div>
-            <div className="font-semibold text-[#2b3942]">
+            <div className="font-semibold text-content-strong">
               {row.assistedCustomerName}
             </div>
-            <div className="mt-1 text-xs leading-5 text-[#71808d]">
+            <div className="mt-1 text-xs leading-5 text-content-muted">
               {uiText("text014")}
             </div>
           </div>
@@ -189,7 +206,7 @@ function WholesaleClaimTableRow({
       <WholesaleTd className="min-w-[260px] whitespace-normal">
         <div>{purchaseOrder.item_summary ?? uiText("missingItem")}</div>
         {purchaseOrder.seller_name ? (
-          <div className="mt-1 text-xs text-[#71808d]">
+          <div className="mt-1 text-xs text-content-muted">
             {uiText("text015")}
             {purchaseOrder.seller_name}
           </div>
@@ -202,7 +219,8 @@ function WholesaleClaimTableRow({
       <WholesaleTd>
         {canAdmin ? (
           <Button
-            className="h-9 rounded-full bg-[#fbe6e6] px-3 text-xs font-semibold text-[#b13d3d] hover:bg-[#f7d4d4]"
+            variant="danger"
+            size="compact"
             disabled={pendingKey === "1688:delete"}
             onClick={() => onDelete(purchaseOrder.id)}
             type="button"
@@ -233,13 +251,12 @@ function SelectionHeaderCheckbox({
   }, [selection.hasPartialSelection]);
 
   return (
-    <input
+    <FormControls.Checkbox
       aria-label={uiText("selectAll")}
       checked={selection.allSelected}
-      className="size-4 cursor-pointer accent-[#486782]"
+      className="size-4 cursor-pointer accent-primary"
       onChange={selection.onToggleAll}
       ref={checkboxRef}
-      type="checkbox"
     />
   );
 }

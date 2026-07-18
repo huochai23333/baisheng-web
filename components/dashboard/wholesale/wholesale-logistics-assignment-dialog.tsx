@@ -1,29 +1,30 @@
 "use client";
 
-import { Search, UserRoundCog } from "lucide-react";
+import { InteractiveButton as DesignButton } from "@/components/ui/button";
+
+import * as FormControls from "@/components/ui/form-controls";
+
+import { UserRoundCog } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
-import { PageBanner } from "@/components/dashboard/dashboard-shared-ui";
+import { FeedbackNotice } from "@/components/dashboard/dashboard-shared-ui";
 import {
   DashboardFilterField,
-  dashboardFilterInputClassName,
+  DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
-import type {
-  WholesaleCustomer,
-  WholesaleProfile,
-} from "@/lib/wholesale";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Select } from "@/components/ui/select";
+import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import type {
   WholesaleLogisticsStoreAssignment,
   WholesaleLogisticsStoreOption,
 } from "@/lib/wholesale-logistics-page";
 import { cn } from "@/lib/utils";
 
-import {
-  getActiveSalesProfiles,
-} from "./wholesale-logistics-display";
+import { getActiveSalesProfiles } from "./wholesale-logistics-display";
 import { WholesaleLogisticsAssignmentHistory } from "./wholesale-logistics-assignment-history";
 
 type AssignmentSaveInput = {
@@ -65,7 +66,8 @@ export function WholesaleLogisticsAssignmentDialog({
   storeOptions: WholesaleLogisticsStoreOption[];
 }) {
   const t = useTranslations("WholesaleBusiness.logisticsArchive");
-  const [editing, setEditing] = useState<WholesaleLogisticsStoreAssignment | null>(null);
+  const [editing, setEditing] =
+    useState<WholesaleLogisticsStoreAssignment | null>(null);
   const [selectedStores, setSelectedStores] = useState<string[]>([]);
   const [storeSearch, setStoreSearch] = useState("");
   const [salesUserId, setSalesUserId] = useState("");
@@ -137,9 +139,10 @@ export function WholesaleLogisticsAssignmentDialog({
       return;
     }
 
-    const effectiveFrom = splitInterval && splitFromDate
-      ? new Date(`${splitFromDate}T00:00:00+08:00`).toISOString()
-      : null;
+    const effectiveFrom =
+      splitInterval && splitFromDate
+        ? new Date(`${splitFromDate}T00:00:00+08:00`).toISOString()
+        : null;
     const succeeded = await onChange({
       assignmentId: editing.id,
       customerId: customerId || null,
@@ -167,7 +170,9 @@ export function WholesaleLogisticsAssignmentDialog({
             </Button>
           ) : null}
           <Button
-            className="min-h-10 whitespace-normal rounded-full bg-[#486782] text-white hover:bg-[#3e5f79]"
+            variant="primary"
+            size="default"
+            className="min-h-10 whitespace-normal"
             disabled={
               saving ||
               !salesUserId ||
@@ -188,26 +193,24 @@ export function WholesaleLogisticsAssignmentDialog({
     >
       <div className="space-y-6">
         {feedback ? (
-          <div role={feedback.tone === "error" ? "alert" : "status"}>
-            <PageBanner tone={feedback.tone}>
-              <div className="flex min-w-0 items-start justify-between gap-3">
-                <span className="min-w-0 break-words">{feedback.message}</span>
-                <button
-                  className="shrink-0 text-xs font-semibold underline underline-offset-2"
-                  onClick={onDismissFeedback}
-                  type="button"
-                >
-                  {t("actions.dismiss")}
-                </button>
-              </div>
-            </PageBanner>
-          </div>
+          <FeedbackNotice tone={feedback.tone}>
+            <div className="flex min-w-0 items-start justify-between gap-3">
+              <span className="min-w-0 break-words">{feedback.message}</span>
+              <DesignButton
+                className="shrink-0 text-xs font-semibold underline underline-offset-2"
+                onClick={onDismissFeedback}
+                type="button"
+              >
+                {t("actions.dismiss")}
+              </DesignButton>
+            </div>
+          </FeedbackNotice>
         ) : null}
 
-        <section className="rounded-[22px] border border-[#e5e1da] bg-white p-4 sm:p-5">
+        <section className="rounded-[22px] border border-border-subtle bg-white p-4 sm:p-5">
           <div className="flex min-w-0 items-center gap-2">
-            <UserRoundCog className="size-5 shrink-0 text-[#486782]" />
-            <h4 className="break-words font-semibold text-[#23313a]">
+            <UserRoundCog className="size-5 shrink-0 text-primary" />
+            <h4 className="break-words font-semibold text-content-strong">
               {editing
                 ? t("assignments.adjustStore", { store: editing.store_name })
                 : t("assignments.newAssignment")}
@@ -217,20 +220,15 @@ export function WholesaleLogisticsAssignmentDialog({
           {!editing ? (
             <div className="mt-4 space-y-3">
               <DashboardFilterField label={t("assignments.chooseStores")}>
-                <label className="relative block">
-                  <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[#8a949c]" />
-                  <input
-                    className={`${dashboardFilterInputClassName} pl-10`}
-                    onChange={(event) => setStoreSearch(event.target.value)}
-                    placeholder={t("assignments.searchStores")}
-                    type="search"
-                    value={storeSearch}
-                  />
-                </label>
+                <DashboardSearchInput
+                  onChange={setStoreSearch}
+                  placeholder={t("assignments.searchStores")}
+                  value={storeSearch}
+                />
               </DashboardFilterField>
-              <div className="max-h-52 overflow-y-auto rounded-[18px] border border-[#e3e7ea] bg-[#fbfaf8] p-2">
+              <div className="max-h-52 overflow-y-auto rounded-[18px] border border-border-subtle bg-surface-inset p-2">
                 {selectableStores.length === 0 ? (
-                  <p className="p-3 text-sm leading-6 text-[#77838c]">
+                  <p className="p-3 text-sm leading-6 text-content-muted">
                     {t("assignments.noStores")}
                   </p>
                 ) : (
@@ -240,27 +238,32 @@ export function WholesaleLogisticsAssignmentDialog({
                       <label
                         className={cn(
                           "flex min-w-0 cursor-pointer items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm",
-                          checked ? "bg-[#eaf1f5] text-[#314b60]" : "hover:bg-white",
+                          checked
+                            ? "bg-surface-inset text-content-muted"
+                            : "hover:bg-white",
                         )}
                         key={option.store_name}
                       >
-                        <input
+                        <FormControls.Checkbox
                           checked={checked}
-                          className="size-4 shrink-0 accent-[#486782]"
+                          className="size-4 shrink-0 accent-primary"
                           onChange={() =>
                             setSelectedStores((current) =>
                               checked
-                                ? current.filter((name) => name !== option.store_name)
+                                ? current.filter(
+                                    (name) => name !== option.store_name,
+                                  )
                                 : [...current, option.store_name],
                             )
                           }
-                          type="checkbox"
                         />
                         <span className="min-w-0 flex-1 break-words">
                           {option.store_name}
                         </span>
-                        <span className="shrink-0 text-xs text-[#77838c]">
-                          {t("assignments.orderCount", { count: option.order_count })}
+                        <span className="shrink-0 text-xs text-content-muted">
+                          {t("assignments.orderCount", {
+                            count: option.order_count,
+                          })}
                         </span>
                       </label>
                     );
@@ -272,62 +275,63 @@ export function WholesaleLogisticsAssignmentDialog({
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <DashboardFilterField label={t("assignments.sales")}>
-              <select
-                className={dashboardFilterInputClassName}
-                onInput={(event) => setSalesUserId(event.currentTarget.value)}
+              <Select
+                aria-label={t("assignments.sales")}
+                onValueChange={setSalesUserId}
+                options={[
+                  { label: t("assignments.chooseSales"), value: "" },
+                  ...salesProfiles.map((profile) => ({
+                    label:
+                      profile.name ||
+                      profile.email ||
+                      t("fallbacks.unnamedSales"),
+                    value: profile.user_id,
+                  })),
+                ]}
                 value={salesUserId}
-              >
-                <option value="">{t("assignments.chooseSales")}</option>
-                {salesProfiles.map((profile) => (
-                  <option key={profile.user_id} value={profile.user_id}>
-                    {profile.name || profile.email || t("fallbacks.unnamedSales")}
-                  </option>
-                ))}
-              </select>
+              />
             </DashboardFilterField>
             <DashboardFilterField label={t("assignments.customer")}>
-              <select
-                className={dashboardFilterInputClassName}
-                onInput={(event) => setCustomerId(event.currentTarget.value)}
+              <Select
+                aria-label={t("assignments.customer")}
+                onValueChange={setCustomerId}
+                options={[
+                  { label: t("assignments.noCustomer"), value: "" },
+                  ...customers.map((customer) => ({
+                    label: customer.unique_name,
+                    value: customer.id,
+                  })),
+                ]}
                 value={customerId}
-              >
-                <option value="">{t("assignments.noCustomer")}</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.unique_name}
-                  </option>
-                ))}
-              </select>
+              />
             </DashboardFilterField>
           </div>
 
           {editing ? (
-            <div className="mt-4 rounded-[18px] border border-[#e3e7ea] bg-[#fbfaf8] p-3 sm:p-4">
-              <label className="flex min-w-0 items-start gap-3 text-sm text-[#33434d]">
-                <input
+            <div className="mt-4 rounded-[18px] border border-border-subtle bg-surface-inset p-3 sm:p-4">
+              <label className="flex min-w-0 items-start gap-3 text-sm text-content-muted">
+                <FormControls.Radio
                   checked={!splitInterval}
-                  className="mt-0.5 size-4 shrink-0 accent-[#486782]"
+                  className="mt-0.5 size-4 shrink-0 accent-primary"
                   onChange={() => setSplitInterval(false)}
-                  type="radio"
                 />
                 <span className="min-w-0 break-words">
                   {t("assignments.wholeInterval")}
                 </span>
               </label>
-              <label className="mt-3 flex min-w-0 items-start gap-3 text-sm text-[#33434d]">
-                <input
+              <label className="mt-3 flex min-w-0 items-start gap-3 text-sm text-content-muted">
+                <FormControls.Radio
                   checked={splitInterval}
-                  className="mt-0.5 size-4 shrink-0 accent-[#486782]"
+                  className="mt-0.5 size-4 shrink-0 accent-primary"
                   onChange={() => setSplitInterval(true)}
-                  type="radio"
                 />
                 <span className="min-w-0 flex-1 break-words">
                   {t("assignments.fromDate")}
                   {splitInterval ? (
-                    <input
-                      className={`${dashboardFilterInputClassName} mt-2`}
-                      onChange={(event) => setSplitFromDate(event.target.value)}
-                      type="date"
+                    <DatePicker
+                      aria-label={t("assignments.fromDate")}
+                      className="mt-2"
+                      onValueChange={setSplitFromDate}
                       value={splitFromDate}
                     />
                   ) : null}
@@ -335,7 +339,7 @@ export function WholesaleLogisticsAssignmentDialog({
               </label>
             </div>
           ) : (
-            <p className="mt-4 text-sm leading-6 text-[#6f7b85]">
+            <p className="mt-4 text-sm leading-6 text-content-muted">
               {t("assignments.historyDefault")}
             </p>
           )}

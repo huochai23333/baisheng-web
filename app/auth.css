@@ -15,15 +15,50 @@
 @source "../components/i18n";
 @source "../components/legal";
 @source "../components/motion";
+@source "../components/ui";
 
 @layer utilities {
+  .auth-card-surface {
+    background: var(--auth-glass-surface);
+    border-color: var(--auth-glass-border);
+    box-shadow: var(--auth-shell-shadow);
+    -webkit-backdrop-filter: blur(var(--auth-glass-blur));
+    backdrop-filter: blur(var(--auth-glass-blur));
+  }
+
   .auth-grid-dots {
-    background-image: radial-gradient(rgba(72, 103, 130, 0.12) 1px, transparent 1px);
+    background-image: radial-gradient(
+      var(--auth-grid-dot) 1px,
+      transparent 1px
+    );
     background-size: 22px 22px;
   }
 
+  .auth-aside-overlay {
+    background: var(--auth-aside-overlay);
+  }
+
+  .auth-aside-glow {
+    background: var(--auth-aside-glow);
+  }
+
+  .auth-form-surface {
+    background: var(--auth-form-surface);
+  }
+}
+
+/* 浏览器缺少背景模糊能力时，提高表面不透明度，避免文字与照片互相干扰。 */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
   .auth-card-surface {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(16px);
+    background: var(--auth-glass-fallback);
+  }
+}
+
+/* 支持系统“减少透明度”偏好时，同样提供稳定的实色阅读表面。 */
+@media (prefers-reduced-transparency: reduce) {
+  .auth-card-surface {
+    background: var(--auth-glass-fallback);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }

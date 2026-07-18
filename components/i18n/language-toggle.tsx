@@ -7,7 +7,12 @@ import { Languages, LoaderCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { getDocumentLanguage, LOCALE_COOKIE_NAME, type Locale } from "@/lib/locale";
+import { Button } from "@/components/ui/button";
+import {
+  getDocumentLanguage,
+  LOCALE_COOKIE_NAME,
+  type Locale,
+} from "@/lib/locale";
 import { useStaleFocusRecovery } from "@/lib/use-stale-focus-recovery";
 
 export function LanguageToggle() {
@@ -46,24 +51,22 @@ export function LanguageToggle() {
       <div
         aria-busy={isSwitching}
         aria-live="polite"
-        className="inline-flex items-center gap-1 rounded-full border border-[#d7dde3] bg-white/88 p-1 shadow-[0_10px_24px_rgba(96,113,128,0.08)] backdrop-blur"
+        className="inline-flex items-center gap-1 rounded-full border border-border-subtle bg-white/88 p-1 shadow-[var(--surface-shadow-interactive)] backdrop-blur"
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-full text-[#486782]">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full text-primary">
           {isSwitching ? (
             <LoaderCircle className="size-4.5 animate-spin" />
           ) : (
             <Languages className="size-4.5" />
           )}
         </span>
-        <button
-          className={`inline-flex min-w-14 items-center justify-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-wait disabled:opacity-80 ${
-            locale === "zh"
-              ? "bg-[#486782] text-white"
-              : "text-[#486782] hover:bg-[#eef3f6]"
-          }`}
+        <Button
+          className="min-w-14 rounded-full px-3"
           disabled={isSwitching}
           onClick={() => handleSwitch("zh")}
+          size="compact"
           type="button"
+          variant={locale === "zh" ? "primary" : "ghost"}
         >
           {activeSwitchingLocale === "zh" ? (
             <>
@@ -73,16 +76,14 @@ export function LanguageToggle() {
           ) : (
             t("zh")
           )}
-        </button>
-        <button
-          className={`inline-flex min-w-14 items-center justify-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-wait disabled:opacity-80 ${
-            locale === "en"
-              ? "bg-[#486782] text-white"
-              : "text-[#486782] hover:bg-[#eef3f6]"
-          }`}
+        </Button>
+        <Button
+          className="min-w-14 rounded-full px-3"
           disabled={isSwitching}
           onClick={() => handleSwitch("en")}
+          size="compact"
           type="button"
+          variant={locale === "en" ? "primary" : "ghost"}
         >
           {activeSwitchingLocale === "en" ? (
             <>
@@ -92,28 +93,28 @@ export function LanguageToggle() {
           ) : (
             t("en")
           )}
-        </button>
+        </Button>
       </div>
 
       <AnimatePresence>
         {isSwitching ? (
-        <motion.div
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 z-50 flex cursor-wait items-start justify-end bg-transparent p-4 sm:p-6"
-          exit={{ opacity: 0 }}
-          initial={{ opacity: 0 }}
-        >
           <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex h-10 items-center gap-2 rounded-full border border-[#d7dde3] bg-white/94 px-4 text-sm font-semibold text-[#486782] shadow-[0_16px_36px_rgba(72,86,98,0.18)] backdrop-blur"
-            exit={{ opacity: 0, y: -6 }}
-            initial={{ opacity: 0, y: -6 }}
-            role="status"
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-50 flex cursor-wait items-start justify-end bg-transparent p-4 sm:p-6"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
           >
-            <LoaderCircle className="size-4 animate-spin" />
-            {t("switching")}
+            <motion.div
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-border-subtle bg-white/94 px-4 text-sm font-semibold text-primary shadow-[var(--surface-shadow-interactive)] backdrop-blur"
+              exit={{ opacity: 0, y: -6 }}
+              initial={{ opacity: 0, y: -6 }}
+              role="status"
+            >
+              <LoaderCircle className="size-4 animate-spin" />
+              {t("switching")}
+            </motion.div>
           </motion.div>
-        </motion.div>
         ) : null}
       </AnimatePresence>
     </>

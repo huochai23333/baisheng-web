@@ -78,7 +78,7 @@ export function WholesaleOrderDetailsDialog({
           <div className="flex flex-wrap gap-2">
             {editAction ? (
               <Button
-                className="rounded-full border border-[#d8e2e8] bg-white text-[#486782] hover:bg-[#eef3f6]"
+                size="default"
                 onClick={onOpenOrderEdit}
                 type="button"
                 variant="outline"
@@ -93,7 +93,8 @@ export function WholesaleOrderDetailsDialog({
             ) : null}
             {canMarkOrderSettled ? (
               <Button
-                className="rounded-full bg-[#486782] text-white hover:bg-[#3e5f79]"
+                variant="primary"
+                size="default"
                 onClick={onOpenOrderSettlement}
                 type="button"
               >
@@ -187,7 +188,7 @@ export function WholesaleOrderDetailsDialog({
         </DetailGroup>
 
         <DetailGroup title={uiText("attribute004")}>
-          <p className="mb-3 text-sm text-[#65737d]">
+          <p className="mb-3 text-sm text-content-muted">
             <UiMessage id="components_dashboard_wholesale_wholesale_order_details_dialog.text002" />
             {formatCurrency(settledAmount, order.customer_payment_currency)}
             <UiMessage id="components_dashboard_wholesale_wholesale_order_details_dialog.text003" />{" "}
@@ -200,10 +201,10 @@ export function WholesaleOrderDetailsDialog({
             <div className="grid gap-2">
               {settlements.map((settlement) => (
                 <div
-                  className="rounded-[16px] bg-[#f7f9fa] p-3 text-sm text-[#4f606b]"
+                  className="rounded-[16px] bg-surface-inset p-3 text-sm text-content-muted"
                   key={settlement.id}
                 >
-                  <p className="font-semibold text-[#2f3f4a]">
+                  <p className="font-semibold text-content-muted">
                     {formatDate(settlement.settled_on)}
                   </p>
                   <p className="mt-1">
@@ -219,7 +220,7 @@ export function WholesaleOrderDetailsDialog({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#71808d]">
+            <p className="text-sm text-content-muted">
               <UiMessage id="components_dashboard_wholesale_wholesale_order_details_dialog.text005" />
             </p>
           )}
@@ -245,7 +246,7 @@ export function WholesaleOrderDetailsDialog({
         </DetailGroup>
 
         <DetailGroup title={uiText("attribute008")}>
-          <p className="break-words text-sm leading-6 text-[#4f606b] [overflow-wrap:anywhere]">
+          <p className="break-words text-sm leading-6 text-content-muted [overflow-wrap:anywhere]">
             {order.notes ?? "未记录备注。"}
           </p>
         </DetailGroup>
@@ -262,7 +263,7 @@ function DetailGroup({
 }) {
   return (
     <section>
-      <h3 className="mb-3 text-sm font-semibold text-[#2f3f4a]">{title}</h3>
+      <h3 className="mb-3 text-sm font-semibold text-content-muted">{title}</h3>
       {children}
     </section>
   );
@@ -275,13 +276,13 @@ function RecordLabels({
   labels: string[];
 }) {
   if (labels.length === 0) {
-    return <p className="text-sm text-[#71808d]">{emptyText}</p>;
+    return <p className="text-sm text-content-muted">{emptyText}</p>;
   }
   return (
     <div className="flex flex-wrap gap-2">
       {labels.map((label) => (
         <span
-          className="max-w-full break-words rounded-full bg-[#eef3f6] px-3 py-1.5 text-xs font-semibold text-[#486782] [overflow-wrap:anywhere]"
+          className="max-w-full break-words rounded-full bg-status-info-soft px-3 py-1.5 text-xs font-semibold text-primary [overflow-wrap:anywhere]"
           key={label}
         >
           {label}

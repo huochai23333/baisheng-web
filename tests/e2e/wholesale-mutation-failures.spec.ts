@@ -5,7 +5,13 @@ import {
   expectWorkspaceShell,
   loginAs,
 } from "./helpers/auth";
-import { chooseSelectOption } from "./helpers/select-control";
+import { fillDateControl } from "./helpers/date-control";
+import {
+  chooseSelectOption,
+  expectSelectValue,
+  getSelectOptionValueAt,
+  getSelectValue,
+} from "./helpers/select-control";
 
 const FORCED_ERROR_MESSAGE = "操作没有成功，请检查内容和权限后再试。";
 const FIRST_ORDER_ID = "c2000000-0000-4000-8000-000000000001";
@@ -104,11 +110,11 @@ test.describe("批发写入失败保留表单", () => {
     );
     const accountSelect = detailsDialog.getByLabel("选择客户注册账号");
     const accountValue = await firstNonEmptyOptionValue(accountSelect);
-    await accountSelect.selectOption(accountValue);
+    await chooseSelectOption(accountSelect, { value: accountValue });
     await detailsDialog.getByRole("button", { name: "合并账号" }).click();
     await expectFailureNotice(page);
     await expect(detailsDialog).toBeVisible();
-    await expect(accountSelect).toHaveValue(accountValue);
+    await expectSelectValue(accountSelect, accountValue);
     await expectResponsiveLayout(page);
   });
 
@@ -149,15 +155,15 @@ test.describe("批发写入失败保留表单", () => {
     const claimDialog = page.getByRole("dialog", { name: "认领采购订单" });
     const customerSelect = claimDialog.getByLabel("客户");
     // 种子里的辅助匹配客户订单已结汇，主动切换到仍有可认领订单的客户。
-    await customerSelect.selectOption({ label: "Wholesale Alpha" });
+    await chooseSelectOption(customerSelect, { label: "Wholesale Alpha" });
     const orderCheckbox = claimDialog.getByRole("checkbox").first();
     await orderCheckbox.check();
-    const customerValue = await customerSelect.inputValue();
+    const customerValue = await getSelectValue(customerSelect);
     expect(customerValue).not.toBe("");
     await claimDialog.getByRole("button", { name: "确认认领" }).click();
     await expectFailureNotice(page);
     await expect(claimDialog).toBeVisible();
-    await expect(customerSelect).toHaveValue(customerValue);
+    await expectSelectValue(customerSelect, customerValue);
     await expect(orderCheckbox).toBeChecked();
 
     await page.keyboard.press("Escape");
@@ -174,14 +180,16 @@ test.describe("批发写入失败保留表单", () => {
 
     const bulkDialog = page.getByRole("dialog", { name: "认领采购订单" });
     const bulkCustomerSelect = bulkDialog.getByLabel("客户");
-    await bulkCustomerSelect.selectOption({ label: "Wholesale Alpha" });
+    await chooseSelectOption(bulkCustomerSelect, {
+      label: "Wholesale Alpha",
+    });
     const bulkOrderCheckbox = bulkDialog.getByRole("checkbox").first();
     await bulkOrderCheckbox.check();
-    const bulkCustomerValue = await bulkCustomerSelect.inputValue();
+    const bulkCustomerValue = await getSelectValue(bulkCustomerSelect);
     await bulkDialog.getByRole("button", { name: "确认认领" }).click();
     await expectFailureNotice(page);
     await expect(bulkDialog).toBeVisible();
-    await expect(bulkCustomerSelect).toHaveValue(bulkCustomerValue);
+    await expectSelectValue(bulkCustomerSelect, bulkCustomerValue);
     await expect(bulkOrderCheckbox).toBeChecked();
     await page.keyboard.press("Escape");
     await expect(hallCheckbox).toBeChecked();
@@ -210,15 +218,15 @@ test.describe("批发写入失败保留表单", () => {
     const customerSelect = logisticsDialog.getByLabel("批发客户（可选）");
     await chooseSelectOption(salesSelect, { label: "本地协作业务员" });
     await chooseSelectOption(customerSelect, { label: "Wholesale Alpha" });
-    const salesValue = await salesSelect.inputValue();
-    const customerValue = await customerSelect.inputValue();
+    const salesValue = await getSelectValue(salesSelect);
+    const customerValue = await getSelectValue(customerSelect);
     await logisticsDialog.getByRole("button", { name: "保存归属" }).click();
     await expect(logisticsDialog.getByRole("alert")).toContainText(
       "店铺归属暂时没有保存成功，请稍后重试。",
     );
     await expect(logisticsDialog).toBeVisible();
-    await expect(salesSelect).toHaveValue(salesValue);
-    await expect(customerSelect).toHaveValue(customerValue);
+    await expectSelectValue(salesSelect, salesValue);
+    await expectSelectValue(customerSelect, customerValue);
     await expectResponsiveLayout(page);
     await page.keyboard.press("Escape");
 
@@ -226,22 +234,23 @@ test.describe("批发写入失败保留表单", () => {
     await failJsonRequest(page, "**/rest/v1/wholesale_referrals*", "POST");
     await page.getByRole("button", { name: "新增推荐关系" }).click();
     const referralDialog = page.getByRole("dialog", { name: "新增推荐关系" });
-    // 下拉框标签组件会把选项文字一起纳入可访问名称，按稳定的表单字段名区分两者。
-    const referrerSelect = referralDialog.locator(
-      'select[name="referrer_customer_id"]',
-    );
-    const referredSelect = referralDialog.locator(
-      'select[name="referred_customer_id"]',
-    );
+    const referrerSelect = referralDialog.getByRole("combobox", {
+      exact: true,
+      name: "推荐客户",
+    });
+    const referredSelect = referralDialog.getByRole("combobox", {
+      exact: true,
+      name: "被推荐客户",
+    });
     const referrerValue = await optionValueAt(referrerSelect, 1);
     const referredValue = await optionValueAt(referredSelect, 2);
-    await referrerSelect.selectOption(referrerValue);
-    await referredSelect.selectOption(referredValue);
+    await chooseSelectOption(referrerSelect, { value: referrerValue });
+    await chooseSelectOption(referredSelect, { value: referredValue });
     await referralDialog.getByRole("button", { name: "保存关系" }).click();
     await expectFailureNotice(page);
     await expect(referralDialog).toBeVisible();
-    await expect(referrerSelect).toHaveValue(referrerValue);
-    await expect(referredSelect).toHaveValue(referredValue);
+    await expectSelectValue(referrerSelect, referrerValue);
+    await expectSelectValue(referredSelect, referredValue);
     await expectResponsiveLayout(page);
   });
 
@@ -277,12 +286,17 @@ async function fillOrderCreateForm(
   dialog: ReturnType<Page["getByRole"]>,
   note: string,
 ) {
-  await dialog.getByLabel("客户名").selectOption({ label: "Wholesale Alpha" });
+  await chooseSelectOption(dialog.getByLabel("客户名"), {
+    label: "Wholesale Alpha",
+  });
   await dialog.getByLabel("小单数量").fill("1");
   await dialog.getByLabel("产品采购金额").fill("100");
   await dialog.getByLabel("国际运费").fill("10");
   await dialog.getByLabel("客户支付金额").fill("200");
-  await dialog.getByLabel("订单计入月份").fill(currentShanghaiMonth());
+  await fillDateControl(
+    dialog.getByLabel("订单计入月份"),
+    currentShanghaiMonth(),
+  );
   await dialog.getByLabel("备注").fill(note);
 }
 
@@ -334,10 +348,9 @@ async function optionValueAt(
   select: ReturnType<Page["getByLabel"]>,
   index: number,
 ) {
-  const value = await select.locator("option").nth(index).getAttribute("value");
-  expect(value).not.toBeNull();
+  const value = await getSelectOptionValueAt(select, index);
   expect(value).not.toBe("");
-  return value ?? "";
+  return value;
 }
 
 async function expectResponsiveLayout(page: Page) {

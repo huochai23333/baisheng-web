@@ -1,59 +1,43 @@
 "use client";
 
+import * as FormControls from "@/components/ui/form-controls";
+import { Select } from "@/components/ui/select";
+
 import { useTranslations } from "next-intl";
-import { Paperclip } from "lucide-react";
 
 import {
-  ADMIN_TASK_ATTACHMENT_MAX_FILES,
-  ADMIN_TASK_ATTACHMENT_MAX_TOTAL_SIZE_BYTES,
   type AdminTaskRow,
   type AdminTasksPageData,
   type TaskTargetRole,
   type TaskTypeOption,
 } from "@/lib/admin-tasks";
 import {
-  IMAGE_UPLOAD_MAX_SIZE_BYTES,
-  OTHER_UPLOAD_MAX_SIZE_BYTES,
-  VIDEO_UPLOAD_MAX_SIZE_BYTES,
-} from "@/lib/upload-file-size-limits";
-
-import { formatFileSize } from "@/components/dashboard/dashboard-shared-ui";
-import { DashboardFilePicker } from "@/components/dashboard/dashboard-framework-primitives";
-import {
   getTaskTargetRoleLabel,
   getTaskTargetRolesLabel,
 } from "@/components/dashboard/tasks/tasks-display";
 
 import { type CreateTaskFormState } from "./admin-tasks-utils";
-import {
-  FormField,
-  TaskStatusPill,
-} from "./admin-tasks-ui";
+import { FormField, TaskStatusPill } from "./admin-tasks-ui";
 import {
   taskInputClassName,
-  taskSelectClassName,
   taskTextareaClassName,
 } from "./admin-tasks-view-model-shared";
 
 type TargetRoleOptions = AdminTasksPageData["targetRoleOptions"];
 
-export function TaskEditSummaryCard({
-  task,
-}: {
-  task: AdminTaskRow;
-}) {
+export function TaskEditSummaryCard({ task }: { task: AdminTaskRow }) {
   const t = useTranslations("Tasks.admin");
   const sharedT = useTranslations("Tasks.shared");
 
   return (
-    <div className="rounded-[24px] border border-[#e6ebef] bg-[#f8fbfc] p-5">
+    <div className="rounded-[24px] border border-border-subtle bg-surface-inset p-5">
       <div className="flex flex-wrap items-center gap-2">
         <TaskStatusPill status={task.status} />
       </div>
-      <p className="mt-4 text-lg font-semibold tracking-tight text-[#23313a]">
+      <p className="mt-4 text-lg font-semibold tracking-tight text-content-strong">
         {task.task_name}
       </p>
-      <p className="mt-2 text-sm leading-7 text-[#6f7b85]">
+      <p className="mt-2 text-sm leading-7 text-content-muted">
         {t("editDialog.currentTargetRoles", {
           targetRoles: getTaskTargetRolesLabel(task.target_roles, sharedT),
         })}
@@ -100,7 +84,7 @@ export function TaskFormFields({
     <>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <FormField label={t("createDialog.taskNameLabel")}>
-          <input
+          <FormControls.Input
             className={taskInputClassName}
             disabled={pending}
             onChange={(event) => onTaskNameChange(event.target.value)}
@@ -120,23 +104,22 @@ export function TaskFormFields({
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <FormField label={t("createDialog.taskTypeLabel")}>
-          <select
-            className={taskSelectClassName}
+          <Select
             disabled={pending}
-            onChange={(event) => onTaskTypeChange(event.target.value)}
+            onValueChange={onTaskTypeChange}
+            options={[
+              { label: t("createDialog.taskTypePlaceholder"), value: "" },
+              ...selectableTaskTypes.map((taskType) => ({
+                label: taskType.displayName,
+                value: taskType.code,
+              })),
+            ]}
             value={formState.taskTypeCode}
-          >
-            <option value="">{t("createDialog.taskTypePlaceholder")}</option>
-            {selectableTaskTypes.map((taskType) => (
-              <option key={taskType.code} value={taskType.code}>
-                {taskType.displayName}
-              </option>
-            ))}
-          </select>
+          />
         </FormField>
 
         <FormField label={t("createDialog.commissionAmountLabel")}>
-          <input
+          <FormControls.Input
             className={taskInputClassName}
             disabled={pending}
             inputMode="decimal"
@@ -152,7 +135,7 @@ export function TaskFormFields({
 
       <div className="grid gap-5 lg:grid-cols-3">
         <FormField label={t("createDialog.acceptanceLimitLabel")}>
-          <input
+          <FormControls.Input
             className={taskInputClassName}
             disabled={pending || formState.acceptanceUnlimited}
             inputMode="numeric"
@@ -166,55 +149,61 @@ export function TaskFormFields({
         </FormField>
 
         <fieldset>
-          <legend className="mb-2 block text-sm font-semibold text-[#23313a]">
+          <legend className="mb-2 block text-sm font-semibold text-content-strong">
             {t("createDialog.acceptanceModeLabel")}
           </legend>
           <label
             className={[
               "flex min-h-11 items-center gap-3 rounded-[16px] border px-3 py-2 text-sm font-medium transition",
               formState.acceptanceUnlimited
-                ? "border-[#486782] bg-[#eef4f8] text-[#23313a]"
-                : "border-[#dfe6eb] bg-white text-[#60717d]",
-              pending ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-[#f8fbfd]",
+                ? "border-primary bg-surface-inset text-content-strong"
+                : "border-border-subtle bg-white text-content-muted",
+              pending
+                ? "cursor-not-allowed opacity-60"
+                : "cursor-pointer hover:bg-surface-inset",
             ].join(" ")}
           >
-            <input
+            <FormControls.Checkbox
               checked={formState.acceptanceUnlimited}
-              className="size-4 accent-[#486782]"
+              className="size-4 accent-primary"
               disabled={pending}
-              onChange={(event) => onAcceptanceUnlimitedChange(event.target.checked)}
-              type="checkbox"
+              onChange={(event) =>
+                onAcceptanceUnlimitedChange(event.target.checked)
+              }
             />
             {t("createDialog.acceptanceUnlimitedLabel")}
           </label>
-          <p className="mt-2 text-xs leading-6 text-[#7b858d]">
+          <p className="mt-2 text-xs leading-6 text-content-muted">
             {t("createDialog.acceptanceHint")}
           </p>
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 block text-sm font-semibold text-[#23313a]">
+          <legend className="mb-2 block text-sm font-semibold text-content-strong">
             {t("createDialog.reviewRequirementLabel")}
           </legend>
           <label
             className={[
               "flex min-h-11 items-center gap-3 rounded-[16px] border px-3 py-2 text-sm font-medium transition",
               formState.reviewRequiresAttachment
-                ? "border-[#486782] bg-[#eef4f8] text-[#23313a]"
-                : "border-[#dfe6eb] bg-white text-[#60717d]",
-              pending ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-[#f8fbfd]",
+                ? "border-primary bg-surface-inset text-content-strong"
+                : "border-border-subtle bg-white text-content-muted",
+              pending
+                ? "cursor-not-allowed opacity-60"
+                : "cursor-pointer hover:bg-surface-inset",
             ].join(" ")}
           >
-            <input
+            <FormControls.Checkbox
               checked={formState.reviewRequiresAttachment}
-              className="size-4 accent-[#486782]"
+              className="size-4 accent-primary"
               disabled={pending}
-              onChange={(event) => onReviewRequiresAttachmentChange(event.target.checked)}
-              type="checkbox"
+              onChange={(event) =>
+                onReviewRequiresAttachmentChange(event.target.checked)
+              }
             />
             {t("createDialog.reviewRequiresAttachmentLabel")}
           </label>
-          <p className="mt-2 text-xs leading-6 text-[#7b858d]">
+          <p className="mt-2 text-xs leading-6 text-content-muted">
             {formState.reviewRequiresAttachment
               ? t("createDialog.reviewRequiresAttachmentHint")
               : t("createDialog.reviewNoteOnlyHint")}
@@ -223,14 +212,15 @@ export function TaskFormFields({
       </div>
 
       {formState.taskTypeCode ? (
-        <p className="text-sm leading-7 text-[#6f7b85]">
-          {taskTypeOptions.find((taskType) => taskType.code === formState.taskTypeCode)?.description
-            ?? t("createDialog.taskTypeHint")}
+        <p className="text-sm leading-7 text-content-muted">
+          {taskTypeOptions.find(
+            (taskType) => taskType.code === formState.taskTypeCode,
+          )?.description ?? t("createDialog.taskTypeHint")}
         </p>
       ) : null}
 
       <FormField label={t("createDialog.taskIntroLabel")}>
-        <textarea
+        <FormControls.Textarea
           className={taskTextareaClassName}
           disabled={pending}
           onChange={(event) => onTaskIntroChange(event.target.value)}
@@ -258,7 +248,7 @@ function TargetRoleCheckboxGrid({
 
   return (
     <fieldset>
-      <legend className="mb-2 block text-sm font-semibold text-[#23313a]">
+      <legend className="mb-2 block text-sm font-semibold text-content-strong">
         {t("createDialog.targetRolesLabel")}
       </legend>
       <div className="grid gap-2 sm:grid-cols-2">
@@ -270,119 +260,28 @@ function TargetRoleCheckboxGrid({
               className={[
                 "flex min-h-11 items-center gap-3 rounded-[16px] border px-3 py-2 text-sm font-medium transition",
                 checked
-                  ? "border-[#486782] bg-[#eef4f8] text-[#23313a]"
-                  : "border-[#dfe6eb] bg-white text-[#60717d]",
-                disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:bg-[#f8fbfd]",
+                  ? "border-primary bg-surface-inset text-content-strong"
+                  : "border-border-subtle bg-white text-content-muted",
+                disabled
+                  ? "cursor-not-allowed opacity-60"
+                  : "cursor-pointer hover:bg-surface-inset",
               ].join(" ")}
               key={option.role}
             >
-              <input
+              <FormControls.Checkbox
                 checked={checked}
-                className="size-4 accent-[#486782]"
+                className="size-4 accent-primary"
                 disabled={disabled}
                 onChange={() => onToggle(option.role)}
-                type="checkbox"
               />
               {getTaskTargetRoleLabel(option.role, sharedT)}
             </label>
           );
         })}
       </div>
-      <p className="mt-2 text-xs leading-6 text-[#7b858d]">
+      <p className="mt-2 text-xs leading-6 text-content-muted">
         {t("createDialog.targetRolesHint")}
       </p>
     </fieldset>
-  );
-}
-
-export function CreateTaskAttachmentsField({
-  files,
-  onFilesChange,
-  onRemoveFile,
-}: {
-  files: File[];
-  onFilesChange: (files: File[]) => void;
-  onRemoveFile: (index: number) => void;
-}) {
-  const t = useTranslations("Tasks.admin");
-
-  return (
-    <FormField label={t("createDialog.attachmentsLabel")}>
-      <div className="rounded-[24px] border border-dashed border-[#cfd8df] bg-[#fbfaf8] p-5">
-        <DashboardFilePicker
-          label={t("createDialog.attachmentsCta")}
-          multiple
-          onFiles={onFilesChange}
-        />
-          <p className="mt-3 text-xs leading-6 text-[#7b858d]">
-            {t("createDialog.attachmentsHint", {
-              maxFiles: ADMIN_TASK_ATTACHMENT_MAX_FILES,
-              imageMaxPerFile: formatFileSize(IMAGE_UPLOAD_MAX_SIZE_BYTES),
-              videoMaxPerFile: formatFileSize(VIDEO_UPLOAD_MAX_SIZE_BYTES),
-              otherMaxPerFile: formatFileSize(OTHER_UPLOAD_MAX_SIZE_BYTES),
-              maxTotal: formatFileSize(ADMIN_TASK_ATTACHMENT_MAX_TOTAL_SIZE_BYTES),
-            })}
-          </p>
-
-        {files.length > 0 ? (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {files.map((file, index) => (
-              <button
-                className="inline-flex items-center gap-2 rounded-full bg-[#eef3f6] px-3 py-2 text-xs font-medium text-[#486782] transition hover:bg-[#e1ebf0]"
-                key={`${file.name}-${file.size}-${index}`}
-                onClick={() => onRemoveFile(index)}
-                type="button"
-              >
-                <Paperclip className="size-3.5" />
-                {file.name}
-                <span className="text-[#6f7b85]">{formatFileSize(file.size)}</span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-4 text-sm leading-7 text-[#7b858d]">
-            {t("createDialog.noAttachments")}
-          </p>
-        )}
-      </div>
-    </FormField>
-  );
-}
-
-export function EditTaskAttachmentsField({
-  task,
-}: {
-  task: AdminTaskRow;
-}) {
-  const t = useTranslations("Tasks.admin");
-
-  return (
-    <FormField label={t("createDialog.attachmentsLabel")}>
-      <div className="rounded-[24px] border border-[#e6ebef] bg-[#f8fbfc] p-5">
-        {task.attachments.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {task.attachments.map((attachment) => (
-              <span
-                className="inline-flex items-center gap-2 rounded-full bg-[#eef3f6] px-3 py-2 text-xs font-medium text-[#486782]"
-                key={attachment.id}
-              >
-                <Paperclip className="size-3.5" />
-                {attachment.original_name}
-                <span className="text-[#6f7b85]">
-                  {formatFileSize(attachment.file_size_bytes)}
-                </span>
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm leading-7 text-[#7b858d]">
-            {t("editDialog.noAttachments")}
-          </p>
-        )}
-        <p className="mt-4 text-sm leading-7 text-[#6f7b85]">
-          {t("editDialog.attachmentsLocked")}
-        </p>
-      </div>
-    </FormField>
   );
 }

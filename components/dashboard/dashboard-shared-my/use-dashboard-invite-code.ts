@@ -2,7 +2,7 @@
 
 import type { Dispatch, SetStateAction } from "react";
 import type { UserProfileRow } from "@/lib/user-self-service";
-import type { NoticeTone } from "../dashboard-shared-ui";
+import type { FeedbackTone } from "../dashboard-shared-ui";
 import type { DashboardSharedMyStateCopy } from "./dashboard-shared-my-state-copy";
 
 // 邀请码复制是独立的浏览器动作，单独封装后主状态 hook 只暴露操作结果。
@@ -14,7 +14,7 @@ export function useDashboardInviteCode({
   copy: DashboardSharedMyStateCopy;
   profile: UserProfileRow | null;
   setPageNotice: Dispatch<
-    SetStateAction<{ tone: NoticeTone; message: string } | null>
+    SetStateAction<{ tone: FeedbackTone; message: string } | null>
   >;
 }) {
   return async () => {

@@ -8,12 +8,12 @@ import type {
   DashboardSharedCopy,
   DashboardSharedMyStateCopy,
 } from "./dashboard-shared-my-state-copy";
-import { toErrorMessage, type NoticeTone } from "../dashboard-shared-ui";
+import { toErrorMessage, type FeedbackTone } from "../dashboard-shared-ui";
 
 const PASSWORD_RESET_COOLDOWN_SECONDS = 60;
 
 type PageNotice = {
-  tone: NoticeTone;
+  tone: FeedbackTone;
   message: string;
 } | null;
 

@@ -1,20 +1,18 @@
 "use client";
 
+import { Select, type SelectOption } from "@/components/ui/select";
+
 import type { ReactNode } from "react";
 
 import { useTranslations } from "next-intl";
-import { Globe2, Search, UsersRound } from "lucide-react";
+import { Globe2, UsersRound } from "lucide-react";
 
+import { StatusBadge, type StatusTone } from "@/components/ui/status-badge";
 import type { TaskScope, TaskStatus } from "@/lib/admin-tasks";
-import { DashboardPill, type DashboardPillAccent } from "../dashboard-pill";
 import {
   DashboardSearchInput,
-  dashboardFilterInputClassName,
 } from "../dashboard-section-panel";
-import {
-  getTaskScopeLabel,
-  getTaskStatusMeta,
-} from "./tasks-display";
+import { getTaskScopeLabel, getTaskStatusMeta } from "./tasks-display";
 
 export function TaskSearchField({
   label,
@@ -29,11 +27,10 @@ export function TaskSearchField({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+      <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {label}
       </span>
       <DashboardSearchInput
-        icon={<Search className="size-4 text-[#7a8790]" />}
         onChange={onChange}
         placeholder={placeholder}
         value={value}
@@ -46,25 +43,23 @@ export function TaskFilterField({
   label,
   value,
   onChange,
-  children,
+  options,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  children: ReactNode;
+  options: readonly SelectOption[];
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+      <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {label}
       </span>
-      <select
-        className={dashboardFilterInputClassName}
-        onChange={(event) => onChange(event.target.value)}
+      <Select
+        onValueChange={onChange}
+        options={options}
         value={value}
-      >
-        {children}
-      </select>
+      />
     </label>
   );
 }
@@ -73,21 +68,25 @@ export function TaskStatusPill({ status }: { status: TaskStatus }) {
   const sharedT = useTranslations("Tasks.shared");
   const mapping = getTaskStatusMeta(status, sharedT);
 
-  return <DashboardPill accent={mapping.accent}>{mapping.label}</DashboardPill>;
+  return (
+    <StatusBadge tone={mapAccentToTone(mapping.accent)}>
+      {mapping.label}
+    </StatusBadge>
+  );
 }
 
 export function TaskScopePill({ scope }: { scope: TaskScope }) {
   const sharedT = useTranslations("Tasks.shared");
 
   return (
-    <DashboardPill accent={scope === "public" ? "blue" : "green"}>
+    <StatusBadge tone={scope === "public" ? "info" : "success"}>
       {scope === "public" ? (
         <Globe2 className="size-3.5" />
       ) : (
         <UsersRound className="size-3.5" />
       )}
       {getTaskScopeLabel(scope, sharedT)}
-    </DashboardPill>
+    </StatusBadge>
   );
 }
 
@@ -96,13 +95,25 @@ export function TaskDataPill({
   accent,
 }: {
   children: ReactNode;
-  accent: Extract<DashboardPillAccent, "blue" | "gold">;
+  accent: "blue" | "gold";
 }) {
   return (
-    <DashboardPill accent={accent} className="max-w-full font-medium">
+    <StatusBadge
+      className="max-w-full font-medium"
+      tone={mapAccentToTone(accent)}
+    >
       {children}
-    </DashboardPill>
+    </StatusBadge>
   );
+}
+
+function mapAccentToTone(
+  accent: "blue" | "gold" | "green" | "orange" | "rose",
+): StatusTone {
+  if (accent === "green") return "success";
+  if (accent === "gold" || accent === "orange") return "warning";
+  if (accent === "rose") return "danger";
+  return "info";
 }
 
 export function TaskInfoTile({
@@ -113,11 +124,11 @@ export function TaskInfoTile({
   value: string;
 }) {
   return (
-    <div className="rounded-[20px] bg-[#f7f5f2] px-4 py-3">
-      <p className="text-[11px] font-semibold tracking-[0.16em] text-[#88939b] uppercase">
+    <div className="rounded-[20px] bg-surface-inset px-4 py-3">
+      <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {label}
       </p>
-      <p className="mt-1 break-words text-sm font-medium leading-7 text-[#23313a]">
+      <p className="mt-1 break-words text-sm font-medium leading-7 text-content-strong">
         {value}
       </p>
     </div>

@@ -71,7 +71,7 @@ export function DashboardOrderFilterSection({
             range={dateRange}
           />
           {exactOrderNumber && onExitExactSearch ? (
-            <div className="flex flex-col gap-2 rounded-[16px] border border-[#cadbe5] bg-[#f1f7fa] px-3 py-2 text-sm text-[#3f6278] sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2 rounded-[16px] border border-border-subtle bg-surface-inset px-3 py-2 text-sm text-content-muted sm:flex-row sm:items-center sm:justify-between">
               <span className="min-w-0 break-all font-medium">
                 {t("exactSearch.active", { orderNumber: exactOrderNumber })}
               </span>
@@ -128,7 +128,7 @@ export function DashboardOrderDateToolbar({
           key={preset}
           onClick={() => onSelect(preset)}
           type="button"
-          variant={activePreset === preset ? "default" : "outline"}
+          variant={activePreset === preset ? "primary" : "outline"}
         >
           {t(ORDER_DATE_PRESET_MESSAGE_KEYS[preset])}
         </Button>
@@ -138,7 +138,7 @@ export function DashboardOrderDateToolbar({
         className="min-h-9 rounded-full px-3 text-xs"
         onClick={() => document.getElementById(customInputId)?.focus()}
         type="button"
-        variant={activePreset === "custom" ? "default" : "outline"}
+        variant={activePreset === "custom" ? "primary" : "outline"}
       >
         {t("datePresets.custom")}
       </Button>

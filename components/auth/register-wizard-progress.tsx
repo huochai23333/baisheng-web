@@ -15,10 +15,10 @@ export function RegisterWizardProgress({ step }: { step: RegisterStep }) {
               aria-current={item === step ? "step" : undefined}
               className={`flex size-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-colors ${
                 item < step
-                  ? "border-[#486782] bg-[#486782] text-white"
+                  ? "border-primary bg-primary text-primary-foreground"
                   : item === step
-                    ? "border-[#486782] bg-[#eef3f6] text-[#365c78]"
-                    : "border-[#dce2e7] bg-white text-[#8a959e]"
+                    ? "border-primary bg-status-info-soft text-primary"
+                    : "border-border bg-surface-interactive text-content-subtle"
               }`}
               role="listitem"
             >
@@ -28,17 +28,17 @@ export function RegisterWizardProgress({ step }: { step: RegisterStep }) {
               <span
                 aria-hidden
                 className={`h-0.5 min-w-0 flex-1 rounded-full transition-colors ${
-                  item < step ? "bg-[#486782]" : "bg-[#dfe5e9]"
+                  item < step ? "bg-primary" : "bg-border"
                 }`}
               />
             ) : null}
           </div>
         ))}
       </div>
-      <p className="mt-3 text-sm font-semibold text-[#405a70]">
+      <p className="mt-3 text-sm font-semibold text-primary">
         {t(`steps.${step}.title`)}
       </p>
-      <p className="mt-1 text-sm leading-6 text-[#75828c]">
+      <p className="mt-1 text-sm leading-6 text-content-muted">
         {t(`steps.${step}.description`)}
       </p>
     </div>

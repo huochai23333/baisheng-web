@@ -8,6 +8,7 @@ import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
+import { Button } from "@/components/ui/button";
 import { MOTION_DURATION, MOTION_EASING } from "@/lib/motion-tokens";
 
 type DashboardDialogProps = {
@@ -184,7 +185,7 @@ export function DashboardDialog({
           <motion.button
             aria-label={uiText("closeDialog")}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-[rgba(24,31,38,0.34)]"
+            className="absolute inset-0 bg-foreground/35"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             onClick={() => onOpenChangeRef.current(false)}
@@ -199,7 +200,7 @@ export function DashboardDialog({
             aria-describedby={description ? descriptionId : undefined}
             aria-labelledby={titleId}
             aria-modal="true"
-            className="relative z-10 flex max-h-[calc(100dvh-2rem)] min-w-0 w-full max-w-4xl flex-col overflow-hidden rounded-[30px] border border-white/85 bg-[#fbfaf8] shadow-[0_20px_60px_rgba(35,49,58,0.18)]"
+            className="relative z-10 flex max-h-[calc(100dvh-2rem)] min-w-0 w-full max-w-4xl flex-col overflow-hidden rounded-[30px] border border-border-subtle bg-surface-inset shadow-[var(--surface-shadow-floating)]"
             data-motion-dialog="true"
             exit={{ opacity: 0, scale: 0.985, y: 16 }}
             initial={{ opacity: 0, scale: 0.985, y: 20 }}
@@ -212,17 +213,17 @@ export function DashboardDialog({
             tabIndex={-1}
             transition={dialogTransition}
           >
-            <div className="flex min-w-0 items-start justify-between gap-6 border-b border-[#ebe7e1] px-6 py-5 sm:px-8">
+            <div className="flex min-w-0 items-start justify-between gap-6 border-b border-border-subtle px-6 py-5 sm:px-8">
               <div className="min-w-0 flex-1">
                 <h3
-                  className="break-words text-2xl font-bold tracking-tight text-[#23313a] [overflow-wrap:anywhere]"
+                  className="break-words text-2xl font-bold tracking-tight text-content-strong [overflow-wrap:anywhere]"
                   id={titleId}
                 >
                   {title}
                 </h3>
                 {description ? (
                   <p
-                    className="mt-2 break-words text-sm leading-7 text-[#69747d] [overflow-wrap:anywhere]"
+                    className="mt-2 break-words text-sm leading-7 text-content-muted [overflow-wrap:anywhere]"
                     id={descriptionId}
                   >
                     {description}
@@ -230,19 +231,20 @@ export function DashboardDialog({
                 ) : null}
               </div>
 
-              <button
+              <Button
                 aria-label={uiText("closeDialog")}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[#486782] transition-colors duration-200 hover:bg-[#eef3f6]"
                 onClick={() => onOpenChange(false)}
                 ref={closeButtonRef}
+                size="icon-compact"
                 type="button"
+                variant="ghost"
               >
                 <X className="size-4" />
-              </button>
+              </Button>
             </div>
 
             {actions ? (
-              <div className="flex min-w-0 flex-wrap items-center justify-end gap-3 border-b border-[#ebe7e1] px-6 py-4 sm:px-8">
+              <div className="min-w-0 border-b border-border-subtle px-6 py-4 sm:px-8">
                 {actions}
               </div>
             ) : null}

@@ -47,6 +47,31 @@
       "cancel": "Cancel"
     }
   },
+  "DatePicker": {
+    "cancel": "Cancel",
+    "chooseDate": "Choose date",
+    "chooseDateTime": "Choose date and time",
+    "chooseMonth": "Choose month",
+    "clear": "Clear",
+    "close": "Close date picker",
+    "complete": "Done",
+    "hour": "Hour",
+    "invalidDate": "Enter a valid date, such as 06/18/2026.",
+    "invalidDateTime": "Enter a valid date and time, such as 06/18/2026 14:30.",
+    "invalidMonth": "Enter a valid month, such as 06/2026.",
+    "minute": "Minute",
+    "monthLabel": "Month",
+    "nextMonth": "Next month",
+    "now": "Now",
+    "openDate": "Open date picker",
+    "openDateTime": "Open date and time picker",
+    "openMonth": "Open month picker",
+    "outOfRange": "Choose a date or time within the allowed range.",
+    "previousMonth": "Previous month",
+    "required": "Choose or enter a date.",
+    "today": "Today",
+    "yearLabel": "Year"
+  },
   "OrderListFramework": {
     "filters": {
       "title": "Filter Orders",

@@ -19,11 +19,11 @@ import {
 } from "@/lib/exchange-rates";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
-import { type NoticeTone } from "../dashboard-shared-ui";
+import { type FeedbackTone } from "../dashboard-shared-ui";
 
 type SyncFeedback = {
   message: string;
-  tone: NoticeTone;
+  tone: FeedbackTone;
 } | null;
 
 type UseExchangeRateSyncSettingsOptions = {

@@ -101,7 +101,7 @@ function OperatorReimbursementCard({
   const canDelete = reimbursement.status === "unreimbursed";
 
   return (
-    <article className="rounded-[24px] border border-[#e2e7eb] bg-[#fbfaf8] p-5">
+    <article className="rounded-[24px] border border-border-subtle bg-surface-inset p-5">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
@@ -112,7 +112,7 @@ function OperatorReimbursementCard({
             >
               {copy.statusOptions[reimbursement.status]}
             </span>
-            <span className="inline-flex min-h-7 items-center rounded-full bg-[#f4efe6] px-3 py-1 text-xs font-semibold text-[#7a633e]">
+            <span className="inline-flex min-h-7 items-center rounded-full bg-surface-inset px-3 py-1 text-xs font-semibold text-content-muted">
               {formatOperatorReimbursementPeriod(
                 {
                   end: reimbursement.reimbursement_period_end,
@@ -123,14 +123,14 @@ function OperatorReimbursementCard({
             </span>
           </div>
 
-          <h3 className="mt-3 break-words text-xl font-bold text-[#23313a] [overflow-wrap:anywhere]">
+          <h3 className="mt-3 break-words text-xl font-bold text-content-strong [overflow-wrap:anywhere]">
             {reimbursement.content}
           </h3>
-          <p className="mt-2 break-words text-2xl font-bold text-[#486782] [overflow-wrap:anywhere]">
+          <p className="mt-2 break-words text-2xl font-bold text-primary [overflow-wrap:anywhere]">
             {formatOperatorReimbursementAmount(reimbursement.amount, locale)}
           </p>
 
-          <dl className="mt-4 grid gap-3 text-sm text-[#66737e] md:grid-cols-2 xl:grid-cols-5">
+          <dl className="mt-4 grid gap-3 text-sm text-content-muted md:grid-cols-2 xl:grid-cols-5">
             <ReimbursementMeta label={copy.spentAt}>
               <CalendarDays className="size-4" />
               {formatOperatorReimbursementDate(reimbursement.spent_at, locale)}
@@ -166,10 +166,10 @@ function OperatorReimbursementCard({
         {canDelete ? (
           <div className="flex flex-wrap gap-2 xl:justify-end">
             <Button
-              className="h-10 rounded-full border-[#e5c6c6] bg-white px-4 text-[#b64a4a] hover:bg-[#fff2f2]"
+              size="compact"
               disabled={deletePending}
               onClick={() => onDelete(reimbursement)}
-              variant="outline"
+              variant="danger"
             >
               {deletePending ? (
                 <LoaderCircle className="size-4 animate-spin" />
@@ -194,7 +194,7 @@ function ReimbursementMeta({
 }) {
   return (
     <div>
-      <dt className="text-xs font-semibold text-[#596773]">{label}</dt>
+      <dt className="text-xs font-semibold text-content-muted">{label}</dt>
       <dd className="mt-1 flex min-w-0 items-center gap-1.5 break-words [overflow-wrap:anywhere]">
         {children}
       </dd>

@@ -21,24 +21,26 @@ export function LatestRateCard({
   const { locale } = useLocale();
 
   return (
-    <article className="rounded-[24px] border border-[#e7e3dc] bg-[#fbfaf8] p-5 shadow-[0_10px_24px_rgba(96,113,128,0.05)]">
+    <article className="rounded-[24px] border border-border-subtle bg-surface-inset p-5 shadow-[var(--surface-shadow-interactive)]">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="font-label text-[11px] tracking-[0.18em] text-[#7d8890] uppercase">
+          <p className="font-label text-[11px] tracking-[0.18em] text-content-muted uppercase">
             {t("latest.card.eyebrow")}
           </p>
-          <h4 className="mt-2 text-2xl font-bold tracking-tight text-[#23313a]">
+          <h4 className="mt-2 text-2xl font-bold tracking-tight text-content-strong">
             {row.pairLabel}
           </h4>
         </div>
-        <span className="rounded-full bg-[#edf2f5] px-3 py-1 text-xs font-semibold text-[#486782]">
+        <span className="rounded-full bg-surface-inset px-3 py-1 text-xs font-semibold text-primary">
           {latestBadge}
         </span>
       </div>
 
-      <div className="mt-6 rounded-[20px] bg-white px-5 py-4 shadow-[inset_0_0_0_1px_rgba(231,227,220,0.9)]">
-        <p className="text-sm text-[#6b7680]">{t("latest.card.currentRate")}</p>
-        <p className="mt-2 text-3xl font-bold tracking-tight text-[#1f2a32]">
+      <div className="mt-6 rounded-[20px] bg-white px-5 py-4 shadow-[var(--surface-shadow-interactive)]">
+        <p className="text-sm text-content-muted">
+          {t("latest.card.currentRate")}
+        </p>
+        <p className="mt-2 text-3xl font-bold tracking-tight text-content-strong">
           {formatExchangeRateValue(
             row.daily_exchange_rate,
             locale,
@@ -47,7 +49,7 @@ export function LatestRateCard({
         </p>
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-4 text-sm text-[#6a757e]">
+      <div className="mt-4 flex items-center justify-between gap-4 text-sm text-content-muted">
         <span>{historyCountLabel}</span>
         <span>{formatDateTime(row.created_at, locale)}</span>
       </div>

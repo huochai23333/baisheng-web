@@ -18,7 +18,7 @@ import {
 } from "@/lib/exchange-rates";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useDashboardPagination } from "@/lib/use-dashboard-pagination";
-import { normalizeSearchText, type NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import { normalizeSearchText, type FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 import { useWorkspaceSyncEffect } from "@/components/dashboard/workspace-session-provider";
 import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 
@@ -38,7 +38,7 @@ type FilterState = {
   targetCurrency: string;
 };
 
-type PageFeedback = { tone: NoticeTone; message: string } | null;
+type PageFeedback = { tone: FeedbackTone; message: string } | null;
 
 // 汇率页面的查询、筛选和写入状态集中在 view-model，页面组件只负责组合可见区块。
 export function useExchangeRatesViewModel({

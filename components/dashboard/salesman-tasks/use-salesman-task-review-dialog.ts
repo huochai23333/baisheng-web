@@ -13,10 +13,10 @@ import {
   uploadTaskReviewSubmissionAssets,
   validateTaskReviewSubmissionFiles,
 } from "@/lib/task-reviews";
-import { type NoticeTone } from "@/components/dashboard/dashboard-shared-ui";
+import { type FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 import { toSalesmanTaskErrorMessage } from "@/components/dashboard/tasks/tasks-display";
 
-type PageFeedback = { tone: NoticeTone; message: string } | null;
+type PageFeedback = { tone: FeedbackTone; message: string } | null;
 
 // 提审弹窗完整管理草稿、文件上传、提交和失败回滚，任务页只需要负责打开弹窗。
 export function useSalesmanTaskReviewDialog({
