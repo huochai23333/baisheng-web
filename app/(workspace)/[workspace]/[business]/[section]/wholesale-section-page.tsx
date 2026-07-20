@@ -14,6 +14,8 @@ import {
   type WorkspaceWholesaleSectionKey,
 } from "@/lib/workspace-config";
 
+import type { WorkspaceSectionRenderer } from "./workspace-section-renderer";
+
 const WholesaleClient = dynamic(() =>
   import("@/components/dashboard/wholesale/wholesale-client").then(
     (mod) => mod.WholesaleClient,
@@ -38,10 +40,10 @@ const WholesaleSettlementReleaseClient = dynamic(() =>
   ),
 );
 
-export async function renderWholesaleSectionPage(
-  section: string,
-  config: WorkspaceRouteConfig,
-) {
+export const renderWholesaleSectionPage: WorkspaceSectionRenderer = async ({
+  config,
+  section,
+}) => {
   const wholesaleSection = getEnabledWholesaleSection(section, config);
 
   if (!wholesaleSection) {
@@ -114,7 +116,7 @@ export async function renderWholesaleSectionPage(
       <WholesaleClient initialData={initialData} />
     </ScopedIntlProvider>
   );
-}
+};
 
 function getEnabledWholesaleSection(
   section: string,
