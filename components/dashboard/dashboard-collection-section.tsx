@@ -79,9 +79,9 @@ export function DashboardPaginationActions({
   return (
     <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start">
       <Button
-        className="h-9 rounded-full px-3 text-xs sm:h-10 sm:px-4 sm:text-sm"
         disabled={!hasPreviousPage}
         onClick={onPreviousPage}
+        size="compact"
         type="button"
         variant="outline"
       >
@@ -92,9 +92,9 @@ export function DashboardPaginationActions({
         {t("page", { page, pageCount })}
       </p>
       <Button
-        className="h-9 rounded-full px-3 text-xs sm:h-10 sm:px-4 sm:text-sm"
         disabled={!hasNextPage}
         onClick={onNextPage}
+        size="compact"
         type="button"
         variant="outline"
       >

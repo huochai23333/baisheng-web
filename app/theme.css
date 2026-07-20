@@ -73,6 +73,25 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --spacing-control-compact: var(--control-height-compact);
+  --spacing-control-default: var(--control-height-default);
+  --spacing-control-large: var(--control-height-large);
+  --spacing-button-compact: var(--button-height-compact);
+  --spacing-button-default: var(--button-height-default);
+  --spacing-button-large: var(--button-height-large);
+  --radius-control-compact: var(--control-radius-compact);
+  --radius-control-default: var(--control-radius-default);
+  --radius-control-large: var(--control-radius-large);
+  --radius-surface-panel: var(--surface-radius-panel);
+  --radius-surface-inset: var(--surface-radius-inset);
+  --radius-record-card: var(--record-card-radius);
+  --radius-metric-card: var(--metric-card-radius);
+  --shadow-surface-panel: var(--surface-shadow-panel);
+  --shadow-surface-header: var(--surface-shadow-header);
+  --shadow-surface-navigation: var(--surface-shadow-navigation);
+  --shadow-surface-inset: var(--surface-shadow-inset);
+  --shadow-surface-interactive: var(--surface-shadow-interactive);
+  --shadow-surface-floating: var(--surface-shadow-floating);
 }
 
 :root {
@@ -182,18 +201,40 @@
     rgba(250, 249, 247, 0.94)
   );
 
-  --control-height-compact: 2.5rem;
+  /*
+   * 控件几何从移动端开始定义；桌面端需要变化的值在下方媒体查询覆盖。
+   * 业务组件只使用 Tailwind 语义类，不能再次写死高度或圆角。
+   */
+  --control-height-compact: 2.75rem;
   --control-height-default: 2.75rem;
   --control-height-large: 3.25rem;
   --control-radius-compact: 0.875rem;
-  --control-radius-default: 1.125rem;
+  --control-radius-default: 1rem;
   --control-radius-large: 1.375rem;
-  --surface-radius-panel: 1.75rem;
-  --surface-radius-inset: 1.375rem;
+  --button-height-compact: 2.75rem;
+  --button-height-default: 2.75rem;
+  --button-height-large: 3.25rem;
+  --surface-radius-panel: 1.5rem;
+  --surface-radius-inset: 1.25rem;
+  --record-card-radius: 1.125rem;
+  --metric-card-radius: 1.25rem;
   --surface-shadow-panel: 0 18px 45px rgba(96, 113, 128, 0.06);
   --surface-shadow-header: 0 18px 45px rgba(96, 113, 128, 0.08);
   --surface-shadow-navigation: 0 18px 45px rgba(96, 113, 128, 0.12);
   --surface-shadow-inset: 0 10px 24px rgba(96, 113, 128, 0.04);
   --surface-shadow-interactive: 0 10px 24px rgba(96, 113, 128, 0.06);
   --surface-shadow-floating: 0 20px 60px rgba(35, 49, 58, 0.18);
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --control-height-compact: 2.5rem;
+    --control-height-default: 3rem;
+    --control-radius-default: 1.125rem;
+    --button-height-compact: 2.5rem;
+    --surface-radius-panel: 1.75rem;
+    --surface-radius-inset: 1.5rem;
+    --record-card-radius: 1.25rem;
+    --metric-card-radius: 1.5rem;
+  }
 }

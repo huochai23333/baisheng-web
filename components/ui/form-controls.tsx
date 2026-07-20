@@ -21,10 +21,10 @@ const controlVariants = cva(
   {
     variants: {
       controlSize: {
-        compact: "h-10 rounded-[14px] px-3 text-xs",
+        compact: "h-control-compact rounded-control-compact px-3 text-xs",
         default:
-          "h-11 rounded-[16px] px-3 text-sm sm:h-12 sm:rounded-[18px] sm:px-4",
-        large: "h-[52px] rounded-[22px] px-4 text-[15px]",
+          "h-control-default rounded-control-default px-3 text-sm sm:px-4",
+        large: "h-control-large rounded-control-large px-4 text-[15px]",
       },
       density: {
         // 普通表单需要更明确的静止边界；筛选区一排控件较多，使用更轻的层级减少视觉噪音。

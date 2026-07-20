@@ -23,13 +23,13 @@ export const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        compact:
-          "h-11 gap-1.5 rounded-full px-4 text-xs sm:h-10",
-        default: "h-11 gap-2 rounded-full px-5",
-        large: "h-[52px] gap-2 rounded-[22px] px-6 text-[15px]",
-        icon: "size-11 rounded-full",
-        "icon-compact": "size-11 rounded-full sm:size-10",
-        "icon-large": "size-[52px] rounded-[22px]",
+        compact: "h-button-compact gap-1.5 rounded-full px-4 text-xs",
+        default: "h-button-default gap-2 rounded-full px-5",
+        large:
+          "h-button-large gap-2 rounded-control-large px-6 text-[15px]",
+        icon: "size-button-default rounded-full",
+        "icon-compact": "size-button-compact rounded-full",
+        "icon-large": "size-button-large rounded-control-large",
       },
     },
     defaultVariants: {

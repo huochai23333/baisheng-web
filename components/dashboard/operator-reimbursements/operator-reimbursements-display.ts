@@ -2,7 +2,6 @@ import type {
   OperatorReimbursementFormInput,
   OperatorReimbursementPeriod,
   OperatorReimbursementRow,
-  OperatorReimbursementStatus,
 } from "@/lib/operator-reimbursements";
 
 export type OperatorReimbursementFormState = {
@@ -179,14 +178,6 @@ export function toOperatorReimbursementErrorMessage(
   }
 
   return copy.unknownError;
-}
-
-export function getOperatorReimbursementStatusTone(
-  status: OperatorReimbursementStatus,
-) {
-  return status === "reimbursed"
-    ? "border-border-subtle bg-surface-inset text-content-muted"
-    : "border-border-subtle bg-surface-inset text-content-muted";
 }
 
 function sumOperatorReimbursements(

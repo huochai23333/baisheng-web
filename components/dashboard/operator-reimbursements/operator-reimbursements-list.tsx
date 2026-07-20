@@ -10,6 +10,7 @@ import {
   PresenceSwap,
 } from "@/components/motion/motion-primitives";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type {
   OperatorReimbursementRow,
   OperatorReimbursementStatus,
@@ -21,7 +22,6 @@ import {
   formatOperatorReimbursementAmount,
   formatOperatorReimbursementDate,
   formatOperatorReimbursementPeriod,
-  getOperatorReimbursementStatusTone,
 } from "./operator-reimbursements-display";
 
 type OperatorReimbursementsListSectionProps = {
@@ -105,13 +105,13 @@ function OperatorReimbursementCard({
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
-            <span
-              className={`inline-flex min-h-7 items-center rounded-full border px-3 py-1 text-xs font-semibold ${getOperatorReimbursementStatusTone(
-                reimbursement.status,
-              )}`}
+            <StatusBadge
+              tone={
+                reimbursement.status === "reimbursed" ? "success" : "warning"
+              }
             >
               {copy.statusOptions[reimbursement.status]}
-            </span>
+            </StatusBadge>
             <span className="inline-flex min-h-7 items-center rounded-full bg-surface-inset px-3 py-1 text-xs font-semibold text-content-muted">
               {formatOperatorReimbursementPeriod(
                 {
