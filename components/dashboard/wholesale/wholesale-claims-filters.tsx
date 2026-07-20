@@ -145,7 +145,7 @@ export function WholesaleClaimsBulkToolbar({
   }
 
   return (
-    <div className="mt-4 flex flex-col gap-3 rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mt-4 flex flex-col gap-3 rounded-record-card border border-border-subtle bg-surface-inset px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm font-semibold leading-6 text-content-muted">
         {uiText("selectedCount", { count: selectedCount })}
       </p>

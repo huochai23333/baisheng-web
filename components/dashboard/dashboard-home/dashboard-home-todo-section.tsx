@@ -50,7 +50,7 @@ export function HomeTodosSection({
     <section
       className={cn(
         frame === "card"
-          ? "rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[var(--surface-shadow-interactive)] xl:p-8"
+          ? "rounded-surface-panel border border-surface-panel-border bg-surface-panel p-6 shadow-surface-interactive xl:p-8"
           : "flex h-full min-h-0 flex-col overflow-hidden",
       )}
       data-testid="home-todos-section"
@@ -81,7 +81,7 @@ export function HomeTodosSection({
 
       <form
         className={cn(
-          "mt-6 grid gap-3 rounded-[24px] border border-border-subtle bg-surface-inset p-4 lg:grid-cols-[minmax(0,1fr)_180px_auto_auto]",
+          "mt-6 grid gap-3 rounded-surface-panel border border-border-subtle bg-surface-inset p-4 lg:grid-cols-[minmax(0,1fr)_180px_auto_auto]",
           frame === "plain" && "mt-4",
         )}
         onSubmit={(event) => {
@@ -91,7 +91,7 @@ export function HomeTodosSection({
       >
         <FormControls.Input
           aria-label={copy.quickAdd.placeholder}
-          className="h-12 min-w-0 rounded-[18px] border border-border bg-white px-4 text-sm text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
+          className="h-12 min-w-0 rounded-record-card border border-border bg-surface-interactive px-4 text-sm text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
           data-testid="home-todo-title-input"
           onChange={(event) =>
             todoState.updateQuickDraftField("title", event.target.value)
@@ -119,10 +119,10 @@ export function HomeTodosSection({
           }
           aria-pressed={todoState.quickDraft.isImportant}
           className={cn(
-            "flex h-12 w-full items-center justify-center rounded-[18px] border text-content-muted transition sm:w-12",
+            "flex h-12 w-full items-center justify-center rounded-record-card border text-content-muted transition sm:w-12",
             todoState.quickDraft.isImportant
               ? "border-border-subtle bg-surface-inset text-content-muted"
-              : "border-border bg-white hover:bg-surface-inset",
+              : "border-border bg-surface-interactive hover:bg-surface-inset",
           )}
           data-testid="home-todo-quick-important"
           onClick={() =>

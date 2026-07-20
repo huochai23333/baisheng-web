@@ -38,7 +38,7 @@ export function DashboardSegmentedTabs<Key extends string>({
     <LayoutGroup id={layoutGroupId}>
       <div
         className={cn(
-          "flex w-full flex-col gap-2 rounded-[22px] border border-border bg-white/78 p-2 shadow-[var(--surface-shadow-interactive)] sm:flex-row",
+          "flex w-full flex-col gap-2 rounded-control-large border border-border bg-surface-panel p-2 shadow-surface-interactive sm:flex-row",
           className,
         )}
         data-motion-segmented-tabs="true"
@@ -52,7 +52,7 @@ export function DashboardSegmentedTabs<Key extends string>({
               aria-pressed={isActive}
               aria-busy={isPending}
               className={cn(
-                "relative flex min-h-12 flex-1 items-center gap-3 overflow-hidden rounded-[16px] px-4 py-3 text-left text-sm transition-colors",
+                "relative flex min-h-12 flex-1 items-center gap-3 overflow-hidden rounded-control-default px-4 py-3 text-left text-sm transition-colors",
                 isActive
                   ? "text-white"
                   : "bg-surface-inset text-content-muted hover:bg-surface-inset hover:text-content-strong",
@@ -63,7 +63,7 @@ export function DashboardSegmentedTabs<Key extends string>({
             >
               {isActive ? (
                 <motion.span
-                  className="absolute inset-0 rounded-[16px] bg-primary shadow-[var(--surface-shadow-interactive)]"
+                  className="absolute inset-0 rounded-control-default bg-primary shadow-surface-interactive"
                   layoutId="dashboard-segmented-tab-active"
                   transition={{ bounce: 0.1, duration: 0.28, type: "spring" }}
                 />
@@ -74,8 +74,8 @@ export function DashboardSegmentedTabs<Key extends string>({
                     className={cn(
                       "inline-flex size-8 shrink-0 items-center justify-center rounded-full",
                       isActive
-                        ? "bg-white/16 text-white"
-                        : "bg-white text-primary",
+                        ? "bg-surface-on-media text-white"
+                        : "bg-surface-interactive text-primary",
                     )}
                   >
                     {isPending ? (
@@ -93,8 +93,8 @@ export function DashboardSegmentedTabs<Key extends string>({
                         className={cn(
                           "inline-flex min-w-7 items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold",
                           isActive
-                            ? "bg-white/18 text-white"
-                            : "bg-white text-primary",
+                            ? "bg-surface-on-media text-white"
+                            : "bg-surface-interactive text-primary",
                         )}
                       >
                         {option.badge}

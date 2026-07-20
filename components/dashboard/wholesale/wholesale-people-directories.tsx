@@ -127,7 +127,7 @@ export function WholesaleCustomerDirectory({
           <>
             {customers.map((customer) => (
               <DesignButton
-                className="rounded-[22px] border border-border-subtle bg-white p-4 text-left shadow-[var(--surface-shadow-interactive)]"
+                className="rounded-control-large border border-border-subtle bg-surface-interactive p-4 text-left shadow-surface-interactive"
                 key={customer.id}
                 onClick={() => onSelect(customer)}
                 type="button"
@@ -270,7 +270,7 @@ export function WholesaleSalesAccountDirectory({
           <>
             {accounts.map((profile) => (
               <DesignButton
-                className="rounded-[8px] border border-border-subtle bg-white p-4 text-left transition hover:border-border-subtle"
+                className="rounded-sm border border-border-subtle bg-surface-interactive p-4 text-left transition hover:border-border-subtle"
                 key={profile.user_id}
                 onClick={() => onSelect(profile)}
                 type="button"

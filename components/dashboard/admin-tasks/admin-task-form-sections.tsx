@@ -30,7 +30,7 @@ export function TaskEditSummaryCard({ task }: { task: AdminTaskRow }) {
   const sharedT = useTranslations("Tasks.shared");
 
   return (
-    <div className="rounded-[24px] border border-border-subtle bg-surface-inset p-5">
+    <div className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5">
       <div className="flex flex-wrap items-center gap-2">
         <TaskStatusPill status={task.status} />
       </div>
@@ -152,27 +152,14 @@ export function TaskFormFields({
           <legend className="mb-2 block text-sm font-semibold text-content-strong">
             {t("createDialog.acceptanceModeLabel")}
           </legend>
-          <label
-            className={[
-              "flex min-h-11 items-center gap-3 rounded-[16px] border px-3 py-2 text-sm font-medium transition",
-              formState.acceptanceUnlimited
-                ? "border-primary bg-surface-inset text-content-strong"
-                : "border-border-subtle bg-white text-content-muted",
-              pending
-                ? "cursor-not-allowed opacity-60"
-                : "cursor-pointer hover:bg-surface-inset",
-            ].join(" ")}
-          >
-            <FormControls.Checkbox
-              checked={formState.acceptanceUnlimited}
-              className="size-4 accent-primary"
-              disabled={pending}
-              onChange={(event) =>
-                onAcceptanceUnlimitedChange(event.target.checked)
-              }
-            />
-            {t("createDialog.acceptanceUnlimitedLabel")}
-          </label>
+          <FormControls.ChoiceField
+            checked={formState.acceptanceUnlimited}
+            disabled={pending}
+            label={t("createDialog.acceptanceUnlimitedLabel")}
+            onChange={(event) =>
+              onAcceptanceUnlimitedChange(event.target.checked)
+            }
+          />
           <p className="mt-2 text-xs leading-6 text-content-muted">
             {t("createDialog.acceptanceHint")}
           </p>
@@ -182,27 +169,14 @@ export function TaskFormFields({
           <legend className="mb-2 block text-sm font-semibold text-content-strong">
             {t("createDialog.reviewRequirementLabel")}
           </legend>
-          <label
-            className={[
-              "flex min-h-11 items-center gap-3 rounded-[16px] border px-3 py-2 text-sm font-medium transition",
-              formState.reviewRequiresAttachment
-                ? "border-primary bg-surface-inset text-content-strong"
-                : "border-border-subtle bg-white text-content-muted",
-              pending
-                ? "cursor-not-allowed opacity-60"
-                : "cursor-pointer hover:bg-surface-inset",
-            ].join(" ")}
-          >
-            <FormControls.Checkbox
-              checked={formState.reviewRequiresAttachment}
-              className="size-4 accent-primary"
-              disabled={pending}
-              onChange={(event) =>
-                onReviewRequiresAttachmentChange(event.target.checked)
-              }
-            />
-            {t("createDialog.reviewRequiresAttachmentLabel")}
-          </label>
+          <FormControls.ChoiceField
+            checked={formState.reviewRequiresAttachment}
+            disabled={pending}
+            label={t("createDialog.reviewRequiresAttachmentLabel")}
+            onChange={(event) =>
+              onReviewRequiresAttachmentChange(event.target.checked)
+            }
+          />
           <p className="mt-2 text-xs leading-6 text-content-muted">
             {formState.reviewRequiresAttachment
               ? t("createDialog.reviewRequiresAttachmentHint")
@@ -256,26 +230,13 @@ function TargetRoleCheckboxGrid({
           const checked = selectedRoles.includes(option.role);
 
           return (
-            <label
-              className={[
-                "flex min-h-11 items-center gap-3 rounded-[16px] border px-3 py-2 text-sm font-medium transition",
-                checked
-                  ? "border-primary bg-surface-inset text-content-strong"
-                  : "border-border-subtle bg-white text-content-muted",
-                disabled
-                  ? "cursor-not-allowed opacity-60"
-                  : "cursor-pointer hover:bg-surface-inset",
-              ].join(" ")}
+            <FormControls.ChoiceField
+              checked={checked}
+              disabled={disabled}
               key={option.role}
-            >
-              <FormControls.Checkbox
-                checked={checked}
-                className="size-4 accent-primary"
-                disabled={disabled}
-                onChange={() => onToggle(option.role)}
-              />
-              {getTaskTargetRoleLabel(option.role, sharedT)}
-            </label>
+              label={getTaskTargetRoleLabel(option.role, sharedT)}
+              onChange={() => onToggle(option.role)}
+            />
           );
         })}
       </div>

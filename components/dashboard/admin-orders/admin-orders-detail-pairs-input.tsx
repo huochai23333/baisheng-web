@@ -88,7 +88,7 @@ export function OrderDetailPairsInput({
           />
           <Button
             aria-label={`${copy.removeLabel} ${index + 1}`}
-            className="h-12 rounded-[18px] border-border-subtle text-content-muted"
+            className="h-12 rounded-record-card border-border-subtle text-content-muted"
             disabled={disabled}
             onClick={() => handleRemoveRow(index)}
             size="icon-large"

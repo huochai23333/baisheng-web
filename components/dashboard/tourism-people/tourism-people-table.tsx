@@ -131,7 +131,7 @@ export function TourismPeopleTable({
         <>
           {people.map((person) => (
             <DesignButton
-              className="rounded-[18px] border border-border-subtle bg-white p-4 text-left shadow-[var(--surface-shadow-interactive)]"
+              className="rounded-record-card border border-border-subtle bg-surface-interactive p-4 text-left shadow-surface-interactive"
               key={person.user_id}
               onClick={() => onSelect(person)}
               type="button"

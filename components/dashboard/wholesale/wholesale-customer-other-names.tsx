@@ -29,7 +29,7 @@ export function WholesaleCustomerOtherNames({
   );
   const [isAdding, setIsAdding] = useState(false);
   return (
-    <section className="rounded-[18px] border border-border-subtle bg-white p-4">
+    <section className="rounded-record-card border border-border-subtle bg-surface-interactive p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h4 className="text-sm font-semibold text-content-muted">

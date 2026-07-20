@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
+import { RecordCard } from "@/components/ui/data-display";
+import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
 import type { BusinessVipRow } from "@/lib/business-vip-management";
 import type { Locale } from "@/lib/locale";
 
@@ -37,8 +39,9 @@ export function BusinessVipWholesaleRecordTable({
   }
 
   return (
-    <>
-      <div className="hidden lg:block">
+    <ResponsiveDataView
+      breakpoint="lg"
+      desktop={
         <DashboardTableFrame innerClassName="overflow-x-visible">
           <table className="w-full table-fixed text-left text-sm">
             <colgroup>
@@ -89,36 +92,34 @@ export function BusinessVipWholesaleRecordTable({
             </tbody>
           </table>
         </DashboardTableFrame>
-      </div>
-
-      <div className="grid gap-3 lg:hidden">
-        {records.map((record) => (
-          <article
-            className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]"
-            key={record.id}
-          >
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <p className="break-words font-semibold text-content-strong [overflow-wrap:anywhere]">
-                {record.customerLabel}
+      }
+      mobile={
+        <>
+          {records.map((record) => (
+            <RecordCard key={record.id}>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <p className="break-words font-semibold text-content-strong [overflow-wrap:anywhere]">
+                  {record.customerLabel}
+                </p>
+                <span className="text-xs text-content-muted">
+                  {formatBusinessVipDate(
+                    record.createdAt,
+                    locale,
+                    t("fallback.noRecord"),
+                  )}
+                </span>
+              </div>
+              <div className="mt-3">
+                <OperationRecordSummary locale={locale} record={record} />
+              </div>
+              <p className="mt-3 text-sm text-content-muted">
+                {record.actorName ?? t("operationRecords.actorFallback")}
               </p>
-              <span className="text-xs text-content-muted">
-                {formatBusinessVipDate(
-                  record.createdAt,
-                  locale,
-                  t("fallback.noRecord"),
-                )}
-              </span>
-            </div>
-            <div className="mt-3">
-              <OperationRecordSummary locale={locale} record={record} />
-            </div>
-            <p className="mt-3 text-sm text-content-muted">
-              {record.actorName ?? t("operationRecords.actorFallback")}
-            </p>
-          </article>
-        ))}
-      </div>
-    </>
+            </RecordCard>
+          ))}
+        </>
+      }
+    />
   );
 }
 

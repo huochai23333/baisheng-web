@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
 import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
+import { RecordCard } from "@/components/ui/data-display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { AdminPersonRow } from "@/lib/admin-people";
 import {
@@ -140,10 +141,7 @@ export function PeopleTable({
               t("fallback.unnamedUser"),
             );
             return (
-              <article
-                className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]"
-                key={person.user_id}
-              >
+              <RecordCard key={person.user_id}>
                 <div className="flex items-start justify-between gap-3">
                   <DesignButton
                     aria-label={t("actions.openDetailsFor", {
@@ -194,7 +192,7 @@ export function PeopleTable({
                       : t("actions.adjust")}
                   </Button>
                 </div>
-              </article>
+              </RecordCard>
             );
           })}
         </>

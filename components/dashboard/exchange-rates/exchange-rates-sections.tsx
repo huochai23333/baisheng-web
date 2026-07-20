@@ -209,7 +209,7 @@ export const ExchangeRatesHistorySection = memo(
         actions={
           showBackLink ? (
             <Link
-              className="inline-flex h-9 items-center justify-center rounded-full border border-border-subtle bg-white px-4 text-sm font-medium text-content-muted transition-colors hover:bg-surface-inset"
+              className="inline-flex h-9 items-center justify-center rounded-full border border-border-subtle bg-surface-interactive px-4 text-sm font-medium text-content-muted transition-colors hover:bg-surface-inset"
               href={homeHref}
             >
               {t("history.backHome")}

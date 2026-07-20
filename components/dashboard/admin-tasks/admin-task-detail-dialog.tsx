@@ -110,7 +110,7 @@ export function AdminTaskDetailDialog({
           </h3>
         </div>
 
-        <section className="rounded-[24px] border border-border-subtle bg-white p-5">
+        <section className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-5">
           <p className="text-sm font-semibold text-content-strong">
             {t("introTitle")}
           </p>
@@ -189,7 +189,7 @@ export function AdminTaskDetailDialog({
         </section>
 
         {task.review_reject_reason ? (
-          <section className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+          <section className="rounded-control-large border border-border-subtle bg-surface-inset p-4">
             <p className="text-sm font-semibold text-status-danger">
               {t("reviewRejectReasonLabel")}
             </p>
@@ -216,7 +216,7 @@ export function AdminTaskDetailDialog({
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {task.acceptance_assignees.map((assignee) => (
                   <div
-                    className="min-w-0 rounded-[18px] border border-border-subtle bg-surface-inset p-4"
+                    className="min-w-0 rounded-record-card border border-border-subtle bg-surface-inset p-4"
                     key={assignee.accepted_task_id}
                   >
                     <p className="break-words text-sm font-semibold text-content-strong">
@@ -242,7 +242,7 @@ export function AdminTaskDetailDialog({
                 ))}
               </div>
             ) : (
-              <p className="rounded-[18px] bg-surface-inset px-4 py-3 text-sm leading-7 text-content-muted">
+              <p className="rounded-record-card bg-surface-inset px-4 py-3 text-sm leading-7 text-content-muted">
                 {t("assigneeListEmpty")}
               </p>
             )}
@@ -250,14 +250,14 @@ export function AdminTaskDetailDialog({
         ) : null}
 
         {task.attachments.length > 0 ? (
-          <section className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+          <section className="rounded-control-large border border-border-subtle bg-surface-inset p-4">
             <p className="text-sm font-semibold text-primary">
               {t("attachmentsOverview")}
             </p>
             <div className="mt-3 space-y-2">
               {task.attachments.map((attachment) => (
                 <div
-                  className="flex flex-col gap-2 rounded-[18px] bg-white px-3 py-2 text-sm text-content-strong sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 rounded-record-card bg-surface-interactive px-3 py-2 text-sm text-content-strong sm:flex-row sm:items-center sm:justify-between"
                   key={attachment.id}
                 >
                   <span className="flex min-w-0 items-start gap-2">

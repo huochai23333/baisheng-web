@@ -20,7 +20,7 @@ export function AdminSectionPlaceholder({
 
   return (
     <DashboardPageShell className="gap-6">
-      <div className="rounded-[28px] border border-white/80 bg-white/72 p-8 shadow-[var(--surface-shadow-interactive)] backdrop-blur">
+      <div className="rounded-surface-panel border border-surface-panel-border bg-surface-panel p-8 shadow-surface-interactive backdrop-blur">
         <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-inset text-status-success">
           <Sparkles className="size-6" />
         </div>

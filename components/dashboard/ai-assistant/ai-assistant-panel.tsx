@@ -79,7 +79,7 @@ export function AiAssistantPanel({
     <motion.section
       animate={{ opacity: 1, scale: 1, y: 0 }}
       aria-label={copy.title}
-      className="fixed bottom-[5.5rem] right-3 z-40 flex h-[min(640px,calc(100dvh-7rem))] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-[26px] border border-white/85 bg-surface-inset shadow-[var(--surface-shadow-interactive)] sm:bottom-24 sm:right-6"
+      className="fixed bottom-[5.5rem] right-3 z-40 flex h-[min(640px,calc(100dvh-7rem))] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-inset shadow-surface-interactive sm:bottom-24 sm:right-6"
       exit={{ opacity: 0, scale: 0.98, y: 18 }}
       initial={{ opacity: 0, scale: 0.96, y: 24 }}
       transition={{
@@ -137,7 +137,7 @@ export function AiAssistantPanel({
               </p>
               <div className="flex shrink-0 items-center gap-2">
                 <DesignButton
-                  className="h-8 rounded-full px-3 text-sm font-medium text-content-muted transition-colors hover:bg-white"
+                  className="h-8 rounded-full px-3 text-sm font-medium text-content-muted transition-colors hover:bg-surface-interactive"
                   onClick={() => setResetConfirmOpen(false)}
                   type="button"
                 >
@@ -174,7 +174,7 @@ export function AiAssistantPanel({
         {pending ? (
           <MotionListItem key="assistant-thinking">
             <div className="flex justify-start">
-              <div className="flex max-w-[84%] items-center gap-2 rounded-[20px] border border-border-subtle bg-white px-4 py-3 text-sm text-content-muted shadow-[var(--surface-shadow-interactive)]">
+              <div className="flex max-w-[84%] items-center gap-2 rounded-surface-inset border border-border-subtle bg-surface-interactive px-4 py-3 text-sm text-content-muted shadow-surface-interactive">
                 <LoaderCircle className="size-4 animate-spin" />
                 {copy.thinking}
               </div>
@@ -184,7 +184,7 @@ export function AiAssistantPanel({
 
         {errorMessage ? (
           <MotionListItem key="assistant-error">
-            <div className="rounded-[18px] border border-border-subtle bg-status-danger-soft px-4 py-3 text-sm leading-6 text-content-muted">
+            <div className="rounded-record-card border border-border-subtle bg-status-danger-soft px-4 py-3 text-sm leading-6 text-content-muted">
               {errorMessage}
             </div>
           </MotionListItem>
@@ -203,47 +203,50 @@ export function AiAssistantPanel({
       </MotionList>
 
       <form
-        className="border-t border-border-subtle bg-white/72 p-3"
+        className="border-t border-border-subtle bg-surface-panel p-3"
         onSubmit={(event) => {
           event.preventDefault();
           void onSend();
         }}
       >
-        <label className="sr-only" htmlFor="ai-assistant-input">
-          {copy.inputLabel}
-        </label>
-        <div className="flex items-end gap-2 rounded-[22px] border border-border-subtle bg-white p-2 focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/30">
-          <FormControls.Textarea
-            className="max-h-28 min-h-11 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-6 text-content-strong outline-none placeholder:text-content-muted"
-            disabled={pending}
-            id="ai-assistant-input"
-            onChange={(event) => onInputChange(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                void onSend();
-              }
-            }}
-            placeholder={copy.placeholder}
-            ref={inputRef}
-            rows={1}
-            value={input}
-          />
-          <Button
-            variant="primary"
-            size="icon-compact"
-            aria-label={copy.send}
+        <FormControls.Field
+          controlId="ai-assistant-input"
+          label={copy.inputLabel}
+          labelHidden
+        >
+          <div className="flex items-end gap-2 rounded-control-large border border-border-subtle bg-surface-interactive p-2 focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/30">
+            <FormControls.Textarea
+              className="max-h-28 min-h-11 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-6 text-content-strong outline-none placeholder:text-content-muted"
+              disabled={pending}
+              id="ai-assistant-input"
+              onChange={(event) => onInputChange(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  void onSend();
+                }
+              }}
+              placeholder={copy.placeholder}
+              ref={inputRef}
+              rows={1}
+              value={input}
+            />
+            <Button
+              variant="primary"
+              size="icon-compact"
+              aria-label={copy.send}
 
-            disabled={!input.trim() || pending}
-            type="submit"
-          >
-            {pending ? (
-              <LoaderCircle className="size-4 animate-spin" />
-            ) : (
-              <Send className="size-4" />
-            )}
-          </Button>
-        </div>
+              disabled={!input.trim() || pending}
+              type="submit"
+            >
+              {pending ? (
+                <LoaderCircle className="size-4 animate-spin" />
+              ) : (
+                <Send className="size-4" />
+              )}
+            </Button>
+          </div>
+        </FormControls.Field>
       </form>
     </motion.section>
   );
@@ -267,10 +270,10 @@ function AssistantMessageBubble({
       ) : null}
       <div
         className={cn(
-          "max-w-[84%] whitespace-pre-wrap rounded-[20px] px-4 py-3 text-sm leading-6 shadow-[var(--surface-shadow-interactive)]",
+          "max-w-[84%] whitespace-pre-wrap rounded-surface-inset px-4 py-3 text-sm leading-6 shadow-surface-interactive",
           fromUser
             ? "bg-primary text-white"
-            : "border border-border-subtle bg-white text-content-muted",
+            : "border border-border-subtle bg-surface-interactive text-content-muted",
         )}
       >
         {message.content}

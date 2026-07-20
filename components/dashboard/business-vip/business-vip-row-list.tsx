@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
+import { RecordCard } from "@/components/ui/data-display";
 import type {
   BusinessVipRequest,
   BusinessVipReviewAction,
@@ -122,7 +123,7 @@ export function BusinessVipMobileCard({
   const t = useTranslations("BusinessVip");
 
   return (
-    <article className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]">
+    <RecordCard>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <BusinessVipCustomerCell row={row} />
         <BusinessVipStatusChip status={row.status} />
@@ -167,6 +168,6 @@ export function BusinessVipMobileCard({
           row={row}
         />
       </div>
-    </article>
+    </RecordCard>
   );
 }

@@ -71,7 +71,7 @@ export function DashboardOrderFilterSection({
             range={dateRange}
           />
           {exactOrderNumber && onExitExactSearch ? (
-            <div className="flex flex-col gap-2 rounded-[16px] border border-border-subtle bg-surface-inset px-3 py-2 text-sm text-content-muted sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2 rounded-control-default border border-border-subtle bg-surface-inset px-3 py-2 text-sm text-content-muted sm:flex-row sm:items-center sm:justify-between">
               <span className="min-w-0 break-all font-medium">
                 {t("exactSearch.active", { orderNumber: exactOrderNumber })}
               </span>

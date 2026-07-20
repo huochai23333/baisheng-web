@@ -256,7 +256,7 @@ export function WholesaleClaimTargetFields({
 
         <FormControls.Input
           aria-label={uiText("orderSearchLabel")}
-          className="h-11 min-w-0 rounded-[16px] border border-border bg-white px-3 text-sm text-content-strong outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:bg-surface-inset"
+          className="h-11 min-w-0 rounded-control-default border border-border bg-surface-interactive px-3 text-sm text-content-strong outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:bg-surface-inset"
           disabled={!selectedCustomerId}
           onChange={(event) => onOrderSearchChange(event.target.value)}
           placeholder={
@@ -306,7 +306,7 @@ export function WholesaleClaimTargetFields({
 
         <div
           aria-label={uiText("attribute006")}
-          className="max-h-64 min-w-0 overflow-y-auto rounded-[18px] border border-border bg-surface-inset p-2"
+          className="max-h-64 min-w-0 overflow-y-auto rounded-record-card border border-border bg-surface-inset p-2"
           role="group"
         >
           {!selectedCustomerId ? (
@@ -324,30 +324,27 @@ export function WholesaleClaimTargetFields({
           ) : (
             <div className="grid gap-1.5">
               {visibleOrders.map((order) => (
-                <label
-                  className="flex min-w-0 cursor-pointer items-start gap-3 rounded-[14px] bg-white px-3 py-2.5 text-sm text-content-strong hover:bg-status-info-soft"
+                <FormControls.ChoiceField
+                  checked={selectedOrderIds.includes(order.id)}
                   key={order.id}
-                >
-                  <FormControls.Checkbox
-                    checked={selectedOrderIds.includes(order.id)}
-                    className="mt-0.5 size-4 shrink-0 accent-primary"
-                    onChange={() => onToggleOrder(order.id)}
-                  />
-                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">
-                    {formatWholesaleOrderLinkOption(order)}
-                  </span>
-                </label>
+                  label={
+                    <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                      {formatWholesaleOrderLinkOption(order)}
+                    </span>
+                  }
+                  onChange={() => onToggleOrder(order.id)}
+                />
               ))}
             </div>
           )}
         </div>
         {hasMoreOrders ? (
           <Button
-            className="min-h-10 rounded-full"
             disabled={candidateLoadingMore}
             onClick={onLoadMoreOrders}
             type="button"
             variant="outline"
+            size="compact"
           >
             {candidateLoadingMore
               ? uiText("loadingOrders")

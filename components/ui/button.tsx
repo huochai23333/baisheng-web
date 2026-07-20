@@ -10,6 +10,7 @@ function Button({
   className,
   variant = "primary",
   size = "default",
+  wrap = false,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
   return (
@@ -17,7 +18,8 @@ function Button({
       data-slot="button"
       data-size={size}
       data-variant={variant}
-      className={cn(buttonVariants({ variant, size, className }))}
+      data-wrap={wrap ? "true" : "false"}
+      className={cn(buttonVariants({ variant, size, wrap, className }))}
       {...props}
     />
   );

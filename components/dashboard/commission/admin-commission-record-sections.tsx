@@ -100,7 +100,7 @@ export function CommissionBeneficiarySummarySection({
                 return (
                   <tr
                     key={beneficiary.userId}
-                    className="bg-white/50 transition-colors hover:bg-surface-inset"
+                    className="bg-surface-panel transition-colors hover:bg-surface-inset"
                   >
                     <td className="px-4 py-4">
                       <div className="font-medium text-content-strong">

@@ -5,8 +5,8 @@ import { Select } from "@/components/ui/select";
 
 import {
   FormDialog,
+  DashboardFormField,
   DashboardFormTextarea,
-  dashboardFormInputClassName,
 } from "@/components/dashboard/dashboard-form-dialog";
 import type {
   AnnouncementAudience,
@@ -73,19 +73,16 @@ export function AnnouncementFormDialog({
       submitLabel={createMode ? copy.createSubmit : copy.editSubmit}
       title={createMode ? copy.createTitle : copy.editTitle}
     >
-      <label className="grid gap-2 text-sm font-semibold text-content-strong">
-        {copy.titleLabel}
+      <DashboardFormField label={copy.titleLabel} required>
         <FormControls.Input
-          className={dashboardFormInputClassName}
           onChange={(event) => onUpdateField("title", event.target.value)}
           placeholder={copy.titlePlaceholder}
           type="text"
           value={formState.title}
         />
-      </label>
+      </DashboardFormField>
 
-      <label className="grid gap-2 text-sm font-semibold text-content-strong">
-        {copy.audienceLabel}
+      <DashboardFormField label={copy.audienceLabel} required>
         <Select
           onValueChange={(value) => onUpdateField("audience", value)}
           options={announcementAudienceValues.map((audience) => ({
@@ -94,17 +91,16 @@ export function AnnouncementFormDialog({
           }))}
           value={formState.audience}
         />
-      </label>
+      </DashboardFormField>
 
-      <label className="grid gap-2 text-sm font-semibold text-content-strong">
-        {copy.contentLabel}
+      <DashboardFormField label={copy.contentLabel} required>
         <DashboardFormTextarea
           className="min-h-[180px]"
           onChange={(event) => onUpdateField("content", event.target.value)}
           placeholder={copy.contentPlaceholder}
           value={formState.content}
         />
-      </label>
+      </DashboardFormField>
     </FormDialog>
   );
 }

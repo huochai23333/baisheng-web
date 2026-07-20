@@ -57,10 +57,10 @@ export function TeamOverviewSection({
           <DesignButton
             key={team.team_id}
             className={[
-              "rounded-[24px] border p-5 text-left shadow-[var(--surface-shadow-interactive)] transition-all",
+              "rounded-surface-panel border p-5 text-left shadow-surface-interactive transition-all",
               selectedTeamId === team.team_id
                 ? "border-border-subtle bg-surface-inset"
-                : "border-border-subtle bg-white hover:-translate-y-0.5 hover:shadow-[var(--surface-shadow-interactive)]",
+                : "border-border-subtle bg-surface-interactive hover:-translate-y-0.5 hover:shadow-surface-interactive",
             ].join(" ")}
             onClick={() => onSelectTeam(team.team_id)}
             type="button"
@@ -116,7 +116,7 @@ export function TeamOverviewSection({
             {viewerRole === "administrator" &&
             selectedTeamId === team.team_id &&
             detailMembers.length > 0 ? (
-              <div className="mt-4 rounded-[18px] bg-surface-inset px-4 py-4">
+              <div className="mt-4 rounded-record-card bg-surface-inset px-4 py-4">
                 <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
                   {t("overview.memberPreview")}
                 </p>
@@ -205,7 +205,7 @@ export function TeamDetailSummarySection({
           </div>
 
           {canManageSelectedTeam ? (
-            <div className="w-full max-w-[360px] rounded-[24px] border border-border-subtle bg-surface-inset p-4 shadow-[var(--surface-shadow-interactive)]">
+            <div className="w-full max-w-[360px] rounded-surface-panel border border-border-subtle bg-surface-inset p-4 shadow-surface-interactive">
               <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
                 {t("detail.editTitle")}
               </p>

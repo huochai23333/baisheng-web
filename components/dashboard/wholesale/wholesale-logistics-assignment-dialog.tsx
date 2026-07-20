@@ -22,7 +22,6 @@ import type {
   WholesaleLogisticsStoreAssignment,
   WholesaleLogisticsStoreOption,
 } from "@/lib/wholesale-logistics-page";
-import { cn } from "@/lib/utils";
 
 import { getActiveSalesProfiles } from "./wholesale-logistics-display";
 import { WholesaleLogisticsAssignmentHistory } from "./wholesale-logistics-assignment-history";
@@ -207,7 +206,7 @@ export function WholesaleLogisticsAssignmentDialog({
           </FeedbackNotice>
         ) : null}
 
-        <section className="rounded-[22px] border border-border-subtle bg-white p-4 sm:p-5">
+        <section className="rounded-control-large border border-border-subtle bg-surface-interactive p-4 sm:p-5">
           <div className="flex min-w-0 items-center gap-2">
             <UserRoundCog className="size-5 shrink-0 text-primary" />
             <h4 className="break-words font-semibold text-content-strong">
@@ -226,7 +225,7 @@ export function WholesaleLogisticsAssignmentDialog({
                   value={storeSearch}
                 />
               </DashboardFilterField>
-              <div className="max-h-52 overflow-y-auto rounded-[18px] border border-border-subtle bg-surface-inset p-2">
+              <div className="max-h-52 overflow-y-auto rounded-record-card border border-border-subtle bg-surface-inset p-2">
                 {selectableStores.length === 0 ? (
                   <p className="p-3 text-sm leading-6 text-content-muted">
                     {t("assignments.noStores")}
@@ -235,37 +234,31 @@ export function WholesaleLogisticsAssignmentDialog({
                   selectableStores.map((option) => {
                     const checked = selectedStores.includes(option.store_name);
                     return (
-                      <label
-                        className={cn(
-                          "flex min-w-0 cursor-pointer items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm",
-                          checked
-                            ? "bg-surface-inset text-content-muted"
-                            : "hover:bg-white",
-                        )}
+                      <FormControls.ChoiceField
+                        checked={checked}
                         key={option.store_name}
-                      >
-                        <FormControls.Checkbox
-                          checked={checked}
-                          className="size-4 shrink-0 accent-primary"
-                          onChange={() =>
-                            setSelectedStores((current) =>
-                              checked
-                                ? current.filter(
-                                    (name) => name !== option.store_name,
-                                  )
-                                : [...current, option.store_name],
-                            )
-                          }
-                        />
-                        <span className="min-w-0 flex-1 break-words">
-                          {option.store_name}
-                        </span>
-                        <span className="shrink-0 text-xs text-content-muted">
-                          {t("assignments.orderCount", {
-                            count: option.order_count,
-                          })}
-                        </span>
-                      </label>
+                        label={
+                          <span className="flex min-w-0 items-center gap-3">
+                            <span className="min-w-0 flex-1 break-words">
+                              {option.store_name}
+                            </span>
+                            <span className="shrink-0 text-xs text-content-muted">
+                              {t("assignments.orderCount", {
+                                count: option.order_count,
+                              })}
+                            </span>
+                          </span>
+                        }
+                        onChange={() =>
+                          setSelectedStores((current) =>
+                            checked
+                              ? current.filter(
+                                  (name) => name !== option.store_name,
+                                )
+                              : [...current, option.store_name],
+                          )
+                        }
+                      />
                     );
                   })
                 )}
@@ -308,35 +301,38 @@ export function WholesaleLogisticsAssignmentDialog({
           </div>
 
           {editing ? (
-            <div className="mt-4 rounded-[18px] border border-border-subtle bg-surface-inset p-3 sm:p-4">
-              <label className="flex min-w-0 items-start gap-3 text-sm text-content-muted">
-                <FormControls.Radio
-                  checked={!splitInterval}
-                  className="mt-0.5 size-4 shrink-0 accent-primary"
-                  onChange={() => setSplitInterval(false)}
-                />
-                <span className="min-w-0 break-words">
-                  {t("assignments.wholeInterval")}
-                </span>
-              </label>
-              <label className="mt-3 flex min-w-0 items-start gap-3 text-sm text-content-muted">
-                <FormControls.Radio
-                  checked={splitInterval}
-                  className="mt-0.5 size-4 shrink-0 accent-primary"
-                  onChange={() => setSplitInterval(true)}
-                />
-                <span className="min-w-0 flex-1 break-words">
-                  {t("assignments.fromDate")}
-                  {splitInterval ? (
-                    <DatePicker
-                      aria-label={t("assignments.fromDate")}
-                      className="mt-2"
-                      onValueChange={setSplitFromDate}
-                      value={splitFromDate}
-                    />
-                  ) : null}
-                </span>
-              </label>
+            <div className="mt-4 rounded-record-card border border-border-subtle bg-surface-inset p-3 sm:p-4">
+              <FormControls.ChoiceField
+                checked={!splitInterval}
+                label={
+                  <span className="min-w-0 break-words">
+                    {t("assignments.wholeInterval")}
+                  </span>
+                }
+                name="assignment-interval"
+                onChange={() => setSplitInterval(false)}
+                type="radio"
+              />
+              <FormControls.ChoiceField
+                checked={splitInterval}
+                label={
+                  <span className="min-w-0 flex-1 break-words">
+                    {t("assignments.fromDate")}
+                    {splitInterval ? (
+                      <DatePicker
+                        aria-label={t("assignments.fromDate")}
+                        className="mt-2"
+                        onValueChange={setSplitFromDate}
+                        value={splitFromDate}
+                      />
+                    ) : null}
+                  </span>
+                }
+                name="assignment-interval"
+                onChange={() => setSplitInterval(true)}
+                rootClassName="mt-3"
+                type="radio"
+              />
             </div>
           ) : (
             <p className="mt-4 text-sm leading-6 text-content-muted">

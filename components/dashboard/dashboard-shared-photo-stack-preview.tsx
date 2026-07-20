@@ -35,7 +35,7 @@ export function PhotoStackPreview({
         <div
           key={thumbnail?.id ?? `fallback-${index}`}
           className={cn(
-            "absolute overflow-hidden rounded-[16px] border border-white/85 shadow-[var(--surface-shadow-interactive)]",
+            "absolute overflow-hidden rounded-control-default border border-surface-panel-border shadow-surface-interactive",
             frameClass,
             thumbnail ? "bg-surface-inset" : fallbackClass,
           )}
@@ -54,7 +54,7 @@ export function PhotoStackPreview({
         </div>
       ))}
 
-      <div className="absolute inset-x-4 bottom-4 z-30 flex justify-end rounded-[14px] bg-white/78 px-4 py-3 backdrop-blur-sm">
+      <div className="absolute inset-x-4 bottom-4 z-30 flex justify-end rounded-control-compact bg-surface-panel px-4 py-3 backdrop-blur-sm">
         <span className="text-xs font-medium text-content-muted">
           {footerLabel}
         </span>

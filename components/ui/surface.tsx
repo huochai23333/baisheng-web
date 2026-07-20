@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import type { ComponentPropsWithoutRef, ElementType } from "react";
 
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -8,11 +8,13 @@ const surfaceVariants = cva("min-w-0 border", {
   variants: {
     variant: {
       panel:
-        "rounded-[24px] border-white/85 bg-surface-panel shadow-[var(--surface-shadow-panel)] sm:rounded-[28px]",
+        "rounded-surface-panel border-surface-panel-border bg-surface-panel shadow-surface-panel",
       inset:
-        "rounded-[20px] border-border-subtle bg-surface-inset shadow-[var(--surface-shadow-inset)] sm:rounded-[24px]",
+        "rounded-surface-inset border-border-subtle bg-surface-inset shadow-surface-inset",
       interactive:
-        "rounded-[20px] border-border-subtle bg-surface-interactive shadow-[var(--surface-shadow-interactive)] transition hover:border-ring sm:rounded-[24px]",
+        "rounded-surface-inset border-border-subtle bg-surface-interactive shadow-surface-interactive transition hover:border-ring",
+      floating:
+        "rounded-surface-panel border-surface-panel-border bg-surface-overlay shadow-surface-floating",
     },
     padding: {
       compact: "p-3 sm:p-4",
@@ -26,14 +28,28 @@ const surfaceVariants = cva("min-w-0 border", {
   },
 });
 
-export function Surface({
+type SurfaceElement = "section" | "article" | "div";
+
+type SurfaceProps<TElement extends SurfaceElement> = {
+  as?: TElement;
+} & Omit<ComponentPropsWithoutRef<TElement>, "as"> &
+  VariantProps<typeof surfaceVariants>;
+
+/**
+ * 表面组件统一面板的材质、圆角、阴影和内边距。
+ * `as` 只改变语义标签，不允许业务组件因此复制另一套外观。
+ */
+export function Surface<TElement extends SurfaceElement = "section">({
+  as,
   className,
   padding,
   variant,
   ...props
-}: ComponentProps<"section"> & VariantProps<typeof surfaceVariants>) {
+}: SurfaceProps<TElement>) {
+  const Component = (as ?? "section") as ElementType;
+
   return (
-    <section
+    <Component
       className={cn(surfaceVariants({ padding, variant }), className)}
       data-slot="surface"
       data-surface-variant={variant ?? "panel"}

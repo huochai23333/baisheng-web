@@ -2,13 +2,7 @@
 
 import { Select } from "@/components/ui/select";
 
-import {
-  BadgeCheck,
-  Clock3,
-  Filter,
-  Sparkles,
-  UserRound,
-} from "lucide-react";
+import { BadgeCheck, Clock3, Filter, Sparkles, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -22,6 +16,7 @@ import {
   type DashboardSectionHeaderMetric,
 } from "@/components/dashboard/dashboard-section-header";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
+import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
 import type {
   BusinessVipMembershipAction,
   BusinessVipPageData,
@@ -221,8 +216,9 @@ export function BusinessVipDirectorySection({
           title={t("directory.emptyTitle")}
         />
       ) : (
-        <>
-          <div className="hidden lg:block">
+        <ResponsiveDataView
+          breakpoint="lg"
+          desktop={
             <BusinessVipTable
               canAdmin={canAdmin}
               canRequest={canRequest}
@@ -233,23 +229,25 @@ export function BusinessVipDirectorySection({
               pendingActionKey={pendingActionKey}
               rows={filteredRows}
             />
-          </div>
-          <div className="grid gap-3 lg:hidden">
-            {filteredRows.map((row) => (
-              <BusinessVipMobileCard
-                canAdmin={canAdmin}
-                canRequest={canRequest}
-                key={row.targetId}
-                locale={locale}
-                onOpenAdjust={onOpenAdjust}
-                onOpenRequest={onOpenRequest}
-                onOpenReview={onOpenReview}
-                pendingActionKey={pendingActionKey}
-                row={row}
-              />
-            ))}
-          </div>
-        </>
+          }
+          mobile={
+            <>
+              {filteredRows.map((row) => (
+                <BusinessVipMobileCard
+                  canAdmin={canAdmin}
+                  canRequest={canRequest}
+                  key={row.targetId}
+                  locale={locale}
+                  onOpenAdjust={onOpenAdjust}
+                  onOpenRequest={onOpenRequest}
+                  onOpenReview={onOpenReview}
+                  pendingActionKey={pendingActionKey}
+                  row={row}
+                />
+              ))}
+            </>
+          }
+        />
       )}
     </DashboardListSection>
   );

@@ -32,7 +32,7 @@ export function EmptyState({
   description: string;
 }) {
   return (
-    <div className="motion-surface-enter flex min-h-[280px] flex-col items-center justify-center rounded-[24px] border border-dashed border-border bg-surface-panel px-6 py-10 text-center">
+    <div className="motion-surface-enter flex min-h-[280px] flex-col items-center justify-center rounded-surface-panel border border-dashed border-border bg-surface-panel px-6 py-10 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-status-info-soft text-status-info">
         {icon}
       </div>

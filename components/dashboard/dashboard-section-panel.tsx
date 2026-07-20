@@ -177,7 +177,7 @@ export function DashboardTableFrame({
     <div
       className={cn(
         surfaceVariants({ padding: null, variant: "interactive" }),
-        "motion-surface-enter overflow-hidden hover:border-border-subtle sm:rounded-[24px]",
+        "motion-surface-enter overflow-hidden hover:border-border-subtle sm:rounded-surface-panel",
         className,
       )}
     >

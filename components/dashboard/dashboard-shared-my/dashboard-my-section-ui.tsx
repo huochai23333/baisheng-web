@@ -26,7 +26,7 @@ export function DashboardMySectionShell({
 }) {
   return (
     <section
-      className="scroll-mt-28 rounded-[28px] border border-white/85 bg-white/68 p-6 shadow-[var(--surface-shadow-interactive)] xl:p-8 xl:col-span-6"
+      className="scroll-mt-28 rounded-surface-panel border border-surface-panel-border bg-surface-panel p-6 shadow-surface-interactive xl:p-8 xl:col-span-6"
       id={id}
     >
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

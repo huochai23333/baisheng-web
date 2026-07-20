@@ -104,7 +104,7 @@ export function DashboardFilePicker({
         <label
           aria-disabled={disabled}
           className={cn(
-            "inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-white px-4 text-sm font-medium text-primary transition hover:bg-surface-inset sm:w-fit",
+            "inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-surface-interactive px-4 text-sm font-medium text-primary transition hover:bg-surface-inset sm:w-fit",
             disabled && "pointer-events-none opacity-60",
           )}
           htmlFor={id}

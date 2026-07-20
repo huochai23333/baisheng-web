@@ -20,7 +20,7 @@ function ReviewLoadingState() {
 
   return (
     <div className="mx-auto flex min-h-[60vh] w-full max-w-[1320px] items-center justify-center">
-      <div className="rounded-[28px] border border-white/85 bg-white/72 px-6 py-5 text-sm text-content-muted shadow-[var(--surface-shadow-interactive)]">
+      <div className="rounded-surface-panel border border-surface-panel-border bg-surface-panel px-6 py-5 text-sm text-content-muted shadow-surface-interactive">
         {t("loading")}
       </div>
     </div>
@@ -49,7 +49,7 @@ function PrivacyReviewList({
   }
 
   return (
-    <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-white shadow-[var(--surface-shadow-interactive)]">
+    <div className="overflow-hidden rounded-surface-panel border border-border-subtle bg-surface-interactive shadow-surface-interactive">
       <div className="hidden grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px] gap-5 border-b border-border-subtle bg-surface-inset px-6 py-4 lg:grid">
         <ReviewHeaderCell>{t("privacy.columns.name")}</ReviewHeaderCell>
         <ReviewHeaderCell>{t("privacy.columns.email")}</ReviewHeaderCell>

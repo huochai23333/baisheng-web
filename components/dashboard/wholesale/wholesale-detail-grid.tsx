@@ -16,7 +16,7 @@ export function WholesaleDetailGrid({
     <div className="grid gap-3 sm:grid-cols-2">
       {rows.map((row) => (
         <div
-          className="min-w-0 rounded-[18px] border border-border-subtle bg-white px-4 py-3"
+          className="min-w-0 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3"
           key={row.label}
         >
           <p className="text-xs font-semibold text-content-muted">

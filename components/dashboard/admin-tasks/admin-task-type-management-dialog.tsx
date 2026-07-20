@@ -109,7 +109,9 @@ export function TaskTypeManagementDialog({
     >
       <div className="space-y-6">
         {feedback ? (
-          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+          <FeedbackNotice tone={feedback.tone}>
+            {feedback.message}
+          </FeedbackNotice>
         ) : null}
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
@@ -130,7 +132,7 @@ export function TaskTypeManagementDialog({
             </div>
 
             {taskTypeOptions.length === 0 ? (
-              <div className="rounded-[20px] border border-dashed border-border bg-surface-inset p-5 text-sm leading-7 text-content-muted">
+              <div className="rounded-surface-inset border border-dashed border-border bg-surface-inset p-5 text-sm leading-7 text-content-muted">
                 {t("taskTypes.list.empty")}
               </div>
             ) : (
@@ -138,10 +140,10 @@ export function TaskTypeManagementDialog({
                 {taskTypeOptions.map((taskType) => (
                   <div
                     className={[
-                      "rounded-[20px] border p-4 transition",
+                      "rounded-surface-inset border p-4 transition",
                       editingTaskType?.code === taskType.code
                         ? "border-primary bg-surface-inset"
-                        : "border-border-subtle bg-white",
+                        : "border-border-subtle bg-surface-interactive",
                     ].join(" ")}
                     key={taskType.code}
                   >
@@ -221,7 +223,7 @@ export function TaskTypeManagementDialog({
             )}
           </section>
 
-          <section className="rounded-[22px] border border-border-subtle bg-surface-inset p-5">
+          <section className="rounded-control-large border border-border-subtle bg-surface-inset p-5">
             <h3 className="text-sm font-semibold text-content-strong">
               {editingTaskType
                 ? t("taskTypes.form.editTitle")

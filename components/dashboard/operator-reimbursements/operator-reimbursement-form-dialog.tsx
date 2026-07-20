@@ -5,8 +5,8 @@ import { DatePicker } from "@/components/ui/date-picker";
 
 import {
   FormDialog,
+  DashboardFormField,
   DashboardFormTextarea,
-  dashboardFormInputClassName,
 } from "@/components/dashboard/dashboard-form-dialog";
 
 import type { FeedbackTone } from "../dashboard-shared-ui";
@@ -59,17 +59,15 @@ export function OperatorReimbursementFormDialog({
       title={copy.createTitle}
     >
       <div className="grid gap-4 md:grid-cols-[0.8fr_1fr]">
-        <FormControls.Field label={copy.spentAtLabel}>
+        <DashboardFormField label={copy.spentAtLabel} required>
           <DatePicker
             onValueChange={(value) => onUpdateField("spentAt", value)}
             value={formState.spentAt}
           />
-        </FormControls.Field>
+        </DashboardFormField>
 
-        <label className="grid gap-2 text-sm font-semibold text-content-strong">
-          {copy.amountLabel}
+        <DashboardFormField label={copy.amountLabel} required>
           <FormControls.Input
-            className={dashboardFormInputClassName}
             inputMode="decimal"
             min="0"
             onChange={(event) => onUpdateField("amount", event.target.value)}
@@ -77,17 +75,16 @@ export function OperatorReimbursementFormDialog({
             type="number"
             value={formState.amount}
           />
-        </label>
+        </DashboardFormField>
       </div>
 
-      <label className="grid gap-2 text-sm font-semibold text-content-strong">
-        {copy.contentLabel}
+      <DashboardFormField label={copy.contentLabel} required>
         <DashboardFormTextarea
           onChange={(event) => onUpdateField("content", event.target.value)}
           placeholder={copy.contentPlaceholder}
           value={formState.content}
         />
-      </label>
+      </DashboardFormField>
     </FormDialog>
   );
 }

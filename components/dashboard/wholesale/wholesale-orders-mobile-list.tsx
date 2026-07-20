@@ -78,7 +78,7 @@ export function WholesaleOrdersMobileList({
         );
         return (
           <DesignButton
-            className="min-w-0 rounded-[22px] border border-border-subtle bg-white p-4 text-left shadow-sm transition active:scale-[0.99]"
+            className="min-w-0 rounded-control-large border border-border-subtle bg-surface-interactive p-4 text-left shadow-sm transition active:scale-[0.99]"
             data-testid={`wholesale-order-card-${order.id}`}
             key={order.id}
             onClick={() => setSelectedOrder(order)}
@@ -166,7 +166,7 @@ export function WholesaleOrdersMobileList({
 }
 function MobileOrderValue({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-[14px] bg-surface-inset px-3 py-2">
+    <div className="min-w-0 rounded-control-compact bg-surface-inset px-3 py-2">
       <p className="text-xs text-content-muted">{label}</p>
       <p className="mt-1 break-words font-medium text-content-muted [overflow-wrap:anywhere]">
         {value}

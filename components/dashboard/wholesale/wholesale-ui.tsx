@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import { LoaderCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { MetricCard, MetricGrid } from "@/components/ui/data-display";
 import { cn } from "@/lib/utils";
 
 import { DashboardSectionHeader } from "../dashboard-section-header";
@@ -21,10 +22,10 @@ import {
 import { EmptyState as DashboardEmptyState } from "../dashboard-shared-ui";
 
 export const wholesaleStickyFirstThClassName =
-  "sticky left-0 z-30 min-w-[180px] whitespace-normal border-r border-border-subtle bg-surface-inset shadow-[var(--surface-shadow-interactive)]";
+  "sticky left-0 z-30 min-w-[180px] whitespace-normal border-r border-border-subtle bg-surface-inset shadow-surface-interactive";
 
 export const wholesaleStickyFirstTdClassName =
-  "sticky left-0 z-20 min-w-[180px] whitespace-normal border-r border-border-subtle bg-white shadow-[var(--surface-shadow-interactive)] group-hover:bg-surface-inset";
+  "sticky left-0 z-20 min-w-[180px] whitespace-normal border-r border-border-subtle bg-surface-interactive shadow-surface-interactive group-hover:bg-surface-inset";
 
 export function WholesalePageShell({
   actions,
@@ -101,26 +102,17 @@ export function WholesaleStatGrid({
   stats: Array<{ label: string; value: string; helper?: string }>;
 }) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <MetricGrid layout="four-column">
       {stats.map((stat) => (
-        <div
-          className="min-w-0 rounded-[24px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)] sm:p-6"
+        <MetricCard
+          description={stat.helper}
           key={stat.label}
-        >
-          <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
-            {stat.label}
-          </p>
-          <p className="mt-4 break-words rounded-[20px] bg-surface-inset px-4 py-3 text-xl font-bold tracking-tight text-content-strong [overflow-wrap:anywhere] sm:px-5 sm:py-4 sm:text-2xl">
-            {stat.value}
-          </p>
-          {stat.helper ? (
-            <p className="mt-3 break-words text-xs leading-5 text-content-muted [overflow-wrap:anywhere]">
-              {stat.helper}
-            </p>
-          ) : null}
-        </div>
+          label={stat.label}
+          presentation="value-panel"
+          value={stat.value}
+        />
       ))}
-    </div>
+    </MetricGrid>
   );
 }
 

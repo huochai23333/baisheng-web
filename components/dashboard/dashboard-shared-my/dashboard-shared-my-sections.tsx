@@ -138,14 +138,14 @@ function SectionNavigation({ copy }: { copy: DashboardMyCopy }) {
   return (
     <nav
       aria-label={copy.sectionNavigationLabel}
-      className="sticky top-[7.25rem] z-[5] grid grid-cols-2 gap-3 rounded-[24px] bg-surface-inset/90 py-2 backdrop-blur lg:top-[5.75rem] lg:grid-cols-4"
+      className="sticky top-[7.25rem] z-[5] grid grid-cols-2 gap-3 rounded-surface-panel bg-surface-inset/90 py-2 backdrop-blur lg:top-[5.75rem] lg:grid-cols-4"
     >
       {SECTION_ITEMS.map((item) => {
         const Icon = item.icon;
 
         return (
           <a
-            className="flex min-h-14 items-center gap-3 rounded-[20px] border border-border-subtle bg-white/78 px-4 py-3 text-sm font-semibold text-primary shadow-[var(--surface-shadow-interactive)] transition-colors hover:bg-surface-inset"
+            className="flex min-h-14 items-center gap-3 rounded-surface-inset border border-border-subtle bg-surface-panel px-4 py-3 text-sm font-semibold text-primary shadow-surface-interactive transition-colors hover:bg-surface-inset"
             href={item.href}
             key={item.href}
           >
@@ -167,11 +167,11 @@ function PersonalCenterSection({
 }) {
   return (
     <section
-      className="scroll-mt-28 rounded-[28px] border border-white/90 bg-surface-inset/92 p-6 shadow-[var(--surface-shadow-interactive)] xl:p-8"
+      className="scroll-mt-28 rounded-surface-panel border border-surface-panel-border bg-surface-inset/92 p-6 shadow-surface-interactive xl:p-8"
       id="personal-center"
     >
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-primary">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-surface-interactive text-primary">
           <UserRound className="size-5" />
         </div>
         <h3 className="text-2xl font-bold tracking-tight text-primary">
@@ -258,7 +258,7 @@ function AccountVerificationSection({
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:col-span-8">
           {assetDialog.assets.map((asset) => (
             <DesignButton
-              className="group rounded-[24px] border border-border-subtle bg-white p-4 text-left shadow-[var(--surface-shadow-interactive)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--surface-shadow-interactive)] active:scale-[0.985]"
+              className="group rounded-surface-panel border border-border-subtle bg-surface-interactive p-4 text-left shadow-surface-interactive transition-all duration-300 hover:-translate-y-1 hover:shadow-surface-interactive active:scale-[0.985]"
               key={asset.key}
               onClick={() => assetDialog.openDialog(asset.key)}
               type="button"
@@ -271,10 +271,10 @@ function AccountVerificationSection({
                   {asset.status}
                 </StatusBadge>
               </div>
-              <div className="relative mt-4 aspect-[1.58/1] overflow-hidden rounded-[18px] bg-surface-inset">
+              <div className="relative mt-4 aspect-[1.58/1] overflow-hidden rounded-record-card bg-surface-inset">
                 {asset.body}
                 <div className="absolute inset-0 flex items-center justify-center bg-surface-panel opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/92 text-primary">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-overlay text-primary">
                     <Search className="size-5" />
                   </div>
                 </div>
@@ -299,7 +299,7 @@ function VerificationStatusCard({
   return (
     <section
       className={cn(
-        "h-full rounded-[24px] border p-6 shadow-[var(--surface-shadow-interactive)]",
+        "h-full rounded-surface-panel border p-6 shadow-surface-interactive",
         tone.container,
       )}
     >

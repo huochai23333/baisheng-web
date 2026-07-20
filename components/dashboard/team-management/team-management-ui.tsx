@@ -41,7 +41,7 @@ export function SectionHeader({
 
 export function MiniMetric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-[18px] bg-surface-inset px-3 py-3">
+    <div className="rounded-record-card bg-surface-inset px-3 py-3">
       <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {label}
       </p>
@@ -58,7 +58,7 @@ export function InsightCard({
   description: string;
 }) {
   return (
-    <article className="rounded-[22px] border border-border-subtle bg-surface-inset p-4 shadow-[var(--surface-shadow-interactive)]">
+    <article className="rounded-control-large border border-border-subtle bg-surface-inset p-4 shadow-surface-interactive">
       <p className="text-lg font-semibold tracking-tight text-content-strong">
         {title}
       </p>
@@ -87,7 +87,7 @@ export function MemberCard({
   );
 
   return (
-    <article className="rounded-[24px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]">
+    <article className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-5 shadow-surface-interactive">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -154,7 +154,7 @@ export function CandidateCard({
   );
 
   return (
-    <article className="rounded-[22px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]">
+    <article className="rounded-control-large border border-border-subtle bg-surface-interactive p-4 shadow-surface-interactive">
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -218,7 +218,7 @@ export function ClientCard({ client }: { client: TeamClient }) {
   );
 
   return (
-    <article className="rounded-[22px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]">
+    <article className="rounded-control-large border border-border-subtle bg-surface-interactive p-5 shadow-surface-interactive">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -292,7 +292,7 @@ export function DataPill({
 
 function MiniInfo({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[18px] bg-surface-inset px-4 py-3">
+    <div className="rounded-record-card bg-surface-inset px-4 py-3">
       <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {label}
       </p>

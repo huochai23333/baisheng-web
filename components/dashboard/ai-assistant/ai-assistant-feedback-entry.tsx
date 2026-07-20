@@ -69,7 +69,7 @@ export function AiAssistantFeedbackEntry({
   }
 
   return (
-    <div className="rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
+    <div className="rounded-record-card border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
       <p>{feedbackPrompt.description}</p>
       <Button
         variant="secondary"

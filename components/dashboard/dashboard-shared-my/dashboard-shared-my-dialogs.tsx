@@ -173,9 +173,9 @@ export function DashboardSharedMyDialogs({
                   {assetDialog.photoAssets.map((photo, index) => (
                     <article
                       key={photo.id}
-                      className="rounded-[24px] border border-border-subtle bg-white p-3 shadow-[var(--surface-shadow-interactive)]"
+                      className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-3 shadow-surface-interactive"
                     >
-                      <div className="aspect-[4/5] overflow-hidden rounded-[18px] bg-surface-inset">
+                      <div className="aspect-[4/5] overflow-hidden rounded-record-card bg-surface-inset">
                         <LazyDashboardImagePreview
                           alt={photo.original_name}
                           asset={photo}
@@ -241,9 +241,9 @@ export function DashboardSharedMyDialogs({
                   {assetDialog.videoAssets.map((video) => (
                     <article
                       key={video.id}
-                      className="rounded-[24px] border border-border-subtle bg-white p-3 shadow-[var(--surface-shadow-interactive)]"
+                      className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-3 shadow-surface-interactive"
                     >
-                      <div className="overflow-hidden rounded-[18px] bg-surface-inset">
+                      <div className="overflow-hidden rounded-record-card bg-surface-inset">
                         <LazyDashboardVideoPreview
                           asset={video}
                           className="aspect-video w-full"
@@ -253,7 +253,7 @@ export function DashboardSharedMyDialogs({
                             </div>
                           }
                           loadingFallback={
-                            <div className="motion-skeleton h-full w-full bg-white/8" />
+                            <div className="motion-skeleton h-full w-full bg-surface-on-media" />
                           }
                           preload="metadata"
                           videoClassName="aspect-video w-full bg-surface-inset object-cover"
@@ -313,7 +313,7 @@ export function DashboardSharedMyDialogs({
             </div>
           ) : null}
 
-          <div className="rounded-[24px] border border-border-subtle bg-white p-6 shadow-[var(--surface-shadow-interactive)]">
+          <div className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-6 shadow-surface-interactive">
             <div className="flex items-center gap-3 text-primary">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-status-info-soft">
                 <UserRound className="size-5" />
@@ -326,33 +326,25 @@ export function DashboardSharedMyDialogs({
             </div>
 
             <div className="mt-5 space-y-4">
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-primary">
-                  {copy.nameLabel}
-                </span>
+              <FormControls.Field label={copy.nameLabel} required>
                 <FormControls.Input
-                  className="h-13 w-full rounded-[18px] border border-border-subtle bg-surface-inset px-4 text-[15px] text-content-strong outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30"
                   onChange={(event) =>
                     profileDialog.setNameDraft(event.target.value)
                   }
                   placeholder={copy.namePlaceholder}
                   value={profileDialog.nameDraft}
                 />
-              </label>
+              </FormControls.Field>
 
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-primary">
-                  {copy.cityLabel}
-                </span>
+              <FormControls.Field label={copy.cityLabel} required>
                 <FormControls.Input
-                  className="h-13 w-full rounded-[18px] border border-border-subtle bg-surface-inset px-4 text-[15px] text-content-strong outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30"
                   onChange={(event) =>
                     profileDialog.setCityDraft(event.target.value)
                   }
                   placeholder={copy.cityPlaceholder}
                   value={profileDialog.cityDraft}
                 />
-              </label>
+              </FormControls.Field>
 
               <div className="flex justify-end">
                 <Button

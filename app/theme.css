@@ -1,7 +1,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", "Segoe UI", Arial, sans-serif;
+  --font-sans:
+    "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", "Segoe UI", Arial,
+    sans-serif;
   --font-heading: var(--font-sans);
   --font-label: "Segoe UI", Arial, "Microsoft YaHei", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -38,6 +40,9 @@
   --color-surface-interactive: var(--surface-interactive);
   --color-surface-chrome: var(--surface-chrome);
   --color-surface-brand-soft: var(--surface-brand-soft);
+  --color-surface-panel-border: var(--surface-panel-border);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-surface-on-media: var(--surface-on-media);
   --color-content-strong: var(--content-strong);
   --color-content-muted: var(--content-muted);
   --color-content-subtle: var(--content-subtle);
@@ -86,6 +91,7 @@
   --radius-surface-inset: var(--surface-radius-inset);
   --radius-record-card: var(--record-card-radius);
   --radius-metric-card: var(--metric-card-radius);
+  --radius-option: var(--option-radius);
   --shadow-surface-panel: var(--surface-shadow-panel);
   --shadow-surface-header: var(--surface-shadow-header);
   --shadow-surface-navigation: var(--surface-shadow-navigation);
@@ -137,6 +143,9 @@
   --surface-interactive: #ffffff;
   --surface-chrome: #f4f3f1;
   --surface-brand-soft: #e4edf3;
+  --surface-panel-border: rgba(255, 255, 255, 0.85);
+  --surface-overlay: rgba(255, 255, 255, 0.92);
+  --surface-on-media: rgba(255, 255, 255, 0.18);
   --content-strong: #23313a;
   --content-muted: #66737e;
   --content-subtle: #6d7881;
@@ -218,6 +227,7 @@
   --surface-radius-inset: 1.25rem;
   --record-card-radius: 1.125rem;
   --metric-card-radius: 1.25rem;
+  --option-radius: 0.75rem;
   --surface-shadow-panel: 0 18px 45px rgba(96, 113, 128, 0.06);
   --surface-shadow-header: 0 18px 45px rgba(96, 113, 128, 0.08);
   --surface-shadow-navigation: 0 18px 45px rgba(96, 113, 128, 0.12);

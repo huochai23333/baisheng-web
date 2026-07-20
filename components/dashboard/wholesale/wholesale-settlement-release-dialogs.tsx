@@ -23,10 +23,7 @@ import {
   getWholesaleOrderRemainingAmount,
 } from "./wholesale-settlement-release-display";
 import { WholesaleSettlementReleaseOrderPicker } from "./wholesale-settlement-release-order-picker";
-import {
-  WholesaleSubmitButton,
-  WholesaleTextarea,
-} from "./wholesale-ui";
+import { WholesaleSubmitButton, WholesaleTextarea } from "./wholesale-ui";
 type CreateDialogProps = {
   currencyOptions: string[];
   customers: WholesaleCustomer[];
@@ -258,7 +255,7 @@ export function WholesaleSettlementReleaseClaimDialog({
 function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <DashboardFilterField label={label}>
-      <div className="min-h-11 rounded-[16px] border border-border-subtle bg-white px-4 py-3 text-sm leading-6 text-content-strong [overflow-wrap:anywhere]">
+      <div className="min-h-11 rounded-control-default border border-border-subtle bg-surface-interactive px-4 py-3 text-sm leading-6 text-content-strong [overflow-wrap:anywhere]">
         {value}
       </div>
     </DashboardFilterField>

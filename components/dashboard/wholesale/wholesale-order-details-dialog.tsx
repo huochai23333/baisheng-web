@@ -201,7 +201,7 @@ export function WholesaleOrderDetailsDialog({
             <div className="grid gap-2">
               {settlements.map((settlement) => (
                 <div
-                  className="rounded-[16px] bg-surface-inset p-3 text-sm text-content-muted"
+                  className="rounded-control-default bg-surface-inset p-3 text-sm text-content-muted"
                   key={settlement.id}
                 >
                   <p className="font-semibold text-content-muted">

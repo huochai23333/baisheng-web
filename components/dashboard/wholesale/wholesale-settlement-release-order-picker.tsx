@@ -128,7 +128,7 @@ function OrderPickerNotice({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-[16px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
+    <div className="rounded-control-default border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
       {children}
     </div>
   );

@@ -80,9 +80,11 @@ export function BusinessVipWholesaleActionDialog({
     >
       <div className="space-y-5">
         {feedback ? (
-          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+          <FeedbackNotice tone={feedback.tone}>
+            {feedback.message}
+          </FeedbackNotice>
         ) : null}
-        <div className="rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3">
+        <div className="rounded-record-card border border-border-subtle bg-surface-inset px-4 py-3">
           <p className="break-words text-sm font-semibold text-content-strong [overflow-wrap:anywhere]">
             {dialog.row.customerLabel}
           </p>
@@ -153,7 +155,7 @@ export function BusinessVipWholesaleRecordsDialog({
       title={t("dialogs.wholesale.recordsTitle")}
     >
       {records.length === 0 ? (
-        <div className="rounded-[20px] border border-border-subtle bg-white px-5 py-6 text-center">
+        <div className="rounded-surface-inset border border-border-subtle bg-surface-interactive px-5 py-6 text-center">
           <FileClock className="mx-auto size-5 text-primary" />
           <p className="mt-3 text-sm font-semibold text-content-strong">
             {t("dialogs.wholesale.recordsEmptyTitle")}
@@ -188,7 +190,7 @@ function WholesaleMembershipRecordCard({
   const fallback = t("fallback.noRecord");
 
   return (
-    <article className="rounded-[18px] border border-border-subtle bg-white px-4 py-3">
+    <article className="rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="font-semibold text-primary">

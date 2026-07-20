@@ -91,7 +91,7 @@ export function AdminTaskReviewList({
 
         return (
           <article
-            className="rounded-[28px] border border-border-subtle bg-white p-6 shadow-[var(--surface-shadow-interactive)]"
+            className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-6 shadow-surface-interactive"
             key={row.submission_id}
           >
             <div className="flex flex-col gap-5">
@@ -179,7 +179,7 @@ export function AdminTaskReviewList({
               </div>
 
               {normalizeOptionalString(row.submission_note) ? (
-                <div className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+                <div className="rounded-control-large border border-border-subtle bg-surface-inset p-4">
                   <p className="text-sm font-semibold text-primary">
                     {t("task.submissionNoteLabel")}
                   </p>
@@ -189,7 +189,7 @@ export function AdminTaskReviewList({
                 </div>
               ) : null}
 
-              <div className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+              <div className="rounded-control-large border border-border-subtle bg-surface-inset p-4">
                 <p className="text-sm font-semibold text-primary">
                   {t("task.assetsLabel")}
                 </p>
@@ -310,7 +310,7 @@ function InfoTile({
   value: string;
 }) {
   return (
-    <div className="rounded-[20px] bg-surface-inset px-4 py-3">
+    <div className="rounded-surface-inset bg-surface-inset px-4 py-3">
       <div className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {icon}
         <span>{label}</span>

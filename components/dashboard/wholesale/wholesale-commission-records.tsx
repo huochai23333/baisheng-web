@@ -1,6 +1,7 @@
 "use client";
 
 import { StatusBadge } from "@/components/ui/status-badge";
+import { RecordCard } from "@/components/ui/data-display";
 
 import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
 import { UiMessage } from "@/components/i18n/ui-message";
@@ -161,10 +162,7 @@ export function WholesaleCommissionRecords({
             {commissions.map((commission) => {
               const order = orderById.get(commission.order_id);
               return (
-                <article
-                  className="min-w-0 rounded-[8px] border border-border-subtle bg-white p-4"
-                  key={commission.id}
-                >
+                <RecordCard key={commission.id}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="break-words font-semibold text-content-strong">
@@ -208,7 +206,7 @@ export function WholesaleCommissionRecords({
                       pendingKey={pendingKey}
                     />
                   ) : null}
-                </article>
+                </RecordCard>
               );
             })}
           </>

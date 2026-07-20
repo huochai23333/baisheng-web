@@ -99,11 +99,13 @@ export function SalesmanTaskSubmitDialog({
     >
       <div className="space-y-5">
         {feedback ? (
-          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+          <FeedbackNotice tone={feedback.tone}>
+            {feedback.message}
+          </FeedbackNotice>
         ) : null}
 
         {task?.review_reject_reason ? (
-          <div className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+          <div className="rounded-control-large border border-border-subtle bg-surface-inset p-4">
             <p className="text-sm font-semibold text-status-danger">
               {t("rejectReasonLabel")}
             </p>
@@ -113,18 +115,18 @@ export function SalesmanTaskSubmitDialog({
           </div>
         ) : null}
 
-        <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-content-strong">
-            {requiresAttachment ? t("noteLabel") : t("noteRequiredLabel")}
-          </span>
+        <FormControls.Field
+          label={requiresAttachment ? t("noteLabel") : t("noteRequiredLabel")}
+          required={!requiresAttachment}
+        >
           <FormControls.Textarea
             aria-required={!requiresAttachment}
-            className="min-h-[140px] w-full rounded-[22px] border border-border bg-white px-4 py-3 text-sm leading-7 text-content-strong outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30"
+            className="min-h-[140px]"
             onChange={(event) => onNoteChange(event.target.value)}
             placeholder={t("notePlaceholder")}
             value={note}
           />
-        </label>
+        </FormControls.Field>
 
         <div>
           <p className="mb-2 text-sm font-semibold text-content-strong">
@@ -161,7 +163,7 @@ export function SalesmanTaskSubmitDialog({
             <div className="mt-4 space-y-2">
               {files.map((file, index) => (
                 <div
-                  className="flex items-center justify-between gap-3 rounded-[18px] border border-border-subtle bg-white px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3"
                   key={`${file.name}-${file.size}-${index}`}
                 >
                   <div className="min-w-0">

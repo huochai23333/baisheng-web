@@ -166,7 +166,7 @@ function WholesaleClaimGroupDialogForm({
         if (succeeded) onOpenChange(false);
       }}
     >
-      <div className="rounded-[18px] bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
+      <div className="rounded-record-card bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
         {uiText("selectionSummary", {
           count: purchaseOrderIds.length,
         })}
@@ -176,7 +176,7 @@ function WholesaleClaimGroupDialogForm({
         <span className="text-sm font-medium text-content-muted">
           {uiText("purchaseOrdersLabel")}
         </span>
-        <div className="flex max-h-40 min-w-0 flex-wrap gap-2 overflow-y-auto rounded-[18px] border border-border bg-white p-3">
+        <div className="flex max-h-40 min-w-0 flex-wrap gap-2 overflow-y-auto rounded-record-card border border-border bg-surface-interactive p-3">
           {initialPurchaseOrders
             .filter((purchaseOrder) =>
               purchaseOrderIds.includes(purchaseOrder.id),
@@ -194,7 +194,7 @@ function WholesaleClaimGroupDialogForm({
                     aria-label={uiText("removePurchaseOrder", {
                       orderNumber: purchaseOrder.external_order_number,
                     })}
-                    className="shrink-0 rounded-full p-0.5 hover:bg-white"
+                    className="shrink-0 rounded-full p-0.5 hover:bg-surface-interactive"
                     onClick={() =>
                       setPurchaseOrderIds((current) =>
                         current.filter((id) => id !== purchaseOrder.id),
@@ -231,7 +231,7 @@ function WholesaleClaimGroupDialogForm({
       />
 
       {target.kind === "edit" && confirmingCancel ? (
-        <div className="rounded-[18px] border border-border-subtle bg-surface-inset p-4 text-sm leading-6 text-content-muted">
+        <div className="rounded-record-card border border-border-subtle bg-surface-inset p-4 text-sm leading-6 text-content-muted">
           <p>{uiText("cancelWarning")}</p>
           <div className="mt-3 flex flex-wrap justify-end gap-2">
             <Button

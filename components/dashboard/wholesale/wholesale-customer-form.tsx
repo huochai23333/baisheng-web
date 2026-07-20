@@ -93,7 +93,7 @@ export function WholesaleCustomerForm({
           />
         </DashboardFilterField>
       ) : (
-        <div className="min-w-0 rounded-[18px] border border-border-subtle bg-white px-4 py-3">
+        <div className="min-w-0 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3">
           <FormControls.Input
             name="assigned_sales_user_id"
             type="hidden"

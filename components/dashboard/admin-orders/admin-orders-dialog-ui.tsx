@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 
+import { Field } from "@/components/ui/form-controls";
 import { cn } from "@/lib/utils";
 
 export function OrderField({
@@ -14,13 +15,9 @@ export function OrderField({
   children: ReactNode;
 }) {
   return (
-    <label className="block">
-      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-content-muted">
-        <span>{label}</span>
-        {required ? <span className="text-status-danger">*</span> : null}
-      </div>
+    <Field label={label} required={required}>
       {children}
-    </label>
+    </Field>
   );
 }
 
@@ -34,7 +31,7 @@ export function OrderSupplementaryFormSection({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-[28px] border border-border-subtle bg-surface-inset p-5 shadow-[var(--surface-shadow-interactive)] sm:p-6">
+    <section className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5 shadow-surface-interactive sm:p-6">
       <div className="mb-5">
         <h3 className="text-lg font-semibold text-content-strong">{title}</h3>
         <p className="mt-2 text-sm leading-7 text-content-muted">
@@ -56,7 +53,7 @@ export function OrderFormSection({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-[28px] border border-border-subtle bg-surface-inset p-5 shadow-[var(--surface-shadow-interactive)] sm:p-6">
+    <section className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5 shadow-surface-interactive sm:p-6">
       <div className="mb-5">
         <h3 className="text-lg font-semibold text-content-strong">{title}</h3>
         <p className="mt-2 text-sm leading-7 text-content-muted">
@@ -78,7 +75,7 @@ export function OrderDetailCard({
   multiline?: boolean;
 }) {
   return (
-    <div className="rounded-[22px] border border-border-subtle bg-white px-5 py-4 shadow-[var(--surface-shadow-interactive)]">
+    <div className="rounded-control-large border border-border-subtle bg-surface-interactive px-5 py-4 shadow-surface-interactive">
       <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
         {label}
       </p>
@@ -96,4 +93,4 @@ export function OrderDetailCard({
 }
 
 export const fieldInputClassName =
-  "h-12 w-full rounded-[18px] border border-border-subtle bg-white px-4 text-[15px] text-content-strong shadow-[var(--surface-shadow-interactive)] outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-70";
+  "h-12 w-full rounded-record-card border border-border-subtle bg-surface-interactive px-4 text-[15px] text-content-strong shadow-surface-interactive outline-none transition focus:border-ring focus:ring-4 focus:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-70";

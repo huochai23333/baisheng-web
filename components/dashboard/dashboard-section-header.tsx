@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { MetricCard } from "@/components/ui/data-display";
+import { MetricCard, MetricGrid } from "@/components/ui/data-display";
 
 export type DashboardSectionHeaderMetric = {
   accent: "blue" | "gold" | "green";
@@ -62,7 +62,7 @@ export function DashboardSectionHeader({
   return (
     <section
       className={cn(
-        "motion-surface-enter rounded-[24px] border border-white/90 bg-surface-chrome/92 p-5 shadow-[var(--surface-shadow-header)] sm:rounded-[28px] sm:p-6 xl:p-8",
+        "motion-surface-enter rounded-surface-panel border border-surface-panel-border bg-surface-chrome/92 p-5 shadow-surface-header sm:rounded-surface-panel sm:p-6 xl:p-8",
         className,
       )}
     >
@@ -148,19 +148,14 @@ function HeaderMetricGrid({
   metrics: readonly DashboardSectionHeaderMetric[];
 }) {
   return (
-    <div
-      className={cn(
-        "grid w-full grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3",
-        className,
-      )}
-    >
+    <MetricGrid className={className} layout="header">
       {metrics.map((metric, index) => (
         <MetricCard
-          compact
           icon={metric.icon}
           key={metric.key ?? `${metric.label}-${index}`}
           label={metric.label}
           labelClassName={metric.labelClassName}
+          presentation="header"
           tone={
             metric.accent === "blue"
               ? "info"
@@ -171,6 +166,6 @@ function HeaderMetricGrid({
           value={metric.value}
         />
       ))}
-    </div>
+    </MetricGrid>
   );
 }

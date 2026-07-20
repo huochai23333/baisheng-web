@@ -101,12 +101,14 @@ export function AssignmentDialog({
     >
       <div className="space-y-6">
         {feedback ? (
-          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+          <FeedbackNotice tone={feedback.tone}>
+            {feedback.message}
+          </FeedbackNotice>
         ) : null}
 
         {selectedTask ? (
           <>
-            <div className="rounded-[24px] border border-border-subtle bg-surface-inset p-5">
+            <div className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5">
               <div className="flex flex-wrap items-center gap-2">
                 <TaskStatusPill status={selectedTask.status} />
               </div>
@@ -137,26 +139,13 @@ export function AssignmentDialog({
                     const checked = formState.targetRoles.includes(option.role);
 
                     return (
-                      <label
-                        className={[
-                          "flex min-h-11 items-center gap-3 rounded-[16px] border px-3 py-2 text-sm font-medium transition",
-                          checked
-                            ? "border-primary bg-surface-inset text-content-strong"
-                            : "border-border-subtle bg-white text-content-muted",
-                          pending
-                            ? "cursor-not-allowed opacity-60"
-                            : "cursor-pointer hover:bg-surface-inset",
-                        ].join(" ")}
+                      <FormControls.ChoiceField
+                        checked={checked}
+                        disabled={pending}
                         key={option.role}
-                      >
-                        <FormControls.Checkbox
-                          checked={checked}
-                          className="size-4 accent-primary"
-                          disabled={pending}
-                          onChange={() => onTargetRoleToggle(option.role)}
-                        />
-                        {getTaskTargetRoleLabel(option.role, sharedT)}
-                      </label>
+                        label={getTaskTargetRoleLabel(option.role, sharedT)}
+                        onChange={() => onTargetRoleToggle(option.role)}
+                      />
                     );
                   })}
                 </div>

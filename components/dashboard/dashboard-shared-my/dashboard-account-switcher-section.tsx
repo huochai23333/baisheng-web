@@ -54,7 +54,7 @@ export function DashboardAccountSwitcherSection({
           />
         ) : (
           <DesignButton
-            className="group flex min-h-[76px] w-full items-center justify-center rounded-2xl border border-dashed border-border-subtle bg-white/72 px-4 py-3 text-primary shadow-[var(--surface-shadow-interactive)] transition-colors hover:border-border-subtle hover:bg-white"
+            className="group flex min-h-[76px] w-full items-center justify-center rounded-2xl border border-dashed border-border-subtle bg-surface-panel px-4 py-3 text-primary shadow-surface-interactive transition-colors hover:border-border-subtle hover:bg-surface-interactive"
             disabled={busyKey !== null}
             onClick={() => void state.actions.addAlternateAccount()}
             type="button"
@@ -139,7 +139,7 @@ function SavedAccountSwitchRow({
   return (
     <article
       className={cn(
-        "flex min-h-[88px] items-center justify-between gap-3 rounded-2xl border bg-white/78 px-4 py-3 shadow-[var(--surface-shadow-interactive)] sm:px-5",
+        "flex min-h-[88px] items-center justify-between gap-3 rounded-2xl border bg-surface-panel px-4 py-3 shadow-surface-interactive sm:px-5",
         needsReauthentication ? "border-border-subtle" : "border-border-subtle",
       )}
     >

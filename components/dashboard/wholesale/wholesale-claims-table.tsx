@@ -29,7 +29,7 @@ const stickyOrderTdClassName = `${wholesaleStickyFirstTdClassName} min-w-[220px]
 const selectionThClassName =
   "sticky left-0 z-40 w-[56px] min-w-[56px] border-r border-border-subtle bg-surface-inset text-center";
 const selectionTdClassName =
-  "sticky left-0 z-30 w-[56px] min-w-[56px] border-r border-border-subtle bg-white text-center group-hover:bg-surface-inset";
+  "sticky left-0 z-30 w-[56px] min-w-[56px] border-r border-border-subtle bg-surface-interactive text-center group-hover:bg-surface-inset";
 
 export type WholesaleClaimsTableSelection = {
   allSelected: boolean;

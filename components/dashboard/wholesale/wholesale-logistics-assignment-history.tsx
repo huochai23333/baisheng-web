@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
+import { RecordCard } from "@/components/ui/data-display";
 import { useDashboardConfirm } from "@/components/dashboard/dashboard-confirm-provider";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import type { WholesaleLogisticsStoreAssignment } from "@/lib/wholesale-logistics-page";
@@ -75,15 +76,12 @@ export function WholesaleLogisticsAssignmentHistory({
       </div>
       <div className="mt-3 grid gap-3">
         {assignments.length === 0 ? (
-          <p className="rounded-[18px] border border-dashed border-border-subtle p-4 text-sm text-content-muted">
+          <p className="rounded-record-card border border-dashed border-border-subtle p-4 text-sm text-content-muted">
             {t("assignments.noHistory")}
           </p>
         ) : (
           assignments.map((assignment) => (
-            <article
-              className="min-w-0 rounded-[18px] border border-border-subtle bg-white p-4"
-              key={assignment.id}
-            >
+            <RecordCard key={assignment.id}>
               <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <p className="break-words font-semibold text-content-strong">
@@ -146,7 +144,7 @@ export function WholesaleLogisticsAssignmentHistory({
                   ) : null}
                 </div>
               </div>
-            </article>
+            </RecordCard>
           ))
         )}
       </div>

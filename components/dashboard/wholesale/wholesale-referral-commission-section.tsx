@@ -210,7 +210,7 @@ export function WholesaleReferralCommissionSection({
                 <>
                   {filteredRows.map((row) => (
                     <div
-                      className="rounded-[8px] border border-border-subtle bg-white p-4"
+                      className="rounded-sm border border-border-subtle bg-surface-interactive p-4"
                       key={`${row.referrerCustomerId}-${row.referredCustomerId}-${row.monthKey}`}
                     >
                       <div className="flex items-start justify-between gap-3">

@@ -68,7 +68,7 @@ export function OrderServiceFeeSummaryCard({
 }) {
   const t = useTranslations("OrdersUI.serviceFeePreview");
   const classNames = [
-    "rounded-[22px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]",
+    "rounded-control-large border border-border-subtle bg-surface-interactive p-5 shadow-surface-interactive",
     className,
   ]
     .filter(Boolean)
@@ -84,7 +84,7 @@ export function OrderServiceFeeSummaryCard({
           </p>
         </div>
         {loading ? (
-          <div className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-white px-3 py-1 text-xs text-content-muted">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-surface-interactive px-3 py-1 text-xs text-content-muted">
             <LoaderCircle className="size-3.5 animate-spin" />
             {t("loading")}
           </div>
@@ -116,7 +116,7 @@ export function OrderServiceFeeSummaryCard({
 
 function PreviewMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3">
+    <div className="rounded-record-card border border-border-subtle bg-surface-inset px-4 py-3">
       <p className="text-xs text-content-muted">{label}</p>
       <p className="mt-1 break-words text-sm font-semibold text-content-muted">
         {value}

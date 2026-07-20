@@ -72,7 +72,7 @@ export function AdminShellDesktopNav({
       ))}
 
       {groups.length === 0 ? (
-        <p className="mx-1 rounded-[18px] border border-border-subtle bg-white/62 px-4 py-3 text-sm leading-6 text-content-muted">
+        <p className="mx-1 rounded-record-card border border-border-subtle bg-surface-panel px-4 py-3 text-sm leading-6 text-content-muted">
           {emptyGroupsLabel}
         </p>
       ) : null}
@@ -88,7 +88,7 @@ export function AdminShellDesktopNav({
             <DesignButton
               aria-expanded={isOpen}
               className={cn(
-                "mx-1 flex w-[calc(100%-0.5rem)] items-center justify-between gap-3 rounded-[18px] px-4 py-3 text-left text-sm font-semibold transition-all duration-200",
+                "mx-1 flex w-[calc(100%-0.5rem)] items-center justify-between gap-3 rounded-record-card px-4 py-3 text-left text-sm font-semibold transition-all duration-200",
                 isGroupActive
                   ? "bg-status-info-soft text-content-muted"
                   : "text-content-muted/76 hover:bg-surface-inset hover:text-content-muted",

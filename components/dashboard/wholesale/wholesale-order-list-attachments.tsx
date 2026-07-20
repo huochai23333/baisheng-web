@@ -202,7 +202,7 @@ function WholesaleOrderListAttachmentDialog({
     >
       <div className="space-y-5">
         <form
-          className="rounded-[18px] border border-dashed border-border-subtle bg-surface-inset p-4"
+          className="rounded-record-card border border-dashed border-border-subtle bg-surface-inset p-4"
           onSubmit={(event) => {
             event.preventDefault();
             if (selectedFiles.length === 0) return;
@@ -254,7 +254,7 @@ function WholesaleOrderListAttachmentDialog({
             {t("uploaded")}
           </h3>
           {attachments.length === 0 ? (
-            <div className="rounded-[16px] bg-surface-inset px-4 py-3 text-sm text-content-muted">
+            <div className="rounded-control-default bg-surface-inset px-4 py-3 text-sm text-content-muted">
               {t("noneUploaded")}
             </div>
           ) : (
@@ -264,7 +264,7 @@ function WholesaleOrderListAttachmentDialog({
 
               return (
                 <div
-                  className="flex min-w-0 flex-col gap-3 rounded-[16px] border border-border-subtle bg-white p-3 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex min-w-0 flex-col gap-3 rounded-control-default border border-border-subtle bg-surface-interactive p-3 sm:flex-row sm:items-center sm:justify-between"
                   data-attachment-name={attachment.original_name}
                   key={attachment.id}
                 >

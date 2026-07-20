@@ -104,7 +104,7 @@ export function AdminPeopleAccountDetails({
         <p className="text-sm font-semibold text-content-strong">
           {t("details.noteTitle")}
         </p>
-        <div className="mt-3 min-w-0 rounded-[18px] border border-border-subtle bg-white px-4 py-3 text-sm leading-6 text-content-muted">
+        <div className="mt-3 min-w-0 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3 text-sm leading-6 text-content-muted">
           <p className="break-words [overflow-wrap:anywhere]">
             {person.private_note ?? t("fallback.noPrivateNote")}
           </p>
@@ -135,7 +135,7 @@ function DetailSection({
 
 function DetailItem({ item }: { item: AccountDetailItem }) {
   return (
-    <div className="min-w-0 rounded-[18px] border border-border-subtle bg-white px-4 py-3">
+    <div className="min-w-0 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3">
       <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {item.label}
       </p>

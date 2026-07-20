@@ -55,7 +55,7 @@ export function DashboardAccountSwitcherConfirmDialog({
       open={open}
       title={title}
     >
-      <div className="flex items-start gap-3 rounded-[20px] border border-border-subtle bg-surface-inset p-4 text-sm leading-6 text-content-muted">
+      <div className="flex items-start gap-3 rounded-surface-inset border border-border-subtle bg-surface-inset p-4 text-sm leading-6 text-content-muted">
         <AlertTriangle className="mt-0.5 size-5 shrink-0 text-content-muted" />
         <p>{description}</p>
       </div>

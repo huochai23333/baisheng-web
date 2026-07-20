@@ -70,7 +70,7 @@ export function SalesmanTaskCard({
     (task.acceptance_unlimited || task.accepted_count < task.acceptance_limit);
 
   return (
-    <article className="rounded-[28px] border border-border-subtle bg-white p-6 shadow-[var(--surface-shadow-interactive)]">
+    <article className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-6 shadow-surface-interactive">
       <div className="flex flex-col gap-5">
         <div className="flex flex-wrap items-center gap-2">
           <TaskStatusPill status={task.status} />
@@ -165,7 +165,7 @@ export function SalesmanTaskCard({
         </div>
 
         {task.attachments.length > 0 ? (
-          <div className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+          <div className="rounded-control-large border border-border-subtle bg-surface-inset p-4">
             <p className="text-sm font-semibold text-primary">
               {t("attachmentsTitle")}
             </p>
@@ -199,7 +199,7 @@ export function SalesmanTaskCard({
         ) : null}
 
         {hasReviewFeedback ? (
-          <div className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+          <div className="rounded-control-large border border-border-subtle bg-surface-inset p-4">
             <p className="text-sm font-semibold text-status-danger">
               {t("reviewRejectReasonLabel")}
             </p>

@@ -214,7 +214,7 @@ function AnnouncementsWidgetContent({
         title={copy.announcements.sectionTitle}
       />
       {announcements.length === 0 ? (
-        <div className="mt-5 rounded-[22px] border border-border-subtle bg-surface-inset p-5">
+        <div className="mt-5 rounded-control-large border border-border-subtle bg-surface-inset p-5">
           <h4 className="text-base font-semibold text-content-strong">
             {copy.announcements.emptyTitle}
           </h4>
@@ -226,7 +226,7 @@ function AnnouncementsWidgetContent({
         <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
           {announcements.map((announcement) => (
             <article
-              className="rounded-[22px] border border-border-subtle bg-surface-inset p-4"
+              className="rounded-control-large border border-border-subtle bg-surface-inset p-4"
               key={announcement.id}
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">

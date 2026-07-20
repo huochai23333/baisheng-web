@@ -1,6 +1,7 @@
 "use client";
 
 import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
+import { RecordCard } from "@/components/ui/data-display";
 
 import { Select } from "@/components/ui/select";
 import { UiMessage } from "@/components/i18n/ui-message";
@@ -291,10 +292,7 @@ export function AdminPeopleRecentChangesSection({
             mobile={
               <>
                 {changes.map((change) => (
-                  <article
-                    className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]"
-                    key={change.id}
-                  >
+                  <RecordCard key={change.id}>
                     <p className="font-semibold text-content-strong">
                       {change.target_name ?? change.target_email ?? fallback}
                     </p>
@@ -320,7 +318,7 @@ export function AdminPeopleRecentChangesSection({
                     <p className="mt-1 text-xs text-content-muted">
                       {formatPeopleDate(change.created_at, locale, fallback)}
                     </p>
-                  </article>
+                  </RecordCard>
                 ))}
               </>
             }

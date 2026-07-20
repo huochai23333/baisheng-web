@@ -56,24 +56,24 @@ export function WholesaleOrderAssessmentPanel({
       </div>
 
       {matchedOrderCount === 0 ? (
-        <p className="mt-4 rounded-[16px] bg-white/72 px-4 py-3 text-sm leading-6 text-content-muted">
+        <p className="mt-4 rounded-control-default bg-surface-panel px-4 py-3 text-sm leading-6 text-content-muted">
           <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text004" />
         </p>
       ) : null}
 
       {errorMessage ? (
-        <p className="mt-4 rounded-[16px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
+        <p className="mt-4 rounded-control-default border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
           {errorMessage}
         </p>
       ) : null}
 
       {assessment ? (
         <div
-          className="mt-4 rounded-[18px] border border-white/80 bg-white px-4 py-4 text-sm leading-7 text-content-strong shadow-[var(--surface-shadow-interactive)]"
+          className="mt-4 rounded-record-card border border-surface-panel-border bg-surface-interactive px-4 py-4 text-sm leading-7 text-content-strong shadow-surface-interactive"
           data-testid="wholesale-order-assessment-output"
         >
           {hasStaleAssessment ? (
-            <p className="mb-3 rounded-[14px] bg-surface-inset px-3 py-2 text-xs leading-5 text-content-muted">
+            <p className="mb-3 rounded-control-compact bg-surface-inset px-3 py-2 text-xs leading-5 text-content-muted">
               <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text005" />
             </p>
           ) : null}

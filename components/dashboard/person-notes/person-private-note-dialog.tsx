@@ -71,7 +71,7 @@ export function PersonPrivateNoteDialog({
       })}
     >
       <div className="space-y-4">
-        <div className="flex items-start gap-3 rounded-[20px] border border-border-subtle bg-white p-4">
+        <div className="flex items-start gap-3 rounded-surface-inset border border-border-subtle bg-surface-interactive p-4">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-status-info-soft text-primary">
             <StickyNote className="size-4" />
           </span>
@@ -85,19 +85,16 @@ export function PersonPrivateNoteDialog({
           </div>
         </div>
 
-        <label className="block">
-          <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
-            {t("dialog.note")}
-          </span>
+        <FormControls.Field label={t("dialog.note")}>
           <FormControls.Textarea
-            className="min-h-40 w-full resize-y rounded-[18px] border border-border bg-white px-4 py-3 text-sm leading-6 text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
+            className="min-h-40"
             disabled={saving}
             maxLength={PERSON_PRIVATE_NOTE_MAX_LENGTH}
             onChange={(event) => onDraftNoteChange(event.target.value)}
             placeholder={t("dialog.placeholder")}
             value={draftNote}
           />
-        </label>
+        </FormControls.Field>
 
         <p className="text-right text-xs text-content-muted">
           {t("dialog.counter", {

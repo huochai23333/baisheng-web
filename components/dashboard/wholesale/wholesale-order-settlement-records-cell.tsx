@@ -22,7 +22,7 @@ export function WholesaleOrderSettlementRecordsCell({
     <div className="grid max-h-24 gap-2 overflow-y-auto pr-1">
       {settlements.map((settlement) => (
         <div
-          className="rounded-[10px] bg-surface-inset p-2 text-xs leading-5 text-content-muted"
+          className="rounded-sm bg-surface-inset p-2 text-xs leading-5 text-content-muted"
           key={settlement.id}
         >
           <p className="font-semibold text-content-muted">

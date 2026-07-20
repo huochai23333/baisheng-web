@@ -7,7 +7,6 @@ import { useTranslations } from "next-intl";
 import {
   FormDialog,
   DashboardFormField,
-  dashboardFormInputClassName,
 } from "@/components/dashboard/dashboard-form-dialog";
 import type { FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 
@@ -62,9 +61,11 @@ export function ExchangeRateFormDialog({
       }
     >
       <div className="grid gap-5 md:grid-cols-2">
-        <DashboardFormField label={t("dialogs.fields.originalCurrency")}>
+        <DashboardFormField
+          label={t("dialogs.fields.originalCurrency")}
+          required
+        >
           <FormControls.Input
-            className={dashboardFormInputClassName}
             disabled={pending}
             onChange={(event) =>
               onFieldChange("originalCurrency", event.target.value)
@@ -75,9 +76,8 @@ export function ExchangeRateFormDialog({
           />
         </DashboardFormField>
 
-        <DashboardFormField label={t("dialogs.fields.targetCurrency")}>
+        <DashboardFormField label={t("dialogs.fields.targetCurrency")} required>
           <FormControls.Input
-            className={dashboardFormInputClassName}
             disabled={pending}
             onChange={(event) =>
               onFieldChange("targetCurrency", event.target.value)
@@ -88,9 +88,11 @@ export function ExchangeRateFormDialog({
           />
         </DashboardFormField>
 
-        <DashboardFormField label={t("dialogs.fields.dailyExchangeRate")}>
+        <DashboardFormField
+          label={t("dialogs.fields.dailyExchangeRate")}
+          required
+        >
           <FormControls.Input
-            className={dashboardFormInputClassName}
             disabled={pending}
             min="0"
             onChange={(event) =>
@@ -103,7 +105,7 @@ export function ExchangeRateFormDialog({
           />
         </DashboardFormField>
 
-        <div className="rounded-[22px] border border-border-subtle bg-surface-inset px-4 py-4 text-sm leading-7 text-content-muted">
+        <div className="rounded-control-large border border-border-subtle bg-surface-inset px-4 py-4 text-sm leading-7 text-content-muted">
           {t("dialogs.currencyHint")}
         </div>
       </div>

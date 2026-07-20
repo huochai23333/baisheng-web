@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import { RecordCard } from "@/components/ui/data-display";
+import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
 import type {
   BusinessVipMembershipAction,
   BusinessVipRow,
@@ -41,8 +43,9 @@ export function BusinessVipWholesaleCustomerList({
   const t = useTranslations("BusinessVip");
 
   return (
-    <>
-      <div className="hidden lg:block">
+    <ResponsiveDataView
+      breakpoint="lg"
+      desktop={
         <DashboardTableFrame innerClassName="overflow-x-visible">
           <table className="w-full table-fixed text-left text-sm">
             <colgroup>
@@ -86,35 +89,33 @@ export function BusinessVipWholesaleCustomerList({
             </tbody>
           </table>
         </DashboardTableFrame>
-      </div>
-
-      <div className="grid gap-3 lg:hidden">
-        {rows.map((row) => (
-          <article
-            className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]"
-            key={row.targetId}
-          >
-            <div className="flex flex-col gap-3">
-              <WholesaleVipCustomerRecordButton
-                onOpenRecords={onOpenRecords}
-                row={row}
-              />
-            </div>
-            <div className="mt-4">
-              <BusinessVipStatusBlock locale={locale} row={row} />
-            </div>
-            <div className="mt-4">
-              <WholesaleVipActionButton
-                canManage={canManage}
-                onOpenAction={onOpenAction}
-                pendingActionKey={pendingActionKey}
-                row={row}
-              />
-            </div>
-          </article>
-        ))}
-      </div>
-    </>
+      }
+      mobile={
+        <>
+          {rows.map((row) => (
+            <RecordCard key={row.targetId}>
+              <div className="flex flex-col gap-3">
+                <WholesaleVipCustomerRecordButton
+                  onOpenRecords={onOpenRecords}
+                  row={row}
+                />
+              </div>
+              <div className="mt-4">
+                <BusinessVipStatusBlock locale={locale} row={row} />
+              </div>
+              <div className="mt-4">
+                <WholesaleVipActionButton
+                  canManage={canManage}
+                  onOpenAction={onOpenAction}
+                  pendingActionKey={pendingActionKey}
+                  row={row}
+                />
+              </div>
+            </RecordCard>
+          ))}
+        </>
+      }
+    />
   );
 }
 
@@ -132,7 +133,7 @@ function WholesaleVipCustomerRecordButton({
       aria-label={t("actions.viewCustomerRecords", {
         name: row.customerLabel,
       })}
-      className="group block w-full min-w-0 rounded-[16px] p-2 text-left transition-colors hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40"
+      className="group block w-full min-w-0 rounded-control-default p-2 text-left transition-colors hover:bg-surface-inset focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/40"
       onClick={() => onOpenRecords(row)}
       type="button"
     >

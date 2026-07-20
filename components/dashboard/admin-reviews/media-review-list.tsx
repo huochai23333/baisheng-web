@@ -49,7 +49,7 @@ export function MediaReviewList({
   }
 
   return (
-    <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-white shadow-[var(--surface-shadow-interactive)]">
+    <div className="overflow-hidden rounded-surface-panel border border-border-subtle bg-surface-interactive shadow-surface-interactive">
       <div className="hidden grid-cols-[132px_minmax(0,1fr)_minmax(0,1fr)_minmax(150px,0.8fr)_220px] gap-5 border-b border-border-subtle bg-surface-inset px-6 py-4 lg:grid">
         <ReviewHeaderCell>{t("media.columns.preview")}</ReviewHeaderCell>
         <ReviewHeaderCell>{t("media.columns.name")}</ReviewHeaderCell>
@@ -85,7 +85,7 @@ export function MediaReviewList({
                 </p>
                 <DesignButton
                   className={cn(
-                    "group relative block h-[92px] w-[124px] overflow-hidden rounded-[18px] border border-border-subtle bg-surface-inset text-left shadow-[var(--surface-shadow-interactive)] transition-transform duration-200",
+                    "group relative block h-[92px] w-[124px] overflow-hidden rounded-record-card border border-border-subtle bg-surface-inset text-left shadow-surface-interactive transition-transform duration-200",
                     row.previewUrl
                       ? "cursor-zoom-in hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-ring/40 focus-visible:outline-none"
                       : "cursor-not-allowed opacity-80",
@@ -97,7 +97,7 @@ export function MediaReviewList({
                   <MediaPreview asset={row} />
                   {row.previewUrl ? (
                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-surface-panel opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-primary shadow-[var(--surface-shadow-interactive)]">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-overlay text-primary shadow-surface-interactive">
                         {row.kind === "video" ? (
                           <Play className="ml-0.5 size-4 fill-current" />
                         ) : (
@@ -175,7 +175,7 @@ export function MediaPreviewDialog({
     >
       {asset ? (
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-[26px] border border-border-subtle bg-surface-inset shadow-[var(--surface-shadow-interactive)]">
+          <div className="overflow-hidden rounded-surface-panel border border-border-subtle bg-surface-inset shadow-surface-interactive">
             {asset.previewUrl ? (
               asset.kind === "video" ? (
                 <video
@@ -349,7 +349,7 @@ function MediaPreviewFallback({
   return (
     <div className="relative flex h-full w-full items-center justify-center bg-[linear-gradient(135deg,var(--chart-1)_0%,var(--chart-1)_100%)] text-primary">
       <div className="flex flex-col items-center gap-2">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/88 shadow-[var(--surface-shadow-interactive)]">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-overlay shadow-surface-interactive">
           <Icon className="size-5" />
         </div>
         <span className="text-xs font-medium text-content-muted">

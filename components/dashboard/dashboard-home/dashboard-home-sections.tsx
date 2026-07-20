@@ -41,7 +41,7 @@ export function HomeGreetingSection({
   const name = getHomeDisplayName(displayName, copy.unnamedUser);
 
   return (
-    <section className="rounded-[28px] border border-white/90 bg-surface-inset/92 p-6 shadow-[var(--surface-shadow-interactive)] xl:p-8">
+    <section className="rounded-surface-panel border border-surface-panel-border bg-surface-inset/92 p-6 shadow-surface-interactive xl:p-8">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-surface-inset px-3 py-1 text-xs font-semibold text-status-success">
@@ -66,7 +66,7 @@ export function HomeAnnouncementsSection({
   locale,
 }: HomeAnnouncementsSectionProps) {
   return (
-    <section className="rounded-[28px] border border-white/85 bg-white/72 p-6 shadow-[var(--surface-shadow-interactive)] xl:p-8">
+    <section className="rounded-surface-panel border border-surface-panel-border bg-surface-panel p-6 shadow-surface-interactive xl:p-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h3 className="text-2xl font-bold tracking-tight text-content-strong">
@@ -90,7 +90,7 @@ export function HomeAnnouncementsSection({
         <div className="mt-6 space-y-4">
           {announcements.map((announcement) => (
             <article
-              className="rounded-[24px] border border-border-subtle bg-surface-inset p-5"
+              className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5"
               key={announcement.id}
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">

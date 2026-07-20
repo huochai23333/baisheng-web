@@ -127,10 +127,11 @@ export function AdminPeopleAccountDialog({
 
             <div className="min-w-0 space-y-5">
               <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-                <label className="block min-w-0">
-                  <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
-                    {t("dialog.nextRole")}
-                  </span>
+                <FormControls.Field
+                  className="min-w-0"
+                  label={t("dialog.nextRole")}
+                  required
+                >
                   <Select
                     disabled={selectedPersonIsCurrentViewer || saving}
                     onValueChange={onDraftRoleChange}
@@ -140,12 +141,13 @@ export function AdminPeopleAccountDialog({
                     }))}
                     value={draftRole}
                   />
-                </label>
+                </FormControls.Field>
 
-                <label className="block min-w-0">
-                  <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
-                    {t("dialog.nextStatus")}
-                  </span>
+                <FormControls.Field
+                  className="min-w-0"
+                  label={t("dialog.nextStatus")}
+                  required
+                >
                   <Select
                     disabled={selectedPersonIsCurrentViewer || saving}
                     onValueChange={onDraftStatusChange}
@@ -155,36 +157,32 @@ export function AdminPeopleAccountDialog({
                     }))}
                     value={draftStatus}
                   />
-                </label>
+                </FormControls.Field>
 
-                <label className="block min-w-0 sm:col-span-2">
-                  <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
-                    {t("dialog.nextCity")}
-                  </span>
+                <FormControls.Field
+                  className="min-w-0 sm:col-span-2"
+                  label={t("dialog.nextCity")}
+                >
                   <FormControls.Input
-                    className="h-12 w-full rounded-[18px] border border-border bg-white px-4 text-sm text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
                     disabled={selectedPersonIsCurrentViewer || saving}
                     maxLength={ADMIN_PEOPLE_CITY_MAX_LENGTH}
                     onChange={(event) => onDraftCityChange(event.target.value)}
                     placeholder={t("dialog.cityPlaceholder")}
                     value={draftCity}
                   />
-                </label>
+                </FormControls.Field>
               </div>
 
-              <label className="block min-w-0">
-                <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
-                  {t("dialog.note")}
-                </span>
+              <FormControls.Field className="min-w-0" label={t("dialog.note")}>
                 <FormControls.Textarea
-                  className="min-h-28 w-full resize-y rounded-[18px] border border-border bg-white px-4 py-3 text-sm leading-6 text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
+                  className="min-h-28"
                   disabled={selectedPersonIsCurrentViewer || saving}
                   maxLength={500}
                   onChange={(event) => onDraftNoteChange(event.target.value)}
                   placeholder={t("dialog.notePlaceholder")}
                   value={draftNote}
                 />
-              </label>
+              </FormControls.Field>
             </div>
           </section>
         </div>

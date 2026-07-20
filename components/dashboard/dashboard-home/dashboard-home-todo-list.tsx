@@ -46,7 +46,7 @@ export function TodoFilterButton({
         "min-h-10 rounded-full border px-4 text-sm font-semibold transition",
         active
           ? "border-primary bg-primary text-white"
-          : "border-border bg-white text-content-muted hover:bg-surface-inset",
+          : "border-border bg-surface-interactive text-content-muted hover:bg-surface-inset",
       )}
       data-count={count}
       data-testid={`home-todo-filter-${filter}`}
@@ -89,7 +89,7 @@ export function TodoItem({
   return (
     <article
       className={cn(
-        "rounded-[24px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]",
+        "rounded-surface-panel border border-border-subtle bg-surface-interactive p-4 shadow-surface-interactive",
         todo.is_completed ? "opacity-78" : "",
       )}
       data-testid="home-todo-item"

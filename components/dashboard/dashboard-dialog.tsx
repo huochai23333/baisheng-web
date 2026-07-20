@@ -200,7 +200,7 @@ export function DashboardDialog({
             aria-describedby={description ? descriptionId : undefined}
             aria-labelledby={titleId}
             aria-modal="true"
-            className="relative z-10 flex max-h-[calc(100dvh-2rem)] min-w-0 w-full max-w-4xl flex-col overflow-hidden rounded-[30px] border border-border-subtle bg-surface-inset shadow-[var(--surface-shadow-floating)]"
+            className="relative z-10 flex max-h-[calc(100dvh-2rem)] min-w-0 w-full max-w-4xl flex-col overflow-hidden rounded-surface-panel border border-border-subtle bg-surface-inset shadow-surface-floating"
             data-motion-dialog="true"
             exit={{ opacity: 0, scale: 0.985, y: 16 }}
             initial={{ opacity: 0, scale: 0.985, y: 20 }}

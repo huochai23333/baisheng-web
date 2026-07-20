@@ -52,7 +52,7 @@ export function OrderSupplementaryDetailsSection({
 
   if (loading) {
     return (
-      <div className="rounded-[24px] border border-border-subtle bg-surface-inset px-5 py-4 shadow-[var(--surface-shadow-interactive)]">
+      <div className="rounded-surface-panel border border-border-subtle bg-surface-inset px-5 py-4 shadow-surface-interactive">
         <div className="flex items-center gap-3 text-sm text-content-muted">
           <LoaderCircle className="size-4 animate-spin" />
           {t("details.supplementary.loading")}
@@ -67,7 +67,9 @@ export function OrderSupplementaryDetailsSection({
 
   if (!detail) {
     return (
-      <FeedbackNotice tone="info">{t("details.supplementary.empty")}</FeedbackNotice>
+      <FeedbackNotice tone="info">
+        {t("details.supplementary.empty")}
+      </FeedbackNotice>
     );
   }
 
@@ -76,7 +78,7 @@ export function OrderSupplementaryDetailsSection({
   const subtypeValue = getSupplementarySubtypeValue(detail, orderUiCopy);
 
   return (
-    <section className="rounded-[28px] border border-border-subtle bg-surface-inset p-5 shadow-[var(--surface-shadow-interactive)] sm:p-6">
+    <section className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5 shadow-surface-interactive sm:p-6">
       <div className="flex flex-col">
         <h3 className="text-lg font-semibold text-content-strong">
           {formTitle}

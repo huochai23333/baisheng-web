@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-panel";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
+import { RecordCard } from "@/components/ui/data-display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import type { WholesaleLogisticsPage } from "@/lib/wholesale-logistics-page";
@@ -135,12 +136,11 @@ export function WholesaleLogisticsRecords({
           {page.rows.map((row) => {
             const missing = isWholesaleLogisticsCostMissing(row.shipping_cost);
             return (
-              <article
+              <RecordCard
                 className={cn(
-                  "min-w-0 rounded-[22px] border bg-white p-4 shadow-[var(--surface-shadow-interactive)]",
                   missing
                     ? "border-2 border-status-danger/60 bg-status-danger-soft"
-                    : "border-border-subtle",
+                    : undefined,
                 )}
                 key={row.id}
               >
@@ -202,7 +202,7 @@ export function WholesaleLogisticsRecords({
                     }
                   />
                 </dl>
-              </article>
+              </RecordCard>
             );
           })}
         </>

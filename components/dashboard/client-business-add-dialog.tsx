@@ -76,7 +76,7 @@ export function ClientBusinessAddDialog({
 
         <div className="max-h-[min(55vh,430px)] space-y-2 overflow-y-auto overscroll-contain pr-1">
           {filteredCandidates.length === 0 ? (
-            <p className="rounded-[18px] border border-dashed border-border-subtle px-4 py-8 text-center text-sm leading-6 text-content-muted">
+            <p className="rounded-record-card border border-dashed border-border-subtle px-4 py-8 text-center text-sm leading-6 text-content-muted">
               {t("empty")}
             </p>
           ) : (
@@ -85,7 +85,7 @@ export function ClientBusinessAddDialog({
 
               return (
                 <div
-                  className="flex min-w-0 flex-col gap-3 rounded-[18px] border border-border-subtle bg-surface-panel p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex min-w-0 flex-col gap-3 rounded-record-card border border-border-subtle bg-surface-panel p-4 sm:flex-row sm:items-center sm:justify-between"
                   key={candidate.userId}
                 >
                   <div className="min-w-0">

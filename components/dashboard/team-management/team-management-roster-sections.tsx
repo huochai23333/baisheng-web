@@ -111,7 +111,7 @@ export function TeamCandidatesSection({
         />
       </div>
 
-      <div className="rounded-[22px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
+      <div className="rounded-control-large border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
         {t("candidates.availableCount", { count: availableCandidateCount })}
       </div>
 

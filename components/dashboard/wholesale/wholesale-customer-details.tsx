@@ -17,10 +17,7 @@ import {
   getProfileName,
   WHOLESALE_STATUS_LABELS,
 } from "./wholesale-display";
-import {
-  WholesaleEmptyState,
-  WholesaleSubmitButton,
-} from "./wholesale-ui";
+import { WholesaleEmptyState, WholesaleSubmitButton } from "./wholesale-ui";
 type WholesaleCustomerDetailsProps = {
   canEdit: boolean;
   canLinkAccount: boolean;
@@ -114,11 +111,11 @@ export function WholesaleCustomerDetails({
         pending={pendingKey === `customer:add-other-name:${customer.id}`}
       />
       {customer.registered_user_id ? (
-        <p className="rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
+        <p className="rounded-record-card border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
           <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text003" />
         </p>
       ) : canLinkAccount ? (
-        <div className="rounded-[18px] border border-border-subtle bg-white p-4">
+        <div className="rounded-record-card border border-border-subtle bg-surface-interactive p-4">
           <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-content-muted">
             <Link2 className="size-4 text-primary" />
             <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text004" />

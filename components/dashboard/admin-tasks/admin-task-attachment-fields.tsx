@@ -33,7 +33,7 @@ export function CreateTaskAttachmentsField({
 
   return (
     <FormField label={t("createDialog.attachmentsLabel")}>
-      <div className="rounded-[24px] border border-dashed border-border-subtle bg-surface-inset p-5">
+      <div className="rounded-surface-panel border border-dashed border-border-subtle bg-surface-inset p-5">
         <DashboardFilePicker
           label={t("createDialog.attachmentsCta")}
           multiple
@@ -84,7 +84,7 @@ export function EditTaskAttachmentsField({ task }: { task: AdminTaskRow }) {
 
   return (
     <FormField label={t("createDialog.attachmentsLabel")}>
-      <div className="rounded-[24px] border border-border-subtle bg-surface-inset p-5">
+      <div className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5">
         {task.attachments.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {task.attachments.map((attachment) => (

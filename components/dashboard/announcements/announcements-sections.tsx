@@ -182,7 +182,7 @@ export function AnnouncementsListSection({
 
             return (
               <article
-                className="rounded-[24px] border border-border-subtle bg-surface-inset p-5"
+                className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5"
                 key={announcement.id}
               >
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">

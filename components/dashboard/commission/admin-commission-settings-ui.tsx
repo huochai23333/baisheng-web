@@ -3,6 +3,7 @@
 import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
 
 import * as FormControls from "@/components/ui/form-controls";
+import { RecordCard } from "@/components/ui/data-display";
 
 import type { ReactNode } from "react";
 
@@ -157,10 +158,7 @@ export function CommissionSettingsRulesTable({
               const isSaving = pendingRule === definition.code;
 
               return (
-                <article
-                  className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]"
-                  key={definition.code}
-                >
+                <RecordCard key={definition.code}>
                   <div className="min-w-0">
                     <h4 className="break-words text-sm font-semibold leading-6 text-content-strong">
                       {t(definition.labelKey)}
@@ -215,7 +213,7 @@ export function CommissionSettingsRulesTable({
                       />
                     ) : null}
                   </div>
-                </article>
+                </RecordCard>
               );
             })}
           </>
@@ -239,10 +237,7 @@ function RuleDraftInputs({
   return (
     <div className="grid gap-2">
       {definition.fields.map((field) => (
-        <label className="block" key={field.configKey}>
-          <span className="mb-1 block text-[11px] font-semibold text-content-muted">
-            {t(field.labelKey)}
-          </span>
+        <FormControls.Field key={field.configKey} label={t(field.labelKey)}>
           <FormControls.Input
             className={dashboardFilterInputClassName}
             inputMode="decimal"
@@ -254,7 +249,7 @@ function RuleDraftInputs({
             }
             value={draft[field.configKey] ?? ""}
           />
-        </label>
+        </FormControls.Field>
       ))}
     </div>
   );

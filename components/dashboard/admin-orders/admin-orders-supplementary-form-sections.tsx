@@ -146,9 +146,7 @@ function PurchaseSupplementaryFormSection({
         <OrderField label={t("fields.purchaseSubtype")} required>
           <Select
             disabled={isFormBusy}
-            onValueChange={(value) =>
-              onFieldChange("purchaseSubtype", value)
-            }
+            onValueChange={(value) => onFieldChange("purchaseSubtype", value)}
             options={[
               { label: t("select.purchaseSubtype"), value: "" },
               ...purchaseOrderTypeOptions.map((option) => ({
@@ -357,7 +355,7 @@ function VipRechargeSupplementaryFormSection({
 
 function SupplementaryLoading({ message }: { message: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-[18px] border border-border-subtle bg-white px-4 py-3 text-sm text-content-muted">
+    <div className="flex items-center gap-3 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3 text-sm text-content-muted">
       <LoaderCircle className="size-4 animate-spin" />
       {message}
     </div>

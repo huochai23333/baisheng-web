@@ -1,9 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
-
 import { BadgeCheck, ReceiptText, WalletCards } from "lucide-react";
 
+import { MetricCard, MetricGrid } from "@/components/ui/data-display";
 import type {
   OperatorReimbursementPeriod,
   OperatorReimbursementRow,
@@ -12,7 +11,6 @@ import type {
 import {
   formatOperatorReimbursementAmount,
   getOperatorReimbursementSummaries,
-  type OperatorReimbursementSummary,
 } from "./operator-reimbursements-display";
 
 type OperatorReimbursementsSummarySectionProps = {
@@ -41,63 +39,40 @@ export function OperatorReimbursementsSummarySection({
   );
 
   return (
-    <section className="grid gap-3 md:grid-cols-3">
-      <SummaryCard
-        copy={copy}
+    <MetricGrid layout="three-column">
+      <MetricCard
+        description={copy.count(summaries.currentUnreimbursed.count)}
         icon={<WalletCards className="size-4" />}
-        locale={locale}
-        summary={summaries.currentUnreimbursed}
-        title={copy.currentUnreimbursed}
+        label={copy.currentUnreimbursed}
+        presentation="summary"
+        tone="warning"
+        value={formatOperatorReimbursementAmount(
+          summaries.currentUnreimbursed.amount,
+          locale,
+        )}
       />
-      <SummaryCard
-        copy={copy}
+      <MetricCard
+        description={copy.count(summaries.currentReimbursed.count)}
         icon={<BadgeCheck className="size-4" />}
-        locale={locale}
-        summary={summaries.currentReimbursed}
-        title={copy.currentReimbursed}
+        label={copy.currentReimbursed}
+        presentation="summary"
+        tone="success"
+        value={formatOperatorReimbursementAmount(
+          summaries.currentReimbursed.amount,
+          locale,
+        )}
       />
-      <SummaryCard
-        copy={copy}
+      <MetricCard
+        description={copy.count(summaries.totalUnreimbursed.count)}
         icon={<ReceiptText className="size-4" />}
-        locale={locale}
-        summary={summaries.totalUnreimbursed}
-        title={copy.totalUnreimbursed}
+        label={copy.totalUnreimbursed}
+        presentation="summary"
+        tone="info"
+        value={formatOperatorReimbursementAmount(
+          summaries.totalUnreimbursed.amount,
+          locale,
+        )}
       />
-    </section>
-  );
-}
-
-function SummaryCard({
-  copy,
-  icon,
-  locale,
-  summary,
-  title,
-}: {
-  copy: OperatorReimbursementsSummarySectionProps["copy"];
-  icon: ReactNode;
-  locale: string;
-  summary: OperatorReimbursementSummary;
-  title: string;
-}) {
-  return (
-    <div className="rounded-[24px] border border-white/85 bg-white/72 p-5 shadow-[var(--surface-shadow-interactive)]">
-      <div className="flex items-center gap-3 text-primary">
-        <div className="flex size-10 items-center justify-center rounded-full bg-status-info-soft">
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <p className="break-words text-sm font-semibold text-content-muted [overflow-wrap:anywhere]">
-            {title}
-          </p>
-          <p className="text-sm text-content-muted">
-            {copy.count(summary.count)}
-          </p>
-        </div>
-      </div>
-      <p className="mt-4 break-words text-2xl font-bold text-content-strong [overflow-wrap:anywhere]">
-        {formatOperatorReimbursementAmount(summary.amount, locale)}
-      </p>
-    </div>
+    </MetricGrid>
   );
 }

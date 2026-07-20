@@ -91,7 +91,7 @@ export function HomeInviteSection({
         data-testid="home-invite-section"
       >
         <InviteHeading compact={compact} copy={copy} mini={mini} />
-        <div className="mt-4 rounded-[20px] border border-border-subtle bg-surface-inset p-4">
+        <div className="mt-4 rounded-surface-inset border border-border-subtle bg-surface-inset p-4">
           <h4 className="break-words text-sm font-semibold text-content-muted">
             {copy.noCodeTitle}
           </h4>
@@ -112,7 +112,7 @@ export function HomeInviteSection({
 
       <div
         className={cn(
-          "rounded-[22px] border border-border-subtle bg-surface-inset",
+          "rounded-control-large border border-border-subtle bg-surface-inset",
           mini ? "mt-3 p-2" : compact ? "mt-4 p-3" : "mt-4 p-4",
         )}
       >

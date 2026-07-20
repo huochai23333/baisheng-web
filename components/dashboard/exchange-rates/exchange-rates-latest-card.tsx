@@ -21,7 +21,7 @@ export function LatestRateCard({
   const { locale } = useLocale();
 
   return (
-    <article className="rounded-[24px] border border-border-subtle bg-surface-inset p-5 shadow-[var(--surface-shadow-interactive)]">
+    <article className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5 shadow-surface-interactive">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="font-label text-[11px] tracking-[0.18em] text-content-muted uppercase">
@@ -36,7 +36,7 @@ export function LatestRateCard({
         </span>
       </div>
 
-      <div className="mt-6 rounded-[20px] bg-white px-5 py-4 shadow-[var(--surface-shadow-interactive)]">
+      <div className="mt-6 rounded-surface-inset bg-surface-interactive px-5 py-4 shadow-surface-interactive">
         <p className="text-sm text-content-muted">
           {t("latest.card.currentRate")}
         </p>

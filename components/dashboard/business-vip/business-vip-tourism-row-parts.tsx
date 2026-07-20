@@ -59,7 +59,7 @@ export function BusinessVipRequestList({
 
         return (
           <div
-            className="rounded-[16px] border border-border-subtle bg-surface-inset px-3 py-2.5"
+            className="rounded-control-default border border-border-subtle bg-surface-inset px-3 py-2.5"
             key={request.id}
           >
             <div className="flex flex-wrap items-center gap-2">
@@ -127,7 +127,7 @@ export function BusinessVipHistoryList({
   return (
     <div className="space-y-2">
       {latestRecharge ? (
-        <div className="rounded-[16px] border border-border-subtle bg-white px-3 py-2.5">
+        <div className="rounded-control-default border border-border-subtle bg-surface-interactive px-3 py-2.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-primary">
             <History className="size-3.5" />
             {t("history.latestRecharge")}
@@ -150,7 +150,7 @@ export function BusinessVipHistoryList({
         </div>
       ) : null}
       {latestAdjustment ? (
-        <div className="rounded-[16px] border border-border-subtle bg-white px-3 py-2.5">
+        <div className="rounded-control-default border border-border-subtle bg-surface-interactive px-3 py-2.5">
           <div className="flex items-center gap-2 text-xs font-semibold text-primary">
             <Settings2 className="size-3.5" />
             {t("history.latestAdjustment")}

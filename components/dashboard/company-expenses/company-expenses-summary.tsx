@@ -2,6 +2,8 @@
 
 import { WalletCards } from "lucide-react";
 
+import { MetricCard, MetricGrid } from "@/components/ui/data-display";
+import { Surface } from "@/components/ui/surface";
 import type { CompanyExpenseRow } from "@/lib/company-expenses";
 import {
   formatCompanyExpenseAmount,
@@ -21,40 +23,32 @@ export function CompanyExpensesSummarySection({
   const summaries = getCompanyExpenseSummaries(expenses);
 
   return (
-    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <MetricGrid layout="four-column">
       {summaries.length === 0 ? (
-        <div className="rounded-[24px] border border-border-subtle bg-white/72 px-5 py-4 text-sm leading-7 text-content-muted">
+        <Surface
+          as="div"
+          className="text-sm leading-7 text-content-muted"
+          padding="regular"
+          variant="inset"
+        >
           {copy.empty}
-        </div>
+        </Surface>
       ) : (
         summaries.map((summary) => (
-          <div
-            className="rounded-[24px] border border-white/85 bg-white/72 p-5 shadow-[var(--surface-shadow-interactive)]"
+          <MetricCard
+            description={copy.count(summary.count)}
+            icon={<WalletCards className="size-4" />}
             key={summary.currencyCode}
-          >
-            <div className="flex items-center gap-3 text-primary">
-              <div className="flex size-10 items-center justify-center rounded-full bg-status-info-soft">
-                <WalletCards className="size-4" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-content-muted">
-                  {summary.currencyCode}
-                </p>
-                <p className="text-sm text-content-muted">
-                  {copy.count(summary.count)}
-                </p>
-              </div>
-            </div>
-            <p className="mt-4 break-words text-2xl font-bold text-content-strong [overflow-wrap:anywhere]">
-              {formatCompanyExpenseAmount(
-                summary.amount,
-                summary.currencyCode,
-                locale,
-              )}
-            </p>
-          </div>
+            label={summary.currencyCode}
+            presentation="summary"
+            value={formatCompanyExpenseAmount(
+              summary.amount,
+              summary.currencyCode,
+              locale,
+            )}
+          />
         ))
       )}
-    </section>
+    </MetricGrid>
   );
 }

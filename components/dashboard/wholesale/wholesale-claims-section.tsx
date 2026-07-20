@@ -154,8 +154,8 @@ export function WholesaleClaimsSection({
             <DesignButton
               className={
                 claims.activeBoard === board.key
-                  ? "rounded-[18px] bg-primary px-4 py-3 text-left text-sm font-semibold text-white shadow-[var(--surface-shadow-interactive)]"
-                  : "rounded-[18px] border border-border bg-white px-4 py-3 text-left text-sm font-semibold text-primary hover:bg-surface-inset"
+                  ? "rounded-record-card bg-primary px-4 py-3 text-left text-sm font-semibold text-white shadow-surface-interactive"
+                  : "rounded-record-card border border-border bg-surface-interactive px-4 py-3 text-left text-sm font-semibold text-primary hover:bg-surface-inset"
               }
               key={board.key}
               onClick={() =>
@@ -189,14 +189,14 @@ export function WholesaleClaimsSection({
         ) : null}
 
         {claims.loadError ? (
-          <div className="mt-4 rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
+          <div className="mt-4 rounded-record-card border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
             {claims.loadError}
           </div>
         ) : null}
 
         <div className="relative mt-5 min-h-24">
           {claims.loading ? (
-            <div className="absolute inset-0 z-10 flex items-start justify-center rounded-[18px] bg-white/75 pt-8">
+            <div className="absolute inset-0 z-10 flex items-start justify-center rounded-record-card bg-surface-panel pt-8">
               <LoaderCircle className="size-6 animate-spin text-primary" />
             </div>
           ) : null}

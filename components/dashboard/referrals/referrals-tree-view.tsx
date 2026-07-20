@@ -70,20 +70,26 @@ export function ReferralTreePanel({
   return (
     <DashboardListSection
       actions={
-        <label className="flex w-full max-w-sm items-center gap-3 rounded-full border border-border bg-white px-4 py-3 shadow-[var(--surface-shadow-interactive)]">
-          <Search className="size-4 text-content-muted" />
-          <FormControls.Input
-            className="w-full bg-transparent text-sm text-content-strong outline-none placeholder:text-content-subtle"
-            onChange={(event) => onSearchTextChange(event.target.value)}
-            placeholder={searchPlaceholder}
-            type="text"
-            value={searchText}
-          />
-        </label>
+        <FormControls.Field
+          className="w-full max-w-sm"
+          label={searchPlaceholder}
+          labelHidden
+        >
+          <div className="flex items-center gap-3 rounded-full border border-border bg-surface-interactive px-4 shadow-surface-interactive">
+            <Search className="size-4 text-content-muted" />
+            <FormControls.Input
+              className="border-0 bg-transparent px-0 focus:ring-0"
+              onChange={(event) => onSearchTextChange(event.target.value)}
+              placeholder={searchPlaceholder}
+              type="text"
+              value={searchText}
+            />
+          </div>
+        </FormControls.Field>
       }
       title={title}
     >
-      <div className="overflow-x-auto rounded-[20px] border border-border-subtle bg-surface-inset p-3 shadow-[var(--surface-shadow-interactive)] sm:rounded-[24px] sm:p-5">
+      <div className="overflow-x-auto rounded-surface-inset border border-border-subtle bg-surface-inset p-3 shadow-surface-interactive sm:p-5">
         {treeDisplay.rootIds.length === 0 ? (
           <EmptyState
             description={noMatchDescription}
@@ -179,7 +185,7 @@ function ReferralTreeNode({
 
       <div
         className={[
-          "rounded-[18px] border bg-white p-3 shadow-[var(--surface-shadow-interactive)] transition-colors sm:rounded-[22px] sm:p-4",
+          "rounded-record-card border bg-surface-interactive p-3 shadow-surface-interactive transition-colors sm:rounded-control-large sm:p-4",
           isCurrentViewer
             ? "border-border-subtle bg-surface-inset"
             : "border-border-subtle",
@@ -211,7 +217,7 @@ function ReferralTreeNode({
           </div>
 
           <div className="flex min-w-0 flex-1 items-start gap-2 sm:gap-3">
-            <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-[14px] bg-surface-inset text-primary sm:h-10 sm:w-10 sm:rounded-2xl">
+            <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-control-compact bg-surface-inset text-primary sm:h-10 sm:w-10 sm:rounded-2xl">
               {isCompanyNode ? (
                 <Building2 className="size-5" />
               ) : hasChildren && isOpen ? (

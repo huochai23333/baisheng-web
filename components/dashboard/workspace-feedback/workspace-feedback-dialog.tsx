@@ -5,8 +5,8 @@ import { Select } from "@/components/ui/select";
 
 import {
   FormDialog,
+  DashboardFormField,
   DashboardFormTextarea,
-  dashboardFormInputClassName,
 } from "@/components/dashboard/dashboard-form-dialog";
 import type { FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 import type { WorkspaceFeedbackType } from "@/lib/workspace-feedback";
@@ -63,8 +63,7 @@ export function WorkspaceFeedbackDialog({
       submitLabel={copy.submit}
       title={copy.title}
     >
-      <label className="grid gap-2 text-sm font-semibold text-content-strong">
-        {copy.typeLabel}
+      <DashboardFormField label={copy.typeLabel} required>
         <Select
           onValueChange={(value) => onUpdateField("feedbackType", value)}
           options={workspaceFeedbackTypeValues.map((feedbackType) => ({
@@ -73,28 +72,25 @@ export function WorkspaceFeedbackDialog({
           }))}
           value={formState.feedbackType}
         />
-      </label>
+      </DashboardFormField>
 
-      <label className="grid gap-2 text-sm font-semibold text-content-strong">
-        {copy.titleLabel}
+      <DashboardFormField label={copy.titleLabel} required>
         <FormControls.Input
-          className={dashboardFormInputClassName}
           onChange={(event) => onUpdateField("title", event.target.value)}
           placeholder={copy.titlePlaceholder}
           type="text"
           value={formState.title}
         />
-      </label>
+      </DashboardFormField>
 
-      <label className="grid gap-2 text-sm font-semibold text-content-strong">
-        {copy.contentLabel}
+      <DashboardFormField label={copy.contentLabel} required>
         <DashboardFormTextarea
           className="min-h-[180px]"
           onChange={(event) => onUpdateField("content", event.target.value)}
           placeholder={copy.contentPlaceholder}
           value={formState.content}
         />
-      </label>
+      </DashboardFormField>
     </FormDialog>
   );
 }

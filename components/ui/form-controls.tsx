@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useId,
-  type ComponentProps,
-  type ReactNode,
-} from "react";
+import { useId, type ComponentProps, type ReactNode } from "react";
 
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -54,6 +50,7 @@ export function Field({
   hintTone = "neutral",
   label,
   labelAction,
+  labelHidden = false,
   required = false,
 }: {
   children: ReactNode;
@@ -65,6 +62,7 @@ export function Field({
   hintTone?: "neutral" | "success" | "warning";
   label: ReactNode;
   labelAction?: ReactNode;
+  labelHidden?: boolean;
   required?: boolean;
 }) {
   const generatedId = useId();
@@ -95,6 +93,7 @@ export function Field({
           className={cn(
             "flex items-center justify-between gap-4",
             density === "default" && "px-1",
+            labelHidden && "sr-only",
           )}
           data-slot="field-heading"
         >
@@ -238,11 +237,58 @@ export function Radio(props: Omit<ChoiceProps, "type">) {
   return <Choice type="radio" {...props} />;
 }
 
+type ChoiceFieldProps = Omit<ChoiceProps, "type"> & {
+  description?: ReactNode;
+  label: ReactNode;
+  rootClassName?: string;
+  type?: "checkbox" | "radio" | "toggle";
+};
+
+/**
+ * 复选和单选行必须把整行都作为可点击目标，同时保留原生控件的键盘行为。
+ * 业务表单只传文字和选中状态，不再自行拼接 label、说明文字与面板材质。
+ */
+export function ChoiceField({
+  className,
+  description,
+  id,
+  label,
+  rootClassName,
+  type = "checkbox",
+  ...props
+}: ChoiceFieldProps) {
+  const generatedId = useId();
+  const resolvedId = id ?? generatedId;
+  const Control =
+    type === "radio" ? Radio : type === "toggle" ? Switch : Checkbox;
+
+  return (
+    <label
+      className={cn(
+        "flex min-h-button-default cursor-pointer items-start gap-3 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3 text-sm transition hover:border-filter-control-hover focus-within:ring-4 focus-within:ring-ring",
+        rootClassName,
+      )}
+      data-slot="choice-field"
+      htmlFor={resolvedId}
+    >
+      <Control className={cn("mt-0.5", className)} id={resolvedId} {...props} />
+      <span className="min-w-0">
+        <span className="block font-semibold text-content-strong">{label}</span>
+        {description ? (
+          <span className="mt-1 block text-xs leading-5 text-content-muted">
+            {description}
+          </span>
+        ) : null}
+      </span>
+    </label>
+  );
+}
+
 export function Switch({ className, ...props }: Omit<ChoiceProps, "type">) {
   return (
     <input
       className={cn(
-        "peer relative h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-muted outline-none transition before:absolute before:left-1 before:top-1 before:size-4 before:rounded-full before:bg-white before:shadow-sm before:transition checked:bg-primary checked:before:translate-x-5 focus-visible:ring-4 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+        "peer relative h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-muted outline-none transition before:absolute before:left-1 before:top-1 before:size-4 before:rounded-full before:bg-surface-interactive before:shadow-sm before:transition checked:bg-primary checked:before:translate-x-5 focus-visible:ring-4 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       data-slot="switch"

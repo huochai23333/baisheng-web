@@ -35,7 +35,7 @@ export function InputCard({
 }) {
   const t = useTranslations("DashboardShared");
   return (
-    <section className="motion-surface-enter rounded-[24px] border border-border-subtle bg-surface-interactive p-6 shadow-[var(--surface-shadow-interactive)]">
+    <section className="motion-surface-enter rounded-surface-panel border border-border-subtle bg-surface-interactive p-6 shadow-surface-interactive">
       <div className="flex items-center gap-3 text-primary">
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-status-info-soft">
           {icon}
@@ -82,7 +82,7 @@ export function StatusNotice({
   const approved = status === "approved";
   return (
     <div
-      className={`motion-surface-enter rounded-[22px] border px-5 py-4 ${approved ? "border-status-success/25 bg-status-success-soft text-status-success" : "border-status-warning/25 bg-status-warning-soft text-status-warning"}`}
+      className={`motion-surface-enter rounded-control-large border px-5 py-4 ${approved ? "border-status-success/25 bg-status-success-soft text-status-success" : "border-status-warning/25 bg-status-warning-soft text-status-warning"}`}
     >
       <div className="flex items-center gap-3">
         <div
@@ -117,7 +117,7 @@ export function ValueCard({
   value: string;
 }) {
   return (
-    <section className="motion-surface-enter rounded-[24px] border border-border-subtle bg-surface-interactive p-6 shadow-[var(--surface-shadow-interactive)]">
+    <section className="motion-surface-enter rounded-surface-panel border border-border-subtle bg-surface-interactive p-6 shadow-surface-interactive">
       <div className="flex items-center gap-3 text-primary">
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-status-info-soft">
           {icon}
@@ -126,7 +126,7 @@ export function ValueCard({
           {label}
         </p>
       </div>
-      <div className="mt-5 rounded-[20px] bg-surface-inset px-5 py-4 text-lg font-medium tracking-[0.12em] text-content-strong">
+      <div className="mt-5 rounded-surface-inset bg-surface-inset px-5 py-4 text-lg font-medium tracking-[0.12em] text-content-strong">
         {value}
       </div>
     </section>

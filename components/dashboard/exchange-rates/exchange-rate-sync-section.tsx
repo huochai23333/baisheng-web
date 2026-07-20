@@ -86,7 +86,9 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
     >
       <div className="space-y-5">
         {feedback ? (
-          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+          <FeedbackNotice tone={feedback.tone}>
+            {feedback.message}
+          </FeedbackNotice>
         ) : null}
 
         <div className="flex flex-col gap-4 border-b border-border-subtle pb-5 md:flex-row md:items-center md:justify-between">
@@ -100,36 +102,19 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                 : t("sync.autoFetchDisabled")}
             </p>
           </div>
-          <label className="relative inline-flex cursor-pointer items-center gap-3">
-            <FormControls.Checkbox
-              checked={isEnabled}
-              className="peer absolute inset-0 z-10 cursor-pointer opacity-0 disabled:cursor-not-allowed"
-              disabled={settingsPending}
-              onChange={(event) => onAutoSyncChange(event.target.checked)}
-            />
-            <span
-              className={cn(
-                "pointer-events-none relative h-7 w-12 rounded-full border transition-colors",
-                isEnabled
-                  ? "border-border-subtle bg-surface-inset"
-                  : "border-border-subtle bg-surface-inset",
-              )}
-            >
-              <span
-                className={cn(
-                  "pointer-events-none absolute top-1 size-5 rounded-full bg-white shadow-sm transition-transform",
-                  isEnabled ? "translate-x-5" : "translate-x-1",
-                )}
-              />
-            </span>
-            <span className="text-sm font-medium text-content-muted">
-              {settingsPending
+          <FormControls.ChoiceField
+            checked={isEnabled}
+            disabled={settingsPending}
+            label={
+              settingsPending
                 ? t("sync.switchPending")
                 : isEnabled
                   ? t("sync.switchOn")
-                  : t("sync.switchOff")}
-            </span>
-          </label>
+                  : t("sync.switchOff")
+            }
+            onChange={(event) => onAutoSyncChange(event.target.checked)}
+            type="toggle"
+          />
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -155,7 +140,7 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
 
                   return (
                     <span
-                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border-subtle bg-white px-3 text-sm font-medium text-content-muted"
+                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-border-subtle bg-surface-interactive px-3 text-sm font-medium text-content-muted"
                       key={pair.id}
                     >
                       {currency} {" -> "} CNY

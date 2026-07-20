@@ -29,7 +29,7 @@ export function WholesaleOrderSummary({
     <ResponsiveDataView
       desktop={<WholesaleStatGrid stats={stats} />}
       mobile={
-        <details className="rounded-[22px] border border-border-subtle bg-surface-panel">
+        <details className="rounded-control-large border border-border-subtle bg-surface-panel">
           <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-primary [&::-webkit-details-marker]:hidden">
             <UiMessage id="components_dashboard_wholesale_wholesale_order_summary.text001" />
           </summary>

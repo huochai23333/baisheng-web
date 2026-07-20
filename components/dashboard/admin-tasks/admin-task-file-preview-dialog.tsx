@@ -162,7 +162,7 @@ function PreviewSurface({
 
   if (file.kind === "image") {
     return (
-      <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-surface-inset">
+      <div className="overflow-hidden rounded-surface-panel border border-border-subtle bg-surface-inset">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt={file.original_name}
@@ -175,7 +175,7 @@ function PreviewSurface({
 
   if (file.kind === "video") {
     return (
-      <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-surface-inset">
+      <div className="overflow-hidden rounded-surface-panel border border-border-subtle bg-surface-inset">
         <video
           ref={videoRef}
           autoPlay
@@ -191,7 +191,7 @@ function PreviewSurface({
 
   if (file.kind === "pdf") {
     return (
-      <div className="overflow-hidden rounded-[24px] border border-border bg-white">
+      <div className="overflow-hidden rounded-surface-panel border border-border bg-surface-interactive">
         <iframe
           className="h-[72vh] min-h-[420px] w-full"
           src={file.signedUrl}
@@ -202,7 +202,7 @@ function PreviewSurface({
   }
 
   return (
-    <div className="rounded-[24px] border border-border bg-white px-4 py-10">
+    <div className="rounded-surface-panel border border-border bg-surface-interactive px-4 py-10">
       <EmptyState
         description={t("unsupportedDescription")}
         icon={<File className="size-6" />}

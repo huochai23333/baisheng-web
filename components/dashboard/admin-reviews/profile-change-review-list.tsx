@@ -38,7 +38,7 @@ export function ProfileChangeReviewList({
   }
 
   return (
-    <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-white shadow-[var(--surface-shadow-interactive)]">
+    <div className="overflow-hidden rounded-surface-panel border border-border-subtle bg-surface-interactive shadow-surface-interactive">
       <div className="hidden grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_220px] gap-5 border-b border-border-subtle bg-surface-inset px-6 py-4 lg:grid">
         <ReviewHeaderCell>{t("profile.columns.name")}</ReviewHeaderCell>
         <ReviewHeaderCell>{t("profile.columns.email")}</ReviewHeaderCell>

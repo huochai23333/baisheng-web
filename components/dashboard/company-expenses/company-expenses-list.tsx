@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import {
   CalendarDays,
   Edit3,
@@ -10,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { MetaGrid, MetaItem, RecordCard } from "@/components/ui/data-display";
 import type {
   CompanyExpenseCategory,
   CompanyExpenseRow,
@@ -98,7 +98,7 @@ function CompanyExpenseCard({
   const deletePending =
     pendingAction?.id === expense.id && pendingAction.type === "delete";
   return (
-    <article className="rounded-[24px] border border-border-subtle bg-surface-inset p-5">
+    <RecordCard surface="inset">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
@@ -119,25 +119,25 @@ function CompanyExpenseCard({
               locale,
             )}
           </p>
-          <dl className="mt-4 grid gap-3 text-sm text-content-muted md:grid-cols-2 xl:grid-cols-4">
-            <ExpenseMeta label={copy.month}>
+          <MetaGrid className="mt-4">
+            <MetaItem label={copy.month}>
               <CalendarDays className="size-4" />
               {formatCompanyExpenseMonth(expense.expense_month, locale)}
-            </ExpenseMeta>
-            <ExpenseMeta label={copy.paidAt}>
+            </MetaItem>
+            <MetaItem label={copy.paidAt}>
               <CalendarDays className="size-4" />
               {formatCompanyExpenseDate(expense.expense_date, locale)}
-            </ExpenseMeta>
-            <ExpenseMeta label={copy.payee}>{expense.payee || "-"}</ExpenseMeta>
-            <ExpenseMeta label={copy.updatedAt}>
+            </MetaItem>
+            <MetaItem label={copy.payee}>{expense.payee || "-"}</MetaItem>
+            <MetaItem label={copy.updatedAt}>
               {formatCompanyExpenseDate(
                 expense.updated_at.slice(0, 10),
                 locale,
               )}
-            </ExpenseMeta>
-          </dl>
+            </MetaItem>
+          </MetaGrid>
           {expense.note ? (
-            <p className="mt-4 break-words rounded-[18px] bg-white px-4 py-3 text-sm leading-7 text-content-muted [overflow-wrap:anywhere]">
+            <p className="mt-4 break-words rounded-record-card bg-surface-interactive px-4 py-3 text-sm leading-7 text-content-muted [overflow-wrap:anywhere]">
               <span className="font-semibold text-content-muted">
                 {copy.note}：
               </span>
@@ -170,23 +170,6 @@ function CompanyExpenseCard({
           </Button>
         </div>
       </div>
-    </article>
-  );
-}
-
-function ExpenseMeta({
-  children,
-  label,
-}: {
-  children: ReactNode;
-  label: string;
-}) {
-  return (
-    <div>
-      <dt className="text-xs font-semibold text-content-muted">{label}</dt>
-      <dd className="mt-1 flex min-w-0 items-center gap-1.5 break-words [overflow-wrap:anywhere]">
-        {children}
-      </dd>
-    </div>
+    </RecordCard>
   );
 }

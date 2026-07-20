@@ -25,16 +25,20 @@ export const buttonVariants = cva(
       size: {
         compact: "h-button-compact gap-1.5 rounded-full px-4 text-xs",
         default: "h-button-default gap-2 rounded-full px-5",
-        large:
-          "h-button-large gap-2 rounded-control-large px-6 text-[15px]",
+        large: "h-button-large gap-2 rounded-control-large px-6 text-[15px]",
         icon: "size-button-default rounded-full",
         "icon-compact": "size-button-compact rounded-full",
         "icon-large": "size-button-large rounded-control-large",
+      },
+      wrap: {
+        false: null,
+        true: "h-auto min-h-button-default whitespace-normal py-2 leading-5",
       },
     },
     defaultVariants: {
       variant: "primary",
       size: "default",
+      wrap: false,
     },
   },
 );

@@ -6,13 +6,9 @@ import { LoaderCircle } from "lucide-react";
 
 import { ActionGroup } from "@/components/ui/action-group";
 import { Button } from "../ui/button";
-import { controlVariants, Textarea } from "../ui/form-controls";
+import { Field, Textarea } from "../ui/form-controls";
 import { DashboardDialog } from "./dashboard-dialog";
 import { FeedbackNotice, type FeedbackTone } from "./dashboard-shared-ui";
-
-export const dashboardFormInputClassName = controlVariants({
-  controlSize: "default",
-});
 
 /** 创建和编辑弹窗共用的标题、反馈与操作按钮。 */
 export function FormDialog({
@@ -75,7 +71,9 @@ export function FormDialog({
     >
       <div className="space-y-5">
         {feedback ? (
-          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+          <FeedbackNotice tone={feedback.tone}>
+            {feedback.message}
+          </FeedbackNotice>
         ) : null}
         {children}
       </div>
@@ -85,30 +83,32 @@ export function FormDialog({
 
 export function DashboardFormField({
   children,
+  className,
+  controlId,
+  density,
   error,
   hint,
+  hintTone,
   label,
-}: {
-  children: ReactNode;
-  error?: ReactNode;
-  hint?: ReactNode;
-  label: ReactNode;
-}) {
+  labelAction,
+  labelHidden,
+  required,
+}: React.ComponentProps<typeof Field>) {
   return (
-    <label className="grid min-w-0 gap-2 text-sm font-semibold text-content-strong">
-      <span>{label}</span>
+    <Field
+      className={className}
+      controlId={controlId}
+      density={density}
+      error={error}
+      hint={hint}
+      hintTone={hintTone}
+      label={label}
+      labelAction={labelAction}
+      labelHidden={labelHidden}
+      required={required}
+    >
       {children}
-      {hint ? (
-        <span className="text-xs font-normal leading-5 text-content-muted">
-          {hint}
-        </span>
-      ) : null}
-      {error ? (
-        <span className="text-xs font-normal leading-5 text-status-danger">
-          {error}
-        </span>
-      ) : null}
-    </label>
+    </Field>
   );
 }
 

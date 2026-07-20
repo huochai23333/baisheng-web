@@ -9,7 +9,7 @@ import { createDashboardSharedCopy } from "./dashboard-shared-copy";
 export function IdPreview() {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-surface-inset p-5">
-      <div className="h-[72%] w-[78%] rounded-[18px] border border-border bg-surface-panel shadow-[var(--surface-shadow-panel)]" />
+      <div className="h-[72%] w-[78%] rounded-record-card border border-border bg-surface-panel shadow-surface-panel" />
     </div>
   );
 }
@@ -17,8 +17,8 @@ export function IdPreview() {
 export function PassportPreview() {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-surface-inset p-5">
-      <div className="relative h-[74%] w-[62%] rounded-[18px] border border-content-strong bg-content-strong shadow-[var(--surface-shadow-panel)]">
-        <div className="absolute top-[28%] left-1/2 h-14 w-14 -translate-x-1/2 rounded-full border border-white/20" />
+      <div className="relative h-[74%] w-[62%] rounded-record-card border border-content-strong bg-content-strong shadow-surface-panel">
+        <div className="absolute top-[28%] left-1/2 h-14 w-14 -translate-x-1/2 rounded-full border border-surface-panel-border" />
       </div>
     </div>
   );
@@ -36,7 +36,7 @@ export function VideoPreview({
   return (
     <div className="absolute inset-0 flex flex-col justify-between bg-primary p-4 text-primary-foreground">
       <div className="flex items-center justify-between text-primary-foreground/75">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] tracking-[0.16em] uppercase">
+        <span className="inline-flex items-center gap-2 rounded-full bg-surface-on-media px-3 py-1 text-[11px] tracking-[0.16em] uppercase">
           <Video className="size-3.5" />
           {copy.video.badge}
         </span>

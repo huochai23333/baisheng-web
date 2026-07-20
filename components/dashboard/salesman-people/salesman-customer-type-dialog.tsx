@@ -1,6 +1,7 @@
 "use client";
 
 import { Select } from "@/components/ui/select";
+import * as FormControls from "@/components/ui/form-controls";
 
 import { LoaderCircle, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -91,14 +92,14 @@ export function SalesmanCustomerTypeDialog({
     >
       {customer ? (
         <div className="space-y-5">
-          <div className="rounded-[22px] border border-border-subtle bg-white p-5">
+          <div className="rounded-control-large border border-border-subtle bg-surface-interactive p-5">
             <p className="text-lg font-semibold text-content-strong">
               {getSalesmanCustomerName(customer, t("fallback.unnamedCustomer"))}
             </p>
             <p className="mt-1 break-all text-sm text-content-muted">
               {getSalesmanCustomerContact(customer, fallback)}
             </p>
-            <div className="mt-4 rounded-[18px] bg-surface-inset px-4 py-3">
+            <div className="mt-4 rounded-record-card bg-surface-inset px-4 py-3">
               <p className="text-[11px] font-semibold tracking-[0.14em] text-content-subtle uppercase">
                 {t("dialog.currentType")}
               </p>
@@ -112,10 +113,7 @@ export function SalesmanCustomerTypeDialog({
             </div>
           </div>
 
-          <label className="block">
-            <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
-              {t("dialog.nextType")}
-            </span>
+          <FormControls.Field label={t("dialog.nextType")} required>
             <Select
               disabled={saving}
               onValueChange={onDraftTypeChange}
@@ -128,7 +126,7 @@ export function SalesmanCustomerTypeDialog({
               ]}
               value={draftType}
             />
-          </label>
+          </FormControls.Field>
         </div>
       ) : null}
     </DashboardDialog>

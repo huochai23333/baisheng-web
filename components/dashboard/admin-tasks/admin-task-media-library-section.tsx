@@ -172,11 +172,11 @@ function TaskMediaLibraryCard({
   const previewable = canPreviewTaskFile(item.kind);
 
   return (
-    <article className="min-w-0 rounded-[24px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)] sm:p-5">
+    <article className="min-w-0 rounded-surface-panel border border-border-subtle bg-surface-interactive p-4 shadow-surface-interactive sm:p-5">
       <div className="flex min-w-0 items-start gap-4">
         <div
           className={cn(
-            "flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px]",
+            "flex h-12 w-12 shrink-0 items-center justify-center rounded-record-card",
             item.kind === "image" && "bg-status-info-soft text-primary",
             item.kind === "video" && "bg-surface-inset text-status-success",
             item.kind === "pdf" && "bg-status-warning-soft text-status-warning",
@@ -282,7 +282,7 @@ function InfoTile({
   value: string;
 }) {
   return (
-    <div className="min-w-0 rounded-[18px] bg-surface-inset px-3 py-3">
+    <div className="min-w-0 rounded-record-card bg-surface-inset px-3 py-3">
       <div className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.14em] text-content-subtle uppercase">
         {icon}
         <span className="min-w-0 truncate">{label}</span>

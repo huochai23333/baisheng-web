@@ -178,7 +178,7 @@ export function WholesaleOrderSettlementDialog({
 function ReadOnlyRateField({ label, value }: { label: string; value: string }) {
   return (
     <DashboardFilterField label={label}>
-      <div className="min-h-11 rounded-[16px] border border-border-subtle bg-white px-4 py-3 text-sm leading-5 text-content-strong [overflow-wrap:anywhere]">
+      <div className="min-h-11 rounded-control-default border border-border-subtle bg-surface-interactive px-4 py-3 text-sm leading-5 text-content-strong [overflow-wrap:anywhere]">
         {value}
       </div>
     </DashboardFilterField>
@@ -193,20 +193,20 @@ function SettlementRecordList({
 }) {
   if (settlements.length === 0) {
     return (
-      <div className="rounded-[16px] border border-border-subtle bg-white px-4 py-3 text-sm leading-6 text-content-muted">
+      <div className="rounded-control-default border border-border-subtle bg-surface-interactive px-4 py-3 text-sm leading-6 text-content-muted">
         <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text004" />
       </div>
     );
   }
   return (
-    <div className="rounded-[16px] border border-border-subtle bg-white p-3">
+    <div className="rounded-control-default border border-border-subtle bg-surface-interactive p-3">
       <p className="mb-2 text-xs font-semibold text-content-muted">
         <UiMessage id="components_dashboard_wholesale_wholesale_order_rate_dialogs.text005" />
       </p>
       <div className="grid gap-2">
         {settlements.map((settlement) => (
           <div
-            className="grid gap-1 rounded-[12px] bg-surface-inset p-3 text-xs leading-5 text-content-muted sm:grid-cols-4"
+            className="grid gap-1 rounded-option bg-surface-inset p-3 text-xs leading-5 text-content-muted sm:grid-cols-4"
             key={settlement.id}
           >
             <span>{formatDate(settlement.settled_on)}</span>

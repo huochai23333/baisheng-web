@@ -16,6 +16,7 @@ import {
 import type { AdminTaskRow } from "@/lib/admin-tasks";
 
 import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/form-controls";
 import { useLocale } from "@/components/i18n/locale-provider";
 import { formatDateTime } from "@/components/dashboard/dashboard-shared-ui";
 import {
@@ -80,7 +81,7 @@ export function TaskCard({
   const progressLabel = getTaskAcceptanceProgressLabel(task, sharedT);
 
   return (
-    <article className="rounded-[24px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]">
+    <article className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-5 shadow-surface-interactive">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
@@ -200,12 +201,5 @@ export function FormField({
   label: string;
   children: ReactNode;
 }) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-content-strong">
-        {label}
-      </span>
-      {children}
-    </label>
-  );
+  return <Field label={label}>{children}</Field>;
 }

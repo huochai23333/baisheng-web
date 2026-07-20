@@ -62,7 +62,7 @@ export function AdminShellMobileNav({
       <DesignButton
         aria-expanded={mobileMenuOpen}
         aria-label={activeLabel}
-        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-[18px] border border-white/90 bg-white/88 px-4 py-3 text-left text-primary shadow-[var(--surface-shadow-interactive)] backdrop-blur transition-colors hover:bg-surface-inset"
+        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-record-card border border-surface-panel-border bg-surface-overlay px-4 py-3 text-left text-primary shadow-surface-interactive backdrop-blur transition-colors hover:bg-surface-inset"
         onClick={() => setMobileMenuOpen((value) => !value)}
         type="button"
       >
@@ -87,7 +87,7 @@ export function AdminShellMobileNav({
       <nav
         aria-hidden={!mobileMenuOpen}
         className={cn(
-          "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 max-h-[62vh] overflow-y-auto rounded-[22px] border border-white/90 bg-surface-inset/98 p-2 shadow-[var(--surface-shadow-interactive)] backdrop-blur transition-[opacity,transform,clip-path] duration-200 ease-out",
+          "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 max-h-[62vh] overflow-y-auto rounded-control-large border border-surface-panel-border bg-surface-inset/98 p-2 shadow-surface-interactive backdrop-blur transition-[opacity,transform,clip-path] duration-200 ease-out",
           mobileMenuOpen
             ? "pointer-events-auto translate-y-0 opacity-100 [clip-path:inset(0_0_0_0)]"
             : "pointer-events-none -translate-y-1 opacity-0 [clip-path:inset(0_0_100%_0)]",

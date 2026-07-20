@@ -109,7 +109,7 @@ export function WholesaleLogisticsSection({
       ) : null}
 
       {logistics.updatingSource ? (
-        <p className="rounded-[18px] border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
+        <p className="rounded-record-card border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
           {t("updating")}
         </p>
       ) : null}

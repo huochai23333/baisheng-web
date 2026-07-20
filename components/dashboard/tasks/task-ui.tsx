@@ -11,6 +11,7 @@ import { StatusBadge, type StatusTone } from "@/components/ui/status-badge";
 import type { TaskScope, TaskStatus } from "@/lib/admin-tasks";
 import {
   DashboardSearchInput,
+  DashboardFilterField,
 } from "../dashboard-section-panel";
 import { getTaskScopeLabel, getTaskStatusMeta } from "./tasks-display";
 
@@ -26,16 +27,13 @@ export function TaskSearchField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
-        {label}
-      </span>
+    <DashboardFilterField label={label}>
       <DashboardSearchInput
         onChange={onChange}
         placeholder={placeholder}
         value={value}
       />
-    </label>
+    </DashboardFilterField>
   );
 }
 
@@ -51,16 +49,9 @@ export function TaskFilterField({
   options: readonly SelectOption[];
 }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
-        {label}
-      </span>
-      <Select
-        onValueChange={onChange}
-        options={options}
-        value={value}
-      />
-    </label>
+    <DashboardFilterField label={label}>
+      <Select onValueChange={onChange} options={options} value={value} />
+    </DashboardFilterField>
   );
 }
 
@@ -124,7 +115,7 @@ export function TaskInfoTile({
   value: string;
 }) {
   return (
-    <div className="rounded-[20px] bg-surface-inset px-4 py-3">
+    <div className="rounded-surface-inset bg-surface-inset px-4 py-3">
       <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
         {label}
       </p>

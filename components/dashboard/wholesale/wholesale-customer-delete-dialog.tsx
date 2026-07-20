@@ -31,7 +31,7 @@ export function WholesaleCustomerDeleteDialog({
     >
       {customer ? (
         <div className="space-y-5">
-          <div className="flex gap-3 rounded-[18px] border border-border-subtle bg-surface-inset p-4 text-content-muted">
+          <div className="flex gap-3 rounded-record-card border border-border-subtle bg-surface-inset p-4 text-content-muted">
             <AlertTriangle className="mt-0.5 size-5 shrink-0" />
             <div className="min-w-0">
               <p className="break-words text-sm font-semibold">

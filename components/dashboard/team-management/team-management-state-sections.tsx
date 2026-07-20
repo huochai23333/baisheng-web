@@ -29,7 +29,6 @@ import {
   getManagerCandidateLabel,
   getTeamManagementDescription,
 } from "./team-management-display";
-import { teamManagementSectionInputClassName } from "./team-management-section-styles";
 
 export function TeamManagementHeroSection({
   canManageSelectedTeam,
@@ -101,24 +100,16 @@ export function AdminCreateTeamSection({
       title={t("adminCreate.title")}
     >
       <div className="grid gap-4 xl:grid-cols-[1fr_1fr_auto]">
-        <label className="block">
-          <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
-            {t("adminCreate.teamNameLabel")}
-          </p>
+        <FormControls.Field label={t("adminCreate.teamNameLabel")} required>
           <FormControls.Input
-            className={teamManagementSectionInputClassName}
             onChange={(event) => onCreateTeamNameChange(event.target.value)}
             placeholder={t("adminCreate.teamNamePlaceholder")}
             value={createTeamNameDraft}
           />
-        </label>
+        </FormControls.Field>
 
-        <label className="block">
-          <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
-            {t("adminCreate.managerLabel")}
-          </p>
+        <FormControls.Field label={t("adminCreate.managerLabel")}>
           <Select
-            className="mt-3"
             onValueChange={onCreateManagerUserIdChange}
             options={[
               { label: t("shared.managerOptionNone"), value: "" },
@@ -130,7 +121,7 @@ export function AdminCreateTeamSection({
             ]}
             value={createManagerUserIdDraft}
           />
-        </label>
+        </FormControls.Field>
 
         <div className="flex items-end">
           <Button
@@ -197,18 +188,14 @@ export function ManagerSetupSection({
           </div>
         </div>
 
-        <div className="mt-6 rounded-[24px] border border-border-subtle bg-surface-inset p-5 shadow-[var(--surface-shadow-interactive)]">
-          <label className="block">
-            <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
-              {t("managerSetup.teamNameLabel")}
-            </p>
+        <div className="mt-6 rounded-surface-panel border border-border-subtle bg-surface-inset p-5 shadow-surface-interactive">
+          <FormControls.Field label={t("managerSetup.teamNameLabel")} required>
             <FormControls.Input
-              className={teamManagementSectionInputClassName}
               onChange={(event) => onTeamNameChange(event.target.value)}
               placeholder={t("managerSetup.teamNamePlaceholder")}
               value={teamNameDraft}
             />
-          </label>
+          </FormControls.Field>
 
           <div className="mt-5 flex flex-wrap gap-3">
             <Button

@@ -112,7 +112,9 @@ export function OrderFormDialog({
     >
       <div className="space-y-5">
         {feedback ? (
-          <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
+          <FeedbackNotice tone={feedback.tone}>
+            {feedback.message}
+          </FeedbackNotice>
         ) : null}
 
         <OrderFormSection
@@ -320,7 +322,7 @@ export function OrderFormDialog({
           />
         ) : null}
 
-        <div className="rounded-[22px] border border-border-subtle bg-white px-5 py-4 text-sm leading-7 text-content-muted shadow-[var(--surface-shadow-interactive)]">
+        <div className="rounded-control-large border border-border-subtle bg-surface-interactive px-5 py-4 text-sm leading-7 text-content-muted shadow-surface-interactive">
           {t("hints.autoTimestamps")}
         </div>
 

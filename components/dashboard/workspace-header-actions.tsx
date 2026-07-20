@@ -138,7 +138,7 @@ export function WorkspaceHeaderActions({
     <>
       <DesignButton
         aria-label={t("announcements.open")}
-        className="relative flex h-9 w-9 items-center justify-center rounded-full text-primary transition-colors hover:bg-white sm:h-10 sm:w-10"
+        className="relative flex h-9 w-9 items-center justify-center rounded-full text-primary transition-colors hover:bg-surface-interactive sm:h-10 sm:w-10"
         disabled={announcements.loading}
         onClick={announcements.openRecentAnnouncements}
         type="button"
@@ -184,7 +184,7 @@ export function WorkspaceHeaderActions({
           {accountMenuOpen ? (
             <motion.div
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[240px] origin-top-right overflow-hidden rounded-[22px] border border-border-subtle bg-white shadow-[var(--surface-shadow-interactive)]"
+              className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[240px] origin-top-right overflow-hidden rounded-control-large border border-border-subtle bg-surface-interactive shadow-surface-interactive"
               data-testid="workspace-account-menu"
               exit={{ opacity: 0, scale: 0.985, y: -6 }}
               initial={{ opacity: 0, scale: 0.985, y: -6 }}
@@ -207,7 +207,7 @@ export function WorkspaceHeaderActions({
                   // 可以避免浏览器长期保存包含旧登录状态的页面内容。
                   return (
                     <Link
-                      className="flex items-center gap-3 rounded-[16px] px-3 py-2.5 text-sm font-medium text-content-muted transition-colors hover:bg-surface-inset"
+                      className="flex items-center gap-3 rounded-control-default px-3 py-2.5 text-sm font-medium text-content-muted transition-colors hover:bg-surface-inset"
                       href={item.href}
                       key={item.href}
                       onClick={(event) => {
@@ -229,7 +229,7 @@ export function WorkspaceHeaderActions({
 
               <div className="border-t border-border-subtle p-2">
                 <DesignButton
-                  className="flex w-full items-center gap-3 rounded-[16px] px-3 py-2.5 text-left text-sm font-semibold text-status-danger transition-colors hover:bg-surface-inset disabled:cursor-not-allowed disabled:opacity-70"
+                  className="flex w-full items-center gap-3 rounded-control-default px-3 py-2.5 text-left text-sm font-semibold text-status-danger transition-colors hover:bg-surface-inset disabled:cursor-not-allowed disabled:opacity-70"
                   disabled={logoutPending}
                   onClick={handleLogout}
                   type="button"
@@ -278,11 +278,13 @@ export function WorkspaceHeaderActions({
       >
         <MotionList className="space-y-4">
           {announcements.errorMessage ? (
-            <FeedbackNotice tone="error">{announcements.errorMessage}</FeedbackNotice>
+            <FeedbackNotice tone="error">
+              {announcements.errorMessage}
+            </FeedbackNotice>
           ) : null}
 
           {announcements.displayedAnnouncements.length === 0 ? (
-            <div className="rounded-[24px] border border-border-subtle bg-white p-6 text-sm leading-7 text-content-muted">
+            <div className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-6 text-sm leading-7 text-content-muted">
               {t("announcements.empty")}
             </div>
           ) : (
@@ -311,7 +313,7 @@ function WorkspaceAnnouncementCard({
   const publishedAt = announcement.published_at ?? announcement.created_at;
 
   return (
-    <article className="rounded-[24px] border border-border-subtle bg-white p-5 shadow-[var(--surface-shadow-interactive)]">
+    <article className="rounded-surface-panel border border-border-subtle bg-surface-interactive p-5 shadow-surface-interactive">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <h4 className="text-lg font-semibold text-content-strong">
           {announcement.title}

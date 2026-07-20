@@ -40,7 +40,7 @@ export function AdminTaskSubmissionMediaPanel({
   const t = useTranslations("Tasks.admin.submissionMedia");
 
   return (
-    <div className="rounded-[22px] border border-border-subtle bg-surface-inset p-4">
+    <div className="rounded-control-large border border-border-subtle bg-surface-inset p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-primary">{t("title")}</p>
@@ -49,19 +49,19 @@ export function AdminTaskSubmissionMediaPanel({
           </p>
         </div>
 
-        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-primary">
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-surface-interactive px-3 py-1 text-xs font-medium text-primary">
           <ImageIcon className="size-3.5" />
           {t("count", { count: media.length })}
         </span>
       </div>
 
       {loading ? (
-        <div className="mt-4 flex items-center gap-2 rounded-[18px] border border-border-subtle bg-white px-4 py-3 text-sm text-content-muted">
+        <div className="mt-4 flex items-center gap-2 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3 text-sm text-content-muted">
           <LoaderCircle className="size-4 animate-spin" />
           {t("loading")}
         </div>
       ) : media.length === 0 ? (
-        <p className="mt-4 rounded-[18px] border border-border-subtle bg-white px-4 py-3 text-sm leading-7 text-content-muted">
+        <p className="mt-4 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3 text-sm leading-7 text-content-muted">
           {t("empty")}
         </p>
       ) : (
@@ -71,11 +71,11 @@ export function AdminTaskSubmissionMediaPanel({
 
             return (
               <article
-                className="min-w-0 rounded-[20px] border border-border-subtle bg-white p-4"
+                className="min-w-0 rounded-surface-inset border border-border-subtle bg-surface-interactive p-4"
                 key={item.id}
               >
                 <div className="flex min-w-0 items-start gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-status-info-soft text-primary">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-control-default bg-status-info-soft text-primary">
                     {item.kind === "video" ? (
                       <Video className="size-5" />
                     ) : (
@@ -204,7 +204,7 @@ export function AdminTaskSubmissionMediaPreviewDialog({
     >
       {media ? (
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-[24px] border border-border-subtle bg-surface-inset">
+          <div className="overflow-hidden rounded-surface-panel border border-border-subtle bg-surface-inset">
             {media.kind === "video" ? (
               <video
                 ref={videoRef}

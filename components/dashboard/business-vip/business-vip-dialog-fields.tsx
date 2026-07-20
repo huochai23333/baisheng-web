@@ -21,19 +21,16 @@ export function BusinessVipNoteField({
   value: string;
 }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">
-        {label}
-      </span>
+    <FormControls.Field label={label}>
       <FormControls.Textarea
-        className="min-h-28 w-full resize-y rounded-[18px] border border-border bg-white px-4 py-3 text-sm leading-6 text-content-strong outline-none placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
+        className="min-h-28"
         disabled={disabled}
         maxLength={500}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         value={value}
       />
-    </label>
+    </FormControls.Field>
   );
 }
 

@@ -166,7 +166,7 @@ export function DashboardHomeCustomizer({
         <div
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute -inset-2 rounded-[30px] border-2 border-dashed border-border-subtle opacity-0 transition-opacity duration-200",
+            "pointer-events-none absolute -inset-2 rounded-surface-panel border-2 border-dashed border-border-subtle opacity-0 transition-opacity duration-200",
             editing && "opacity-100",
           )}
           data-testid="home-widget-placement-boundary"
@@ -177,7 +177,7 @@ export function DashboardHomeCustomizer({
           style={{ gridAutoRows: `${HOME_WIDGET_ROW_UNIT_PX}px` }}
         >
           {widgets.length === 0 ? (
-            <div className="col-span-5 rounded-[24px] border border-dashed border-ring bg-white/68 p-8 text-center">
+            <div className="col-span-5 rounded-surface-panel border border-dashed border-ring bg-surface-panel p-8 text-center">
               <h2 className="text-xl font-bold text-content-strong">
                 {customizerCopy.emptyTitle}
               </h2>

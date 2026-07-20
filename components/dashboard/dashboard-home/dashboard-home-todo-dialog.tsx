@@ -7,8 +7,8 @@ import { LoaderCircle } from "lucide-react";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import {
   FormDialog,
+  DashboardFormField,
   DashboardFormTextarea,
-  dashboardFormInputClassName,
 } from "@/components/dashboard/dashboard-form-dialog";
 import type { FeedbackTone } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
@@ -58,20 +58,17 @@ export function HomeTodoDialog({
       submitTestId="home-todo-dialog-save"
       title={copy.dialog.title}
     >
-      <label className="grid gap-2 text-sm font-semibold text-content-strong">
-        {copy.dialog.titleLabel}
+      <DashboardFormField label={copy.dialog.titleLabel} required>
         <FormControls.Input
-          className={dashboardFormInputClassName}
           data-testid="home-todo-dialog-title"
           onChange={(event) => onUpdateField("title", event.target.value)}
           placeholder={copy.dialog.titlePlaceholder}
           type="text"
           value={formState.title}
         />
-      </label>
+      </DashboardFormField>
 
-      <label className="grid gap-2 text-sm font-semibold text-content-strong">
-        {copy.dialog.notesLabel}
+      <DashboardFormField label={copy.dialog.notesLabel}>
         <DashboardFormTextarea
           className="min-h-[150px]"
           data-testid="home-todo-dialog-notes"
@@ -79,40 +76,34 @@ export function HomeTodoDialog({
           placeholder={copy.dialog.notesPlaceholder}
           value={formState.notes}
         />
-      </label>
+      </DashboardFormField>
 
-      <FormControls.Field label={copy.dialog.dueDateLabel}>
+      <DashboardFormField label={copy.dialog.dueDateLabel}>
         <DatePicker
           data-testid="home-todo-dialog-due-date"
           onValueChange={(value) => onUpdateField("dueDate", value)}
           value={formState.dueDate}
         />
-      </FormControls.Field>
+      </DashboardFormField>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="flex min-h-12 items-center gap-3 rounded-[18px] border border-border-subtle bg-white px-4 text-sm font-semibold text-content-strong">
-          <FormControls.Checkbox
-            checked={formState.isImportant}
-            className="size-4 accent-primary"
-            data-testid="home-todo-dialog-important"
-            onChange={(event) =>
-              onUpdateField("isImportant", event.target.checked)
-            }
-          />
-          {copy.dialog.importantLabel}
-        </label>
+        <FormControls.ChoiceField
+          checked={formState.isImportant}
+          data-testid="home-todo-dialog-important"
+          label={copy.dialog.importantLabel}
+          onChange={(event) =>
+            onUpdateField("isImportant", event.target.checked)
+          }
+        />
 
-        <label className="flex min-h-12 items-center gap-3 rounded-[18px] border border-border-subtle bg-white px-4 text-sm font-semibold text-content-strong">
-          <FormControls.Checkbox
-            checked={formState.isCompleted}
-            className="size-4 accent-primary"
-            data-testid="home-todo-dialog-completed"
-            onChange={(event) =>
-              onUpdateField("isCompleted", event.target.checked)
-            }
-          />
-          {copy.dialog.completedLabel}
-        </label>
+        <FormControls.ChoiceField
+          checked={formState.isCompleted}
+          data-testid="home-todo-dialog-completed"
+          label={copy.dialog.completedLabel}
+          onChange={(event) =>
+            onUpdateField("isCompleted", event.target.checked)
+          }
+        />
       </div>
     </FormDialog>
   );
@@ -167,7 +158,7 @@ export function HomeTodoDeleteDialog({
       open={open}
       title={copy.actions.delete}
     >
-      <div className="break-words rounded-[20px] border border-border-subtle bg-white px-4 py-3 text-sm font-semibold leading-6 text-content-strong [overflow-wrap:anywhere]">
+      <div className="break-words rounded-surface-inset border border-border-subtle bg-surface-interactive px-4 py-3 text-sm font-semibold leading-6 text-content-strong [overflow-wrap:anywhere]">
         {todo.title}
       </div>
     </DashboardDialog>

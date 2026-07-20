@@ -1,7 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
-
 import { CalendarDays, LoaderCircle, ReceiptText, Trash2 } from "lucide-react";
 
 import {
@@ -10,6 +8,7 @@ import {
   PresenceSwap,
 } from "@/components/motion/motion-primitives";
 import { Button } from "@/components/ui/button";
+import { MetaGrid, MetaItem, RecordCard } from "@/components/ui/data-display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type {
   OperatorReimbursementRow,
@@ -101,7 +100,7 @@ function OperatorReimbursementCard({
   const canDelete = reimbursement.status === "unreimbursed";
 
   return (
-    <article className="rounded-[24px] border border-border-subtle bg-surface-inset p-5">
+    <RecordCard surface="inset">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
@@ -130,12 +129,12 @@ function OperatorReimbursementCard({
             {formatOperatorReimbursementAmount(reimbursement.amount, locale)}
           </p>
 
-          <dl className="mt-4 grid gap-3 text-sm text-content-muted md:grid-cols-2 xl:grid-cols-5">
-            <ReimbursementMeta label={copy.spentAt}>
+          <MetaGrid className="mt-4 xl:grid-cols-5">
+            <MetaItem label={copy.spentAt}>
               <CalendarDays className="size-4" />
               {formatOperatorReimbursementDate(reimbursement.spent_at, locale)}
-            </ReimbursementMeta>
-            <ReimbursementMeta label={copy.period}>
+            </MetaItem>
+            <MetaItem label={copy.period}>
               <CalendarDays className="size-4" />
               {formatOperatorReimbursementPeriod(
                 {
@@ -144,23 +143,23 @@ function OperatorReimbursementCard({
                 },
                 locale,
               )}
-            </ReimbursementMeta>
-            <ReimbursementMeta label={copy.status}>
+            </MetaItem>
+            <MetaItem label={copy.status}>
               {copy.statusOptions[reimbursement.status]}
-            </ReimbursementMeta>
-            <ReimbursementMeta label={copy.reimbursedAt}>
+            </MetaItem>
+            <MetaItem label={copy.reimbursedAt}>
               {formatOperatorReimbursementDate(
                 reimbursement.reimbursed_at,
                 locale,
               )}
-            </ReimbursementMeta>
-            <ReimbursementMeta label={copy.updatedAt}>
+            </MetaItem>
+            <MetaItem label={copy.updatedAt}>
               {formatOperatorReimbursementDate(
                 reimbursement.updated_at.slice(0, 10),
                 locale,
               )}
-            </ReimbursementMeta>
-          </dl>
+            </MetaItem>
+          </MetaGrid>
         </div>
 
         {canDelete ? (
@@ -181,23 +180,6 @@ function OperatorReimbursementCard({
           </div>
         ) : null}
       </div>
-    </article>
-  );
-}
-
-function ReimbursementMeta({
-  children,
-  label,
-}: {
-  children: ReactNode;
-  label: string;
-}) {
-  return (
-    <div>
-      <dt className="text-xs font-semibold text-content-muted">{label}</dt>
-      <dd className="mt-1 flex min-w-0 items-center gap-1.5 break-words [overflow-wrap:anywhere]">
-        {children}
-      </dd>
-    </div>
+    </RecordCard>
   );
 }

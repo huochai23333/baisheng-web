@@ -70,7 +70,7 @@ export function TourismPersonDetails({
     <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {rows.map((row) => (
         <div
-          className="min-w-0 rounded-[18px] border border-border-subtle bg-white px-4 py-3"
+          className="min-w-0 rounded-record-card border border-border-subtle bg-surface-interactive px-4 py-3"
           key={row.label}
         >
           <p className="text-[11px] font-semibold tracking-[0.16em] text-content-subtle uppercase">

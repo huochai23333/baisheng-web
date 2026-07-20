@@ -108,7 +108,7 @@ export function DashboardBusinessReferralPanel({
   return (
     <div className="mt-6 border-t border-border-subtle pt-6">
       <div className="flex items-start gap-3">
-        <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-2xl bg-white text-primary">
+        <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-2xl bg-surface-interactive text-primary">
           <BriefcaseBusiness className="size-4.5" />
         </span>
         <div className="min-w-0 flex-1">

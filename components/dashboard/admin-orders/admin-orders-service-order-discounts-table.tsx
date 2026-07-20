@@ -134,7 +134,7 @@ export function ServiceOrderDiscountsTable({
 
               return (
                 <article
-                  className="rounded-[18px] border border-border-subtle bg-white p-4 shadow-[var(--surface-shadow-interactive)]"
+                  className="rounded-record-card border border-border-subtle bg-surface-interactive p-4 shadow-surface-interactive"
                   key={row.id}
                 >
                   <h5 className="break-words text-sm font-semibold leading-6 text-content-strong">
