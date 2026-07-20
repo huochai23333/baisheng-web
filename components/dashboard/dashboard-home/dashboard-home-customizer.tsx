@@ -151,7 +151,6 @@ export function DashboardHomeCustomizer({
           <Button
             variant="outline"
             size="default"
-            className="text-content-strong"
             data-testid="home-edit-button"
             onClick={startEditing}
             type="button"

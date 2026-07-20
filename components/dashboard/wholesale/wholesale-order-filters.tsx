@@ -83,11 +83,12 @@ export function WholesaleOrderFiltersPanel({
             value={filters.searchText}
           />
           <Button
-            className="min-h-10 shrink-0 rounded-full px-3"
+            className="shrink-0"
             disabled={!filters.searchText.trim()}
             onClick={onExactSearch}
             type="button"
             variant="outline"
+            size="compact"
           >
             <Search className="size-4" />
             {frameworkT("exactSearch.action")}
@@ -98,10 +99,7 @@ export function WholesaleOrderFiltersPanel({
         <Select
           aria-label={uiText("attribute003")}
           onValueChange={(value) =>
-            onUpdate(
-              "status",
-              value as WholesaleOrderFilters["status"],
-            )
+            onUpdate("status", value as WholesaleOrderFilters["status"])
           }
           options={[
             {

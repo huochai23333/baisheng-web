@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { RecordCard } from "@/components/ui/data-display";
 import type { UserTodoItemRow } from "@/lib/user-todos";
 
 import {
@@ -87,11 +88,8 @@ export function TodoItem({
   const dueTone = getHomeTodoDueTone(todo);
 
   return (
-    <article
-      className={cn(
-        "rounded-surface-panel border border-border-subtle bg-surface-interactive p-4 shadow-surface-interactive",
-        todo.is_completed ? "opacity-78" : "",
-      )}
+    <RecordCard
+      className={cn(todo.is_completed ? "opacity-78" : "")}
       data-testid="home-todo-item"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -215,7 +213,7 @@ export function TodoItem({
           </IconActionButton>
         </div>
       </div>
-    </article>
+    </RecordCard>
   );
 }
 

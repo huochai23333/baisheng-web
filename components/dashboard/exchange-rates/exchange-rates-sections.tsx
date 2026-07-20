@@ -340,7 +340,6 @@ export const ExchangeRatesHistorySection = memo(
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-2">
                             <Button
-                              className="rounded-full"
                               onClick={() => onEditRow(row)}
                               size="compact"
                               type="button"
@@ -350,12 +349,11 @@ export const ExchangeRatesHistorySection = memo(
                               {t("actions.edit")}
                             </Button>
                             <Button
-                              className="rounded-full text-status-danger hover:text-status-danger"
                               disabled={deleting}
                               onClick={() => onDeleteRow(row)}
                               size="compact"
                               type="button"
-                              variant="outline"
+                              variant="danger"
                             >
                               {deleting ? (
                                 <LoaderCircle className="size-3.5 animate-spin" />

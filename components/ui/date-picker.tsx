@@ -33,12 +33,16 @@ import {
   type DatePickerMode,
 } from "@/components/ui/date-picker-values";
 import { controlVariants, Input } from "@/components/ui/form-controls";
-import { useFormFieldControlAttributes } from "@/components/ui/form-field-context";
+import {
+  useFormFieldControlAttributes,
+  useFormFieldRequired,
+} from "@/components/ui/form-field-context";
 import { cn } from "@/lib/utils";
 
 export type DatePickerProps = {
   "aria-describedby"?: string;
   "aria-invalid"?: AriaAttributes["aria-invalid"];
+  "aria-required"?: AriaAttributes["aria-required"];
   "aria-label"?: string;
   "data-testid"?: string;
   className?: string;
@@ -66,6 +70,7 @@ export type DatePickerProps = {
 export function DatePicker({
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
+  "aria-required": ariaRequired,
   "aria-label": ariaLabel,
   "data-testid": dataTestId,
   className,
@@ -80,10 +85,11 @@ export function DatePicker({
   onValueChange,
   placeholder,
   readOnly = false,
-  required = false,
+  required,
   value,
 }: DatePickerProps) {
   const t = useTranslations("DatePicker");
+  const resolvedRequired = useFormFieldRequired(required);
   const locale = normalizeDatePickerLocale(useLocale());
   const [internalValue, setInternalValue] = useState(defaultValue);
   const currentValue = value ?? internalValue;
@@ -105,6 +111,7 @@ export function DatePicker({
   const fieldAttributes = useFormFieldControlAttributes({
     ariaDescribedBy,
     ariaInvalid,
+    ariaRequired,
     id,
   });
   const describedBy = [fieldAttributes["aria-describedby"], error ? errorId : null]
@@ -148,11 +155,11 @@ export function DatePicker({
     (nextValue: string) => {
       if (!nextValue) {
         setInputText("");
-        showError(required ? t("required") : null);
+        showError(resolvedRequired ? t("required") : null);
         // 必填字段清空后保留最后一个有效业务值，只让可见输入进入无效状态；
         // 这样隐藏 FormData 不会短暂污染筛选条件，同时浏览器仍会阻止表单提交。
-        if (!required && currentValue) updateValue("");
-        return !required;
+        if (!resolvedRequired && currentValue) updateValue("");
+        return !resolvedRequired;
       }
       if (
         !isCanonicalDatePickerValue(nextValue, mode) ||
@@ -172,7 +179,7 @@ export function DatePicker({
       showError(null);
       return true;
     },
-    [currentValue, locale, max, min, mode, required, showError, t, updateValue],
+    [currentValue, locale, max, min, mode, resolvedRequired, showError, t, updateValue],
   );
 
   const commitInputText = useCallback(() => {
@@ -241,7 +248,7 @@ export function DatePicker({
             aria-haspopup="dialog"
             aria-invalid={Boolean(error) || fieldAttributes["aria-invalid"]}
             aria-label={ariaLabel}
-            aria-required={required || undefined}
+            aria-required={resolvedRequired || undefined}
             className="pr-12"
             controlSize={controlSize}
             data-mode={mode}
@@ -270,7 +277,7 @@ export function DatePicker({
             placeholder={placeholder ?? getDatePickerPlaceholder(mode, locale)}
             readOnly={readOnly}
             ref={inputRef}
-            required={required}
+            required={resolvedRequired}
             type="text"
             value={inputText}
           />
@@ -309,7 +316,7 @@ export function DatePicker({
         onCommit={commitCanonicalValue}
         onDateTimeDraftChange={setDateTimeDraft}
         onDisplayMonthChange={setDisplayMonth}
-        required={required}
+        required={resolvedRequired}
       />
     </Popover.Root>
   );

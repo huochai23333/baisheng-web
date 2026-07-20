@@ -219,13 +219,13 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                   />
                   <Button
                     aria-label={t("sync.removeManualCurrency")}
-                    className="h-11 rounded-full text-content-muted hover:text-content-muted sm:h-12"
                     disabled={
                       manualFetchPending || manualCurrencies.length === 1
                     }
                     onClick={() => onRemoveManualCurrency(index)}
                     type="button"
                     variant="outline"
+                    size="icon-compact"
                   >
                     <Trash2 className="size-4" />
                   </Button>
@@ -235,11 +235,11 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
 
             <div className="flex flex-wrap gap-2">
               <Button
-                className="rounded-full"
                 disabled={manualFetchPending}
                 onClick={onAddManualCurrency}
                 type="button"
                 variant="outline"
+                size="compact"
               >
                 <Plus className="size-4" />
                 {t("sync.addManualCurrency")}

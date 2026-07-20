@@ -8,7 +8,11 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "../ui/button";
 import { DashboardSectionPanel } from "./dashboard-section-panel";
-import { EmptyState, FeedbackNotice, type FeedbackTone } from "./dashboard-shared-ui";
+import {
+  EmptyState,
+  FeedbackNotice,
+  type FeedbackTone,
+} from "./dashboard-shared-ui";
 
 export type DashboardActionFeedback = {
   message: string;
@@ -78,10 +82,11 @@ export function DashboardAccessState({
       {actionLabel && onAction ? (
         <div className="mt-4 flex justify-center">
           <Button
-            className="min-h-10 w-full rounded-full sm:w-auto"
+            className="w-full sm:w-auto"
             onClick={onAction}
             type="button"
             variant="outline"
+            size="compact"
           >
             {actionLabel}
           </Button>

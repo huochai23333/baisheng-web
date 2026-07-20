@@ -4,6 +4,7 @@ import { LoaderCircle, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DashboardSectionPanel } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
+import { Surface } from "@/components/ui/surface";
 import {
   useWholesaleOrderAssessment,
   type WholesaleOrderAssessmentFilters,
@@ -68,9 +69,12 @@ export function WholesaleOrderAssessmentPanel({
       ) : null}
 
       {assessment ? (
-        <div
-          className="mt-4 rounded-record-card border border-surface-panel-border bg-surface-interactive px-4 py-4 text-sm leading-7 text-content-strong shadow-surface-interactive"
+        <Surface
+          as="div"
+          className="mt-4 text-sm leading-7 text-content-strong"
           data-testid="wholesale-order-assessment-output"
+          padding="regular"
+          variant="interactive"
         >
           {hasStaleAssessment ? (
             <p className="mb-3 rounded-control-compact bg-surface-inset px-3 py-2 text-xs leading-5 text-content-muted">
@@ -78,7 +82,7 @@ export function WholesaleOrderAssessmentPanel({
             </p>
           ) : null}
           <p className="whitespace-pre-wrap break-words">{assessment.trim()}</p>
-        </div>
+        </Surface>
       ) : null}
     </DashboardSectionPanel>
   );

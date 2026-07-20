@@ -9,6 +9,7 @@ import { controlVariants } from "@/components/ui/form-controls";
 import {
   useFormFieldControlAttributes,
   useFormFieldControlDensity,
+  useFormFieldRequired,
 } from "@/components/ui/form-field-context";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ export type SelectOption<Value extends string = string> = Readonly<{
 export type SelectProps<Value extends string = string> = {
   "aria-describedby"?: string;
   "aria-invalid"?: AriaAttributes["aria-invalid"];
+  "aria-required"?: AriaAttributes["aria-required"];
   "aria-label"?: string;
   "aria-labelledby"?: string;
   autoComplete?: string;
@@ -48,6 +50,7 @@ export type SelectProps<Value extends string = string> = {
 export function Select<Value extends string = string>({
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
+  "aria-required": ariaRequired,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
   autoComplete,
@@ -61,13 +64,15 @@ export function Select<Value extends string = string>({
   options,
   placeholder,
   readOnly = false,
-  required = false,
+  required,
   value,
 }: SelectProps<Value>) {
   const density = useFormFieldControlDensity();
+  const resolvedRequired = useFormFieldRequired(required);
   const fieldAttributes = useFormFieldControlAttributes({
     ariaDescribedBy,
     ariaInvalid,
+    ariaRequired,
     id,
   });
   const firstEnabledValue = options.find((option) => !option.disabled)?.value;
@@ -91,7 +96,7 @@ export function Select<Value extends string = string>({
           if (nextValue !== null) onValueChange?.(nextValue as Value);
         }}
         readOnly={readOnly}
-        required={required}
+        required={resolvedRequired}
         value={value}
       >
         <SelectPrimitive.Trigger

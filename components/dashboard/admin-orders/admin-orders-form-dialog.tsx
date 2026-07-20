@@ -2,6 +2,7 @@
 
 import * as FormControls from "@/components/ui/form-controls";
 import { Select } from "@/components/ui/select";
+import { Surface } from "@/components/ui/surface";
 
 import { useMemo } from "react";
 
@@ -322,9 +323,14 @@ export function OrderFormDialog({
           />
         ) : null}
 
-        <div className="rounded-control-large border border-border-subtle bg-surface-interactive px-5 py-4 text-sm leading-7 text-content-muted shadow-surface-interactive">
+        <Surface
+          as="div"
+          className="text-sm leading-7 text-content-muted"
+          padding="regular"
+          variant="interactive"
+        >
           {t("hints.autoTimestamps")}
-        </div>
+        </Surface>
 
         <OrderSupplementaryFormSections
           formState={formState}

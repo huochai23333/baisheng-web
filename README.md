@@ -136,7 +136,7 @@ npm run supabase:admin -- summary
 说明：
 
 - `npm run check:i18n` 会核对中英文消息键结构，并拦截 TSX 中直接编写的用户可见文案；品牌、币种、邮箱示例和 `1688` 等不可翻译标识使用小型明确白名单。
-- `npm run check:dashboard-ui` 是全站 UI 结构守卫：拦截 TS/TSX 硬编码颜色、任何原生 `select/option` 和日期族输入、`components/ui` 之外的其他原生表单控件、领域 Select/DatePicker 包装或完整视觉覆盖、业务按钮覆盖完整背景/尺寸/圆角/悬停样式、领域状态标签实现、数据列表自行维护桌面/移动断点、超过 400 行的工作台文件、深色模式、原生确认框、复制页面外壳和旧分页组件。导航与首页布局编辑器是明确的响应式白名单。
+- `npm run check:dashboard-ui` 使用 TypeScript AST 检查 JSX、导入和职责边界：拦截业务层原生控件与 `<label>`、Select/DatePicker 视觉覆盖、Button 尺寸或材质覆盖、手写桌面/移动双视图、状态函数返回颜色类名、非共享组件持有面板阴影，以及 Page/Client 同时导入查询或 mutation 并渲染表格/弹窗。检查同时保留硬编码颜色、400 行上限、深色模式、原生确认框、复制页面外壳和旧分页组件等规则；导航与首页布局编辑器是明确的响应式白名单。
 - `npm run test:regression` 会依次执行 lint、typecheck、双语静态检查、工作台结构检查、build 和 Playwright 回归测试。
 - `npm run clean:artifacts` 清理 `.playwright-cli` 和 `output/playwright` 下的临时验证产物。
 - `npm run clean:cache` 清理 `.next` 和 `tsconfig.tsbuildinfo`。
@@ -273,13 +273,13 @@ baisheng-web/
 工作台共享能力：
 
 - `app/theme.css` 与 `components/ui/`：全站唯一的浅色视觉入口，基准是暖白工作台。页面画布使用 `#faf9f7`，导航结构使用 `#f4f3f1`，筛选、表格和弹窗使用 `#fbfaf8`；具体色值只存在于主题 CSS，业务 TSX 使用表面、内容、边框、品牌和状态等语义令牌。普通面板移动端为 24px 圆角、桌面端为 28px 圆角，不使用背景模糊；模糊只留给顶栏、移动菜单等覆盖结构，以及认证页经过约束的唯一玻璃外壳。项目当前不提供深色模式。
-- 控件密度按工作台办公场景统一：行内紧凑操作移动端至少 44px、桌面端 40px，普通按钮固定 44px，普通输入移动端 44px / 16px 圆角、桌面端 48px / 18px 圆角。认证页使用共享控件已有的 52px / 22px 大型变体，其他业务页面只有确实需要强调时才能使用。筛选输入、选择菜单和非选中快捷项使用浅色边界，悬停时适度加深；选择菜单展开后使用圆角暖白浮层，当前项固定为浅品牌蓝底、品牌色文字和勾选，不能退回系统方形菜单或深蓝选中块。每个选项至少 44px 高，长列表在视口内滚动，长文字在浮层中换行、在触发器中截断。普通表单继续使用更清楚的控件边界，所有键盘焦点保持高对比度。语义正文和状态色对比度至少为 4.5:1，普通表单边界及键盘焦点至少为 3:1。常规操作使用 `Button` 的语义变体和尺寸，整张记录卡或导航行这类不应继承按钮固定高度的点击区域使用 `InteractiveButton`。
-- `components/ui/button-variants.ts` 与 `button.tsx`：服务端链接和客户端按钮共用同一套变体与尺寸；外观定义与客户端交互边界分离，服务端页面不能从客户端模块调用样式函数。
-- `components/ui/form-controls.tsx`：输入、多行输入、勾选、单选、开关和字段说明的统一入口；`Field` 自动建立标签、提示、错误与输入控件之间的可访问性关联。`Field density="filter"` 还会通过共享上下文让 Input、Select 与 DatePicker 自动使用筛选区浅边界，普通字段继续使用默认边界；业务页面不得为三类控件分别复制筛选样式。`components/ui/select.tsx` 是全站唯一的单选菜单，业务层只能传入 `options`、值、表单语义和 `compact/default/large` 尺寸，`className` 只允许控制外层宽度、间距与定位。Select 通过 Base UI 的隐藏输入保留 `FormData`、必填与禁用语义，并继承 `Field` 生成的 id、错误说明、无效状态和视觉密度；账号菜单、语言切换、移动导航和国家区号菜单仍是各自已经圆角化的专用浮层，不属于表单 Select。业务组件不直接渲染原生表单标签。
+- 控件密度和几何只在 `theme.css` 定义：表单控件 `compact` 为移动 44px / 桌面 40px、`default` 为移动 44px / 桌面 48px、`large` 为 52px；按钮 `compact` 为移动 44px / 桌面 40px、`default` 为 44px、`large` 为 52px。面板、内嵌面板、记录卡和指标卡圆角分别为移动/桌面 24/28px、20/24px、18/20px、20/24px。筛选输入、选择菜单和非选中快捷项使用浅色边界，悬停时适度加深；选择菜单展开后使用圆角暖白浮层，当前项固定为浅品牌蓝底、品牌色文字和勾选，不能退回系统方形菜单或深蓝选中块。每个选项至少 44px 高，长列表在视口内滚动，长文字在浮层中换行、在触发器中截断。普通表单继续使用更清楚的控件边界，所有键盘焦点保持高对比度。语义正文和状态色对比度至少为 4.5:1，普通表单边界及键盘焦点至少为 3:1。
+- `components/ui/button-variants.ts` 与 `button.tsx`：服务端链接和客户端按钮共用同一套变体与尺寸；多行操作使用显式 `wrap`，业务 `className` 只控制宽度、定位和外部间距，不能改高度、内边距、字号、圆角、颜色或阴影。整张记录卡或导航行这类不应继承按钮固定高度的点击区域使用 `InteractiveButton`。
+- `components/ui/form-controls.tsx`：输入、多行输入、勾选、单选、开关和字段说明的统一入口；`Field` 自动建立标签、提示、错误与输入控件之间的可访问性关联，隐藏标签也通过 `labelHidden` 提供。checkbox、radio 和 toggle 行统一使用 `ChoiceField`，业务组件不直接渲染 `<label>`。`DashboardFormField` 完整透传 `required`、`hint`、`error`、`controlId`、隐藏标签和布局属性。`Field density="filter"` 还会通过共享上下文让 Input、Select 与 DatePicker 自动使用筛选区浅边界，普通字段继续使用默认边界；业务页面不得为三类控件分别复制筛选样式。`components/ui/select.tsx` 是全站唯一的单选菜单，业务层只能传入 `options`、值、表单语义和 `compact/default/large` 尺寸，`className` 只允许控制外层宽度、间距与定位。Select 通过 Base UI 的隐藏输入保留 `FormData`、必填与禁用语义，并继承 `Field` 生成的 id、错误说明、无效状态和视觉密度；账号菜单、语言切换、移动导航和国家区号菜单仍是各自已经圆角化的专用浮层，不属于表单 Select。
 - `components/ui/date-picker.tsx` 是全站唯一的日期、月份和日期时间入口，接口使用 `mode="date | month | datetime-local"`、`value/defaultValue`、`onValueChange`、`name`、`min/max`、表单语义和统一控件尺寸；`className` 同样只控制宽度、网格跨度与定位。可见文本框支持键盘输入，日历按钮或 `Alt + ↓` 打开由 Base UI 定位的圆角暖白浮层，DayPicker 只负责日期网格与键盘移动；日期和月份点选后立即提交，日期时间选择小时、分钟后点击“完成”才提交。中文接受 `YYYY-MM-DD`、`YYYY/MM/DD`、`YYYY-MM`、`YYYY/MM` 及相同日期加 24 小时时间，英文另外接受 `MM/DD/YYYY`、`MM/YYYY` 及相同日期加时间；界面按语言格式化，隐藏表单值始终保持 `YYYY-MM-DD`、`YYYY-MM` 或 `YYYY-MM-DDTHH:mm`。非法日期、闰年错误、必填空值和超出范围都会关联到字段并阻止提交，Escape 恢复最后一个有效值；“今天”和“现在”统一按 `Asia/Shanghai` 计算。390px 下仍使用锚定浮层并在视口内翻转、位移和滚动，不改成系统日期弹层或底部抽屉。
 - `components/ui/feedback-notice.tsx`：认证页和工作台统一的结果反馈条，只有 `info`、`success`、`error` 三种语义和紧凑/默认两档密度；错误自动即时播报，成功和提示使用礼貌播报。业务组件不再维护 `AuthFeedback` 或 `PageBanner`。
 - `components/ui/status-badge.tsx`：全站唯一状态标签。业务模块只映射 `neutral`、`info`、`success`、`warning`、`danger` 语义，不自行返回颜色类名。
-- `components/ui/surface.tsx`、`data-display.tsx` 与 `responsive-data-view.tsx`：统一面板层级、记录卡、元信息、统计卡及桌面表格/移动卡片切换。数量、分页和继续加载底栏只渲染一次。
+- `components/ui/surface.tsx`、`data-display.tsx` 与 `responsive-data-view.tsx`：`Surface` 通过 `as="section | article | div"` 和 `panel | inset | interactive | floating` 统一材质与内边距；`RecordCard surface="interactive | inset"` 与 `MetaGrid` / `MetaItem` 统一移动记录卡和字段定义列表；`MetricCard presentation="header | summary | value-panel"` 配合 `MetricGrid layout="header | three-column | four-column"` 承接页头、汇总和数值面板。`ResponsiveDataView` 默认在 `md` 切换，只有 VIP 等经过说明的宽表显式使用 `breakpoint="lg"`；数量、分页和继续加载底栏只渲染一次。
 - `components/ui/public-state-card.tsx`：访问范围、404、局部错误和全局错误页的统一提示卡；法律页和公共状态页继续复用工作台浅色材质，不跟随认证页的照片与玻璃变体。
 - `components/auth/auth-shell.tsx`：登录、注册和找回密码共用的认证编排外壳，接口按 `hero`、`form`、`footer` 分组。桌面端由 `AuthHeroPanel` 展示本地照片、品牌说明和提示，`AuthFormPanel` 展示表单；`lg` 以下隐藏照片栏，并由 `AuthSupplementalNote` 在表单后补齐说明。认证图片只允许在英雄面板静态导入，页面不得复制材质或移动说明卡。
 - 登录与找回密码的 Supabase 状态、账号切换、恢复会话和提交动作分别位于 `use-login-form-view-model.ts` 与 `use-forgot-password-view-model.ts`；表单文件只负责字段、反馈和操作按钮，注册继续由 `use-register-wizard.ts` 调度。
@@ -289,7 +289,7 @@ baisheng-web/
 - `dashboard-section-panel.tsx`：筛选面板、列表面板和表格外框。带放大镜的工作台搜索框统一使用 `DashboardSearchInput`；组件会在移动和桌面断点为图标保留固定前置槽位，并继续继承 `Field density="filter"` 的浅边界。业务页面只传值、占位文案和更新函数，不得再自行组合绝对定位图标、响应式内边距或另一套搜索框外观。数据表格和记录列表统一使用 `divide-border-subtle` 作为低强调分隔线，`chart-*` 令牌只用于图表数据，不能再形成抢夺内容层级的深色横杆。
 - `dashboard-page-shell.tsx`：管理员、业务员、财务、客户、首页和“我的”页面共用的 `1320px` 页面外壳；页面内容固定按页头、操作反馈、权限或错误状态、业务区块的顺序展示。
 - `dashboard-resource-filter-section.tsx`：通用资源筛选卡，统一标题、说明、恢复按钮、筛选字段和结果摘要；订单筛选在它上面扩展必填日期、日期快捷项和跨日期精确单号查询。
-- `dashboard-collection-section.tsx` 与 `components/ui/responsive-data-view.tsx`：通用列表卡、固定 `md` 的桌面表格/移动卡片切换、数量底栏、页码分页和继续加载操作。导航及首页布局编辑器之外，业务数据列表不得自行配对显示断点；数量和分页只显示一次。
+- `dashboard-collection-section.tsx` 与 `components/ui/responsive-data-view.tsx`：通用列表卡、默认 `md` 的桌面表格/移动卡片切换、数量底栏、页码分页和继续加载操作。VIP 宽表使用明确的 `lg` 例外；导航及首页布局编辑器之外，业务数据列表不得自行配对显示断点，数量和分页只显示一次。
 - `dashboard-form-dialog.tsx` 的 `FormDialog` 与 `components/ui/action-group.tsx`：创建和编辑表单共用标题、说明、字段、操作反馈、取消、提交、等待状态及移动端按钮顺序。提交失败时弹窗与输入保持不变，成功后由领域状态关闭并清空。
 - `dashboard-confirm-provider.tsx`：工作台普通、警告和危险确认服务。取消、遮罩、Escape 或关闭都视为不继续，确认后才执行领域操作；工作台不使用浏览器原生确认框。
 - `dashboard-framework-primitives.tsx`：工作台行内编辑操作和文件选择器。领域模块只保留文件格式、大小、数量和上传校验；状态标签使用全站 `StatusBadge`。
@@ -316,7 +316,7 @@ baisheng-web/
 - `admin-orders/`：旅游业务订单，配合订单查询、表单、详情、权限和错误映射模块；不承载新批发订单结构。
 - `admin-system-settings/`：管理员全局汇率设置，只维护自动获取币种、手动补充汇率和历史记录。
 - `business-settings/`：业务内设置页，旅游业务注册服务费、服务价格、服务折扣和服务相关佣金区块，批发业务注册批发订单修改规则、批发订单业务员提成和批发客户推荐佣金区块。
-- `admin-tasks/`：管理员当前任务板、任务审核、任务媒体库、任务创建、编辑、详情、改派和删除。
+- `admin-tasks/`：根 Client 只维护路由页签、任务/审核/媒体库三个长期 view-model 和页面外壳；三个 board 组件分别组装当前任务、任务审核和媒体库，创建、编辑、详情、改派和删除继续位于各自同层模块。三个 view-model 始终常驻，因此切换页签不会清空既有筛选和草稿状态。
 - `salesman-tasks/`：内部成员任务接收、提交审核和成果附件。
 - `admin-reviews/`：全局审核中心使用的资料修改、隐私审核、媒体审核和智能初审展示；任务审核仍放在管理员任务板内切换。
 - `commission/`：普通佣金、任务佣金和结算操作。
@@ -331,6 +331,7 @@ baisheng-web/
 拆分规则：
 
 - `Client` / `Page` 组件只负责组装和调度。
+- 动态业务 Page 只解析路由、校验工作区业务访问并调用 `WorkspaceSectionRenderer`；旅游与批发入口分别注册 renderer，由 renderer 负责查询参数、领域查询、文案命名空间和 Client 选择。新增业务入口必须注册 renderer，不能把领域分支重新堆回 Page。
 - 查询、mutation、权限、表单状态、弹窗、表格渲染和文案映射不要继续堆在同一个核心文件里。
 - 客户端核心文件保持在 400 行以内；接近上限或出现 3 个以上独立职责时，拆成 `queries`、`mutations`、`view-model hook`、`dialog`、`section/table` 或 `display-utils`。页面 Client 只连接共享外壳、访问状态和业务区块，推荐关系、佣金、VIP、人员目录与设置规则等页面的数据刷新、筛选、分页、弹窗和写入状态均由同层 view-model 承接。共享文案只接受当前 `next-intl` 文案契约，不提供旧字符串或内置双语兼容入口。
 - 新增功能默认新建同层模块；只有极小改动才允许补进现有文件。

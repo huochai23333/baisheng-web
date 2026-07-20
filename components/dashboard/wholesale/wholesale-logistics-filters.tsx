@@ -153,11 +153,11 @@ export function WholesaleLogisticsFiltersPanel({
             value={filters.searchText}
           />
           <Button
-            className="min-h-10 rounded-full px-3"
             disabled={!filters.searchText.trim()}
             onClick={onExactSearch}
             type="button"
             variant="outline"
+            size="compact"
           >
             <Search className="size-4" />
             {frameworkT("exactSearch.action")}

@@ -9,6 +9,7 @@ import {
   FormFieldContextProvider,
   useFormFieldControlAttributes,
   useFormFieldControlDensity,
+  useFormFieldRequired,
   type FormFieldDensity,
 } from "@/components/ui/form-field-context";
 
@@ -78,6 +79,7 @@ export function Field({
         describedBy,
         density,
         invalid: Boolean(error),
+        required,
       }}
     >
       <div
@@ -87,6 +89,7 @@ export function Field({
           className,
         )}
         data-density={density}
+        data-required={required ? "true" : "false"}
         data-slot="field"
       >
         <div
@@ -156,15 +159,19 @@ type InputProps = Omit<ComponentProps<"input">, "size"> & ControlSizeProps;
 export function Input({
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
+  "aria-required": ariaRequired,
   className,
   controlSize,
   id,
+  required,
   ...props
 }: InputProps) {
   const density = useFormFieldControlDensity();
+  const resolvedRequired = useFormFieldRequired(required);
   const fieldAttributes = useFormFieldControlAttributes({
     ariaDescribedBy,
     ariaInvalid,
+    ariaRequired,
     id,
   });
 
@@ -174,6 +181,7 @@ export function Input({
       data-control-size={controlSize ?? "default"}
       data-slot="input"
       {...fieldAttributes}
+      required={resolvedRequired}
       {...props}
     />
   );
@@ -184,15 +192,19 @@ type TextareaProps = ComponentProps<"textarea"> & ControlSizeProps;
 export function Textarea({
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
+  "aria-required": ariaRequired,
   className,
   controlSize,
   id,
+  required,
   ...props
 }: TextareaProps) {
   const density = useFormFieldControlDensity();
+  const resolvedRequired = useFormFieldRequired(required);
   const fieldAttributes = useFormFieldControlAttributes({
     ariaDescribedBy,
     ariaInvalid,
+    ariaRequired,
     id,
   });
 
@@ -206,6 +218,7 @@ export function Textarea({
       data-control-size={controlSize ?? "default"}
       data-slot="textarea"
       {...fieldAttributes}
+      required={resolvedRequired}
       {...props}
     />
   );

@@ -376,7 +376,8 @@ test.describe("workspace entrypoint regression", () => {
       "c1000000-0000-4000-8000-000000000002",
     );
     await expect(claimDialog.getByLabel("搜索批发订单")).toBeEnabled();
-    expect(await claimDialog.getByRole("checkbox").count()).toBeGreaterThan(0);
+    // 候选订单由弹窗打开后的请求异步载入，使用可见性断言等待首项完成渲染。
+    await expect(claimDialog.getByRole("checkbox").first()).toBeVisible();
   });
 
   test("salesman wholesale customer page shares customers but hides people management", async ({

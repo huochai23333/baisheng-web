@@ -31,7 +31,12 @@ test.describe("operator reimbursements", () => {
     await expect(page.getByText("记录已保存。")).toBeVisible();
     const reimbursementCard = page.locator("article").filter({ hasText: content });
     await expect(reimbursementCard).toBeVisible();
-    await expect(reimbursementCard.getByText("未报销").first()).toBeVisible();
+    const unreimbursedBadge = reimbursementCard
+      .locator('[data-slot="status-badge"]')
+      .filter({ hasText: "未报销" })
+      .first();
+    await expect(unreimbursedBadge).toBeVisible();
+    await expect(unreimbursedBadge).toHaveAttribute("data-tone", "warning");
     await expect(reimbursementCard.getByText("¥88.66")).toBeVisible();
 
     await page.getByRole("button", { name: "报销本月" }).click();
@@ -39,7 +44,12 @@ test.describe("operator reimbursements", () => {
     await expect(
       page.getByText(/本月 \d+ 条未报销记录已标记为已报销。/),
     ).toBeVisible();
-    await expect(reimbursementCard.getByText("已报销").first()).toBeVisible();
+    const reimbursedBadge = reimbursementCard
+      .locator('[data-slot="status-badge"]')
+      .filter({ hasText: "已报销" })
+      .first();
+    await expect(reimbursedBadge).toBeVisible();
+    await expect(reimbursedBadge).toHaveAttribute("data-tone", "success");
     await expectNoDocumentHorizontalOverflow(page);
   });
 

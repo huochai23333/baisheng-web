@@ -124,8 +124,15 @@ test.describe("全站日期选择控件", () => {
     await page.getByRole("button", { name: "Add Expense" }).click();
 
     const dialog = page.getByRole("dialog", { name: "Add Expense" });
-    const monthInput = dialog.getByLabel("Month", { exact: true });
-    const dateInput = dialog.getByLabel("Paid Date", { exact: true });
+    // 必填星号属于字段契约的一部分；按文本框的可访问名称精确定位，避免同时匹配“打开月份选择”按钮。
+    const monthInput = dialog.getByRole("textbox", {
+      exact: true,
+      name: "Month",
+    });
+    const dateInput = dialog.getByRole("textbox", {
+      exact: true,
+      name: "Paid Date",
+    });
     await fillDateControl(monthInput, "02/2024");
     await fillDateControl(dateInput, "02/29/2024");
     await expectDateControlValue(monthInput, "2024-02");

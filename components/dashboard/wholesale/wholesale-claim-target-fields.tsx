@@ -276,21 +276,21 @@ export function WholesaleClaimTargetFields({
                   {uiText("exactSearchActive")}
                 </span>
                 <Button
-                  className="min-h-9 rounded-full"
                   onClick={onExitExactSearch}
                   type="button"
                   variant="outline"
+                  size="compact"
                 >
                   {uiText("exitExactSearch")}
                 </Button>
               </>
             ) : (
               <Button
-                className="min-h-9 rounded-full"
                 disabled={!orderSearchText.trim()}
                 onClick={onExactSearch}
                 type="button"
                 variant="outline"
+                size="compact"
               >
                 {uiText("exactSearchAction")}
               </Button>

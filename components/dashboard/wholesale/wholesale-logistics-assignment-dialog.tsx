@@ -159,11 +159,12 @@ export function WholesaleLogisticsAssignmentDialog({
         <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
           {editing ? (
             <Button
-              className="min-h-10 whitespace-normal rounded-full"
               disabled={saving}
               onClick={() => setEditing(null)}
               type="button"
               variant="outline"
+              size="compact"
+              wrap
             >
               {t("assignments.back")}
             </Button>
@@ -171,13 +172,13 @@ export function WholesaleLogisticsAssignmentDialog({
           <Button
             variant="primary"
             size="default"
-            className="min-h-10 whitespace-normal"
             disabled={
               saving ||
               !salesUserId ||
               (!editing && selectedStores.length === 0) ||
               (Boolean(editing) && splitInterval && !splitFromDate)
             }
+            wrap
             onClick={() => void save()}
             type="button"
           >

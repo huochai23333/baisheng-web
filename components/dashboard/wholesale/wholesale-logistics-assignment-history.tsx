@@ -119,23 +119,23 @@ export function WholesaleLogisticsAssignmentHistory({
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
                   <Button
-                    className="min-h-9 whitespace-normal rounded-full"
                     disabled={Boolean(pendingKey)}
                     onClick={() => onEdit(assignment)}
                     size="compact"
                     type="button"
                     variant="outline"
+                    wrap
                   >
                     {t("assignments.adjust")}
                   </Button>
                   {!assignment.effective_to ? (
                     <Button
-                      className="min-h-9 whitespace-normal rounded-full text-content-muted"
                       disabled={Boolean(pendingKey)}
                       onClick={() => void endAssignment(assignment)}
                       size="compact"
                       type="button"
-                      variant="outline"
+                      variant="danger"
+                      wrap
                     >
                       {pendingKey === `end:${assignment.id}`
                         ? t("assignments.ending")

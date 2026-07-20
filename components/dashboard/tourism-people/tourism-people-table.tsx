@@ -9,6 +9,7 @@ import { DashboardTableFrame } from "@/components/dashboard/dashboard-section-pa
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { RecordCard } from "@/components/ui/data-display";
 import type { AdminPersonRow } from "@/lib/admin-people";
 import type { Locale } from "@/lib/locale";
 
@@ -130,39 +131,40 @@ export function TourismPeopleTable({
       mobile={
         <>
           {people.map((person) => (
-            <DesignButton
-              className="rounded-record-card border border-border-subtle bg-surface-interactive p-4 text-left shadow-surface-interactive"
-              key={person.user_id}
-              onClick={() => onSelect(person)}
-              type="button"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="break-words font-semibold text-content-strong">
-                    {getTourismPersonName(person, unnamedFallback)}
-                  </p>
-                  <p className="mt-1 break-all text-sm text-content-muted">
-                    {getTourismPersonContact(person, contactFallback)}
-                  </p>
+            <RecordCard key={person.user_id}>
+              <DesignButton
+                className="w-full text-left"
+                onClick={() => onSelect(person)}
+                type="button"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="break-words font-semibold text-content-strong">
+                      {getTourismPersonName(person, unnamedFallback)}
+                    </p>
+                    <p className="mt-1 break-all text-sm text-content-muted">
+                      {getTourismPersonContact(person, contactFallback)}
+                    </p>
+                  </div>
+                  <StatusBadge tone={getPersonStatusTone(person.status)}>
+                    {t(`statuses.${person.status}`)}
+                  </StatusBadge>
                 </div>
-                <StatusBadge tone={getPersonStatusTone(person.status)}>
-                  {t(`statuses.${person.status}`)}
-                </StatusBadge>
-              </div>
-              <p className="mt-3 text-sm text-content-muted">
-                {t("referralCode", {
-                  value: person.referral_code ?? pendingFallback,
-                })}
-              </p>
-              <p className="mt-1 text-sm text-content-muted">
-                {t("referrer", {
-                  value:
-                    person.referrer_name ??
-                    person.referrer_email ??
-                    noReferrerFallback,
-                })}
-              </p>
-            </DesignButton>
+                <p className="mt-3 text-sm text-content-muted">
+                  {t("referralCode", {
+                    value: person.referral_code ?? pendingFallback,
+                  })}
+                </p>
+                <p className="mt-1 text-sm text-content-muted">
+                  {t("referrer", {
+                    value:
+                      person.referrer_name ??
+                      person.referrer_email ??
+                      noReferrerFallback,
+                  })}
+                </p>
+              </DesignButton>
+            </RecordCard>
           ))}
         </>
       }

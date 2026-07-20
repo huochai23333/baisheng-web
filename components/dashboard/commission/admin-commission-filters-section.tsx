@@ -173,7 +173,7 @@ function SearchField({
 }) {
   return (
     <DashboardFilterField label={label}>
-      <div className="flex items-center gap-3 rounded-record-card border border-border bg-surface-interactive px-4 shadow-surface-interactive">
+      <div className="flex items-center gap-3 rounded-record-card border border-border bg-surface-interactive px-4">
         <Search className="size-4 text-content-muted" />
         <FormControls.Input
           className="h-12 w-full bg-transparent text-sm text-content-strong outline-none placeholder:text-content-subtle"

@@ -187,11 +187,11 @@ function SalesmanInviteActions({
       {boards.map((board) => (
         <Button
           size="default"
-          className="h-auto min-h-11"
           key={board}
           onClick={() => void copyInviteLink(board)}
           type="button"
           variant="outline"
+          wrap
         >
           <Copy className="size-4" />
           <span className="whitespace-normal text-left">

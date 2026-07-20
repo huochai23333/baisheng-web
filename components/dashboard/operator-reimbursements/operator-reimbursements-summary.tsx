@@ -45,7 +45,7 @@ export function OperatorReimbursementsSummarySection({
         icon={<WalletCards className="size-4" />}
         label={copy.currentUnreimbursed}
         presentation="summary"
-        tone="warning"
+        tone="info"
         value={formatOperatorReimbursementAmount(
           summaries.currentUnreimbursed.amount,
           locale,
@@ -56,7 +56,7 @@ export function OperatorReimbursementsSummarySection({
         icon={<BadgeCheck className="size-4" />}
         label={copy.currentReimbursed}
         presentation="summary"
-        tone="success"
+        tone="info"
         value={formatOperatorReimbursementAmount(
           summaries.currentReimbursed.amount,
           locale,

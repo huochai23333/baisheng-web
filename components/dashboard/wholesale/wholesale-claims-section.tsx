@@ -154,7 +154,7 @@ export function WholesaleClaimsSection({
             <DesignButton
               className={
                 claims.activeBoard === board.key
-                  ? "rounded-record-card bg-primary px-4 py-3 text-left text-sm font-semibold text-white shadow-surface-interactive"
+                  ? "rounded-record-card bg-primary px-4 py-3 text-left text-sm font-semibold text-white"
                   : "rounded-record-card border border-border bg-surface-interactive px-4 py-3 text-left text-sm font-semibold text-primary hover:bg-surface-inset"
               }
               key={board.key}

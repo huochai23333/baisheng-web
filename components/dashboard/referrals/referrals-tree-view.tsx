@@ -75,7 +75,7 @@ export function ReferralTreePanel({
           label={searchPlaceholder}
           labelHidden
         >
-          <div className="flex items-center gap-3 rounded-full border border-border bg-surface-interactive px-4 shadow-surface-interactive">
+          <div className="flex items-center gap-3 rounded-full border border-border bg-surface-interactive px-4">
             <Search className="size-4 text-content-muted" />
             <FormControls.Input
               className="border-0 bg-transparent px-0 focus:ring-0"
@@ -89,7 +89,7 @@ export function ReferralTreePanel({
       }
       title={title}
     >
-      <div className="overflow-x-auto rounded-surface-inset border border-border-subtle bg-surface-inset p-3 shadow-surface-interactive sm:p-5">
+      <div className="overflow-x-auto rounded-surface-inset border border-border-subtle bg-surface-inset p-3 sm:p-5">
         {treeDisplay.rootIds.length === 0 ? (
           <EmptyState
             description={noMatchDescription}
@@ -185,7 +185,7 @@ function ReferralTreeNode({
 
       <div
         className={[
-          "rounded-record-card border bg-surface-interactive p-3 shadow-surface-interactive transition-colors sm:rounded-control-large sm:p-4",
+          "rounded-record-card border bg-surface-interactive p-3 transition-colors sm:rounded-control-large sm:p-4",
           isCurrentViewer
             ? "border-border-subtle bg-surface-inset"
             : "border-border-subtle",

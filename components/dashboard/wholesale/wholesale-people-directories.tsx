@@ -127,7 +127,7 @@ export function WholesaleCustomerDirectory({
           <>
             {customers.map((customer) => (
               <DesignButton
-                className="rounded-control-large border border-border-subtle bg-surface-interactive p-4 text-left shadow-surface-interactive"
+                className="rounded-control-large border border-border-subtle bg-surface-interactive p-4 text-left"
                 key={customer.id}
                 onClick={() => onSelect(customer)}
                 type="button"

@@ -6,6 +6,7 @@ import { LoaderCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useLocale } from "@/components/i18n/locale-provider";
+import { Surface } from "@/components/ui/surface";
 import {
   type AdminOrderDetailValue,
   type AdminOrderSupplementaryDetail,
@@ -52,12 +53,12 @@ export function OrderSupplementaryDetailsSection({
 
   if (loading) {
     return (
-      <div className="rounded-surface-panel border border-border-subtle bg-surface-inset px-5 py-4 shadow-surface-interactive">
+      <Surface as="div" padding="regular" variant="inset">
         <div className="flex items-center gap-3 text-sm text-content-muted">
           <LoaderCircle className="size-4 animate-spin" />
           {t("details.supplementary.loading")}
         </div>
-      </div>
+      </Surface>
     );
   }
 
@@ -78,7 +79,7 @@ export function OrderSupplementaryDetailsSection({
   const subtypeValue = getSupplementarySubtypeValue(detail, orderUiCopy);
 
   return (
-    <section className="rounded-surface-panel border border-border-subtle bg-surface-inset p-5 shadow-surface-interactive sm:p-6">
+    <Surface padding="regular" variant="inset">
       <div className="flex flex-col">
         <h3 className="text-lg font-semibold text-content-strong">
           {formTitle}
@@ -125,7 +126,7 @@ export function OrderSupplementaryDetailsSection({
           </div>
         )}
       </div>
-    </section>
+    </Surface>
   );
 }
 

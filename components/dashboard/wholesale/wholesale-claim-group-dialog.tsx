@@ -235,11 +235,11 @@ function WholesaleClaimGroupDialogForm({
           <p>{uiText("cancelWarning")}</p>
           <div className="mt-3 flex flex-wrap justify-end gap-2">
             <Button
-              className="rounded-full"
               disabled={pending}
               onClick={() => setConfirmingCancel(false)}
               type="button"
               variant="outline"
+              size="compact"
             >
               {uiText("keepGroup")}
             </Button>
@@ -278,11 +278,11 @@ function WholesaleClaimGroupDialogForm({
         <Button
           variant="primary"
           size="default"
-          className="min-h-11 whitespace-normal disabled:opacity-60"
           disabled={
             pending || purchaseOrderIds.length === 0 || !claimTarget.canSubmit
           }
           type="submit"
+          wrap
         >
           {target.kind === "edit" ? uiText("save") : uiText("create")}
         </Button>

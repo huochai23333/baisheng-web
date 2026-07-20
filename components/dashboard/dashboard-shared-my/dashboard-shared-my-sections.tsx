@@ -2,6 +2,7 @@
 
 import { InteractiveButton as DesignButton } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { MetricCard } from "@/components/ui/data-display";
 
 import {
   BadgeCheck,
@@ -17,7 +18,6 @@ import {
 import { LegalFooterLinks } from "@/components/legal/legal-footer-links";
 import { getReviewStatusTone } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 import { DashboardAccountCenterSection } from "./dashboard-account-center-section";
 import type { DashboardMyCopy } from "./dashboard-shared-my-copy";
@@ -294,80 +294,38 @@ function VerificationStatusCard({
   account: DashboardSharedMyState["account"];
   copy: DashboardMyCopy;
 }) {
-  const tone = getVerificationTone(account);
+  const tone = account.certified
+    ? "success"
+    : account.verificationStatus === "pending"
+      ? "warning"
+      : "info";
 
   return (
-    <section
-      className={cn(
-        "h-full rounded-surface-panel border p-6 shadow-surface-interactive",
-        tone.container,
-      )}
-    >
-      <div className="flex items-center gap-4">
-        <div
-          className={cn(
-            "flex h-12 w-12 items-center justify-center rounded-full text-white",
-            tone.icon,
-          )}
-        >
-          {account.certified ? (
-            <BadgeCheck className="size-5" />
-          ) : (
-            <ShieldAlert className="size-5" />
-          )}
-        </div>
-        <div>
-          <p className={cn("text-xs font-semibold uppercase", tone.label)}>
-            {copy.verificationTitle}
-          </p>
-          <p className={cn("mt-1 text-lg font-bold", tone.title)}>
-            {account.certified
-              ? copy.verificationApproved
-              : account.verificationStatus === "pending"
-                ? copy.verificationPending
-                : copy.verificationEmpty}
-          </p>
-        </div>
-      </div>
-      <p className="mt-4 text-sm leading-7 text-content-muted">
-        {account.certified
+    <MetricCard
+      description={
+        account.certified
           ? copy.verificationApprovedDescription
           : account.verificationStatus === "pending"
             ? copy.verificationPendingDescription
-            : copy.verificationEmptyDescription}
-      </p>
-    </section>
+            : copy.verificationEmptyDescription
+      }
+      icon={
+        account.certified ? (
+          <BadgeCheck className="size-5" />
+        ) : (
+          <ShieldAlert className="size-5" />
+        )
+      }
+      label={copy.verificationTitle}
+      presentation="summary"
+      tone={tone}
+      value={
+        account.certified
+          ? copy.verificationApproved
+          : account.verificationStatus === "pending"
+            ? copy.verificationPending
+            : copy.verificationEmpty
+      }
+    />
   );
-}
-
-function getVerificationTone(account: DashboardSharedMyState["account"]): {
-  container: string;
-  icon: string;
-  label: string;
-  title: string;
-} {
-  if (account.certified) {
-    return {
-      container: "border-border-subtle bg-surface-inset",
-      icon: "bg-status-success",
-      label: "text-status-success",
-      title: "text-content-muted",
-    };
-  }
-
-  if (account.verificationStatus === "pending") {
-    return {
-      container: "border-border-subtle bg-surface-inset",
-      icon: "bg-surface-inset",
-      label: "text-content-muted",
-      title: "text-content-muted",
-    };
-  }
-
-  return {
-    container: "border-border-subtle bg-surface-inset",
-    icon: "bg-surface-inset",
-    label: "text-content-muted",
-    title: "text-content-muted",
-  };
 }

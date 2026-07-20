@@ -76,10 +76,11 @@ export function DashboardOrderFilterSection({
                 {t("exactSearch.active", { orderNumber: exactOrderNumber })}
               </span>
               <Button
-                className="min-h-9 w-full shrink-0 rounded-full sm:w-auto"
+                className="w-full shrink-0 sm:w-auto"
                 onClick={onExitExactSearch}
                 type="button"
                 variant="ghost"
+                size="compact"
               >
                 <X className="size-4" />
                 {t("exactSearch.exit")}
@@ -124,21 +125,21 @@ export function DashboardOrderDateToolbar({
       {ORDER_DATE_PRESETS.map((preset) => (
         <Button
           aria-pressed={activePreset === preset}
-          className="min-h-9 rounded-full px-3 text-xs"
           key={preset}
           onClick={() => onSelect(preset)}
           type="button"
           variant={activePreset === preset ? "primary" : "outline"}
+          size="compact"
         >
           {t(ORDER_DATE_PRESET_MESSAGE_KEYS[preset])}
         </Button>
       ))}
       <Button
         aria-pressed={activePreset === "custom"}
-        className="min-h-9 rounded-full px-3 text-xs"
         onClick={() => document.getElementById(customInputId)?.focus()}
         type="button"
         variant={activePreset === "custom" ? "primary" : "outline"}
+        size="compact"
       >
         {t("datePresets.custom")}
       </Button>

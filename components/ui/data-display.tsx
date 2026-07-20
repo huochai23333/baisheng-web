@@ -11,7 +11,8 @@ export function RecordCard({
   return (
     <Surface
       as="article"
-      className={cn("rounded-record-card", className)}
+      // 记录卡继续沿用原有的 16/20px 内边距；材质、圆角和阴影仍完全由共享组件管理。
+      className={cn("rounded-record-card p-4 sm:p-5", className)}
       padding="regular"
       variant={surface}
       {...props}
@@ -76,16 +77,20 @@ export function MetricCard({
     <section
       className={cn(
         "h-full min-w-0 rounded-metric-card border shadow-surface-interactive",
-        isHeader ? "p-3 sm:px-5 sm:py-4" : "p-4 sm:p-5",
-        !isValuePanel &&
+        isHeader && "p-3 sm:px-5 sm:py-4",
+        presentation === "summary" && "p-5",
+        isValuePanel && "p-5 sm:p-6",
+        isHeader &&
           tone === "info" &&
           "border-metric-info-border bg-metric-info-surface",
-        !isValuePanel &&
+        isHeader &&
           tone === "success" &&
           "border-metric-success-border bg-metric-success-surface",
-        !isValuePanel &&
+        isHeader &&
           tone === "warning" &&
           "border-metric-warning-border bg-metric-warning-surface",
+        presentation === "summary" &&
+          "border-surface-panel-border bg-surface-panel",
         isValuePanel && "border-border-subtle bg-surface-interactive",
         className,
       )}
@@ -102,10 +107,21 @@ export function MetricCard({
         {icon ? (
           <div
             className={cn(
-              "flex size-9 shrink-0 items-center justify-center rounded-full text-white sm:size-11",
-              tone === "info" && "bg-status-info",
-              tone === "success" && "bg-status-success",
-              tone === "warning" && "bg-status-warning",
+              "flex shrink-0 items-center justify-center rounded-full",
+              isHeader && "size-9 text-white sm:size-11",
+              presentation === "summary" && "size-10 sm:size-10",
+              isHeader && tone === "info" && "bg-status-info",
+              isHeader && tone === "success" && "bg-status-success",
+              isHeader && tone === "warning" && "bg-status-warning",
+              presentation === "summary" &&
+                tone === "info" &&
+                "bg-status-info-soft text-primary",
+              presentation === "summary" &&
+                tone === "success" &&
+                "bg-status-success-soft text-status-success",
+              presentation === "summary" &&
+                tone === "warning" &&
+                "bg-status-warning-soft text-status-warning",
             )}
           >
             {icon}

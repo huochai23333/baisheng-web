@@ -108,13 +108,14 @@ export function WholesaleOrderListAttachments({
           {attachments.map((attachment) => (
             <Button
               size="default"
-              className="h-auto max-w-full justify-start py-1.5 text-left"
+              className="max-w-full justify-start"
               disabled={downloadPendingId === attachment.id}
               key={attachment.id}
               onClick={() => void downloadAttachment(attachment)}
               title={attachment.original_name}
               type="button"
               variant="outline"
+              wrap
             >
               {downloadPendingId === attachment.id ? (
                 <LoaderCircle className="size-3.5 shrink-0 animate-spin" />
@@ -281,7 +282,7 @@ function WholesaleOrderListAttachmentDialog({
                   </div>
                   <Button
                     size="default"
-                    className="self-end text-content-muted sm:self-auto"
+                    className="self-end sm:self-auto"
                     disabled={deletePending}
                     onClick={async () => {
                       if (
@@ -297,7 +298,7 @@ function WholesaleOrderListAttachmentDialog({
                       await onDelete(attachment);
                     }}
                     type="button"
-                    variant="outline"
+                    variant="danger"
                   >
                     {deletePending ? (
                       <LoaderCircle className="size-4 animate-spin" />

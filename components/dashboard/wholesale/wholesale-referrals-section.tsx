@@ -88,7 +88,7 @@ export function WholesaleReferralsSection({
       >
         <div className="mb-5">
           <DashboardFilterField label={uiText("attribute005")}>
-            <div className="flex items-center gap-3 rounded-record-card border border-border bg-surface-interactive px-4 shadow-surface-interactive">
+            <div className="flex items-center gap-3 rounded-record-card border border-border bg-surface-interactive px-4">
               <Search className="size-4 text-content-muted" />
               <FormControls.Input
                 className="h-12 w-full bg-transparent text-sm text-content-strong outline-none placeholder:text-content-subtle"
@@ -188,7 +188,7 @@ function ReferralTreeNode({ node }: { node: WholesaleReferralTreeNode }) {
   return (
     <div
       className={[
-        "rounded-control-large border bg-surface-interactive p-4 shadow-surface-interactive",
+        "rounded-control-large border bg-surface-interactive p-4",
         isCompanyNode
           ? "border-border-subtle bg-surface-inset"
           : "border-border-subtle",

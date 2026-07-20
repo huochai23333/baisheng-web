@@ -14,6 +14,7 @@ type FormFieldContextValue = {
   describedBy: string | undefined;
   density: FormFieldDensity;
   invalid: boolean;
+  required: boolean;
 };
 
 const FormFieldContext = createContext<FormFieldContextValue | null>(null);
@@ -43,10 +44,12 @@ export function FormFieldContextProvider({
 export function useFormFieldControlAttributes({
   ariaDescribedBy,
   ariaInvalid,
+  ariaRequired,
   id,
 }: {
   ariaDescribedBy?: string;
   ariaInvalid?: AriaAttributes["aria-invalid"];
+  ariaRequired?: AriaAttributes["aria-required"];
   id?: string;
 }) {
   const field = useContext(FormFieldContext);
@@ -54,8 +57,18 @@ export function useFormFieldControlAttributes({
   return {
     "aria-describedby": ariaDescribedBy ?? field?.describedBy,
     "aria-invalid": ariaInvalid ?? (field?.invalid || undefined),
+    "aria-required": ariaRequired ?? (field?.required || undefined),
     id: id ?? field?.controlId,
   };
+}
+
+/**
+ * 原生控件和复合控件都从字段契约读取必填状态。
+ * 业务组件仍可显式传入 `required={false}` 覆盖上下文，避免共享字段替业务规则做猜测。
+ */
+export function useFormFieldRequired(required?: boolean): boolean {
+  const field = useContext(FormFieldContext);
+  return required ?? field?.required ?? false;
 }
 
 /**

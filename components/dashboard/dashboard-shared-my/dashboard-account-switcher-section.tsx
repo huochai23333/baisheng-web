@@ -177,9 +177,8 @@ function SavedAccountSwitchRow({
             : copy.accountSwitcherSwitch}
         </Button>
         <Button
-          size="default"
+          size="icon-compact"
           aria-label={copy.accountSwitcherRemove}
-          className="size-10 text-content-muted"
           disabled={busyKey !== null}
           onClick={onRemove}
           variant="outline"

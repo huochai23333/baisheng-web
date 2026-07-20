@@ -54,11 +54,12 @@ export function DashboardResourceFilterSection({
         actions={
           onReset ? (
             <Button
-              className="min-h-10 whitespace-normal rounded-full"
               disabled={resetDisabled}
               onClick={onReset}
               type="button"
               variant="outline"
+              size="compact"
+              wrap
             >
               <RefreshCcw className="size-4 shrink-0" />
               {resetLabel ?? t("reset")}

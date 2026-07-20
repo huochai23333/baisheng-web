@@ -1,6 +1,7 @@
 "use client";
 
 import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
+import { RecordCard } from "@/components/ui/data-display";
 
 import * as FormControls from "@/components/ui/form-controls";
 
@@ -166,10 +167,7 @@ export function ServiceOrderPricesTable({
               );
 
               return (
-                <article
-                  className="rounded-record-card border border-border-subtle bg-surface-interactive p-4 shadow-surface-interactive"
-                  key={row.id}
-                >
+                <RecordCard key={row.id}>
                   <h5 className="break-words text-sm font-semibold leading-6 text-content-strong">
                     {serviceLabel}
                   </h5>
@@ -230,7 +228,7 @@ export function ServiceOrderPricesTable({
                       onSave={() => onSave(row)}
                     />
                   </div>
-                </article>
+                </RecordCard>
               );
             })}
           </>

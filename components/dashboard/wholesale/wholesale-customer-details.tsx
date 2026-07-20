@@ -93,10 +93,9 @@ export function WholesaleCustomerDetails({
           </Button>
           <Button
             size="compact"
-            className="text-content-muted"
             onClick={onDeleteCustomer}
             type="button"
-            variant="outline"
+            variant="danger"
           >
             <Trash2 className="size-3.5" />
             <UiMessage id="components_dashboard_wholesale_wholesale_customer_details.text002" />

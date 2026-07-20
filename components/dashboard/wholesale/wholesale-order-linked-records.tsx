@@ -47,11 +47,12 @@ export function LinkedPurchaseOrders({
         {purchaseOrders.map((purchaseOrder) => (
           <Button
             size="default"
-            className="h-auto w-full justify-start py-1.5 text-left"
+            className="w-full justify-start"
             key={purchaseOrder.id}
             onClick={() => setSelectedPurchaseOrder(purchaseOrder)}
             type="button"
             variant="outline"
+            wrap
           >
             <ShoppingCart className="size-3.5 shrink-0" />
             <span className="min-w-0 break-words [overflow-wrap:anywhere]">

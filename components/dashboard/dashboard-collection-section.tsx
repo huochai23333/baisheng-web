@@ -168,11 +168,12 @@ export function DashboardLoadMoreButton({
 }) {
   return (
     <Button
-      className="min-h-10 w-full rounded-full px-5 sm:w-auto"
+      className="w-full sm:w-auto"
       disabled={loading}
       onClick={onClick}
       type="button"
       variant="outline"
+      size="compact"
     >
       {loading ? <LoaderCircle className="size-4 animate-spin" /> : null}
       {loading ? loadingLabel : label}

@@ -244,16 +244,14 @@ function InviteActionButton({
 }) {
   return (
     <Button
-      className={cn(
-        "h-auto min-h-11 justify-start whitespace-normal py-2",
-        iconOnly && "justify-center",
-      )}
+      className={cn("justify-start", iconOnly && "justify-center")}
       data-testid={testId}
       onClick={onClick}
       title={label}
       type="button"
       size="compact"
       variant="outline"
+      wrap
     >
       {iconOnly && miniLabel ? (
         <span aria-hidden="true" className="text-xs font-bold leading-none">

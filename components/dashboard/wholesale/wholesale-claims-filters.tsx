@@ -71,11 +71,11 @@ export function WholesaleClaimsFiltersPanel({
             value={filters.searchText}
           />
           <Button
-            className="min-h-9 rounded-full"
             disabled={!filters.searchText.trim()}
             onClick={onExactSearch}
             type="button"
             variant="outline"
+            size="compact"
           >
             {frameworkT("exactSearch.action")}
           </Button>
@@ -151,19 +151,20 @@ export function WholesaleClaimsBulkToolbar({
       </p>
       <div className="flex flex-wrap gap-2">
         <Button
-          className="min-h-10 whitespace-normal rounded-full"
           onClick={onClear}
           type="button"
           variant="outline"
+          size="compact"
+          wrap
         >
           {uiText("clearSelection")}
         </Button>
         <Button
           variant="primary"
           size="default"
-          className="min-h-10 whitespace-normal"
           onClick={onClaim}
           type="button"
+          wrap
         >
           {uiText("bulkClaim")}
         </Button>

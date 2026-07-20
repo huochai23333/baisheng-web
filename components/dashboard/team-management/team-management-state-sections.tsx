@@ -18,6 +18,7 @@ import type { TeamManagerCandidate } from "@/lib/team-management";
 import type { AppRole } from "@/lib/user-self-service";
 
 import { Button } from "@/components/ui/button";
+import { Surface } from "@/components/ui/surface";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import {
   DashboardListSection,
@@ -188,7 +189,7 @@ export function ManagerSetupSection({
           </div>
         </div>
 
-        <div className="mt-6 rounded-surface-panel border border-border-subtle bg-surface-inset p-5 shadow-surface-interactive">
+        <Surface as="div" className="mt-6" padding="regular" variant="inset">
           <FormControls.Field label={t("managerSetup.teamNameLabel")} required>
             <FormControls.Input
               onChange={(event) => onTeamNameChange(event.target.value)}
@@ -212,7 +213,7 @@ export function ManagerSetupSection({
               {t("managerSetup.button")}
             </Button>
           </div>
-        </div>
+        </Surface>
       </DashboardSectionPanel>
 
       <DashboardListSection>

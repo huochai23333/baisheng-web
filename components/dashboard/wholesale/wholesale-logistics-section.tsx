@@ -78,9 +78,9 @@ export function WholesaleLogisticsSection({
           <Button
             variant="primary"
             size="default"
-            className="min-h-10 whitespace-normal"
             onClick={() => setSettingsOpen(true)}
             type="button"
+            wrap
           >
             <Settings2 className="size-4 shrink-0" />
             {t("actions.settings")}

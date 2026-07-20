@@ -70,10 +70,10 @@ export function DashboardConfirmProvider({
           options ? (
             <>
               <Button
-                className="h-11 rounded-full px-5"
                 onClick={() => settle(false)}
                 type="button"
                 variant="outline"
+                size="default"
               >
                 {options.cancelLabel ?? t("cancel")}
               </Button>

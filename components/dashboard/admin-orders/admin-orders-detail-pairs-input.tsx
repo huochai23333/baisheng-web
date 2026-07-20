@@ -88,7 +88,6 @@ export function OrderDetailPairsInput({
           />
           <Button
             aria-label={`${copy.removeLabel} ${index + 1}`}
-            className="h-12 rounded-record-card border-border-subtle text-content-muted"
             disabled={disabled}
             onClick={() => handleRemoveRow(index)}
             size="icon-large"
@@ -102,7 +101,6 @@ export function OrderDetailPairsInput({
 
       <Button
         size="compact"
-        className="text-content-muted"
         disabled={disabled}
         onClick={handleAddRow}
         type="button"
