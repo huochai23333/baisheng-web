@@ -23,7 +23,7 @@ export function CompanyExpensesSummarySection({
   const summaries = getCompanyExpenseSummaries(expenses);
 
   return (
-    <MetricGrid layout="four-column">
+    <MetricGrid layout="summary-strip">
       {summaries.length === 0 ? (
         <Surface
           as="div"
@@ -40,7 +40,7 @@ export function CompanyExpensesSummarySection({
             icon={<WalletCards className="size-4" />}
             key={summary.currencyCode}
             label={summary.currencyCode}
-            presentation="summary"
+            presentation="compact"
             value={formatCompanyExpenseAmount(
               summary.amount,
               summary.currencyCode,

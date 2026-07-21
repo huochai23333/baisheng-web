@@ -68,21 +68,19 @@ export function HomeTodosSection({
             />
             {copy.title}
           </h3>
-          <p
-            className={cn(
-              "mt-2 text-sm leading-7 text-content-muted",
-              compact && "text-xs leading-6",
-            )}
-          >
-            {copy.description}
-          </p>
+          {!compact ? (
+            <p className="mt-2 text-sm leading-7 text-content-muted">
+              {copy.description}
+            </p>
+          ) : null}
         </div>
       </div>
 
       <form
         className={cn(
-          "mt-6 grid gap-3 rounded-surface-panel border border-border-subtle bg-surface-inset p-4 lg:grid-cols-[minmax(0,1fr)_180px_auto_auto]",
-          frame === "plain" && "mt-4",
+          "grid gap-3 rounded-surface-panel border border-border-subtle bg-surface-inset lg:grid-cols-[minmax(0,1fr)_180px_auto_auto]",
+          compact ? "mt-3 p-3" : "mt-6 p-4",
+          frame === "plain" && !compact && "mt-4",
         )}
         onSubmit={(event) => {
           event.preventDefault();
@@ -162,7 +160,10 @@ export function HomeTodosSection({
         </Button>
       </form>
 
-      <div className="mt-5 flex flex-wrap gap-2" role="tablist">
+      <div
+        className={cn("flex flex-wrap gap-2", compact ? "mt-3" : "mt-5")}
+        role="tablist"
+      >
         {homeTodoFilterValues.map((filterValue) => (
           <TodoFilterButton
             active={todoState.filter === filterValue}
@@ -176,7 +177,7 @@ export function HomeTodosSection({
       </div>
 
       {todoState.pageFeedback ? (
-        <div className="mt-5">
+        <div className={compact ? "mt-3" : "mt-5"}>
           <FeedbackNotice tone={todoState.pageFeedback.tone}>
             {todoState.pageFeedback.message}
           </FeedbackNotice>
@@ -185,7 +186,7 @@ export function HomeTodosSection({
 
       <div
         className={cn(
-          "mt-6",
+          compact ? "mt-3" : "mt-6",
           frame === "plain" && "min-h-0 flex-1 overflow-y-auto pr-1",
         )}
       >
@@ -197,11 +198,27 @@ export function HomeTodosSection({
           }
         >
           {todoState.filteredTodos.length === 0 ? (
-            <EmptyState
-              description={emptyCopy.description}
-              icon={<ListTodo className="size-6" />}
-              title={emptyCopy.title}
-            />
+            compact ? (
+              <div className="flex min-h-20 items-center gap-3 rounded-surface-panel border border-dashed border-border bg-surface-panel p-4 text-left">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-status-info-soft text-status-info">
+                  <ListTodo className="size-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-content-strong">
+                    {emptyCopy.title}
+                  </p>
+                  <p className="mt-1 line-clamp-1 text-xs text-content-muted">
+                    {emptyCopy.description}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <EmptyState
+                description={emptyCopy.description}
+                icon={<ListTodo className="size-6" />}
+                title={emptyCopy.title}
+              />
+            )
           ) : (
             <MotionList className="space-y-3">
               {todoState.filteredTodos.map((todo, index) => (

@@ -7,10 +7,10 @@ import { useTranslations } from "next-intl";
 
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   DashboardListSection,
   DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
+import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import {
   DashboardSectionHeader,
   type DashboardSectionHeaderMetric,
@@ -108,14 +108,26 @@ export function BusinessVipFiltersSection({
   const t = useTranslations("BusinessVip");
 
   return (
-    <DashboardFilterPanel gridClassName="gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
-      <DashboardFilterField label={t("filters.search")}>
-        <DashboardSearchInput
-          onChange={onSearchTextChange}
-          placeholder={t("filters.searchPlaceholder")}
-          value={searchText}
-        />
-      </DashboardFilterField>
+    <DashboardResourceFilterSection
+      activeFilterCount={[
+        Boolean(searchText),
+        statusFilter !== "all",
+      ].filter(Boolean).length}
+      onReset={() => {
+        onSearchTextChange("");
+        onStatusFilterChange("all");
+      }}
+      primary={
+        <DashboardFilterField label={t("filters.search")}>
+          <DashboardSearchInput
+            onChange={onSearchTextChange}
+            placeholder={t("filters.searchPlaceholder")}
+            value={searchText}
+          />
+        </DashboardFilterField>
+      }
+      resetDisabled={!searchText && statusFilter === "all"}
+    >
       <DashboardFilterField label={t("filters.status")}>
         <Select
           onValueChange={onStatusFilterChange}
@@ -126,7 +138,7 @@ export function BusinessVipFiltersSection({
           value={statusFilter}
         />
       </DashboardFilterField>
-    </DashboardFilterPanel>
+    </DashboardResourceFilterSection>
   );
 }
 

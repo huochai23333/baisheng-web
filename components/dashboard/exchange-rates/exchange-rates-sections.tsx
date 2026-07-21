@@ -26,9 +26,9 @@ import { normalizeCurrencyCode } from "@/lib/exchange-rates";
 import { Button } from "../../ui/button";
 import { DashboardPaginationFooter } from "../dashboard-collection-section";
 import { DashboardSectionHeader } from "../dashboard-section-header";
+import { DashboardResourceFilterSection } from "../dashboard-resource-filter-section";
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   DashboardListSection,
   DashboardTableFrame,
   dashboardFilterInputClassName,
@@ -220,17 +220,33 @@ export const ExchangeRatesHistorySection = memo(
         eyebrow={t("history.eyebrow")}
         title={t("history.title")}
       >
-        <DashboardFilterPanel gridClassName="lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
-          <DashboardFilterField label={t("filters.originalCurrencyLabel")}>
-            <FormControls.Input
-              className={dashboardFilterInputClassName}
-              onChange={(event) => onOriginalCurrencyChange(event.target.value)}
-              placeholder={t("filters.originalCurrencyPlaceholder")}
-              type="text"
-              value={filters.originalCurrency}
-            />
-          </DashboardFilterField>
-
+        <DashboardResourceFilterSection
+          activeFilterCount={[
+            Boolean(filters.originalCurrency),
+            Boolean(filters.targetCurrency),
+          ].filter(Boolean).length}
+          gridClassName="sm:grid-cols-2"
+          onReset={onClearFilters}
+          primary={
+            <DashboardFilterField label={t("filters.originalCurrencyLabel")}>
+              <FormControls.Input
+                className={dashboardFilterInputClassName}
+                onChange={(event) =>
+                  onOriginalCurrencyChange(event.target.value)
+                }
+                placeholder={t("filters.originalCurrencyPlaceholder")}
+                type="text"
+                value={filters.originalCurrency}
+              />
+            </DashboardFilterField>
+          }
+          resetDisabled={!hasActiveFilters}
+          resetLabel={t("filters.clear")}
+          summary={t("filters.resultSummary", {
+            matched: filteredRowsCount,
+            total: totalRates,
+          })}
+        >
           <DashboardFilterField label={t("filters.targetCurrencyLabel")}>
             <FormControls.Input
               className={dashboardFilterInputClassName}
@@ -240,24 +256,7 @@ export const ExchangeRatesHistorySection = memo(
               value={filters.targetCurrency}
             />
           </DashboardFilterField>
-
-          <div className="flex flex-col justify-end gap-3 lg:items-end">
-            <p className="text-sm text-content-muted">
-              {t("filters.resultSummary", {
-                matched: filteredRowsCount,
-                total: totalRates,
-              })}
-            </p>
-            <Button
-              disabled={!hasActiveFilters}
-              onClick={onClearFilters}
-              type="button"
-              variant="outline"
-            >
-              {t("filters.clear")}
-            </Button>
-          </div>
-        </DashboardFilterPanel>
+        </DashboardResourceFilterSection>
 
         {filteredRowsCount === 0 ? (
           <EmptyState

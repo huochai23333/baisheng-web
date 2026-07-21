@@ -3,13 +3,12 @@
 import * as FormControls from "@/components/ui/form-controls";
 
 import { useTranslations } from "next-intl";
-import { RefreshCcw, Search } from "lucide-react";
 
+import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import {
   DashboardFilterField,
-  DashboardListSection,
+  DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
-import { Button } from "@/components/ui/button";
 import { Select, type SelectOption } from "@/components/ui/select";
 
 import type {
@@ -21,17 +20,14 @@ import type {
 } from "./admin-commission-view-model";
 
 export function CommissionFiltersSection({
-  beneficiaryCount,
   beneficiaryOptions,
   categoryOptions,
   filters,
   hasActiveFilters,
   onFilterChange,
   onResetFilters,
-  recordCount,
   settlementOptions,
 }: {
-  beneficiaryCount: number;
   beneficiaryOptions: BeneficiarySummaryRow[];
   categoryOptions: readonly CommissionFilterOption<CategoryFilter>[];
   filters: CommissionFilters;
@@ -41,122 +37,118 @@ export function CommissionFiltersSection({
     value: CommissionFilters[Key],
   ) => void;
   onResetFilters: () => void;
-  recordCount: number;
   settlementOptions: readonly CommissionFilterOption<SettlementFilter>[];
 }) {
   const t = useTranslations("Commission");
+  // 这里逐项计算启用数量，移动端就能直接告诉用户当前有多少条件正在生效。
+  // 布尔值数组最后只保留 true，因此得到的长度就是已启用筛选项的数量。
+  const activeFilterCount = [
+    Boolean(filters.searchText.trim()),
+    Boolean(filters.beneficiaryUserId),
+    Boolean(filters.orderNumber.trim()),
+    filters.settlementStatus !== "all",
+    filters.category !== "all",
+  ].filter(Boolean).length;
 
   return (
-    <DashboardListSection
-      actions={
-        <Button
-          size="default"
-          onClick={onResetFilters}
-          type="button"
-          variant="outline"
-        >
-          <RefreshCcw className="size-4" />
-          {t("filters.reset")}
-        </Button>
+    <DashboardResourceFilterSection
+      activeFilterCount={activeFilterCount}
+      footer={
+        hasActiveFilters ? (
+          <div className="flex flex-wrap gap-2 text-sm text-content-muted">
+            <ActiveFilterChip
+              active={Boolean(filters.beneficiaryUserId)}
+              label={
+                filters.beneficiaryUserId
+                  ? `${t("chips.beneficiaryPrefix")}${
+                      beneficiaryOptions.find(
+                        (item) => item.userId === filters.beneficiaryUserId,
+                      )?.label ?? t("chips.selected")
+                    }`
+                  : ""
+              }
+            />
+            <ActiveFilterChip
+              active={Boolean(filters.orderNumber)}
+              label={
+                filters.orderNumber
+                  ? `${t("chips.orderNumberPrefix")}${filters.orderNumber}`
+                  : ""
+              }
+            />
+            <ActiveFilterChip
+              active={filters.settlementStatus !== "all"}
+              label={
+                filters.settlementStatus !== "all"
+                  ? `${t("chips.settlementPrefix")}${
+                      settlementOptions.find(
+                        (item) => item.value === filters.settlementStatus,
+                      )?.label ?? filters.settlementStatus
+                    }`
+                  : ""
+              }
+            />
+            <ActiveFilterChip
+              active={filters.category !== "all"}
+              label={
+                filters.category !== "all"
+                  ? `${t("chips.categoryPrefix")}${
+                      categoryOptions.find(
+                        (item) => item.value === filters.category,
+                      )?.label ?? filters.category
+                    }`
+                  : ""
+              }
+            />
+          </div>
+        ) : undefined
       }
-      bodyClassName="space-y-5"
-      description={t("filters.description", {
-        beneficiaries: beneficiaryCount,
-        records: recordCount,
-      })}
-      title={t("filters.title")}
-    >
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <SearchField
-          label={t("filters.keywordLabel")}
+      gridClassName="md:grid-cols-2 xl:grid-cols-4"
+      onReset={onResetFilters}
+      primary={
+        <DashboardSearchInput
+          ariaLabel={t("filters.keywordLabel")}
           onChange={(value) => onFilterChange("searchText", value)}
           placeholder={t("filters.keywordPlaceholder")}
           value={filters.searchText}
         />
-        <SelectField
-          label={t("filters.beneficiaryLabel")}
-          onChange={(value) => onFilterChange("beneficiaryUserId", value)}
-          options={[
-            { label: t("filters.allBeneficiaries"), value: "" },
-            ...beneficiaryOptions.map((beneficiary) => ({
-              label: beneficiary.label,
-              value: beneficiary.userId,
-            })),
-          ]}
-          value={filters.beneficiaryUserId}
-        />
-        <SearchField
-          label={t("filters.orderNumberLabel")}
-          onChange={(value) => onFilterChange("orderNumber", value)}
-          placeholder={t("filters.orderNumberPlaceholder")}
-          value={filters.orderNumber}
-        />
-        <SelectField
-          label={t("filters.settlementStatusLabel")}
-          onChange={(value) =>
-            onFilterChange("settlementStatus", value as SettlementFilter)
-          }
-          options={settlementOptions}
-          value={filters.settlementStatus}
-        />
-        <SelectField
-          label={t("filters.categoryLabel")}
-          onChange={(value) =>
-            onFilterChange("category", value as CategoryFilter)
-          }
-          options={categoryOptions}
-          value={filters.category}
-        />
-      </div>
-      {hasActiveFilters ? (
-        <div className="flex flex-wrap gap-2 text-sm text-content-muted">
-          <ActiveFilterChip
-            active={Boolean(filters.beneficiaryUserId)}
-            label={
-              filters.beneficiaryUserId
-                ? `${t("chips.beneficiaryPrefix")}${
-                    beneficiaryOptions.find(
-                      (item) => item.userId === filters.beneficiaryUserId,
-                    )?.label ?? t("chips.selected")
-                  }`
-                : ""
-            }
-          />
-          <ActiveFilterChip
-            active={Boolean(filters.orderNumber)}
-            label={
-              filters.orderNumber
-                ? `${t("chips.orderNumberPrefix")}${filters.orderNumber}`
-                : ""
-            }
-          />
-          <ActiveFilterChip
-            active={filters.settlementStatus !== "all"}
-            label={
-              filters.settlementStatus !== "all"
-                ? `${t("chips.settlementPrefix")}${
-                    settlementOptions.find(
-                      (item) => item.value === filters.settlementStatus,
-                    )?.label ?? filters.settlementStatus
-                  }`
-                : ""
-            }
-          />
-          <ActiveFilterChip
-            active={filters.category !== "all"}
-            label={
-              filters.category !== "all"
-                ? `${t("chips.categoryPrefix")}${
-                    categoryOptions.find(
-                      (item) => item.value === filters.category,
-                    )?.label ?? filters.category
-                  }`
-                : ""
-            }
-          />
-        </div>
-      ) : null}
-    </DashboardListSection>
+      }
+      resetDisabled={!hasActiveFilters}
+      resetLabel={t("filters.reset")}
+    >
+      <SelectField
+        label={t("filters.beneficiaryLabel")}
+        onChange={(value) => onFilterChange("beneficiaryUserId", value)}
+        options={[
+          { label: t("filters.allBeneficiaries"), value: "" },
+          ...beneficiaryOptions.map((beneficiary) => ({
+            label: beneficiary.label,
+            value: beneficiary.userId,
+          })),
+        ]}
+        value={filters.beneficiaryUserId}
+      />
+      <SearchField
+        label={t("filters.orderNumberLabel")}
+        onChange={(value) => onFilterChange("orderNumber", value)}
+        placeholder={t("filters.orderNumberPlaceholder")}
+        value={filters.orderNumber}
+      />
+      <SelectField
+        label={t("filters.settlementStatusLabel")}
+        onChange={(value) =>
+          onFilterChange("settlementStatus", value as SettlementFilter)
+        }
+        options={settlementOptions}
+        value={filters.settlementStatus}
+      />
+      <SelectField
+        label={t("filters.categoryLabel")}
+        onChange={(value) => onFilterChange("category", value as CategoryFilter)}
+        options={categoryOptions}
+        value={filters.category}
+      />
+    </DashboardResourceFilterSection>
   );
 }
 
@@ -173,16 +165,12 @@ function SearchField({
 }) {
   return (
     <DashboardFilterField label={label}>
-      <div className="flex items-center gap-3 rounded-record-card border border-border bg-surface-interactive px-4">
-        <Search className="size-4 text-content-muted" />
-        <FormControls.Input
-          className="h-12 w-full bg-transparent text-sm text-content-strong outline-none placeholder:text-content-subtle"
-          onChange={(event) => onChange(event.target.value)}
-          placeholder={placeholder}
-          type="text"
-          value={value}
-        />
-      </div>
+      <FormControls.Input
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        type="search"
+        value={value}
+      />
     </DashboardFilterField>
   );
 }

@@ -74,18 +74,23 @@ export function TourismPeopleClient({
       }
     >
       <DashboardResourceFilterSection
-        gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
+        activeFilterCount={[
+          Boolean(viewModel.searchText),
+          viewModel.statusFilter !== "all",
+        ].filter(Boolean).length}
         onReset={viewModel.resetFilters}
+        primary={
+          <DashboardFilterField label={t("searchLabel")}>
+            <DashboardSearchInput
+              onChange={viewModel.setSearchText}
+              placeholder={t("searchPlaceholder")}
+              value={viewModel.searchText}
+            />
+          </DashboardFilterField>
+        }
         resetDisabled={!viewModel.hasFilters}
         resetLabel={t("resetFilters")}
       >
-        <DashboardFilterField label={t("searchLabel")}>
-          <DashboardSearchInput
-            onChange={viewModel.setSearchText}
-            placeholder={t("searchPlaceholder")}
-            value={viewModel.searchText}
-          />
-        </DashboardFilterField>
         <DashboardFilterField label={t("statusLabel")}>
           <Select
             onValueChange={viewModel.setStatusFilter}

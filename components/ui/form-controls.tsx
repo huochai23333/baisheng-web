@@ -167,6 +167,9 @@ export function Input({
   ...props
 }: InputProps) {
   const density = useFormFieldControlDensity();
+  // 筛选字段在桌面端优先使用 40px 紧凑控件；紧凑令牌在移动端仍会自动保持 44px 触控高度。
+  const resolvedControlSize =
+    controlSize ?? (density === "filter" ? "compact" : "default");
   const resolvedRequired = useFormFieldRequired(required);
   const fieldAttributes = useFormFieldControlAttributes({
     ariaDescribedBy,
@@ -177,8 +180,11 @@ export function Input({
 
   return (
     <input
-      className={cn(controlVariants({ controlSize, density }), className)}
-      data-control-size={controlSize ?? "default"}
+      className={cn(
+        controlVariants({ controlSize: resolvedControlSize, density }),
+        className,
+      )}
+      data-control-size={resolvedControlSize}
       data-slot="input"
       {...fieldAttributes}
       required={resolvedRequired}

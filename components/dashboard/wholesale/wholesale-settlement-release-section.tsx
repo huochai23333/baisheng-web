@@ -4,7 +4,14 @@ import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { Plus, RefreshCcw, ReceiptText } from "lucide-react";
+import {
+  BadgeCheck,
+  CircleDollarSign,
+  Clock3,
+  Plus,
+  RefreshCcw,
+  ReceiptText,
+} from "lucide-react";
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -140,10 +147,30 @@ export function WholesaleSettlementReleaseSection({
     >
       <WholesaleStatGrid
         stats={[
-          { label: "发布记录", value: `${releases.length}` },
-          { label: "待认领", value: `${pendingCount}` },
-          { label: "已匹配", value: `${claimedCount}` },
-          { label: "待认领金额", value: pendingAmountSummary },
+          {
+            icon: <ReceiptText className="size-4" />,
+            label: "发布记录",
+            tone: "info",
+            value: `${releases.length}`,
+          },
+          {
+            icon: <Clock3 className="size-4" />,
+            label: "待认领",
+            tone: "warning",
+            value: `${pendingCount}`,
+          },
+          {
+            icon: <BadgeCheck className="size-4" />,
+            label: "已匹配",
+            tone: "success",
+            value: `${claimedCount}`,
+          },
+          {
+            icon: <CircleDollarSign className="size-4" />,
+            label: "待认领金额",
+            tone: "warning",
+            value: pendingAmountSummary,
+          },
         ]}
       />
 

@@ -51,10 +51,26 @@ export function CompanyExpensesFilterSection({
   onSearchQueryChange,
   searchQuery,
 }: CompanyExpensesFilterSectionProps) {
+  const activeFilterCount = [
+    Boolean(searchQuery),
+    monthFilter !== "all",
+    categoryFilter !== "all",
+    currencyFilter !== "all",
+  ].filter(Boolean).length;
+
   return (
     <DashboardResourceFilterSection
-      gridClassName="lg:grid-cols-[1.2fr_repeat(3,minmax(0,0.8fr))]"
+      activeFilterCount={activeFilterCount}
+      gridClassName="sm:grid-cols-3"
       onReset={onReset}
+      primary={
+        <DashboardSearchInput
+          ariaLabel={copy.searchPlaceholder}
+          onChange={onSearchQueryChange}
+          placeholder={copy.searchPlaceholder}
+          value={searchQuery}
+        />
+      }
       resetDisabled={
         !searchQuery &&
         monthFilter === "all" &&
@@ -62,12 +78,6 @@ export function CompanyExpensesFilterSection({
         currencyFilter === "all"
       }
     >
-      <DashboardSearchInput
-        ariaLabel={copy.searchPlaceholder}
-        onChange={onSearchQueryChange}
-        placeholder={copy.searchPlaceholder}
-        value={searchQuery}
-      />
       <DashboardFilterField label={copy.monthLabel}>
         <Select
           onValueChange={onMonthFilterChange}

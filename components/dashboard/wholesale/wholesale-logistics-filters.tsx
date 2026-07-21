@@ -57,6 +57,15 @@ export function WholesaleLogisticsFiltersPanel({
 
   return (
     <DashboardOrderFilterSection
+      activeFilterCount={[
+        filters.salesUserId !== "all",
+        Boolean(filters.storeName),
+        filters.costState !== "all",
+        Boolean(filters.searchText),
+        filters.fromDate !== defaultRange.fromDate ||
+          filters.toDate !== defaultRange.toDate,
+        filters.searchMode !== "date_range",
+      ].filter(Boolean).length}
       customInputId="wholesale-logistics-date-from"
       dateRange={{ fromDate: filters.fromDate, toDate: filters.toDate }}
       exactOrderNumber={
@@ -68,6 +77,34 @@ export function WholesaleLogisticsFiltersPanel({
       onExitExactSearch={onExitExactSearch}
       onPresetChange={onSelectDatePreset}
       onReset={onClear}
+      primary={
+        <DashboardFilterField label={t("filters.search")}>
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
+            <DashboardSearchInput
+              onChange={(value) => onChange({ searchText: value })}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && filters.searchText.trim()) {
+                  event.preventDefault();
+                  onExactSearch();
+                }
+              }}
+              placeholder={t("filters.searchPlaceholder")}
+              value={filters.searchText}
+            />
+            <Button
+              className="shrink-0"
+              disabled={!filters.searchText.trim()}
+              onClick={onExactSearch}
+              type="button"
+              variant="outline"
+              size="compact"
+            >
+              <Search className="size-4" />
+              {frameworkT("exactSearch.action")}
+            </Button>
+          </div>
+        </DashboardFilterField>
+      }
       resetDisabled={resetDisabled}
     >
       <DashboardFilterField label={t("filters.sales")}>
@@ -139,31 +176,6 @@ export function WholesaleLogisticsFiltersPanel({
         />
       </DashboardFilterField>
 
-      <DashboardFilterField label={t("filters.search")}>
-        <div className="flex min-w-0 flex-col gap-2">
-          <DashboardSearchInput
-            onChange={(value) => onChange({ searchText: value })}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && filters.searchText.trim()) {
-                event.preventDefault();
-                onExactSearch();
-              }
-            }}
-            placeholder={t("filters.searchPlaceholder")}
-            value={filters.searchText}
-          />
-          <Button
-            disabled={!filters.searchText.trim()}
-            onClick={onExactSearch}
-            type="button"
-            variant="outline"
-            size="compact"
-          >
-            <Search className="size-4" />
-            {frameworkT("exactSearch.action")}
-          </Button>
-        </div>
-      </DashboardFilterField>
     </DashboardOrderFilterSection>
   );
 }

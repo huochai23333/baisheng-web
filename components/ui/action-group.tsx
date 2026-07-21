@@ -10,7 +10,7 @@ export function ActionGroup({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "flex flex-col-reverse gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end",
+        "grid w-full grid-cols-2 gap-3 sm:flex sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end",
         className,
       )}
       {...props}

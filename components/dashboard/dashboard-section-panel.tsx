@@ -76,19 +76,22 @@ export function DashboardFilterPanel({
       className={cn(
         variant === "inset" &&
           cn(
-            surfaceVariants({ padding: "compact", variant: "inset" }),
+            surfaceVariants({ padding: null, variant: "inset" }),
+            "p-3",
             "motion-surface-enter",
           ),
         variant === "standalone" &&
           cn(
-            surfaceVariants({ padding: "regular", variant: "panel" }),
+            surfaceVariants({ padding: "compact", variant: "panel" }),
             "motion-surface-enter",
           ),
         className,
       )}
     >
-      <div className={cn("grid gap-3 sm:gap-4", gridClassName)}>{children}</div>
-      {footer ? <div className="mt-4">{footer}</div> : null}
+      <div className={cn("grid gap-2.5 sm:gap-3", gridClassName)}>
+        {children}
+      </div>
+      {footer ? <div className="mt-3">{footer}</div> : null}
     </div>
   );
 }
@@ -199,7 +202,7 @@ export function DashboardTableFrame({
  * 悬停和键盘聚焦仍会加深，因此浅色不是通过牺牲交互反馈实现的。
  */
 export const dashboardFilterInputClassName = cn(
-  controlVariants({ controlSize: "default", density: "filter" }),
+  controlVariants({ controlSize: "compact", density: "filter" }),
 );
 
 export function DashboardFilterField({
@@ -240,7 +243,8 @@ export function DashboardSearchInput({
         // `ps-10!` 会覆盖桌面断点的普通横向内边距，始终为图标保留完整文字槽位。
         aria-label={ariaLabel}
         className="ps-10!"
-        controlSize="default"
+        // 工作台搜索用于列表和筛选，不承担长表单录入；桌面压缩到 40px，移动端令牌仍保持 44px。
+        controlSize="compact"
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}

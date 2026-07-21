@@ -21,7 +21,7 @@ export function WorkspaceFeedbackButton() {
     <>
       <DesignButton
         aria-label={copy.open}
-        className="relative flex h-9 w-9 items-center justify-center rounded-full text-primary transition-colors hover:bg-surface-interactive sm:h-10 sm:w-10"
+        className="relative flex min-h-11 min-w-11 items-center justify-center rounded-full text-primary transition-colors hover:bg-surface-interactive"
         onClick={() => feedback.openDialog()}
         type="button"
       >

@@ -14,6 +14,7 @@ import { UiMessage } from "@/components/i18n/ui-message";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select } from "@/components/ui/select";
+import { getDefaultOrderDateRange } from "@/lib/order-date-range";
 import type { WholesaleCustomer, WholesaleProfile } from "@/lib/wholesale";
 import type { WholesaleOrderFilters } from "@/lib/wholesale-order-page";
 
@@ -49,8 +50,18 @@ export function WholesaleOrderFiltersPanel({
     "UiText.components_dashboard_wholesale_wholesale_order_filters",
   );
   const frameworkT = useTranslations("OrderListFramework");
+  const defaultRange = getDefaultOrderDateRange();
   return (
     <DashboardOrderFilterSection
+      activeFilterCount={[
+        Boolean(filters.searchText),
+        filters.status !== "all",
+        Boolean(filters.customerId),
+        Boolean(filters.salesUserId),
+        filters.orderedFromDate !== defaultRange.fromDate ||
+          filters.orderedToDate !== defaultRange.toDate,
+        filters.searchMode !== "date_range",
+      ].filter(Boolean).length}
       customInputId="wholesale-order-date-from"
       dateRange={{
         fromDate: filters.orderedFromDate,
@@ -65,36 +76,38 @@ export function WholesaleOrderFiltersPanel({
       onExitExactSearch={onExitExactSearch}
       onPresetChange={onSelectDatePreset}
       onReset={onClear}
+      primary={
+        <DashboardFilterField label={uiText("attribute001")}>
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
+            <FormControls.Input
+              className={`${dashboardFilterInputClassName} min-w-0`}
+              onChange={(event) => onUpdate("searchText", event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && filters.searchText.trim()) {
+                  event.preventDefault();
+                  onExactSearch();
+                }
+              }}
+              placeholder={uiText("attribute002")}
+              type="search"
+              value={filters.searchText}
+            />
+            <Button
+              className="shrink-0"
+              disabled={!filters.searchText.trim()}
+              onClick={onExactSearch}
+              type="button"
+              variant="outline"
+              size="compact"
+            >
+              <Search className="size-4" />
+              {frameworkT("exactSearch.action")}
+            </Button>
+          </div>
+        </DashboardFilterField>
+      }
       resetDisabled={!hasActiveFilters}
     >
-      <DashboardFilterField label={uiText("attribute001")}>
-        <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
-          <FormControls.Input
-            className={`${dashboardFilterInputClassName} min-w-0`}
-            onChange={(event) => onUpdate("searchText", event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && filters.searchText.trim()) {
-                event.preventDefault();
-                onExactSearch();
-              }
-            }}
-            placeholder={uiText("attribute002")}
-            type="search"
-            value={filters.searchText}
-          />
-          <Button
-            className="shrink-0"
-            disabled={!filters.searchText.trim()}
-            onClick={onExactSearch}
-            type="button"
-            variant="outline"
-            size="compact"
-          >
-            <Search className="size-4" />
-            {frameworkT("exactSearch.action")}
-          </Button>
-        </div>
-      </DashboardFilterField>
       <DashboardFilterField label={uiText("attribute003")}>
         <Select
           aria-label={uiText("attribute003")}

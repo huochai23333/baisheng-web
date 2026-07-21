@@ -49,14 +49,12 @@ export function AdminCommissionClient({
           {viewModel.activeBoard === "normal" ? (
             <>
               <CommissionFiltersSection
-                beneficiaryCount={viewModel.beneficiarySummaries.length}
                 beneficiaryOptions={viewModel.beneficiaryOptions}
                 categoryOptions={viewModel.categoryOptions}
                 filters={viewModel.filters}
                 hasActiveFilters={viewModel.hasActiveFilters}
                 onFilterChange={viewModel.handleFilterChange}
                 onResetFilters={viewModel.resetFilters}
-                recordCount={viewModel.filteredCommissions.length}
                 settlementOptions={viewModel.settlementOptions}
               />
               <CommissionBeneficiarySummarySection

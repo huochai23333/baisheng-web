@@ -21,8 +21,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { DashboardPaginationFooter } from "@/components/dashboard/dashboard-collection-section";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
+import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import {
-  DashboardFilterPanel,
   DashboardListSection,
 } from "@/components/dashboard/dashboard-section-panel";
 import {
@@ -149,17 +149,25 @@ export function AdminTasksFiltersSection({
   const sharedT = useTranslations("Tasks.shared");
 
   return (
-    <DashboardFilterPanel
-      gridClassName="grid-cols-1 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.55fr)]"
-      variant="standalone"
+    <DashboardResourceFilterSection
+      activeFilterCount={[
+        Boolean(filters.searchText),
+        filters.targetRole !== "all",
+      ].filter(Boolean).length}
+      onReset={() => {
+        onSearchTextChange("");
+        onTargetRoleChange("all");
+      }}
+      primary={
+        <SearchField
+          label={t("filters.searchLabel")}
+          onChange={onSearchTextChange}
+          placeholder={t("filters.searchPlaceholder")}
+          value={filters.searchText}
+        />
+      }
+      resetDisabled={!filters.searchText && filters.targetRole === "all"}
     >
-      <SearchField
-        label={t("filters.searchLabel")}
-        onChange={onSearchTextChange}
-        placeholder={t("filters.searchPlaceholder")}
-        value={filters.searchText}
-      />
-
       <FilterField
         label={t("filters.targetRoleLabel")}
         onChange={(value) =>
@@ -174,7 +182,7 @@ export function AdminTasksFiltersSection({
         ]}
         value={filters.targetRole}
       />
-    </DashboardFilterPanel>
+    </DashboardResourceFilterSection>
   );
 }
 

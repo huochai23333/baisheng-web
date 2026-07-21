@@ -1,5 +1,11 @@
 import { UiMessage } from "@/components/i18n/ui-message";
 import { ResponsiveDataView } from "@/components/ui/responsive-data-view";
+import {
+  CircleDollarSign,
+  PackageCheck,
+  Percent,
+  TrendingUp,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { WholesaleOrderPageSummary } from "@/lib/wholesale-order-page";
 import { formatCurrency, formatPercent } from "./wholesale-display";
@@ -11,17 +17,28 @@ export function WholesaleOrderSummary({
 }) {
   const t = useTranslations("WholesaleBusiness.ordersUi");
   const stats = [
-    { label: t("summary.orderCount"), value: `${summary.orderCount}` },
     {
+      icon: <PackageCheck className="size-4" />,
+      label: t("summary.orderCount"),
+      tone: "info" as const,
+      value: `${summary.orderCount}`,
+    },
+    {
+      icon: <CircleDollarSign className="size-4" />,
       label: t("summary.customerPaymentRmb"),
+      tone: "success" as const,
       value: formatCurrency(summary.customerPaymentRmbAmount),
     },
     {
+      icon: <TrendingUp className="size-4" />,
       label: t("summary.grossProfit"),
+      tone: "success" as const,
       value: formatCurrency(summary.grossProfitAmount),
     },
     {
+      icon: <Percent className="size-4" />,
       label: t("summary.averageMargin"),
+      tone: "warning" as const,
       value: formatPercent(summary.averageMargin, t("fallbacks.notGenerated")),
     },
   ];

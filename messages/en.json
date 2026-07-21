@@ -17,6 +17,7 @@
     "primaryAction": "Back to Main Entry"
   },
   "LanguageToggle": {
+    "open": "Change language",
     "zh": "中文",
     "en": "EN",
     "switching": "Switching"
@@ -29,8 +30,10 @@
   },
   "DashboardFramework": {
     "filters": {
-      "title": "Filter content",
-      "description": "Choose filters to quickly find the content you need.",
+      "active": "{count} filters active",
+      "collapse": "Hide filters",
+      "count": "{count}",
+      "expand": "More filters",
       "reset": "Restore default filters"
     },
     "confirm": {
@@ -74,8 +77,6 @@
   },
   "OrderListFramework": {
     "filters": {
-      "title": "Filter Orders",
-      "description": "Use dates and other filters to find the orders you need.",
       "reset": "Restore Default Range"
     },
     "datePresets": {
@@ -2497,8 +2498,6 @@
       "noPermissionDescription": "The current account cannot view the full commission board."
     },
     "filters": {
-      "title": "Filter Commissions",
-      "description": "{records} records across {beneficiaries} beneficiaries match the current filters.",
       "reset": "Reset Filters",
       "keywordLabel": "Keyword",
       "keywordPlaceholder": "Search order, user, email, or category",

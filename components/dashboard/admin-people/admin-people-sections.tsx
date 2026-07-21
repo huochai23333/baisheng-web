@@ -137,20 +137,26 @@ export function AdminPeopleDirectorySection({
       title={t("directory.title")}
     >
       <DashboardResourceFilterSection
-        gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"
+        activeFilterCount={[
+          Boolean(searchText),
+          roleFilter !== "all",
+          statusFilter !== "all",
+        ].filter(Boolean).length}
+        gridClassName="sm:grid-cols-2"
         onReset={onReset}
+        primary={
+          <DashboardFilterField label={t("filters.search")}>
+            <DashboardSearchInput
+              onChange={onSearchTextChange}
+              placeholder={t("filters.searchPlaceholder")}
+              value={searchText}
+            />
+          </DashboardFilterField>
+        }
         resetDisabled={
           !searchText && roleFilter === "all" && statusFilter === "all"
         }
       >
-        <DashboardFilterField label={t("filters.search")}>
-          <DashboardSearchInput
-            onChange={onSearchTextChange}
-            placeholder={t("filters.searchPlaceholder")}
-            value={searchText}
-          />
-        </DashboardFilterField>
-
         <DashboardFilterField label={t("filters.role")}>
           <Select
             onValueChange={onRoleFilterChange}

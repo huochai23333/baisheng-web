@@ -27,6 +27,7 @@ import type { HomeWidgetInstance } from "./dashboard-home-layout";
 import { HomeTodosSection } from "./dashboard-home-todo-section";
 import type { HomeTodoCopy } from "./dashboard-home-todo-display";
 import type { DashboardHomeTodosState } from "./use-dashboard-home-todos";
+import type { HomeWidgetDisplayMode } from "./use-dashboard-home-display-mode";
 
 export type DashboardHomeWidgetCopy = {
   announcements: {
@@ -54,6 +55,7 @@ type DashboardHomeWidgetContentProps = {
   businessBoards: DashboardHomePageData["businessBoards"];
   copy: DashboardHomeWidgetCopy;
   displayName: string | null;
+  displayMode: HomeWidgetDisplayMode;
   greetingPeriod: DashboardHomeGreetingPeriod;
   locale: string;
   referralCode: string | null;
@@ -68,6 +70,7 @@ export function DashboardHomeWidgetContent({
   businessBoards,
   copy,
   displayName,
+  displayMode,
   greetingPeriod,
   locale,
   referralCode,
@@ -82,6 +85,7 @@ export function DashboardHomeWidgetContent({
         copy={copy}
         displayName={displayName}
         greetingPeriod={greetingPeriod}
+        compactOverride={displayMode === "automatic"}
         widget={widget}
       />
     );
@@ -91,7 +95,11 @@ export function DashboardHomeWidgetContent({
     return (
       <HomeClockSection
         copy={copy.clock}
-        density={getUtilityWidgetDensity(widget)}
+        density={
+          displayMode === "automatic"
+            ? "compact"
+            : getUtilityWidgetDensity(widget)
+        }
         locale={locale}
       />
     );
@@ -102,7 +110,11 @@ export function DashboardHomeWidgetContent({
       <HomeInviteSection
         businessBoards={businessBoards}
         copy={copy.invite}
-        density={getUtilityWidgetDensity(widget)}
+        density={
+          displayMode === "automatic"
+            ? "compact"
+            : getUtilityWidgetDensity(widget)
+        }
         referralCode={referralCode}
         role={role}
       />
@@ -115,6 +127,7 @@ export function DashboardHomeWidgetContent({
         announcements={announcements}
         copy={copy}
         locale={locale}
+        compactOverride={displayMode === "automatic"}
         widget={widget}
       />
     );
@@ -126,6 +139,8 @@ export function DashboardHomeWidgetContent({
       locale={locale}
       todoCopy={todoCopy}
       todoState={todoState}
+      densityOverride={displayMode === "automatic" ? "compact" : undefined}
+      expandedOverride={displayMode === "automatic"}
       widget={widget}
     />
   );
@@ -144,6 +159,7 @@ function getUtilityWidgetDensity(widget: HomeWidgetInstance) {
 }
 
 function GreetingWidgetContent({
+  compactOverride,
   copy,
   displayName,
   greetingPeriod,
@@ -151,8 +167,8 @@ function GreetingWidgetContent({
 }: Pick<
   DashboardHomeWidgetContentProps,
   "copy" | "displayName" | "greetingPeriod" | "widget"
->) {
-  const compact = widget.width <= 2 || widget.height <= 1;
+> & { compactOverride: boolean }) {
+  const compact = compactOverride || widget.width <= 2 || widget.height <= 1;
   const name = getHomeDisplayName(displayName, copy.greeting.unnamedUser);
 
   return (
@@ -184,14 +200,15 @@ function GreetingWidgetContent({
 
 function AnnouncementsWidgetContent({
   announcements,
+  compactOverride,
   copy,
   locale,
   widget,
 }: Pick<
   DashboardHomeWidgetContentProps,
   "announcements" | "copy" | "locale" | "widget"
->) {
-  const compact = widget.width <= 2 || widget.height <= 2;
+> & { compactOverride: boolean }) {
+  const compact = compactOverride || widget.width <= 2 || widget.height <= 2;
 
   if (compact) {
     return (
@@ -250,6 +267,8 @@ function AnnouncementsWidgetContent({
 
 function TodosWidgetContent({
   copy,
+  densityOverride,
+  expandedOverride,
   locale,
   todoCopy,
   todoState,
@@ -257,8 +276,12 @@ function TodosWidgetContent({
 }: Pick<
   DashboardHomeWidgetContentProps,
   "copy" | "locale" | "todoCopy" | "todoState" | "widget"
->) {
-  const compact = widget.width <= 2 || widget.height <= 2;
+> & {
+  densityOverride?: "compact";
+  expandedOverride: boolean;
+}) {
+  const compact =
+    !expandedOverride && (widget.width <= 2 || widget.height <= 2);
 
   if (compact) {
     const visibleTodo = todoState.todos.find((todo) => !todo.is_completed);
@@ -276,7 +299,9 @@ function TodosWidgetContent({
   return (
     <HomeTodosSection
       copy={todoCopy}
-      density={widget.height <= 3 ? "compact" : "comfortable"}
+      density={
+        densityOverride ?? (widget.height <= 3 ? "compact" : "comfortable")
+      }
       frame="plain"
       locale={locale}
       state={todoState}

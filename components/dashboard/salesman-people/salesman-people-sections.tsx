@@ -124,18 +124,19 @@ export function SalesmanPeopleDirectorySection({
       title={t("directory.title")}
     >
       <DashboardResourceFilterSection
-        gridClassName="sm:grid-cols-[minmax(0,1fr)]"
+        activeFilterCount={searchText ? 1 : 0}
         onReset={onReset}
+        primary={
+          <DashboardFilterField label={t("filters.search")}>
+            <DashboardSearchInput
+              onChange={onSearchTextChange}
+              placeholder={t("filters.searchPlaceholder")}
+              value={searchText}
+            />
+          </DashboardFilterField>
+        }
         resetDisabled={!searchText}
-      >
-        <DashboardFilterField label={t("filters.search")}>
-          <DashboardSearchInput
-            onChange={onSearchTextChange}
-            placeholder={t("filters.searchPlaceholder")}
-            value={searchText}
-          />
-        </DashboardFilterField>
-      </DashboardResourceFilterSection>
+      />
 
       <div className="mt-5">
         {filteredCustomers.length === 0 ? (

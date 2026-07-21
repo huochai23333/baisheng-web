@@ -4,7 +4,14 @@ import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { Calculator, RefreshCcw } from "lucide-react";
+import {
+  Calculator,
+  CircleDollarSign,
+  Clock3,
+  ListFilter,
+  ReceiptText,
+  RefreshCcw,
+} from "lucide-react";
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -172,10 +179,30 @@ export function WholesaleCommissionSection({
     >
       <WholesaleStatGrid
         stats={[
-          { label: "提成合计", value: formatCurrency(totalCommission) },
-          { label: "待结算提成", value: formatCurrency(pendingCommission) },
-          { label: "提成记录", value: `${commissions.length}` },
-          { label: "当前显示", value: `${filteredCommissions.length}` },
+          {
+            icon: <CircleDollarSign className="size-4" />,
+            label: "提成合计",
+            tone: "success",
+            value: formatCurrency(totalCommission),
+          },
+          {
+            icon: <Clock3 className="size-4" />,
+            label: "待结算提成",
+            tone: "warning",
+            value: formatCurrency(pendingCommission),
+          },
+          {
+            icon: <ReceiptText className="size-4" />,
+            label: "提成记录",
+            tone: "info",
+            value: `${commissions.length}`,
+          },
+          {
+            icon: <ListFilter className="size-4" />,
+            label: "当前显示",
+            tone: "info",
+            value: `${filteredCommissions.length}`,
+          },
         ]}
       />
 

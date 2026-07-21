@@ -101,7 +101,6 @@ export function AnnouncementsHeaderSection({
       description={copy.description}
       descriptionClassName="max-w-2xl text-sm leading-7"
       title={copy.title}
-      titleClassName="text-3xl sm:text-4xl"
     />
   );
 }
@@ -116,6 +115,10 @@ export function AnnouncementsFilterSection({
 }: AnnouncementsFilterSectionProps) {
   return (
     <DashboardResourceFilterSection
+      activeFilterCount={[
+        audienceFilter !== "all",
+        statusFilter !== "all",
+      ].filter(Boolean).length}
       gridClassName="md:grid-cols-2"
       onReset={onReset}
       resetDisabled={audienceFilter === "all" && statusFilter === "all"}

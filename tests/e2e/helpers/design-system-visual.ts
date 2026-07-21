@@ -97,11 +97,35 @@ export async function expectAuthLayout(
   page: Page,
   viewportName: "desktop" | "mobile",
 ) {
-  // 认证页连续导航时要等待语言组件完成 hydration，避免基线截到只有胶囊背景的中间状态。
-  await expect(
-    page.getByRole("button", { exact: true, name: "中文" }),
-  ).toBeVisible();
-  await expect(page.getByRole("button", { exact: true, name: "EN" })).toBeVisible();
+  // 认证页连续导航时要等待语言组件完成 hydration。移动端使用单一当前语言入口，
+  // 验证菜单选项后立即关闭，避免视觉基线截到浮层展开状态。
+  const languageTrigger = page.getByRole("button", { name: "切换语言" });
+  const usesCompactLanguageMenu = await languageTrigger
+    .isVisible()
+    .catch(() => false);
+
+  if (usesCompactLanguageMenu) {
+    await languageTrigger.click();
+    await expect(
+      page.getByRole("menuitemradio", { exact: true, name: "中文" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("menuitemradio", { exact: true, name: "EN" }),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("menuitemradio")).toHaveCount(0);
+    await languageTrigger.evaluate((element) => {
+      if (element instanceof HTMLElement) element.blur();
+      window.scrollTo({ behavior: "auto", top: 0 });
+    });
+  } else {
+    await expect(
+      page.getByRole("button", { exact: true, name: "中文" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { exact: true, name: "EN" }),
+    ).toBeVisible();
+  }
 
   const information = page.locator('[data-auth-region="information"]');
   const supplementalNote = page.locator(
@@ -142,7 +166,13 @@ export async function expectAuthControlsMeetTouchHeight(page: Page) {
       elements
         .filter((element) => {
           const style = window.getComputedStyle(element);
-          return style.display !== "none" && style.visibility !== "hidden";
+          const box = element.getBoundingClientRect();
+          return (
+            style.display !== "none" &&
+            style.visibility !== "hidden" &&
+            box.height > 0 &&
+            box.width > 0
+          );
         })
         .map((element) => element.getBoundingClientRect().height),
     );
@@ -274,6 +304,21 @@ export async function readFocusStyle(locator: Locator) {
  * 这里读取浏览器最终计算色，避免只检查 class 名却没有真正覆盖到页面。
  */
 export async function expectSoftFilterControlHierarchy(page: Page) {
+  const mobileDisclosure = page.getByRole("button", {
+    name: /更多筛选条件/,
+  });
+  // 不能用一次性的 isVisible() 判断移动折叠按钮：页面刚完成路由切换时，React 可能仍在挂载筛选区，
+  // 此时按钮会暂时不存在。直接依据当前视口判断，并用 Playwright 自动等待按钮出现，测试才不会产生竞态。
+  const restoreCollapsedState = (page.viewportSize()?.width ?? 1440) < 640;
+
+  if (restoreCollapsedState) {
+    await expect(mobileDisclosure).toBeVisible();
+    await mobileDisclosure.click();
+    await expect(
+      page.getByRole("button", { name: /收起筛选条件/ }),
+    ).toBeVisible();
+  }
+
   const filterInput = page.locator('[data-slot="input"]').first();
   const filterControls = page.locator(
     '[data-slot="field"][data-density="filter"] :is([data-slot="input"], [data-slot="select"])',
@@ -288,6 +333,9 @@ export async function expectSoftFilterControlHierarchy(page: Page) {
   expect(await filterControls.count()).toBeGreaterThanOrEqual(5);
   await expect(inactivePreset).toHaveAttribute("aria-pressed", "false");
   await expect(activePreset).toHaveAttribute("aria-pressed", "true");
+
+  // 页面导航后鼠标可能恰好落在控件上；先移到空白角落，避免把正常的 hover 边框误判成默认层级不一致。
+  await page.mouse.move(0, 0);
 
   const colors = await page.evaluate(() => {
     const resolveToken = (token: string) => {
@@ -308,16 +356,27 @@ export async function expectSoftFilterControlHierarchy(page: Page) {
 
   // 文本输入、选择菜单和日期输入必须从同一个 Field 上下文继承浅边界。
   // 逐个读取计算样式可以防止某类控件只在 class 名上看似正确，实际仍回退到默认深边框。
-  const filterControlBorders = await filterControls.evaluateAll((elements) =>
-    elements.map((element) => window.getComputedStyle(element).borderColor),
-  );
-  expect(new Set(filterControlBorders)).toEqual(new Set([colors.filterBorder]));
+  const filterControlCount = await filterControls.count();
+  // hover 退场会按主题时长平滑过渡；轮询最终颜色既保留真实动效，也避免把中间帧误判成第二套边框。
+  await expect
+    .poll(() =>
+      filterControls.evaluateAll((elements) =>
+        elements.map(
+          (element) => window.getComputedStyle(element).borderColor,
+        ),
+      ),
+    )
+    .toEqual(Array(filterControlCount).fill(colors.filterBorder));
   await expect(inactivePreset).toHaveCSS("border-color", colors.filterBorder);
   await expect(activePreset).toHaveCSS("background-color", colors.primarySurface);
 
   await filterInput.focus();
   await expect(filterInput).toHaveCSS("border-color", colors.focusBorder);
   await filterInput.blur();
+
+  if (restoreCollapsedState) {
+    await page.getByRole("button", { name: /收起筛选条件/ }).click();
+  }
 }
 
 export function routeToName(route: string) {

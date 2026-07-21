@@ -48,6 +48,13 @@ export function WholesaleClaimsFiltersPanel({
 
   return (
     <DashboardOrderFilterSection
+      activeFilterCount={[
+        Boolean(filters.searchText),
+        Boolean(filters.recipientName),
+        filters.fromDate !== defaultRange.fromDate ||
+          filters.toDate !== defaultRange.toDate,
+        filters.searchMode !== "date_range",
+      ].filter(Boolean).length}
       customInputId="wholesale-claims-date-from"
       dateRange={{ fromDate: filters.fromDate, toDate: filters.toDate }}
       exactOrderNumber={
@@ -59,28 +66,30 @@ export function WholesaleClaimsFiltersPanel({
       onExitExactSearch={onExitExactSearch}
       onPresetChange={onPreset}
       onReset={onClear}
+      primary={
+        <DashboardFilterField label={uiText("attribute005")}>
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <FormControls.Input
+              className={dashboardFilterInputClassName}
+              onChange={(event) => onChange({ searchText: event.target.value })}
+              placeholder={uiText("attribute006")}
+              type="search"
+              value={filters.searchText}
+            />
+            <Button
+              disabled={!filters.searchText.trim()}
+              onClick={onExactSearch}
+              type="button"
+              variant="outline"
+              size="compact"
+            >
+              {frameworkT("exactSearch.action")}
+            </Button>
+          </div>
+        </DashboardFilterField>
+      }
       resetDisabled={resetDisabled}
     >
-      <DashboardFilterField label={uiText("attribute005")}>
-        <div className="grid gap-2">
-          <FormControls.Input
-            className={dashboardFilterInputClassName}
-            onChange={(event) => onChange({ searchText: event.target.value })}
-            placeholder={uiText("attribute006")}
-            type="search"
-            value={filters.searchText}
-          />
-          <Button
-            disabled={!filters.searchText.trim()}
-            onClick={onExactSearch}
-            type="button"
-            variant="outline"
-            size="compact"
-          >
-            {frameworkT("exactSearch.action")}
-          </Button>
-        </div>
-      </DashboardFilterField>
       <DashboardFilterField label={uiText("recipientFilterLabel")}>
         <FormControls.Input
           className={dashboardFilterInputClassName}

@@ -141,6 +141,7 @@ for (const viewport of viewports) {
         ["/admin/home", "admin-home"],
         ["/admin/accounts", "admin-accounts"],
         ["/admin/company-expenses", "company-expenses"],
+        ["/admin/tourism/commission", "tourism-commission"],
         ["/admin/wholesale/orders", "wholesale-orders"],
         ["/admin/wholesale/commission", "wholesale-commission"],
       ] as const;
@@ -155,6 +156,14 @@ for (const viewport of viewports) {
       }
 
       await page.goto("/admin/company-expenses");
+      if (viewport.name === "mobile") {
+        // 折叠态本身是移动资源页的默认构图，单独留一张基线防止筛选重新占满首屏。
+        await capture(
+          page,
+          "mobile-company-expenses-filter-collapsed.png",
+        );
+        await page.getByRole("button", { name: /更多筛选条件/ }).click();
+      }
       const categoryFilter = page.getByLabel("费用分类");
       if (viewport.name === "mobile") {
         // 移动端筛选项位于首屏下沿，明确居中后再截图，避免 Playwright 自动滚动量随数据高度变化。
@@ -168,7 +177,16 @@ for (const viewport of viewports) {
       }
       await categoryFilter.click();
       await expect(page.getByRole("option").first()).toBeVisible();
-      if (viewport.name === "desktop") {
+      if (viewport.name === "mobile") {
+        // 菜单打开后会把焦点移到当前选项，浏览器可能再次滚动页面。
+        // 重新把触发器放回视口中部，使浮层始终贴着输入框，而不是偶尔停在页面顶端。
+        await categoryFilter.evaluate((element) =>
+          element.scrollIntoView({ behavior: "auto", block: "center" }),
+        );
+        await expect
+          .poll(async () => (await categoryFilter.boundingBox())?.y ?? -1)
+          .toBeGreaterThan(300);
+      } else {
         // Base UI 会把焦点移入选中项；浏览器可能因此再次滚动页面。
         // 菜单完成打开后重新固定首屏，并等待滚动值生效，再记录稳定的桌面构图。
         await page.evaluate(() => window.scrollTo({ behavior: "auto", top: 0 }));
@@ -184,6 +202,13 @@ for (const viewport of viewports) {
       const expenseDialog = page.getByRole("dialog", { name: "新增费用" });
       await expect(expenseDialog).toBeVisible();
       await capture(page, `${viewport.name}-standard-form-dialog.png`);
+      if (viewport.name === "mobile") {
+        const footer = expenseDialog.getByTestId("dashboard-dialog-actions");
+        await footer.evaluate((element) => {
+          element.previousElementSibling?.scrollTo({ top: 10_000 });
+        });
+        await capture(page, "mobile-long-form-dialog-footer.png");
+      }
       await expenseDialog.getByLabel("费用分类").click();
       await expect(page.getByRole("option").first()).toBeVisible();
       await capture(page, `${viewport.name}-standard-form-menu.png`);
@@ -265,6 +290,7 @@ test("tablet breakpoint keeps representative pages inside the viewport", async (
   for (const route of [
     "/admin/accounts",
     "/admin/company-expenses",
+    "/admin/tourism/commission",
     "/admin/wholesale/orders",
     "/admin/wholesale/commission",
   ] as const) {
@@ -297,4 +323,20 @@ test("tablet breakpoint keeps representative pages inside the viewport", async (
     /打开日期和时间选择/,
   );
   await expectAnchoredPopupInsideViewport(page);
+});
+
+test("首页在自动布局与桌面布局分界处保持稳定构图", async ({ page }) => {
+  await setTestLocale(page, "zh");
+  await stabilizeVisualPage(page);
+  await loginAs(page, "administrator");
+
+  for (const viewport of [
+    { height: 900, name: "tablet-admin-home", width: 768 },
+    { height: 900, name: "desktop-threshold-admin-home", width: 1280 },
+  ] as const) {
+    await page.setViewportSize({ height: viewport.height, width: viewport.width });
+    await page.goto("/admin/home");
+    await expectDocumentInsideViewport(page);
+    await capture(page, `${viewport.name}.png`);
+  }
 });

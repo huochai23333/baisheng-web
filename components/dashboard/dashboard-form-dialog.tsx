@@ -50,6 +50,7 @@ export function FormDialog({
             onClick={() => onOpenChange(false)}
             type="button"
             variant="outline"
+            wrap
           >
             {cancelLabel}
           </Button>
@@ -58,6 +59,7 @@ export function FormDialog({
             disabled={pending}
             onClick={onSubmit}
             type="button"
+            wrap
           >
             {pending ? <LoaderCircle className="size-4 animate-spin" /> : null}
             {submitLabel}

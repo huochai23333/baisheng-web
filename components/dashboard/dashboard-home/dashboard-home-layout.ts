@@ -33,11 +33,11 @@ const DEFAULT_WIDGET_SIZE: Record<
   HomeWidgetType,
   Pick<HomeWidgetInstance, "height" | "width">
 > = {
-  announcements: { height: 3, width: 2 },
-  clock: { height: 2, width: 2 },
-  greeting: { height: 2, width: 5 },
-  invite: { height: 2, width: 2 },
-  todos: { height: 4, width: 3 },
+  announcements: { height: 2, width: 2 },
+  clock: { height: 1, width: 1 },
+  greeting: { height: 1, width: 5 },
+  invite: { height: 1, width: 1 },
+  todos: { height: 3, width: 3 },
 };
 
 export const DEFAULT_HOME_WIDGET_LAYOUT: readonly HomeWidgetInstance[] = [
@@ -49,32 +49,32 @@ export const DEFAULT_HOME_WIDGET_LAYOUT: readonly HomeWidgetInstance[] = [
     y: 0,
   },
   {
-    ...DEFAULT_WIDGET_SIZE.invite,
-    id: "home-invite",
-    type: "invite",
+    ...DEFAULT_WIDGET_SIZE.todos,
+    id: "home-todos",
+    type: "todos",
     x: 0,
-    y: 2,
-  },
-  {
-    ...DEFAULT_WIDGET_SIZE.clock,
-    id: "home-clock",
-    type: "clock",
-    x: 0,
-    y: 4,
+    y: 1,
   },
   {
     ...DEFAULT_WIDGET_SIZE.announcements,
     id: "home-announcements",
     type: "announcements",
-    x: 0,
-    y: 6,
+    x: 3,
+    y: 1,
   },
   {
-    ...DEFAULT_WIDGET_SIZE.todos,
-    id: "home-todos",
-    type: "todos",
-    x: 2,
-    y: 2,
+    ...DEFAULT_WIDGET_SIZE.invite,
+    id: "home-invite",
+    type: "invite",
+    x: 3,
+    y: 3,
+  },
+  {
+    ...DEFAULT_WIDGET_SIZE.clock,
+    id: "home-clock",
+    type: "clock",
+    x: 4,
+    y: 3,
   },
 ];
 

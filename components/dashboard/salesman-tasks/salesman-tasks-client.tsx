@@ -16,9 +16,9 @@ import {
   DashboardPageShell,
 } from "@/components/dashboard/dashboard-page-shell";
 import {
-  DashboardFilterPanel,
   DashboardListSection,
 } from "@/components/dashboard/dashboard-section-panel";
+import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 
 import { SalesmanTaskSubmitDialog } from "./salesman-task-submit-dialog";
@@ -78,17 +78,30 @@ export function SalesmanTasksClient({
         />
       ) : (
         <>
-          <DashboardFilterPanel
-            gridClassName="grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.6fr)]"
-            variant="standalone"
+          <DashboardResourceFilterSection
+            activeFilterCount={[
+              Boolean(viewModel.filters.searchText),
+              viewModel.filters.focus !== "all",
+            ].filter(Boolean).length}
+            onReset={() => {
+              viewModel.updateFilter("searchText", "");
+              viewModel.updateFilter("focus", "all");
+            }}
+            primary={
+              <SearchField
+                label={t("filters.searchLabel")}
+                onChange={(value) =>
+                  viewModel.updateFilter("searchText", value)
+                }
+                placeholder={t("filters.searchPlaceholder")}
+                value={viewModel.filters.searchText}
+              />
+            }
+            resetDisabled={
+              !viewModel.filters.searchText &&
+              viewModel.filters.focus === "all"
+            }
           >
-            <SearchField
-              label={t("filters.searchLabel")}
-              onChange={(value) => viewModel.updateFilter("searchText", value)}
-              placeholder={t("filters.searchPlaceholder")}
-              value={viewModel.filters.searchText}
-            />
-
             <FilterField
               label={t("filters.focusLabel")}
               onChange={(value) =>
@@ -113,7 +126,7 @@ export function SalesmanTasksClient({
               ]}
               value={viewModel.filters.focus}
             />
-          </DashboardFilterPanel>
+          </DashboardResourceFilterSection>
 
           <DashboardListSection
             bodyClassName="space-y-4"

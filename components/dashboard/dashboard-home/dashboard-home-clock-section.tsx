@@ -40,6 +40,35 @@ export function HomeClockSection({
   const display = formatClockDisplay(date, locale);
   const hands = getClockHandAngles(date);
 
+  if (mini) {
+    return (
+      <section
+        className="flex h-full min-h-0 flex-col overflow-hidden"
+        data-testid="home-clock-section"
+      >
+        <h3 className="flex items-center gap-2 text-base font-bold tracking-tight text-content-strong">
+          <Clock3 className="size-5 shrink-0 text-primary" />
+          <span className="min-w-0 truncate">{copy.miniTitle}</span>
+        </h3>
+        <div className="mt-2 flex min-w-0 items-baseline gap-2">
+          <time
+            className="truncate font-mono text-xl font-bold leading-none text-content-strong"
+            dateTime={date?.toISOString()}
+            data-testid="home-clock-time"
+          >
+            {display.time}
+          </time>
+          <span
+            className="shrink-0 font-mono text-xs font-semibold text-primary"
+            data-testid="home-clock-seconds"
+          >
+            {display.seconds}
+          </span>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section
       className="flex h-full min-h-0 flex-col overflow-hidden"
@@ -49,44 +78,40 @@ export function HomeClockSection({
         <h3
           className={cn(
             "flex items-center gap-2 font-bold tracking-tight text-content-strong",
-            mini ? "text-base" : compact ? "text-lg" : "text-xl",
+            compact ? "text-lg" : "text-xl",
           )}
         >
           <Clock3 className="size-5 shrink-0 text-primary" />
           <span className="min-w-0 break-words">
-            {mini ? copy.miniTitle : copy.title}
+            {copy.title}
           </span>
         </h3>
-        {!mini ? (
-          <p
-            className={cn(
-              "mt-2 break-words text-sm leading-7 text-content-muted",
-              compact && "line-clamp-2 text-xs leading-6",
-            )}
-          >
-            {compact ? copy.compactDescription : copy.description}
-          </p>
-        ) : null}
+        <p
+          className={cn(
+            "mt-2 break-words text-sm leading-7 text-content-muted",
+            compact && "line-clamp-2 text-xs leading-6",
+          )}
+        >
+          {compact ? copy.compactDescription : copy.description}
+        </p>
       </div>
 
       <div
         className={cn(
           "mt-4 flex min-h-0 flex-1 items-center gap-4",
-          mini && "mt-3 flex-col justify-between gap-2",
-          compact && !mini && "justify-between",
+          compact && "justify-between",
         )}
       >
-        <ClockFace angles={hands} mini={mini} />
+        <ClockFace angles={hands} mini={false} />
         <div
           className={cn(
             "min-w-0 flex-1",
-            mini && "w-full flex-none text-center",
           )}
         >
           <time
             className={cn(
               "block break-words font-mono font-bold leading-none text-content-strong",
-              mini ? "text-xl" : compact ? "text-3xl" : "text-5xl",
+              compact ? "text-3xl" : "text-5xl",
             )}
             dateTime={date?.toISOString()}
             data-testid="home-clock-time"
@@ -96,24 +121,22 @@ export function HomeClockSection({
           <p
             className={cn(
               "mt-2 font-mono font-semibold leading-none text-primary",
-              mini ? "text-xs" : "text-sm",
+              "text-sm",
             )}
             data-testid="home-clock-seconds"
           >
             {display.seconds}
           </p>
 
-          {!mini ? (
-            <div className="mt-4 min-w-0 space-y-2 text-sm leading-6 text-content-muted">
-              <p className="flex min-w-0 items-center gap-2">
-                <CalendarDays className="size-4 shrink-0 text-primary" />
-                <span className="min-w-0 break-words">{display.date}</span>
-              </p>
-              <p className="break-words text-xs font-semibold text-content-muted">
-                {copy.timezoneLabel}
-              </p>
-            </div>
-          ) : null}
+          <div className="mt-4 min-w-0 space-y-2 text-sm leading-6 text-content-muted">
+            <p className="flex min-w-0 items-center gap-2">
+              <CalendarDays className="size-4 shrink-0 text-primary" />
+              <span className="min-w-0 break-words">{display.date}</span>
+            </p>
+            <p className="break-words text-xs font-semibold text-content-muted">
+              {copy.timezoneLabel}
+            </p>
+          </div>
         </div>
       </div>
     </section>

@@ -99,16 +99,25 @@ export function WholesaleEmptyState({
 export function WholesaleStatGrid({
   stats,
 }: {
-  stats: Array<{ label: string; value: string; helper?: string }>;
+  stats: Array<{
+    helper?: string;
+    icon: ReactNode;
+    label: string;
+    tone?: "info" | "success" | "warning";
+    value: string;
+  }>;
 }) {
   return (
-    <MetricGrid layout="four-column">
+    // 批发业务的汇总数字与旅游业务共用紧凑摘要条，避免同一级页面出现两套卡片高度和信息层级。
+    <MetricGrid layout="summary-strip">
       {stats.map((stat) => (
         <MetricCard
           description={stat.helper}
+          icon={stat.icon}
           key={stat.label}
           label={stat.label}
-          presentation="value-panel"
+          presentation="compact"
+          tone={stat.tone}
           value={stat.value}
         />
       ))}

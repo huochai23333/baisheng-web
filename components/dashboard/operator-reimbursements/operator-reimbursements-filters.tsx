@@ -48,19 +48,25 @@ export function OperatorReimbursementsFilterSection({
 }: OperatorReimbursementsFilterSectionProps) {
   return (
     <DashboardResourceFilterSection
-      gridClassName="lg:grid-cols-[1.4fr_repeat(2,minmax(0,0.8fr))]"
+      activeFilterCount={[
+        Boolean(searchQuery),
+        periodFilter !== "all",
+        statusFilter !== "all",
+      ].filter(Boolean).length}
+      gridClassName="sm:grid-cols-2"
       onReset={onReset}
+      primary={
+        <DashboardSearchInput
+          ariaLabel={copy.searchPlaceholder}
+          onChange={onSearchQueryChange}
+          placeholder={copy.searchPlaceholder}
+          value={searchQuery}
+        />
+      }
       resetDisabled={
         !searchQuery && periodFilter === "all" && statusFilter === "all"
       }
     >
-      <DashboardSearchInput
-        ariaLabel={copy.searchPlaceholder}
-        onChange={onSearchQueryChange}
-        placeholder={copy.searchPlaceholder}
-        value={searchQuery}
-      />
-
       <DashboardFilterField label={copy.periodLabel}>
         <Select
           onValueChange={onPeriodFilterChange}

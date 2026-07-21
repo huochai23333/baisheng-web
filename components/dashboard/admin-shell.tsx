@@ -94,7 +94,7 @@ export async function AdminShell({ children, config }: AdminShellProps) {
                           <h2 className="text-sm font-bold tracking-wide text-primary">
                             {workspace.title}
                           </h2>
-                          <p className="text-xs text-content-muted/60">
+                          <p className="text-xs text-content-muted">
                             {workspace.subtitle}
                           </p>
                         </div>

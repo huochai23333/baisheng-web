@@ -29,10 +29,10 @@ import { cn } from "@/lib/utils";
 
 import {
   DashboardFilterField,
-  DashboardFilterPanel,
   DashboardListSection,
   DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
+import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import {
   EmptyState,
   formatDateTime,
@@ -103,15 +103,26 @@ export function AdminTaskMediaLibrarySection({
       title={t("title")}
     >
       <div className="space-y-5">
-        <DashboardFilterPanel gridClassName="grid-cols-1 lg:grid-cols-[minmax(0,1fr)_220px]">
-          <DashboardFilterField label={t("searchLabel")}>
-            <DashboardSearchInput
-              onChange={onSearchTextChange}
-              placeholder={t("searchPlaceholder")}
-              value={searchText}
-            />
-          </DashboardFilterField>
-
+        <DashboardResourceFilterSection
+          activeFilterCount={[
+            Boolean(searchText),
+            kindFilter !== "all",
+          ].filter(Boolean).length}
+          onReset={() => {
+            onSearchTextChange("");
+            onKindFilterChange("all");
+          }}
+          primary={
+            <DashboardFilterField label={t("searchLabel")}>
+              <DashboardSearchInput
+                onChange={onSearchTextChange}
+                placeholder={t("searchPlaceholder")}
+                value={searchText}
+              />
+            </DashboardFilterField>
+          }
+          resetDisabled={!searchText && kindFilter === "all"}
+        >
           <DashboardFilterField label={t("kindLabel")}>
             <Select
               onValueChange={onKindFilterChange}
@@ -125,7 +136,7 @@ export function AdminTaskMediaLibrarySection({
               value={kindFilter}
             />
           </DashboardFilterField>
-        </DashboardFilterPanel>
+        </DashboardResourceFilterSection>
 
         {items.length === 0 ? (
           <EmptyState

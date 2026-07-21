@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  BadgeCheck,
+  CircleAlert,
+  CircleDollarSign,
+  Clock3,
+  Package,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useLocale } from "@/components/i18n/locale-provider";
@@ -21,18 +28,37 @@ export function WholesaleLogisticsSummary({
   const currencyStats = Object.entries(page.totalsByCurrency)
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([currency, amount]) => ({
+      icon: <CircleDollarSign className="size-4" />,
       label: t("summary.freight", { currency }),
+      tone: "success" as const,
       value: formatWholesaleLogisticsMoney(amount, currency, locale),
     }));
 
   return (
     <WholesaleStatGrid
       stats={[
-        { label: t("summary.orders"), value: `${page.totalCount}` },
-        { label: t("summary.recorded"), value: `${page.recordedCostCount}` },
-        { label: t("summary.missing"), value: `${page.missingCostCount}` },
         {
+          icon: <Package className="size-4" />,
+          label: t("summary.orders"),
+          tone: "info",
+          value: `${page.totalCount}`,
+        },
+        {
+          icon: <BadgeCheck className="size-4" />,
+          label: t("summary.recorded"),
+          tone: "success",
+          value: `${page.recordedCostCount}`,
+        },
+        {
+          icon: <CircleAlert className="size-4" />,
+          label: t("summary.missing"),
+          tone: "warning",
+          value: `${page.missingCostCount}`,
+        },
+        {
+          icon: <Clock3 className="size-4" />,
           label: t("summary.lastUpdated"),
+          tone: "info",
           value: formatWholesaleLogisticsDateTime(page.lastUpdatedAt, locale),
         },
         ...currencyStats,

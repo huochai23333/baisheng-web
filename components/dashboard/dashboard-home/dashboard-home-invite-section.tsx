@@ -84,6 +84,44 @@ export function HomeInviteSection({
     }
   };
 
+  if (mini) {
+    return (
+      <section
+        className="flex h-full min-h-0 flex-col overflow-hidden"
+        data-testid="home-invite-section"
+      >
+        <InviteHeading compact copy={copy} mini />
+        <div className="mt-1.5 flex min-w-0 items-center gap-2 rounded-control-large border border-border-subtle bg-surface-inset">
+          <p
+            className="min-w-0 flex-1 truncate px-2 font-mono text-sm font-bold text-content-strong"
+            data-testid="home-invite-code"
+          >
+            {normalizedReferralCode || copy.noCodeTitle}
+          </p>
+          {normalizedReferralCode ? (
+            <Button
+              aria-label={copy.copyCode}
+              className="shrink-0"
+              onClick={() =>
+                void handleCopy(normalizedReferralCode, copy.copiedCode)
+              }
+              size="icon-compact"
+              type="button"
+              variant="ghost"
+            >
+              <Copy className="size-4" />
+            </Button>
+          ) : null}
+        </div>
+        {notice ? (
+          <p aria-live="polite" className="sr-only" role="status">
+            {notice.message}
+          </p>
+        ) : null}
+      </section>
+    );
+  }
+
   if (!normalizedReferralCode) {
     return (
       <section
@@ -123,7 +161,7 @@ export function HomeInviteSection({
         ) : null}
         <p
           className={cn(
-            "break-all font-mono font-bold leading-tight text-content-strong",
+            "break-words font-mono font-bold leading-tight text-content-strong",
             mini ? "text-sm" : compact ? "mt-1 text-lg" : "mt-1 text-2xl",
           )}
           data-testid="home-invite-code"

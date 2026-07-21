@@ -7,8 +7,21 @@ test.describe("设计系统治理守卫", () => {
     await loginAs(page, "administrator");
     await page.setViewportSize({ height: 900, width: 390 });
     await page.goto("/admin/company-expenses");
+    await expect(page.getByRole("heading", { name: "筛选内容" })).toHaveCount(0);
+    const mobileFilterSearch = page
+      .locator(
+        '[data-slot="dashboard-search-input"] [data-slot="input"]',
+      )
+      .first();
+    await expect(mobileFilterSearch).toHaveCSS("height", "44px");
+    const mobileFilterSection = mobileFilterSearch.locator(
+      "xpath=ancestor::section[1]",
+    );
+    expect(
+      (await mobileFilterSection.boundingBox())?.height ??
+        Number.POSITIVE_INFINITY,
+    ).toBeLessThanOrEqual(220);
     await page.getByRole("button", { name: "新增费用" }).click();
-
     const dialog = page.getByRole("dialog", { name: "新增费用" });
     await expectVisibleControlsMeetHeight(
       dialog.locator(
@@ -16,14 +29,31 @@ test.describe("设计系统治理守卫", () => {
       ),
       44,
     );
-
     await page.keyboard.press("Escape");
     await page.setViewportSize({ height: 900, width: 1440 });
     await page.goto("/admin/tourism/orders");
-
+    await expect(page.getByRole("heading", { name: "筛选订单" })).toHaveCount(0);
+    const desktopFilterControls = page.locator(
+      '[data-slot="dashboard-search-input"] [data-slot="input"]:visible, [data-density="filter"] :is([data-slot="input"], [data-slot="select"]):visible',
+    );
+    await expect(desktopFilterControls.first()).toBeVisible();
+    const desktopFilterHeights = await desktopFilterControls.evaluateAll(
+      (elements) =>
+        elements.map((element) =>
+          Number.parseFloat(window.getComputedStyle(element).height),
+        ),
+    );
+    expect(new Set(desktopFilterHeights)).toEqual(new Set([40]));
+    const desktopFilterSection = desktopFilterControls
+      .first()
+      .locator("xpath=ancestor::section[1]");
+    expect(
+      (await desktopFilterSection.boundingBox())?.height ??
+        Number.POSITIVE_INFINITY,
+    ).toBeLessThanOrEqual(380);
     // 紧凑控件在桌面端统一为 40px；普通输入仍由 default 令牌保持 48px。
     const compactControls = page.locator(
-      '[data-slot="button"][data-size="compact"], [data-slot="button"][data-size="icon-compact"], [data-control-size="compact"]',
+      '[data-slot="button"][data-size="compact"]:visible, [data-slot="button"][data-size="icon-compact"]:visible, [data-control-size="compact"]:visible',
     );
     await expect(compactControls.first()).toBeVisible();
     await expectVisibleControlsMeetHeight(compactControls, 40);
@@ -82,9 +112,58 @@ test.describe("设计系统治理守卫", () => {
     await page.goto("/admin/company-expenses");
 
     await expect(
-      page.locator('[data-slot="metric-card"][data-presentation="summary"]'),
+      page.locator('[data-slot="metric-card"][data-presentation="compact"]'),
     ).not.toHaveCount(0);
 
+    await page.goto("/admin/wholesale/orders");
+    // 成组的工作摘要必须走紧凑契约；这个断言会阻止批发页面再次退回高占位的数值面板。
+    await expect(
+      page.locator('[data-slot="metric-card"][data-presentation="compact"]'),
+    ).not.toHaveCount(0);
+    await expect(
+      page.locator(
+        '[data-slot="metric-card"][data-presentation="value-panel"]',
+      ),
+    ).toHaveCount(0);
+    await expectNoHorizontalOverflow(page);
+
+    for (const width of [1280, 1440]) {
+      await page.setViewportSize({ height: 900, width });
+      const lastMetric = page
+        .locator('[data-slot="metric-card"]:visible')
+        .last();
+      const assistantLauncher = page.getByTestId("ai-assistant-launcher");
+      const [metricBox, launcherBox] = await Promise.all([
+        lastMetric.boundingBox(),
+        assistantLauncher.boundingBox(),
+      ]);
+      expect(metricBox).not.toBeNull();
+      expect(launcherBox).not.toBeNull();
+      // 助手按钮在页面右下角浮动时，内容安全带必须让最右侧指标完整停在按钮左边。
+      expect((metricBox?.x ?? 0) + (metricBox?.width ?? 0)).toBeLessThanOrEqual(
+        launcherBox?.x ?? 0,
+      );
+      const metricValueLayouts = await page
+        .locator(
+          '[data-slot="metric-card"][data-presentation="compact"]:visible > div:last-child',
+        )
+        .evaluateAll((elements) =>
+          elements.map((element) => ({
+            clientWidth: element.clientWidth,
+            scrollWidth: element.scrollWidth,
+            text: element.textContent,
+          })),
+        );
+      for (const valueLayout of metricValueLayouts) {
+        expect(
+          valueLayout.scrollWidth,
+          `${valueLayout.text ?? "指标数值"} 不能在紧凑卡中被截断`,
+        ).toBeLessThanOrEqual(valueLayout.clientWidth + 1);
+      }
+      await expectNoHorizontalOverflow(page);
+    }
+
+    await page.goto("/admin/company-expenses");
     await page.getByRole("button", { name: "新增费用" }).click();
     const dialog = page.getByRole("dialog", { name: "新增费用" });
     const fields = dialog.locator('[data-slot="field"]');
@@ -175,6 +254,13 @@ test.describe("设计系统治理守卫", () => {
   test("运营报销表单共享字段契约并在失败后保留输入", async ({ page }) => {
     await loginAs(page, "operator");
     await page.goto("/operator/reimbursements");
+    await expect(
+      page.locator('[data-slot="metric-card"][data-presentation="compact"]'),
+    ).toHaveCount(3);
+    await expect(
+      page.locator('[data-slot="metric-card"][data-presentation="summary"]'),
+    ).toHaveCount(0);
+    await expectNoHorizontalOverflow(page);
     await page.getByRole("button", { name: "新增报销", exact: true }).click();
 
     const dialog = page.getByRole("dialog", { name: "新增报销" });

@@ -115,6 +115,7 @@ export function AiAssistantClient() {
             aria-expanded={open}
             aria-label={copy.open}
             className="z-40 mb-5 mr-4 ml-auto flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-surface-interactive transition hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring/50 sm:fixed sm:right-6 sm:bottom-6 sm:mb-0 sm:mr-0"
+            data-testid="ai-assistant-launcher"
             onClick={() => setOpen((current) => !current)}
             type="button"
             whileTap={{ scale: 0.94 }}

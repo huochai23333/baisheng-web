@@ -26,20 +26,25 @@ export type DashboardActionFeedback = {
 export function DashboardPageShell({
   children,
   className,
+  density = "compact",
   feedback,
   header,
 }: {
   children: ReactNode;
   className?: string;
+  density?: "compact" | "comfortable";
   feedback?: DashboardActionFeedback;
   header?: ReactNode;
 }) {
   return (
     <section
       className={cn(
-        "mx-auto flex w-full max-w-[1320px] flex-col gap-8",
+        // 640px 起助手入口固定在右下角；右侧安全带让指标、表格操作和长文字始终停在入口左侧。
+        "mx-auto flex w-full max-w-[1320px] flex-col sm:pr-14",
+        density === "compact" ? "gap-5 sm:gap-6" : "gap-6 sm:gap-8",
         className,
       )}
+      data-density={density}
       data-dashboard-page-shell="true"
     >
       {header}

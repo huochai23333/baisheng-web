@@ -213,10 +213,10 @@ export function DashboardDialog({
             tabIndex={-1}
             transition={dialogTransition}
           >
-            <div className="flex min-w-0 items-start justify-between gap-6 border-b border-border-subtle px-6 py-5 sm:px-8">
+            <div className="shrink-0 flex min-w-0 items-start justify-between gap-4 border-b border-border-subtle bg-surface-panel px-4 py-4 sm:gap-6 sm:px-8 sm:py-5">
               <div className="min-w-0 flex-1">
                 <h3
-                  className="break-words text-2xl font-bold tracking-tight text-content-strong [overflow-wrap:anywhere]"
+                  className="break-words text-xl font-bold tracking-tight text-content-strong [overflow-wrap:anywhere] sm:text-2xl"
                   id={titleId}
                 >
                   {title}
@@ -243,15 +243,18 @@ export function DashboardDialog({
               </Button>
             </div>
 
+            <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain bg-surface-inset px-4 py-5 sm:px-8 sm:py-8">
+              {children}
+            </div>
+
             {actions ? (
-              <div className="min-w-0 border-b border-border-subtle px-6 py-4 sm:px-8">
+              <div
+                className="flex min-w-0 shrink-0 flex-wrap items-center gap-3 border-t border-border-subtle bg-surface-panel px-4 pt-4 [padding-bottom:max(1rem,env(safe-area-inset-bottom))] [&>[data-slot=button]]:min-w-[calc(50%-0.375rem)] [&>[data-slot=button]]:flex-1 sm:justify-end sm:px-8 sm:py-4 sm:[&>[data-slot=button]]:min-w-0 sm:[&>[data-slot=button]]:flex-none"
+                data-testid="dashboard-dialog-actions"
+              >
                 {actions}
               </div>
             ) : null}
-
-            <div className="min-w-0 overflow-y-auto overscroll-contain px-6 py-6 sm:px-8 sm:py-8">
-              {children}
-            </div>
           </motion.div>
         </div>
       ) : null}

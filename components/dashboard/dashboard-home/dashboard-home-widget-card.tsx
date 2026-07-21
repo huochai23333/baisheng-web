@@ -2,7 +2,7 @@
 
 import { InteractiveButton as DesignButton } from "@/components/ui/button";
 
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import {
   Bell,
@@ -115,7 +115,7 @@ export function DashboardHomeWidgetCard({
   return (
     <article
       className={cn(
-        "group relative min-w-0 overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-panel p-5 shadow-surface-interactive transition-[box-shadow,border-color,opacity] duration-200 will-change-transform",
+        "dashboard-home-widget-card group relative min-w-0 overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-panel p-4 shadow-surface-interactive transition-[box-shadow,border-color,opacity] duration-200 will-change-transform sm:p-5",
         editing &&
           !deleting &&
           !entering &&
@@ -132,6 +132,7 @@ export function DashboardHomeWidgetCard({
         resizing && "dashboard-home-widget-resizing",
       )}
       data-home-widget-id={widget.id}
+      data-home-widget-type={widget.type}
       data-testid="home-widget-card"
       ref={cardRef}
       onPointerDown={(event) => {
@@ -145,12 +146,14 @@ export function DashboardHomeWidgetCard({
       }}
       onPointerLeave={handleResizePointerLeave}
       onPointerMove={handleResizePointerMove}
-      style={{
+      style={
+        {
         animationDelay: `${(index % 5) * -45}ms`,
-        gridColumn: `${widget.x + 1} / span ${widget.width}`,
-        gridRow: `${widget.y + 1} / span ${widget.height}`,
-        minHeight: `${widget.height * HOME_WIDGET_ROW_UNIT_PX}px`,
-      }}
+          "--home-widget-grid-column": `${widget.x + 1} / span ${widget.width}`,
+          "--home-widget-grid-row": `${widget.y + 1} / span ${widget.height}`,
+          "--home-widget-min-height": `${widget.height * HOME_WIDGET_ROW_UNIT_PX}px`,
+        } as CSSProperties
+      }
     >
       {editing ? (
         <>

@@ -27,6 +27,7 @@ type DashboardSectionHeaderProps = {
   contentClassName?: string;
   description?: ReactNode;
   descriptionClassName?: string;
+  density?: "compact" | "comfortable";
   layoutClassName?: string;
   metrics?: readonly DashboardSectionHeaderMetric[];
   metricsClassName?: string;
@@ -47,6 +48,7 @@ export function DashboardSectionHeader({
   contentClassName,
   description,
   descriptionClassName,
+  density = "compact",
   layoutClassName,
   metrics = [],
   metricsClassName,
@@ -62,13 +64,16 @@ export function DashboardSectionHeader({
   return (
     <section
       className={cn(
-        "motion-surface-enter rounded-surface-panel border border-surface-panel-border bg-surface-chrome/92 p-5 shadow-surface-header sm:rounded-surface-panel sm:p-6 xl:p-8",
+        "motion-surface-enter rounded-surface-panel border border-surface-panel-border bg-surface-chrome/92 shadow-surface-header sm:rounded-surface-panel",
+        density === "compact" ? "p-4 sm:p-5 xl:p-6" : "p-5 sm:p-6 xl:p-8",
         className,
       )}
+      data-density={density}
     >
       <div
         className={cn(
-          "flex flex-col gap-5 sm:gap-6 min-[1360px]:flex-row min-[1360px]:items-end min-[1360px]:justify-between",
+          "flex flex-col min-[1360px]:flex-row min-[1360px]:items-end min-[1360px]:justify-between",
+          density === "compact" ? "gap-4 sm:gap-5" : "gap-5 sm:gap-6",
           layoutClassName,
         )}
       >
@@ -84,7 +89,10 @@ export function DashboardSectionHeader({
           </span>
           <h2
             className={cn(
-              "mt-3 text-3xl font-bold leading-tight tracking-tight text-content-strong sm:mt-4 sm:text-4xl",
+              "font-bold leading-tight tracking-tight text-content-strong",
+              density === "compact"
+                ? "mt-2.5 text-2xl sm:text-3xl"
+                : "mt-3 text-3xl sm:mt-4 sm:text-4xl",
               titleClassName,
             )}
           >
@@ -93,7 +101,10 @@ export function DashboardSectionHeader({
           {description ? (
             <p
               className={cn(
-                "mt-2 text-sm leading-7 text-content-muted sm:mt-3 sm:text-[15px] sm:leading-8",
+                "text-sm text-content-muted",
+                density === "compact"
+                  ? "mt-2 leading-6"
+                  : "mt-2 leading-7 sm:mt-3 sm:text-[15px] sm:leading-8",
                 descriptionClassName,
               )}
             >
@@ -112,6 +123,7 @@ export function DashboardSectionHeader({
             {asideMetrics.length > 0 ? (
               <HeaderMetricGrid
                 className={metricsClassName}
+                compact={density === "compact"}
                 metrics={asideMetrics}
               />
             ) : null}
@@ -133,6 +145,7 @@ export function DashboardSectionHeader({
       {belowMetrics.length > 0 ? (
         <HeaderMetricGrid
           className={cn("mt-5 sm:mt-6", metricsClassName)}
+          compact={density === "compact"}
           metrics={belowMetrics}
         />
       ) : null}
@@ -142,20 +155,25 @@ export function DashboardSectionHeader({
 
 function HeaderMetricGrid({
   className,
+  compact,
   metrics,
 }: {
   className?: string;
+  compact: boolean;
   metrics: readonly DashboardSectionHeaderMetric[];
 }) {
   return (
-    <MetricGrid className={className} layout="header">
+    <MetricGrid
+      className={className}
+      layout={compact ? "summary-strip" : "header"}
+    >
       {metrics.map((metric, index) => (
         <MetricCard
           icon={metric.icon}
           key={metric.key ?? `${metric.label}-${index}`}
           label={metric.label}
           labelClassName={metric.labelClassName}
-          presentation="header"
+          presentation={compact ? "compact" : "header"}
           tone={
             metric.accent === "blue"
               ? "info"

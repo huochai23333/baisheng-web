@@ -31,38 +31,39 @@ const ORDER_DATE_PRESET_MESSAGE_KEYS = {
 
 /**
  * 四类订单页面共用的筛选卡。
- * 页面只传入自己的字段，标题、恢复按钮、日期快捷范围和精确查询提示由这里统一排版。
+ * 页面只传入自己的字段，恢复按钮、日期快捷范围和精确查询提示由这里统一排版。
+ * 筛选条件本身已经能说明区域用途，因此不再重复显示“筛选订单”一类标题和说明。
  */
 export function DashboardOrderFilterSection({
+  activeFilterCount,
   children,
   customInputId,
   dateRange,
-  description,
   exactOrderNumber,
   gridClassName,
   onExitExactSearch,
   onPresetChange,
   onReset,
+  primary,
   resetDisabled,
-  title,
 }: {
+  activeFilterCount: number;
   children: ReactNode;
   customInputId: string;
   dateRange: OrderDateRange;
-  description?: ReactNode;
   exactOrderNumber?: string | null;
   gridClassName?: string;
   onExitExactSearch?: () => void;
   onPresetChange: (preset: QuickOrderDatePreset) => void;
   onReset: () => void;
+  primary: ReactNode;
   resetDisabled: boolean;
-  title?: ReactNode;
 }) {
   const t = useTranslations("OrderListFramework");
 
   return (
     <DashboardResourceFilterSection
-      description={description ?? t("filters.description")}
+      activeFilterCount={activeFilterCount}
       footer={
         <>
           <DashboardOrderDateToolbar
@@ -91,9 +92,9 @@ export function DashboardOrderFilterSection({
       }
       gridClassName={gridClassName}
       onReset={onReset}
+      primary={primary}
       resetDisabled={resetDisabled}
       resetLabel={t("filters.reset")}
-      title={title ?? t("filters.title")}
     >
       {children}
     </DashboardResourceFilterSection>

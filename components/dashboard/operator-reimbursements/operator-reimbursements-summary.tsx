@@ -39,13 +39,13 @@ export function OperatorReimbursementsSummarySection({
   );
 
   return (
-    <MetricGrid layout="three-column">
+    <MetricGrid layout="summary-strip">
       <MetricCard
         description={copy.count(summaries.currentUnreimbursed.count)}
         icon={<WalletCards className="size-4" />}
         label={copy.currentUnreimbursed}
-        presentation="summary"
-        tone="info"
+        presentation="compact"
+        tone="warning"
         value={formatOperatorReimbursementAmount(
           summaries.currentUnreimbursed.amount,
           locale,
@@ -55,8 +55,8 @@ export function OperatorReimbursementsSummarySection({
         description={copy.count(summaries.currentReimbursed.count)}
         icon={<BadgeCheck className="size-4" />}
         label={copy.currentReimbursed}
-        presentation="summary"
-        tone="info"
+        presentation="compact"
+        tone="success"
         value={formatOperatorReimbursementAmount(
           summaries.currentReimbursed.amount,
           locale,
@@ -66,7 +66,7 @@ export function OperatorReimbursementsSummarySection({
         description={copy.count(summaries.totalUnreimbursed.count)}
         icon={<ReceiptText className="size-4" />}
         label={copy.totalUnreimbursed}
-        presentation="summary"
+        presentation="compact"
         tone="info"
         value={formatOperatorReimbursementAmount(
           summaries.totalUnreimbursed.amount,

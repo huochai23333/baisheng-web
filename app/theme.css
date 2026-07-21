@@ -228,11 +228,11 @@
   --record-card-radius: 1.125rem;
   --metric-card-radius: 1.25rem;
   --option-radius: 0.75rem;
-  --surface-shadow-panel: 0 18px 45px rgba(96, 113, 128, 0.06);
-  --surface-shadow-header: 0 18px 45px rgba(96, 113, 128, 0.08);
+  --surface-shadow-panel: 0 10px 30px rgba(96, 113, 128, 0.04);
+  --surface-shadow-header: 0 14px 36px rgba(96, 113, 128, 0.06);
   --surface-shadow-navigation: 0 18px 45px rgba(96, 113, 128, 0.12);
-  --surface-shadow-inset: 0 10px 24px rgba(96, 113, 128, 0.04);
-  --surface-shadow-interactive: 0 10px 24px rgba(96, 113, 128, 0.06);
+  --surface-shadow-inset: none;
+  --surface-shadow-interactive: none;
   --surface-shadow-floating: 0 20px 60px rgba(35, 49, 58, 0.18);
 }
 

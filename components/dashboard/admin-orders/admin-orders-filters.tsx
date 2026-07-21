@@ -69,6 +69,14 @@ export function AdminOrdersFilterPanel({
 
   return (
     <DashboardOrderFilterSection
+      activeFilterCount={[
+        Boolean(filters.orderNumber),
+        Boolean(filters.orderEntryUser),
+        Boolean(filters.orderingUser),
+        filters.createdFromDate !== defaultRange.fromDate ||
+          filters.createdToDate !== defaultRange.toDate,
+        filters.searchMode !== "date_range",
+      ].filter(Boolean).length}
       customInputId="admin-order-date-from"
       dateRange={{
         fromDate: filters.createdFromDate,
@@ -86,29 +94,30 @@ export function AdminOrdersFilterPanel({
       onExitExactSearch={onExitExactAllTimeSearch}
       onPresetChange={onDatePresetChange}
       onReset={onClearFilters}
+      primary={
+        <DashboardFilterField label={t("filters.orderNumberLabel")}>
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
+            <FormControls.Input
+              className={`${dashboardFilterInputClassName} min-w-0`}
+              onChange={(event) => onOrderNumberChange(event.target.value)}
+              placeholder={t("filters.orderNumberPlaceholder")}
+              type="text"
+              value={filters.orderNumber}
+            />
+            <Button
+              className="w-full shrink-0 sm:w-auto"
+              disabled={!filters.orderNumber.trim()}
+              onClick={onSearchExactOrderAllTime}
+              type="button"
+              variant="outline"
+            >
+              {frameworkT("exactSearch.action")}
+            </Button>
+          </div>
+        </DashboardFilterField>
+      }
       resetDisabled={!hasActiveFilters}
     >
-      <DashboardFilterField label={t("filters.orderNumberLabel")}>
-        <div className="flex min-w-0 flex-col gap-2">
-          <FormControls.Input
-            className={`${dashboardFilterInputClassName} min-w-0`}
-            onChange={(event) => onOrderNumberChange(event.target.value)}
-            placeholder={t("filters.orderNumberPlaceholder")}
-            type="text"
-            value={filters.orderNumber}
-          />
-          <Button
-            className="w-full"
-            disabled={!filters.orderNumber.trim()}
-            onClick={onSearchExactOrderAllTime}
-            type="button"
-            variant="outline"
-          >
-            {frameworkT("exactSearch.action")}
-          </Button>
-        </div>
-      </DashboardFilterField>
-
       {showOrderEntryFilter ? (
         <DashboardFilterField label={t("filters.orderEntryUserLabel")}>
           <FormControls.Input

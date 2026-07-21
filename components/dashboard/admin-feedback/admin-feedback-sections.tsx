@@ -95,20 +95,26 @@ export function AdminFeedbackFilterSection({
 
   return (
     <DashboardResourceFilterSection
-      gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"
+      activeFilterCount={[
+        Boolean(searchText),
+        statusFilter !== "all",
+        typeFilter !== "all",
+      ].filter(Boolean).length}
+      gridClassName="sm:grid-cols-2"
       onReset={onReset}
+      primary={
+        <DashboardFilterField label={t("filters.search")}>
+          <DashboardSearchInput
+            onChange={onSearchTextChange}
+            placeholder={t("filters.searchPlaceholder")}
+            value={searchText}
+          />
+        </DashboardFilterField>
+      }
       resetDisabled={
         !searchText && statusFilter === "all" && typeFilter === "all"
       }
     >
-      <DashboardFilterField label={t("filters.search")}>
-        <DashboardSearchInput
-          onChange={onSearchTextChange}
-          placeholder={t("filters.searchPlaceholder")}
-          value={searchText}
-        />
-      </DashboardFilterField>
-
       <DashboardFilterField label={t("filters.type")}>
         <Select
           onValueChange={onTypeFilterChange}

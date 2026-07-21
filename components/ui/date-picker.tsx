@@ -74,7 +74,7 @@ export function DatePicker({
   "aria-label": ariaLabel,
   "data-testid": dataTestId,
   className,
-  controlSize = "default",
+  controlSize,
   defaultValue = "",
   disabled = false,
   id,

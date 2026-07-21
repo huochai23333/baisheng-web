@@ -55,7 +55,7 @@ export function Select<Value extends string = string>({
   "aria-labelledby": ariaLabelledBy,
   autoComplete,
   className,
-  controlSize = "default",
+  controlSize,
   defaultValue,
   disabled = false,
   id,
@@ -68,6 +68,9 @@ export function Select<Value extends string = string>({
   value,
 }: SelectProps<Value>) {
   const density = useFormFieldControlDensity();
+  // 未显式指定尺寸时跟随字段密度，普通表单仍保持 default，筛选区才使用 compact。
+  const resolvedControlSize =
+    controlSize ?? (density === "filter" ? "compact" : "default");
   const resolvedRequired = useFormFieldRequired(required);
   const fieldAttributes = useFormFieldControlAttributes({
     ariaDescribedBy,
@@ -104,12 +107,12 @@ export function Select<Value extends string = string>({
           aria-label={ariaLabel}
           aria-labelledby={ariaLabelledBy}
           className={cn(
-            controlVariants({ controlSize, density }),
+            controlVariants({ controlSize: resolvedControlSize, density }),
             "group/select flex cursor-pointer items-center justify-between gap-3 text-left",
             "data-popup-open:border-ring data-popup-open:ring-4 data-popup-open:ring-ring",
-            controlSize === "compact" && "h-11 sm:h-10",
+            resolvedControlSize === "compact" && "h-11 sm:h-10",
           )}
-          data-control-size={controlSize}
+          data-control-size={resolvedControlSize}
           data-slot="select"
           type="button"
         >

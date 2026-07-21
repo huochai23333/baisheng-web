@@ -66,12 +66,60 @@ export function MetricCard({
   icon?: ReactNode;
   label: ReactNode;
   labelClassName?: string;
-  presentation?: "header" | "summary" | "value-panel";
+  presentation?: "compact" | "header" | "summary" | "value-panel";
   tone?: "info" | "success" | "warning";
   value: ReactNode;
 }) {
   const isHeader = presentation === "header";
+  const isCompact = presentation === "compact";
   const isValuePanel = presentation === "value-panel";
+
+  if (isCompact) {
+    return (
+      <section
+        className={cn(
+          "flex min-h-16 min-w-0 items-center gap-3 rounded-metric-card border border-surface-panel-border bg-surface-panel p-3",
+          className,
+        )}
+        data-presentation={presentation}
+        data-slot="metric-card"
+        data-tone={tone}
+      >
+        {icon ? (
+          <div
+            className={cn(
+              "flex size-9 shrink-0 items-center justify-center rounded-full",
+              tone === "info" && "bg-status-info-soft text-primary",
+              tone === "success" &&
+                "bg-status-success-soft text-status-success",
+              tone === "warning" &&
+                "bg-status-warning-soft text-status-warning",
+            )}
+          >
+            {icon}
+          </div>
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <p
+            className={cn(
+              "font-label truncate text-[10px] font-semibold text-content-muted uppercase sm:text-[11px]",
+              labelClassName,
+            )}
+          >
+            {label}
+          </p>
+          {description ? (
+            <p className="mt-0.5 truncate text-xs text-content-muted">
+              {description}
+            </p>
+          ) : null}
+        </div>
+        <div className="min-w-0 shrink-0 whitespace-nowrap text-right text-lg font-bold text-content-strong [overflow-wrap:anywhere] sm:text-xl">
+          {value}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -175,7 +223,7 @@ export function MetricGrid({
   layout,
   ...props
 }: ComponentProps<"div"> & {
-  layout: "header" | "three-column" | "four-column";
+  layout: "header" | "summary-strip" | "three-column" | "four-column";
 }) {
   return (
     <div
@@ -185,6 +233,8 @@ export function MetricGrid({
           "w-full grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3",
         layout === "three-column" && "gap-3 md:grid-cols-3",
         layout === "four-column" && "gap-4 sm:grid-cols-2 xl:grid-cols-4",
+        layout === "summary-strip" &&
+          "grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4",
         className,
       )}
       data-layout={layout}

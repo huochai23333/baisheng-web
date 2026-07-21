@@ -51,7 +51,8 @@ const dashboardMaterialOwners = new Set([
   "components/dashboard/workspace-customization-sidebar.tsx",
   "components/dashboard/workspace-feedback/workspace-feedback-success-toast.tsx",
   "components/dashboard/workspace-loading-shell.tsx",
-  "components/dashboard/workspace-header-actions.tsx",
+  "components/dashboard/workspace-account-menu.tsx",
+  "components/dashboard/workspace-announcement-action.tsx",
 ]);
 
 function createAst(source, absolutePath) {
@@ -115,6 +116,7 @@ function collectAstFacts(source, absolutePath) {
   const sourceFile = createAst(source, absolutePath);
   const jsx = [];
   const imports = [];
+  const invalidHrefValues = [];
   const statusColorFunctions = [];
 
   function visit(node) {
@@ -133,6 +135,11 @@ function collectAstFacts(source, absolutePath) {
         line: getNodeLine(sourceFile, node),
         tagName: getTagName(tagNode),
       });
+
+      const href = getAttribute(attributes, "href");
+      if (href && /var\s*\(--/.test(href.getText(sourceFile))) {
+        invalidHrefValues.push({ line: getNodeLine(sourceFile, href) });
+      }
     }
 
     if (
@@ -176,7 +183,7 @@ function collectAstFacts(source, absolutePath) {
   }
 
   visit(sourceFile);
-  return { imports, jsx, statusColorFunctions };
+  return { imports, invalidHrefValues, jsx, statusColorFunctions };
 }
 
 /**
@@ -236,6 +243,12 @@ const rules = [
       "搜索图标与输入文字的间距必须由 DashboardSearchInput 统一管理，不能在领域页面绝对定位图标。",
     pattern: /<Search\b[^>]*\babsolute\b/,
   },
+  {
+    allowedFiles: new Set(["dashboard-resource-filter-section.tsx"]),
+    message:
+      "业务筛选区必须使用 DashboardResourceFilterSection，确保移动搜索常驻、条件折叠和恢复入口一致。",
+    pattern: /<DashboardFilterPanel\b/,
+  },
 ];
 
 const violations = [];
@@ -267,6 +280,12 @@ for (const absolutePath of allSourceFiles) {
     .relative(workspaceRoot, absolutePath)
     .replaceAll("\\", "/");
   const ast = collectAstFacts(source, absolutePath);
+
+  for (const invalidHref of ast.invalidHrefValues) {
+    violations.push(
+      `${relativePath}:${invalidHref.line}: href 不能包含 CSS 变量；请检查锚点或页面地址是否被样式替换。`,
+    );
+  }
 
   if (/#[0-9a-fA-F]{3,8}\b|rgba?\s*\(/.test(source)) {
     violations.push(

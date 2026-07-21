@@ -12,11 +12,9 @@ import { cn } from "@/lib/utils";
 
 import { useDashboardHomeLayout } from "./use-dashboard-home-layout";
 import { useDashboardHomeTodos } from "./use-dashboard-home-todos";
+import { useDashboardHomeDisplayMode } from "./use-dashboard-home-display-mode";
 import type { HomeTodoCopy } from "./dashboard-home-todo-display";
-import {
-  HOME_WIDGET_ROW_UNIT_PX,
-  type HomeWidgetType,
-} from "./dashboard-home-layout";
+import { type HomeWidgetType } from "./dashboard-home-layout";
 import {
   DashboardHomeWidgetCard,
   DashboardHomeWidgetSidebar,
@@ -60,6 +58,8 @@ export function DashboardHomeCustomizer({
     copy: todoCopy,
     initialTodos: initialData.todos,
   });
+  const displayMode = useDashboardHomeDisplayMode(stopEditing);
+  const effectiveEditing = displayMode === "custom" && editing;
   const animationTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [draggingWidgetId, setDraggingWidgetId] = useState<string | null>(null);
   const [enteringWidgetId, setEnteringWidgetId] = useState<string | null>(null);
@@ -109,7 +109,7 @@ export function DashboardHomeCustomizer({
   );
 
   useEffect(() => {
-    if (!editing) {
+    if (!effectiveEditing) {
       setWorkspaceSidebar(null);
       return;
     }
@@ -127,7 +127,7 @@ export function DashboardHomeCustomizer({
     };
   }, [
     customizerCopy,
-    editing,
+    effectiveEditing,
     handleAddWidget,
     resetWidgets,
     setWorkspaceSidebar,
@@ -135,8 +135,8 @@ export function DashboardHomeCustomizer({
 
   return (
     <DashboardPageShell className="gap-5">
-      <div className="flex justify-end">
-        {editing ? (
+      <div className="hidden justify-end xl:flex">
+        {effectiveEditing ? (
           <Button
             variant="primary"
             size="default"
@@ -166,17 +166,16 @@ export function DashboardHomeCustomizer({
           aria-hidden="true"
           className={cn(
             "pointer-events-none absolute -inset-2 rounded-surface-panel border-2 border-dashed border-border-subtle opacity-0 transition-opacity duration-200",
-            editing && "opacity-100",
+            effectiveEditing && "opacity-100",
           )}
           data-testid="home-widget-placement-boundary"
         />
         <div
-          className="grid min-w-0 grid-cols-5 gap-4 sm:gap-5"
+          className="dashboard-home-widget-grid grid min-w-0 gap-4 sm:gap-5"
           data-testid="home-widget-grid"
-          style={{ gridAutoRows: `${HOME_WIDGET_ROW_UNIT_PX}px` }}
         >
           {widgets.length === 0 ? (
-            <div className="col-span-5 rounded-surface-panel border border-dashed border-ring bg-surface-panel p-8 text-center">
+            <div className="rounded-surface-panel border border-dashed border-ring bg-surface-panel p-8 text-center xl:col-span-5">
               <h2 className="text-xl font-bold text-content-strong">
                 {customizerCopy.emptyTitle}
               </h2>
@@ -190,7 +189,7 @@ export function DashboardHomeCustomizer({
                 copy={customizerCopy}
                 deleting={deletingWidgetId === widget.id}
                 dragging={draggingWidgetId === widget.id}
-                editing={editing}
+                editing={effectiveEditing}
                 entering={enteringWidgetId === widget.id}
                 index={index}
                 key={widget.id}
@@ -215,6 +214,7 @@ export function DashboardHomeCustomizer({
                   businessBoards={initialData.businessBoards}
                   copy={copy}
                   displayName={initialData.displayName}
+                  displayMode={displayMode}
                   greetingPeriod={initialData.greetingPeriod}
                   locale={locale}
                   referralCode={initialData.referralCode}
@@ -229,15 +229,6 @@ export function DashboardHomeCustomizer({
         </div>
       </div>
 
-      {editing ? (
-        <div className="md:hidden">
-          <DashboardHomeWidgetSidebar
-            copy={customizerCopy}
-            onAddWidget={handleAddWidget}
-            onReset={resetWidgets}
-          />
-        </div>
-      ) : null}
     </DashboardPageShell>
   );
 }

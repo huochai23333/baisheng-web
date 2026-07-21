@@ -92,18 +92,23 @@ export function TourismCustomersClient({
       }
     >
       <DashboardResourceFilterSection
-        gridClassName="sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
+        activeFilterCount={[
+          Boolean(state.searchText),
+          state.statusFilter !== "all",
+        ].filter(Boolean).length}
         onReset={state.resetFilters}
+        primary={
+          <DashboardFilterField label={t("searchLabel")}>
+            <DashboardSearchInput
+              onChange={state.setSearchText}
+              placeholder={t("searchPlaceholder")}
+              value={state.searchText}
+            />
+          </DashboardFilterField>
+        }
         resetDisabled={!state.hasFilters}
         resetLabel={t("resetFilters")}
       >
-        <DashboardFilterField label={t("searchLabel")}>
-          <DashboardSearchInput
-            onChange={state.setSearchText}
-            placeholder={t("searchPlaceholder")}
-            value={state.searchText}
-          />
-        </DashboardFilterField>
         <DashboardFilterField label={t("statusLabel")}>
           <Select
             onValueChange={state.setStatusFilter}

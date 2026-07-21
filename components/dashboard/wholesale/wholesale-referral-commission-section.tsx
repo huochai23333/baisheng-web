@@ -6,7 +6,14 @@ import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { Calculator, RefreshCcw } from "lucide-react";
+import {
+  Calculator,
+  CalendarRange,
+  CircleDollarSign,
+  ListFilter,
+  PackageCheck,
+  RefreshCcw,
+} from "lucide-react";
 import {
   DashboardFilterField,
   DashboardListSection,
@@ -79,10 +86,30 @@ export function WholesaleReferralCommissionSection({
     >
       <WholesaleStatGrid
         stats={[
-          { label: "佣金合计", value: formatCurrency(totalReferralCommission) },
-          { label: "月度记录", value: `${referralRows.length}` },
-          { label: "当前显示", value: `${filteredRows.length}` },
-          { label: "计佣运单", value: `${chargedWaybillCount}` },
+          {
+            icon: <CircleDollarSign className="size-4" />,
+            label: "佣金合计",
+            tone: "success",
+            value: formatCurrency(totalReferralCommission),
+          },
+          {
+            icon: <CalendarRange className="size-4" />,
+            label: "月度记录",
+            tone: "info",
+            value: `${referralRows.length}`,
+          },
+          {
+            icon: <ListFilter className="size-4" />,
+            label: "当前显示",
+            tone: "info",
+            value: `${filteredRows.length}`,
+          },
+          {
+            icon: <PackageCheck className="size-4" />,
+            label: "计佣运单",
+            tone: "warning",
+            value: `${chargedWaybillCount}`,
+          },
         ]}
       />
       <DashboardListSection

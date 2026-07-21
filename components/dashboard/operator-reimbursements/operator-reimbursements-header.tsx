@@ -73,7 +73,6 @@ export function OperatorReimbursementsHeaderSection({
       description={copy.description}
       descriptionClassName="max-w-2xl text-sm leading-7"
       title={copy.title}
-      titleClassName="text-3xl sm:text-4xl"
     />
   );
 }

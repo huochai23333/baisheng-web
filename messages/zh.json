@@ -17,6 +17,7 @@
     "primaryAction": "返回主入口"
   },
   "LanguageToggle": {
+    "open": "切换语言",
     "zh": "中文",
     "en": "EN",
     "switching": "切换中"
@@ -29,8 +30,10 @@
   },
   "DashboardFramework": {
     "filters": {
-      "title": "筛选内容",
-      "description": "选择筛选条件，快速找到需要处理的内容。",
+      "active": "已启用 {count} 个筛选条件",
+      "collapse": "收起筛选条件",
+      "count": "{count} 项",
+      "expand": "更多筛选条件",
       "reset": "恢复默认筛选"
     },
     "confirm": {
@@ -74,8 +77,6 @@
   },
   "OrderListFramework": {
     "filters": {
-      "title": "筛选订单",
-      "description": "选择日期和其他条件，快速找到需要处理的订单。",
       "reset": "恢复默认范围"
     },
     "datePresets": {
@@ -2497,8 +2498,6 @@
       "noPermissionDescription": "当前账号无法查看全量佣金看板。"
     },
     "filters": {
-      "title": "筛选佣金",
-      "description": "当前筛选条件下匹配到 {records} 条记录，涉及 {beneficiaries} 位受益人。",
       "reset": "重置筛选",
       "keywordLabel": "关键词",
       "keywordPlaceholder": "搜索订单、用户、邮箱或佣金类型",

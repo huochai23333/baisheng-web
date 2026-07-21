@@ -49,7 +49,7 @@ const SECTION_ITEMS = [
     key: "personalCenterTitle",
   },
   {
-    href: "var(--chart-1)ount-center",
+    href: "#account-center",
     icon: KeyRound,
     key: "accountCenterTitle",
   },
@@ -59,7 +59,7 @@ const SECTION_ITEMS = [
     key: "profileInfoTitle",
   },
   {
-    href: "var(--chart-1)ount-verification",
+    href: "#account-verification",
     icon: ShieldCheck,
     key: "accountVerificationTitle",
   },
