@@ -102,6 +102,8 @@ export function HomeInviteSection({
             <Button
               aria-label={copy.copyCode}
               className="shrink-0"
+              // 迷你卡片和普通卡片使用同一个测试标识，保证响应式切换后仍能验证复制行为。
+              data-testid="home-invite-copy-code"
               onClick={() =>
                 void handleCopy(normalizedReferralCode, copy.copiedCode)
               }

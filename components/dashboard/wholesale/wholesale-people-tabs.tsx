@@ -78,11 +78,11 @@ export function WholesaleCustomerPeopleTab({
           <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text001" />
         </Button>
       }
+      ariaLabel={uiText("attribute001")}
       description={t("customerCount", {
         total: customers.length,
         visible: filteredCustomers.length,
       })}
-      title={uiText("attribute001")}
     >
       <div className="mb-5 grid gap-4 md:grid-cols-3">
         <DashboardFilterField label={uiText("attribute002")}>
@@ -180,11 +180,11 @@ export function WholesaleSalesAccountPeopleTab({
           <UiMessage id="components_dashboard_wholesale_wholesale_people_tabs.text006" />
         </Button>
       }
+      ariaLabel={uiText("attribute006")}
       description={t("accountCount", {
         total: salesAccounts.length,
         visible: filteredAccounts.length,
       })}
-      title={uiText("attribute006")}
     >
       <div className="mb-5 grid gap-4 md:grid-cols-3">
         <DashboardFilterField label={uiText("attribute007")}>

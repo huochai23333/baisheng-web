@@ -44,7 +44,6 @@ export function TeamMembersSection({
   return (
     <DashboardListSection
       bodyClassName="space-y-6"
-      description={t("members.description")}
       title={t("members.title")}
     >
       <div>
@@ -100,7 +99,6 @@ export function TeamCandidatesSection({
   return canManageSelectedTeam ? (
     <DashboardListSection
       bodyClassName="space-y-6"
-      description={t("candidates.description")}
       title={t("candidates.title")}
     >
       <div>
@@ -159,7 +157,6 @@ export function TeamClientsSection({
   return (
     <DashboardListSection
       bodyClassName="space-y-6"
-      description={t("clients.description")}
       title={t("clients.title")}
     >
       <div>

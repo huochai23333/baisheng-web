@@ -173,8 +173,7 @@ export function WholesaleCommissionSection({
     incentiveSalesFilter !== ALL;
   return (
     <WholesalePageShell
-      description={commissionDescription}
-      eyebrow={uiText("attribute001")}
+      meta={commissionDescription}
       title={uiText("attribute002")}
     >
       <WholesaleStatGrid
@@ -223,8 +222,7 @@ export function WholesaleCommissionSection({
             <UiMessage id="components_dashboard_wholesale_wholesale_commission_section.text001" />
           </Button>
         }
-        description={`共 ${commissions.length} 条提成记录，当前显示 ${filteredCommissions.length} 条。`}
-        title={uiText("attribute003")}
+        ariaLabel={uiText("attribute003")}
       >
         <div className="mb-5 grid gap-4 md:grid-cols-3">
           <DashboardFilterField label={uiText("attribute004")}>

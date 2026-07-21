@@ -52,10 +52,9 @@ export function WholesaleOrdersListSection({
   const uiText = useTranslations(
     "UiText.components_dashboard_wholesale_wholesale_orders_section",
   );
-  const frameworkT = useTranslations("OrderListFramework");
-
   return (
     <DashboardOrderListSection
+      ariaLabel={uiText("attribute004")}
       controls={
         page?.nextCursor ? (
           <DashboardOrderLoadMoreButton
@@ -64,7 +63,6 @@ export function WholesaleOrdersListSection({
           />
         ) : undefined
       }
-      description={frameworkT("list.description")}
       progress={
         page && page.orders.length > 0
           ? {
@@ -75,7 +73,6 @@ export function WholesaleOrdersListSection({
             }
           : null
       }
-      title={uiText("attribute004")}
     >
       {assessmentPanel ? <div className="mb-5">{assessmentPanel}</div> : null}
 

@@ -11,7 +11,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   UserCheck,
-  UserCog,
   UsersRound,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -22,6 +21,7 @@ import {
   DashboardTableFrame,
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
+import { DashboardOperationalSummary } from "@/components/dashboard/dashboard-operational-summary";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import type {
@@ -44,50 +44,47 @@ export function AdminPeopleHeaderSection({
 }) {
   const t = useTranslations("AdminPeople");
   return (
-    <DashboardSectionHeader
-      badge={t("header.badge")}
-      badgeIcon={<UserCog className="size-4" />}
-      description={t("header.description")}
-      metrics={[
+    <div className="space-y-3">
+      <DashboardSectionHeader presentation="work" title={t("header.title")} />
+      <DashboardOperationalSummary
+        primaryItems={[
         {
-          accent: "blue",
-          icon: <UsersRound className="size-5" />,
+          icon: <UsersRound className="size-4" />,
+          id: "total",
           label: t("summary.total"),
+          tone: "info",
           value: summary.totalCount,
         },
         {
-          accent: "green",
-          icon: <UserCheck className="size-5" />,
+          icon: <UserCheck className="size-4" />,
+          id: "active",
           label: t("summary.active"),
+          tone: "success",
           value: summary.activeCount,
         },
         {
-          accent: "blue",
-          icon: <ShieldCheck className="size-5" />,
+          icon: <ShieldCheck className="size-4" />,
+          id: "administrators",
           label: t("summary.administrators"),
+          tone: "info",
           value: summary.administratorCount,
         },
         {
-          accent: "gold",
-          icon: <ShieldAlert className="size-5" />,
+          icon: <ShieldAlert className="size-4" />,
+          id: "suspended",
           label: t("summary.suspended"),
+          tone: "warning",
           value: summary.suspendedCount,
         },
       ]}
-      metricsClassName="grid-cols-2 md:grid-cols-4"
-      metricsPlacement="below"
-      title={t("header.title")}
-    />
+      />
+    </div>
   );
 }
 export function AdminPeopleNoPermissionSection() {
   const t = useTranslations("AdminPeople");
   return (
-    <DashboardListSection
-      description={t("states.noPermissionDescription")}
-      eyebrow={t("header.badge")}
-      title={t("states.noPermissionTitle")}
-    >
+    <DashboardListSection>
       <EmptyState
         description={t("states.noPermissionDescription")}
         icon={<ShieldAlert className="size-5" />}
@@ -132,8 +129,6 @@ export function AdminPeopleDirectorySection({
   const t = useTranslations("AdminPeople");
   return (
     <DashboardListSection
-      description={t("directory.description")}
-      eyebrow={t("directory.eyebrow")}
       title={t("directory.title")}
     >
       <DashboardResourceFilterSection
@@ -222,8 +217,6 @@ export function AdminPeopleRecentChangesSection({
   const fallback = t("fallback.notProvided");
   return (
     <DashboardListSection
-      description={t("logs.description")}
-      eyebrow={t("logs.eyebrow")}
       title={t("logs.title")}
     >
       {changes.length === 0 ? (

@@ -30,14 +30,12 @@ export const wholesaleStickyFirstTdClassName =
 export function WholesalePageShell({
   actions,
   children,
-  description,
-  eyebrow,
+  meta,
   title,
 }: {
   actions?: ReactNode;
   children: ReactNode;
-  description: string;
-  eyebrow: string;
+  meta?: ReactNode;
   title: string;
 }) {
   return (
@@ -45,9 +43,8 @@ export function WholesalePageShell({
       header={
         <DashboardSectionHeader
           actions={actions}
-          badge={eyebrow}
-          contentClassName="max-w-3xl"
-          description={description}
+          meta={meta}
+          presentation="work"
           title={title}
         />
       }

@@ -136,7 +136,7 @@ npm run supabase:admin -- summary
 说明：
 
 - `npm run check:i18n` 会核对中英文消息键结构，并拦截 TSX 中直接编写的用户可见文案；品牌、币种、邮箱示例和 `1688` 等不可翻译标识使用小型明确白名单。
-- `npm run check:dashboard-ui` 使用 TypeScript AST 检查 JSX、导入和职责边界：拦截业务层原生控件与 `<label>`、Select/DatePicker 视觉覆盖、Button 尺寸或材质覆盖、绕过共享资源筛选区、手写桌面/移动双视图、状态函数返回颜色类名、非共享组件持有面板阴影、`href` 混入 CSS 变量，以及 Page/Client 同时导入查询或 mutation 并渲染表格/弹窗。检查同时保留硬编码颜色、400 行上限、深色模式、原生确认框、复制页面外壳和旧分页组件等规则；导航与首页布局编辑器是明确的响应式白名单。
+- `npm run check:dashboard-ui` 使用 TypeScript AST 检查 JSX、导入和职责边界：拦截业务层原生控件与 `<label>`、Select/DatePicker 视觉覆盖、Button 尺寸或材质覆盖、绕过共享资源筛选区、手写桌面/移动双视图、状态函数返回颜色类名、非共享组件持有面板阴影、`href` 混入 CSS 变量，以及 Page/Client 同时导入查询或 mutation 并渲染表格/弹窗。信息层级规则位于独立模块，要求页头明确选择工作或概览形态，禁止工作页重新加入徽标、介绍、指标大面板，并禁止订单列表恢复通用介绍。检查同时保留硬编码颜色、400 行上限、深色模式、原生确认框、复制页面外壳和旧分页组件等规则；导航与首页布局编辑器是明确的响应式白名单。
 - `npm run test:regression` 会依次执行 lint、typecheck、双语静态检查、工作台结构检查、build 和 Playwright 回归测试。
 - `npm run clean:artifacts` 清理 `.playwright-cli` 和 `output/playwright` 下的临时验证产物。
 - `npm run clean:cache` 清理 `.next` 和 `tsconfig.tsbuildinfo`。
@@ -279,15 +279,14 @@ baisheng-web/
 - `components/ui/date-picker.tsx` 是全站唯一的日期、月份和日期时间入口，接口使用 `mode="date | month | datetime-local"`、`value/defaultValue`、`onValueChange`、`name`、`min/max`、表单语义和统一控件尺寸；`className` 同样只控制宽度、网格跨度与定位。可见文本框支持键盘输入，日历按钮或 `Alt + ↓` 打开由 Base UI 定位的圆角暖白浮层，DayPicker 只负责日期网格与键盘移动；日期和月份点选后立即提交，日期时间选择小时、分钟后点击“完成”才提交。中文接受 `YYYY-MM-DD`、`YYYY/MM/DD`、`YYYY-MM`、`YYYY/MM` 及相同日期加 24 小时时间，英文另外接受 `MM/DD/YYYY`、`MM/YYYY` 及相同日期加时间；界面按语言格式化，隐藏表单值始终保持 `YYYY-MM-DD`、`YYYY-MM` 或 `YYYY-MM-DDTHH:mm`。非法日期、闰年错误、必填空值和超出范围都会关联到字段并阻止提交，Escape 恢复最后一个有效值；“今天”和“现在”统一按 `Asia/Shanghai` 计算。390px 下仍使用锚定浮层并在视口内翻转、位移和滚动，不改成系统日期弹层或底部抽屉。
 - `components/ui/feedback-notice.tsx`：认证页和工作台统一的结果反馈条，只有 `info`、`success`、`error` 三种语义和紧凑/默认两档密度；错误自动即时播报，成功和提示使用礼貌播报。业务组件不再维护 `AuthFeedback` 或 `PageBanner`。
 - `components/ui/status-badge.tsx`：全站唯一状态标签。业务模块只映射 `neutral`、`info`、`success`、`warning`、`danger` 语义，不自行返回颜色类名。
-- `components/ui/surface.tsx`、`data-display.tsx` 与 `responsive-data-view.tsx`：`Surface` 通过 `as="section | article | div"` 和 `panel | inset | interactive | floating` 统一材质与内边距；`RecordCard surface="interactive | inset"` 与 `MetaGrid` / `MetaItem` 统一移动记录卡和字段定义列表；`MetricCard presentation="compact | header | summary | value-panel"` 配合 `MetricGrid layout="summary-strip | header | three-column | four-column"` 承接页头、汇总和数值面板。记录、费用、订单和报销等工作页面的成组指标统一使用带语义图标的 `compact + summary-strip`，同一层级不再混用高占位数值卡；个人认证状态等单独说明型内容可以继续使用 `summary`。`ResponsiveDataView` 默认在 `md` 切换，只有 VIP 等经过说明的宽表显式使用 `breakpoint="lg"`；数量、分页和继续加载底栏只渲染一次。
+- `components/ui/surface.tsx`、`data-display.tsx` 与 `responsive-data-view.tsx`：`Surface` 通过 `as="section | article | div"` 和 `panel | inset | interactive | floating` 统一材质与内边距；`RecordCard surface="interactive | inset"` 与 `MetaGrid` / `MetaItem` 统一移动记录卡和字段定义列表；`MetricCard presentation="compact | header | summary | value-panel"` 配合 `MetricGrid layout="summary-strip | header | three-column | four-column"` 承接普通汇总和数值面板。紧凑指标不能用省略号隐藏标签或数值，中文标签不得逐字竖排；空间不足时由摘要网格主动减列，金额和币种保持完整。`DashboardOperationalSummary` 用于物流、人员和 VIP 等运营摘要：主要状态、更新时间元信息、币种或其他补充数据分层放在一个紧凑面板中，不把低优先级信息继续做成同权大卡。`ResponsiveDataView` 默认在 `md` 切换，只有 VIP 等经过说明的宽表显式使用 `breakpoint="lg"`；数量、分页和继续加载底栏只渲染一次。
 - `components/ui/public-state-card.tsx`：访问范围、404、局部错误和全局错误页的统一提示卡；法律页和公共状态页继续复用工作台浅色材质，不跟随认证页的照片与玻璃变体。
 - `components/auth/auth-shell.tsx`：登录、注册和找回密码共用的认证编排外壳，接口按 `hero`、`form`、`footer` 分组。桌面端由 `AuthHeroPanel` 展示本地照片、品牌说明和提示，`AuthFormPanel` 展示表单；`lg` 以下隐藏照片栏，并由 `AuthSupplementalNote` 在表单后补齐说明。认证图片只允许在英雄面板静态导入，页面不得复制材质或移动说明卡。
 - 登录与找回密码的 Supabase 状态、账号切换、恢复会话和提交动作分别位于 `use-login-form-view-model.ts` 与 `use-forgot-password-view-model.ts`；表单文件只负责字段、反馈和操作按钮，注册继续由 `use-register-wizard.ts` 调度。
 - `components/motion/` 与 `lib/motion-tokens.ts`：全站统一动效入口；时长、缓动、错峰上限和减少动态效果规则集中维护，业务组件不自行定义另一套动效节奏。
-- `admin-shell-nav.tsx` 与同层桌面、移动导航模块：主文件只选择展示模式；桌面端保留菜单滚动能力但隐藏浏览器自带滚动滑块，并通过独立 hook 保存业务分组偏好；移动端保持完整下拉菜单，不参与桌面偏好同步。
-- `dashboard-section-header.tsx`：业务板块页头。
-- `dashboard-section-panel.tsx`：筛选面板、列表面板和表格外框。带放大镜的工作台搜索框统一使用 `DashboardSearchInput`；组件会在移动和桌面断点为图标保留固定前置槽位，并继续继承 `Field density="filter"` 的浅边界。业务页面只传值、占位文案和更新函数，不得再自行组合绝对定位图标、响应式内边距或另一套搜索框外观。数据表格和记录列表统一使用 `divide-border-subtle` 作为低强调分隔线，`chart-*` 令牌只用于图表数据，不能再形成抢夺内容层级的深色横杆。
-- `dashboard-page-shell.tsx` 与 `dashboard-section-header.tsx`：管理员、业务员、财务、客户、首页和“我的”页面共用的 `1320px` 页面外壳，并提供 `compact / comfortable` 密度。记录、审核、人员、费用和订单默认使用紧凑模式；首页、统计总览和重要状态页可显式使用舒展模式。页面内容固定按页头、操作反馈、权限或错误状态、业务区块的顺序展示。
+- `admin-shell-nav.tsx` 与同层桌面、移动导航模块：主文件只选择展示模式；桌面端保留菜单滚动能力但隐藏浏览器自带滚动滑块，并通过独立 hook 保存业务分组偏好；完整左侧导航从 1024px 起展示，768px 平板继续使用顶部下拉导航，避免侧栏把工作区和品牌文字压窄；移动与平板导航不参与桌面偏好同步。全局顶部导航统一使用 `surface-chrome`、清晰底边和 `shadow-surface-header` 形成轻分层，不能退回与页面画布相同且边界不可见的透明表面。
+- `dashboard-section-panel.tsx`：筛选面板、列表面板和表格外框。单一主内容区不显示页面标题、标签页或状态栏已经说明的“列表/记录”标题，改由 `ariaLabel` 保留无障碍区域名称；并列数据集、设置分组和不同业务阶段继续显示必要标题。标题移除后内容直接上移，只有操作时渲染紧凑右对齐工具栏，不生成空标题或保留原标题间距。带放大镜的工作台搜索框统一使用 `DashboardSearchInput`；组件会在移动和桌面断点为图标保留固定前置槽位，并继续继承 `Field density="filter"` 的浅边界。业务页面只传值、占位文案和更新函数，不得再自行组合绝对定位图标、响应式内边距或另一套搜索框外观。数据表格和记录列表统一使用 `divide-border-subtle` 作为低强调分隔线，`chart-*` 令牌只用于图表数据，不能再形成抢夺内容层级的深色横杆。
+- `dashboard-page-shell.tsx` 与 `dashboard-section-header.tsx`：管理员、业务员、财务、客户、首页和“我的”页面共用 `1320px` 页面外壳。高频订单、费用、审核、认领、客户、人员、物流和任务页面必须使用 `presentation="work"`，只展示紧凑标题、关键状态和主要操作；首页、统计总览、设置、引导及重要状态页使用 `presentation="overview"`，才可以展示徽标、介绍或页头指标。页面内容固定按页头、操作反馈、权限或错误状态、业务区块的顺序展示。
 - `dashboard-resource-filter-section.tsx`：通用资源筛选卡不显示“筛选内容/筛选订单”一类重复标题和说明，关键词搜索与恢复操作直接进入首行，下方只保留真正有用的筛选字段、启用条件数量和结果摘要。桌面端控件、字段间距、面板内边距和日期快捷区按高密度工作台排列；移动端关键词搜索常驻，其他条件默认收起并可在同一区域展开或恢复默认，同时维持 44px 触控高度和至少 8px 操作间距。订单筛选在它上面扩展必填日期、日期快捷项和跨日期精确单号查询，业务页面不能直接使用底层 `DashboardFilterPanel`。
 - `dashboard-collection-section.tsx` 与 `components/ui/responsive-data-view.tsx`：通用列表卡、默认 `md` 的桌面表格/移动卡片切换、数量底栏、页码分页和继续加载操作。VIP 宽表使用明确的 `lg` 例外；导航及首页布局编辑器之外，业务数据列表不得自行配对显示断点，数量和分页只显示一次。
 - `dashboard-form-dialog.tsx` 的 `FormDialog` 与 `components/ui/action-group.tsx`：创建和编辑表单共用标题、说明、字段、操作反馈、取消、提交、等待状态及移动端按钮排列。移动端操作优先并排，文案较长时自然换行；提交失败时弹窗与输入保持不变，成功后由领域状态关闭并清空。
@@ -373,7 +372,7 @@ baisheng-web/
 - 订单核心查询失败时页面必须显示加载失败和重试入口；结汇、采购或修改记录等关联查询失败时显示对应局部提醒，不能用“暂无记录”掩盖失败。订单页只查询本板块所需的客户、账号、汇率、修改规则和当前订单批次，不读取物流永久档案。
 - 1688 采购订单可以通过页面上传从 1688 导出的订单表格，也可以通过登录后的 `/api/wholesale/1688-orders` 接口接收，进入订单认领列表；接口每次最多接收 5 MiB、500 行，同一用户 10 分钟最多接收 5 次且同时只能执行 1 次，响应结束后释放并发名额。页面上传支持 1688 导出的 Excel 订单表格并保留 CSV 文件接收能力。订单认领页分为“已认领 / 待分类 / 认领大厅”，各看板由数据库按最近 30 天和 20 条游标分页返回，不再在浏览器加载全部订单及关联表；采购时间缺失时按接收时间进入日期范围。无论来源如何，导入只做收货人辅助分类，不会自动完成认领。匹配到客户的订单进入待分类，没有辅助匹配到客户的进入认领大厅。待处理板块继续按单笔 1688 订单展示和勾选，单条与批量操作共用认领弹窗：一个认领组至少包含一笔 1688 订单和一笔同客户批发订单，支持多笔对多笔、单笔对多笔及多笔对单笔，不记录数量或金额分摊。切换板块或筛选条件会清空选择，数据库保证整组同时成功或同时失败。“已认领”按认领组展示组数、1688 订单数、两侧订单、首次认领人和最后调整人；任一成员命中范围或精确单号时返回完整认领组。管理员和业务员可以通过精确单号找到跨月旧组并更换客户、增删批发订单、移出误选的 1688 订单或撤销整组，财务只读。原始采购订单内容进入系统后不允许随意修改，误上传数据只能由管理员移出认领列表。
 - 物流模块只查询主系统永久档案，不直接依赖店小秘 30 天来源窗口。归档保留来源订单 ID、包裹号、店铺、下单时间、物流号、物流商、状态、国际运费原始金额/币种和各来源最后可见时间，不保存收件人、电话、地址或商品详情。来源后续删除历史订单时主系统不删除；迟到或修正的物流与运费会更新原包裹。
-- 物流页面按业务员、店小秘店铺、开始/结束日期、有无运费及包裹号/物流号/店铺关键词筛选，固定每页 50 条并使用下单时间与记录 ID 稳定继续加载。汇总显示订单总数、已记录/缺少运费数量、最近更新时间和各币种国际运费；`CNY` 与 `RMB` 合并，其他币种分别计算，负数作为有效退款或调整计入，NULL、空值和 0 都标记为红色“缺少运费”。
+- 物流页面按业务员、店小秘店铺、开始/结束日期、有无运费及包裹号/物流号/店铺关键词筛选，固定每页 50 条并使用下单时间与记录 ID 稳定继续加载。紧凑摘要第一层显示订单总数、已记录和缺少运费，最近更新时间作为弱化元信息，各币种国际运费在第二层完整展示；`CNY` 与 `RMB` 合并，其他币种分别计算，负数作为有效退款或调整计入，NULL、空值和 0 都标记为红色“缺少运费”。
 - 店铺归属可无限关联多个店铺，使用不重叠的生效时间区间保存业务员和可选批发客户。店铺转交后历史订单仍匹配原业务员；默认补充客户覆盖当前归属区间，也可以从指定日期拆分区间。页面失败时保留选择，桌面表格和 390px 移动卡片都保留缺失运费提示。
 - 未开通批发业务的有效账号即使手动输入批发地址，也只会看到工作范围提示并可返回自己的首页，不会被退出登录。
 - 外侧设置只保留汇率设置，维护自动获取币种、手动补充汇率和历史记录；旅游业务设置放在旅游业务侧栏内，维护旅游订单服务费、服务价格、服务折扣和服务相关佣金；批发业务设置放在批发业务侧栏内，维护批发订单修改规则、批发订单业务员提成和批发客户推荐佣金。
@@ -398,6 +397,8 @@ baisheng-web/
 
 - 页面文案必须使用普通用户能理解的日常语言。
 - 用户可见文案禁止暴露数据库表名、字段名、状态码、bucket、RPC、JSON、同步请求等技术细节。
+- 高频工作页不长期展示操作教程、设备差异说明、列表内容复述、重复业务徽标或无状态含义的欢迎语。业务限制、权限原因、错误、空状态、截止时间、不可逆影响和真实运行状态继续保留，并放在对应按钮、字段、弹窗或状态附近；删除介绍后直接让筛选、状态、摘要和记录上移，不增加固定高度或装饰面板填空。
+- 每个工作页面只保留一个主要可见页名。页面名、标签页或状态切换已经说明内容时，内部面板不再重复显示“订单列表、费用记录、客户列表”等名称；同屏存在两个以上不同数据集或业务阶段时，保留用于辨认区域的分区标题。
 - 首次语言按已保存 Cookie、浏览器 `Accept-Language`、中文的顺序决定；用户手动切换后同时写入 Cookie 和 localStorage 长期记住，登录和角色变化不再覆盖选择。
 - 用户可见中英文文案统一维护在 `messages/zh.json` 和 `messages/en.json`；数据库错误只在展示层映射为日常语言，页面不直接展示函数名、字段名或技术错误。
 - 登录、语言切换、路由跳转、刷新、上传、审核和保存动作都要有明确等待反馈，并避免重复点击。
@@ -455,6 +456,7 @@ baisheng-web/
 - `tests/e2e/api-request-limits.spec.ts` 覆盖 AI 与 1688 请求体上限、1688 十分钟窗口限制和 `Retry-After`；数据库 SQL 断言继续覆盖 AI/1688 并发租约、释放和跨用户拒绝。
 - `tests/e2e/wholesale-order-pagination.spec.ts` 覆盖首批 20 条、继续加载无重复、关联单号搜索、移动卡片详情，以及核心失败和关联数据局部警告。
 - `tests/e2e/wholesale-logistics.spec.ts` 覆盖永久档案全量筛选、分币种汇总、红色缺失运费、店铺历史归属、真实 50 条继续加载、管理员/业务员/财务/无入口角色权限，以及 1440px 和 390px 的横向溢出与文字挤压。
+- `tests/e2e/information-hierarchy.spec.ts` 覆盖批发订单、认领、物流、旅游订单和公司费用的工作页头，检查永久教程文案已经移除、物流两层摘要完整显示，并在 390、768、1280、1440px 下验证首屏任务位置和横向溢出。
 - 权限回归会检查有效越权账号仍可直接返回自己的首页；开发服务器输出不应出现 `Forbidden` 性能测量异常。当前使用 Next.js 最新稳定补丁，不采用 canary 或 preview 版本。
 - 测试账号优先读取 `E2E_*` 环境变量；未设置时，若当前 `.env.local` 指向本地 Supabase，则优先从同级 `supabase/local-test-data.sql`、`supabase/supabase/local-test-data.sql` 或 `baisheng-supabase/supabase/local-test-data.sql` 读取 `local.*@bs.test` 账号，再读取本机测试账号文件。
 - 本地 Supabase 测试数据会生成 100 条最近 30 天内的批发订单，订单列表默认范围应能直接看到足够的订单样本；协作订单 `WH-PEER-LOCAL-001` 还固定关联一条待审批修改申请，用于验证两名业务员的可见范围、业务员无审批操作和管理员可审批。当天汇率按上海业务日期写入，午夜后运行结汇回归也必须能匹配当天汇率。

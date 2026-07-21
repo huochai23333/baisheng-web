@@ -63,9 +63,7 @@ export function SalesmanTasksClient({
                 : t("header.history")}
             </Button>
           }
-          badge={t("header.badge")}
-          badgeClassName="bg-surface-inset"
-          description={t("header.description")}
+          presentation="work"
           title={t("header.title")}
         />
       }
@@ -129,11 +127,8 @@ export function SalesmanTasksClient({
           </DashboardResourceFilterSection>
 
           <DashboardListSection
+            ariaLabel={t("list.title")}
             bodyClassName="space-y-4"
-            description={t("list.description", {
-              count: viewModel.filteredTasks.length,
-            })}
-            title={t("list.title")}
           >
             {viewModel.filteredTasks.length === 0 ? (
               <EmptyState

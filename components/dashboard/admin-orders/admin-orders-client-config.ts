@@ -28,12 +28,9 @@ export function createDefaultAdminOrderFilters(): AdminOrdersFilters {
 }
 
 export type OrdersViewConfig = {
-  badge: string;
   title: string;
-  description: string;
   createTitle: string;
   createDescription: string;
-  emptyDescription: string;
   noPermissionDescription: string;
   noCreateTargetHint: string | null;
   allowCreate: boolean;
@@ -57,12 +54,9 @@ export function getOrdersViewConfig(
 ): OrdersViewConfig {
   if (mode === "salesman") {
     return {
-      badge: t("modes.salesman.badge"),
       title: t("modes.salesman.title"),
-      description: t("modes.salesman.description"),
       createTitle: t("modes.salesman.createTitle"),
       createDescription: t("modes.salesman.createDescription"),
-      emptyDescription: t("modes.salesman.emptyDescription"),
       noPermissionDescription: t("modes.salesman.noPermissionDescription"),
       noCreateTargetHint: t("modes.salesman.noCreateTargetHint"),
       allowCreate: true,
@@ -83,12 +77,9 @@ export function getOrdersViewConfig(
 
   if (mode === "client") {
     return {
-      badge: t("modes.client.badge"),
       title: t("modes.client.title"),
-      description: t("modes.client.description"),
       createTitle: t("modes.client.createTitle"),
       createDescription: "",
-      emptyDescription: t("modes.client.emptyDescription"),
       noPermissionDescription: t("modes.client.noPermissionDescription"),
       noCreateTargetHint: null,
       allowCreate: false,
@@ -108,12 +99,9 @@ export function getOrdersViewConfig(
   }
 
   return {
-    badge: t("modes.admin.badge"),
     title: t("modes.admin.title"),
-    description: t("modes.admin.description"),
     createTitle: t("modes.admin.createTitle"),
     createDescription: t("modes.admin.createDescription"),
-    emptyDescription: t("modes.admin.emptyDescription"),
     noPermissionDescription: t("modes.admin.noPermissionDescription"),
     noCreateTargetHint: null,
     allowCreate: true,

@@ -48,22 +48,18 @@ export type WholesaleClaimGroupRow = {
 export const WHOLESALE_CLAIM_BOARDS: Array<{
   key: WholesaleClaimBoardKey;
   label: string;
-  description: string;
 }> = [
   {
     key: "assisted",
     label: "待分类",
-    description: "已按收货人名字匹配到客户，等待确认批发订单。",
   },
   {
     key: "hall",
     label: "认领大厅",
-    description: "没有匹配到客户的采购订单，由业务员手动认领。",
   },
   {
     key: "claimed",
     label: "已认领",
-    description: "按认领组查看已经确认的采购订单和批发订单。",
   },
 ];
 

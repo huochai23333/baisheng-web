@@ -42,11 +42,9 @@ export function AdminOrdersClient({
       feedback={viewModel.pageFeedback}
       header={
         <OrdersHeaderSection
-          badge={viewModel.viewConfig.badge}
           canCreateOrders={viewModel.canCreateOrders}
           canOpenCreateDialog={viewModel.canOpenCreateDialog}
           createTitle={viewModel.viewConfig.createTitle}
-          description={viewModel.viewConfig.description}
           noCreateTargetHint={viewModel.viewConfig.noCreateTargetHint}
           onCreate={viewModel.openCreateDialog}
           title={viewModel.viewConfig.title}

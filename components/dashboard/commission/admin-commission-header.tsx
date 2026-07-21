@@ -9,8 +9,7 @@ export function AdminCommissionHeader() {
 
   return (
     <DashboardSectionHeader
-      badge={t("header.badge")}
-      description={t("header.description")}
+      presentation="work"
       title={t("header.title")}
     />
   );

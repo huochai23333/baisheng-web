@@ -3,8 +3,6 @@
 import type {
   TeamManagerCandidate,
 } from "@/lib/team-management";
-import type { AppRole } from "@/lib/user-self-service";
-import { isSalesStaffRole } from "@/lib/sales-staff-roles";
 
 import {
   getRawErrorMessage,
@@ -72,29 +70,6 @@ export function getManagerCandidateLabel(
     : t("shared.managerCandidate.unassignable", {
         label: baseLabel,
       });
-}
-
-export function getTeamManagementDescription(
-  role: AppRole | null,
-  t: TeamTranslateFn,
-) {
-  if (role === "manager") {
-    return t("descriptions.manager");
-  }
-
-  if (role === "administrator") {
-    return t("descriptions.administrator");
-  }
-
-  if (isSalesStaffRole(role)) {
-    return t("descriptions.salesman");
-  }
-
-  if (role === "finance" || role === "operator") {
-    return t("descriptions.readOnly");
-  }
-
-  return t("descriptions.fallback");
 }
 
 export function toTeamManagementErrorMessage(

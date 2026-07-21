@@ -42,9 +42,8 @@ export function AdminTaskCommissionSection({
 
   return (
     <DashboardListSection
+      ariaLabel={t("taskSection.title")}
       bodyClassName="space-y-6"
-      description={t("taskSection.description")}
-      title={t("taskSection.title")}
     >
       {rows.length === 0 ? (
         <EmptyState

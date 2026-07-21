@@ -108,9 +108,7 @@ export const ExchangeRatesHeaderSection = memo(
             </Button>
           ) : null
         }
-        badge={t("header.badge")}
-        contentClassName="max-w-2xl"
-        description={t("header.description")}
+        presentation="work"
         title={t("header.title")}
       />
     );
@@ -134,8 +132,6 @@ export const ExchangeRatesLatestSection = memo(
             {t("latest.countSummary", { count: totalLatestRows })}
           </div>
         }
-        description={t("latest.description")}
-        eyebrow={t("latest.eyebrow")}
         title={t("latest.title")}
       >
         {filteredRowsCount === 0 ? (

@@ -147,16 +147,10 @@ test.describe("workspace entrypoint regression", () => {
   });
 
   for (const entry of [
-    {
-      copyButtonTestId: "home-invite-copy-link-wholesale",
-      role: "salesman" as const,
-    },
-    {
-      copyButtonTestId: "home-invite-copy-link-tourism",
-      role: "promoter" as const,
-    },
+    { role: "salesman" as const },
+    { role: "promoter" as const },
   ]) {
-    test(`${entry.role} registration link uses the single invite code`, async ({
+    test(`${entry.role} home copies the single invite code`, async ({
       page,
     }) => {
       await mockClipboard(page);
@@ -168,17 +162,15 @@ test.describe("workspace entrypoint regression", () => {
         .trim()
         .toUpperCase();
 
-      await page.getByTestId(entry.copyButtonTestId).click();
+      // 紧凑首页优先展示邀请码本身；复制入口在迷你和普通卡片中保持同一语义。
+      await page.getByTestId("home-invite-copy-code").click();
 
-      const copiedLink = await page.evaluate(() =>
+      const copiedCode = await page.evaluate(() =>
         window.localStorage.getItem("__lastCopiedInviteLink") ?? "",
       );
-      const copiedUrl = new URL(copiedLink);
 
-      expect(copiedUrl.pathname).toBe("/register");
-      expect(copiedUrl.searchParams.get("ref")).toBe(inviteCode);
-      expect(copiedUrl.searchParams.has("board")).toBe(false);
-      expect(copiedUrl.searchParams.get("ref")).not.toMatch(/-[TD]$/);
+      expect(copiedCode).toBe(inviteCode);
+      expect(copiedCode).not.toMatch(/-[TD]$/);
     });
   }
 
@@ -201,7 +193,8 @@ test.describe("workspace entrypoint regression", () => {
 
     await expect(orderedFromInput).toBeVisible();
     await expect(orderedToInput).toBeVisible();
-    await expect(page.getByText("AI订单评估")).toBeVisible();
+    // 页面标题已经说明当前任务，评估操作直接靠近订单记录，不再占用独立板块标题。
+    await expect(page.getByText("AI订单评估")).toHaveCount(0);
     await expect(assessmentButton).toBeVisible();
 
     const defaultRange = getLast30DaysDateRange();

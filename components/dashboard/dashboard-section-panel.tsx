@@ -8,12 +8,16 @@ import { controlVariants, Field, Input } from "@/components/ui/form-controls";
 import { Surface, surfaceVariants } from "@/components/ui/surface";
 import { cn } from "@/lib/utils";
 
-type DashboardSectionPanelProps = {
+type DashboardPanelContentProps = {
   children: ReactNode;
   className?: string;
 };
 
-type DashboardFilterPanelProps = DashboardSectionPanelProps & {
+type DashboardSectionPanelProps = DashboardPanelContentProps & {
+  ariaLabel?: string;
+};
+
+type DashboardFilterPanelProps = DashboardPanelContentProps & {
   gridClassName?: string;
   footer?: ReactNode;
   variant?: "inset" | "standalone";
@@ -24,7 +28,7 @@ type DashboardListHeaderProps = {
   className?: string;
   description?: ReactNode;
   eyebrow?: ReactNode;
-  title: ReactNode;
+  title?: ReactNode;
 };
 
 type DashboardListSectionProps = DashboardSectionPanelProps & {
@@ -36,7 +40,7 @@ type DashboardListSectionProps = DashboardSectionPanelProps & {
   title?: ReactNode;
 };
 
-type DashboardTableFrameProps = DashboardSectionPanelProps & {
+type DashboardTableFrameProps = DashboardPanelContentProps & {
   footer?: ReactNode;
   innerClassName?: string;
 };
@@ -51,11 +55,14 @@ type DashboardSearchInputProps = {
 };
 
 export function DashboardSectionPanel({
+  ariaLabel,
   children,
   className,
 }: DashboardSectionPanelProps) {
   return (
     <Surface
+      // 可见标题被精简后，aria-label 仍会让读屏软件把这个 section 识别成有名称的业务区域。
+      aria-label={ariaLabel}
       className={cn("motion-surface-enter", className)}
       padding="spacious"
     >
@@ -110,26 +117,35 @@ export function DashboardListHeader({
         className,
       )}
     >
-      <div className="min-w-0">
-        {eyebrow ? (
-          <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
-            {eyebrow}
-          </p>
-        ) : null}
-        <h3
-          className={cn(
-            "text-xl font-bold tracking-tight text-content-strong sm:text-2xl",
-            eyebrow ? "mt-2" : "",
-          )}
-        >
-          {title}
-        </h3>
-        {description ? (
-          <p className="mt-1.5 text-sm leading-6 text-content-muted sm:mt-2 sm:leading-7">
-            {description}
-          </p>
-        ) : null}
-      </div>
+      {eyebrow || title || description ? (
+        <div className="min-w-0">
+          {eyebrow ? (
+            <p className="font-label text-[11px] font-semibold tracking-[0.18em] text-content-muted uppercase">
+              {eyebrow}
+            </p>
+          ) : null}
+          {title ? (
+            <h3
+              className={cn(
+                "text-xl font-bold tracking-tight text-content-strong sm:text-2xl",
+                eyebrow ? "mt-2" : "",
+              )}
+            >
+              {title}
+            </h3>
+          ) : null}
+          {description ? (
+            <p
+              className={cn(
+                "text-sm leading-6 text-content-muted sm:leading-7",
+                title || eyebrow ? "mt-1.5 sm:mt-2" : "",
+              )}
+            >
+              {description}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
       {actions ? (
         <div className="flex flex-wrap gap-2 sm:justify-end">{actions}</div>
       ) : null}
@@ -139,6 +155,7 @@ export function DashboardListHeader({
 
 export function DashboardListSection({
   actions,
+  ariaLabel,
   bodyClassName,
   children,
   className,
@@ -147,11 +164,13 @@ export function DashboardListSection({
   headerClassName,
   title,
 }: DashboardListSectionProps) {
-  const hasHeader = title || description || eyebrow || actions;
+  // 标题、眉题或必要说明属于“内容介绍”；只有操作按钮时不再生成空标题，只保留紧凑工具栏。
+  const hasVisibleIntroduction = Boolean(title || description || eyebrow);
+  const hasActions = Boolean(actions);
 
   return (
-    <DashboardSectionPanel className={className}>
-      {hasHeader ? (
+    <DashboardSectionPanel ariaLabel={ariaLabel} className={className}>
+      {hasVisibleIntroduction ? (
         <DashboardListHeader
           actions={actions}
           className={headerClassName}
@@ -159,9 +178,26 @@ export function DashboardListSection({
           eyebrow={eyebrow}
           title={title}
         />
+      ) : hasActions ? (
+        <div
+          className={cn(
+            "flex min-w-0 flex-wrap items-center justify-end gap-2",
+            headerClassName,
+          )}
+          data-slot="dashboard-list-toolbar"
+        >
+          {actions}
+        </div>
       ) : null}
       <div
-        className={cn(hasHeader ? "mt-4 sm:mt-6" : "", bodyClassName)}
+        className={cn(
+          hasVisibleIntroduction
+            ? "mt-4 sm:mt-6"
+            : hasActions
+              ? "mt-3"
+              : "",
+          bodyClassName,
+        )}
         data-motion-collection="true"
       >
         {children}

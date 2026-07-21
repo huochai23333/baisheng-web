@@ -52,7 +52,6 @@ export function WholesaleLogisticsSection({
   profiles,
 }: WholesaleLogisticsSectionProps) {
   const t = useTranslations("WholesaleBusiness.logisticsArchive");
-  const frameworkT = useTranslations("OrderListFramework");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const logistics = useWholesaleLogisticsPage({
     initialAssignments,
@@ -87,8 +86,6 @@ export function WholesaleLogisticsSection({
           </Button>
         ) : null
       }
-      description={t("description")}
-      eyebrow={t("eyebrow")}
       title={t("title")}
     >
       {logistics.feedback?.scope === "page" ? (
@@ -128,6 +125,7 @@ export function WholesaleLogisticsSection({
       />
 
       <DashboardOrderListSection
+        ariaLabel={t("list.title")}
         controls={
           logistics.page.nextCursor ? (
             <DashboardOrderLoadMoreButton
@@ -136,7 +134,6 @@ export function WholesaleLogisticsSection({
             />
           ) : undefined
         }
-        description={frameworkT("list.description")}
         progress={
           logistics.page.rows.length > 0
             ? {
@@ -147,7 +144,6 @@ export function WholesaleLogisticsSection({
               }
             : null
         }
-        title={t("list.title")}
       >
         {logistics.loading ? (
           <p className="mb-3 text-sm text-content-muted">{t("list.loading")}</p>

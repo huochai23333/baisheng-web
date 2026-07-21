@@ -15,8 +15,6 @@ import {
 } from "lucide-react";
 
 import type { TeamManagerCandidate } from "@/lib/team-management";
-import type { AppRole } from "@/lib/user-self-service";
-
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
@@ -26,21 +24,16 @@ import {
 } from "@/components/dashboard/dashboard-section-panel";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 
-import {
-  getManagerCandidateLabel,
-  getTeamManagementDescription,
-} from "./team-management-display";
+import { getManagerCandidateLabel } from "./team-management-display";
 
 export function TeamManagementHeroSection({
   canManageSelectedTeam,
   busyKey,
   onRefresh,
-  viewerRole,
 }: {
   canManageSelectedTeam: boolean;
   busyKey: string | null;
   onRefresh: () => void;
-  viewerRole: AppRole | null;
 }) {
   const t = useTranslations("TeamManagement");
 
@@ -68,9 +61,7 @@ export function TeamManagementHeroSection({
           ) : null}
         </>
       }
-      badge={t("header.badge")}
-      badgeClassName="bg-surface-inset"
-      description={getTeamManagementDescription(viewerRole, t)}
+      presentation="work"
       title={t("header.title")}
     />
   );

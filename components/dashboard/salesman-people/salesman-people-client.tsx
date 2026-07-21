@@ -26,7 +26,6 @@ export function SalesmanPeopleClient({
       feedback={viewModel.feedback}
       header={
         <SalesmanPeopleHeaderSection
-          businessBoards={viewModel.businessBoards}
           summary={viewModel.summary}
         />
       }

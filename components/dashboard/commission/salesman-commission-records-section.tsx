@@ -57,10 +57,7 @@ export function SalesmanCommissionRecordsSection({
   }
 
   return (
-    <DashboardListSection
-      description={t("salesman.table.description")}
-      title={t("salesman.table.title")}
-    >
+    <DashboardListSection ariaLabel={t("salesman.table.title")}>
       <DashboardTableFrame
         footer={
           <DashboardPaginationFooter

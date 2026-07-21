@@ -52,8 +52,7 @@ export function AdminReviewsClient({
       feedback={pageFeedback}
       header={
         <DashboardSectionHeader
-          badge={t("header.badge")}
-          contentClassName="max-w-2xl"
+          presentation="work"
           title={t("header.title")}
         />
       }

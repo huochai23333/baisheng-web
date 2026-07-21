@@ -33,17 +33,15 @@ export type DashboardOrderListProgress =
  * 数量提示固定在左侧，分页或继续加载固定在右侧；移动端自动上下排列。
  */
 export function DashboardOrderListSection({
+  ariaLabel,
   children,
   controls,
-  description,
   progress,
-  title,
 }: {
+  ariaLabel: string;
   children: ReactNode;
   controls?: ReactNode;
-  description?: ReactNode;
   progress?: DashboardOrderListProgress | null;
-  title: ReactNode;
 }) {
   const count = progress ? (
     <DashboardOrderProgressText progress={progress} />
@@ -51,10 +49,9 @@ export function DashboardOrderListSection({
 
   return (
     <DashboardCollectionSection
+      ariaLabel={ariaLabel}
       controls={progress && progress.total > 0 ? controls : undefined}
       count={progress && progress.total > 0 ? count : undefined}
-      description={description}
-      title={title}
     >
       {children}
     </DashboardCollectionSection>

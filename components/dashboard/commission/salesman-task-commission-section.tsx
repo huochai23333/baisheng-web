@@ -36,9 +36,8 @@ export function SalesmanTaskCommissionSection({
 
   return (
     <DashboardListSection
+      ariaLabel={t("salesmanTaskSection.title")}
       bodyClassName="space-y-6"
-      description={t("salesmanTaskSection.description")}
-      title={t("salesmanTaskSection.title")}
     >
       {rows.length === 0 ? (
         <EmptyState

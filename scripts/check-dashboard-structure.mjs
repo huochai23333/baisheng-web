@@ -2,6 +2,8 @@ import { access, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import ts from "typescript";
 
+import { collectInformationHierarchyViolations } from "./dashboard-structure/information-hierarchy.mjs";
+
 const workspaceRoot = process.cwd();
 const dashboardRoot = path.join(workspaceRoot, "components", "dashboard");
 const appRoot = path.join(workspaceRoot, "app");
@@ -131,6 +133,7 @@ function collectAstFacts(source, absolutePath) {
       const attributes = getJsxAttributes(node);
       const className = getAttribute(attributes, "className");
       jsx.push({
+        attributesText: attributes.getText(sourceFile),
         classText: className?.getText(sourceFile) ?? "",
         line: getNodeLine(sourceFile, node),
         tagName: getTagName(tagNode),
@@ -280,6 +283,13 @@ for (const absolutePath of allSourceFiles) {
     .relative(workspaceRoot, absolutePath)
     .replaceAll("\\", "/");
   const ast = collectAstFacts(source, absolutePath);
+
+  violations.push(
+    ...collectInformationHierarchyViolations({
+      jsxElements: ast.jsx,
+      relativePath,
+    }),
+  );
 
   for (const invalidHref of ast.invalidHrefValues) {
     violations.push(

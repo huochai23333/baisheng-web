@@ -2,7 +2,6 @@
 import { UiMessage } from "@/components/i18n/ui-message";
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { DashboardSectionPanel } from "@/components/dashboard/dashboard-section-panel";
 import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import {
@@ -26,19 +25,9 @@ export function WholesaleOrderAssessmentPanel({
     pending,
   } = useWholesaleOrderAssessment(filters);
   return (
-    <DashboardSectionPanel className="border-border-subtle bg-surface-inset/86 p-4 sm:p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-            <Sparkles className="size-4" />
-            <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text001" />
-          </div>
-          <p className="mt-2 break-words text-sm leading-6 text-content-muted">
-            <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text002" />
-            {matchedOrderCount}
-            <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text003" />
-          </p>
-        </div>
+    <div>
+      {/* 闲置时只显示真正可执行的操作，不再用说明面板重复解释筛选结果。 */}
+      <div className="flex justify-end">
         <Button
           variant="primary"
           size="compact"
@@ -56,14 +45,15 @@ export function WholesaleOrderAssessmentPanel({
         </Button>
       </div>
 
+      {/* 只有没有可评估订单、请求失败或已经生成结果时，才增加必要反馈。 */}
       {matchedOrderCount === 0 ? (
-        <p className="mt-4 rounded-control-default bg-surface-panel px-4 py-3 text-sm leading-6 text-content-muted">
+        <p className="mt-3 rounded-control-default bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
           <UiMessage id="components_dashboard_wholesale_wholesale_order_assessment_panel.text004" />
         </p>
       ) : null}
 
       {errorMessage ? (
-        <p className="mt-4 rounded-control-default border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
+        <p className="mt-3 rounded-control-default border border-border-subtle bg-surface-inset px-4 py-3 text-sm leading-6 text-content-muted">
           {errorMessage}
         </p>
       ) : null}
@@ -71,7 +61,7 @@ export function WholesaleOrderAssessmentPanel({
       {assessment ? (
         <Surface
           as="div"
-          className="mt-4 text-sm leading-7 text-content-strong"
+          className="mt-3 text-sm leading-7 text-content-strong"
           data-testid="wholesale-order-assessment-output"
           padding="regular"
           variant="interactive"
@@ -84,6 +74,6 @@ export function WholesaleOrderAssessmentPanel({
           <p className="whitespace-pre-wrap break-words">{assessment.trim()}</p>
         </Surface>
       ) : null}
-    </DashboardSectionPanel>
+    </div>
   );
 }

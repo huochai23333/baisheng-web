@@ -30,8 +30,7 @@ export function ReferralsClient({
       feedback={viewModel.pageFeedback}
       header={
         <DashboardSectionHeader
-          badge={t("header.badge")}
-          description={viewModel.sectionDescription}
+          presentation="work"
           title={t("header.title")}
         />
       }

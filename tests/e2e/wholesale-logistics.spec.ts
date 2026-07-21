@@ -32,10 +32,14 @@ test.describe("店小秘物流永久档案", () => {
     await chooseSelectOption(storeFilter, { label: "Local Shop Alpha" });
     await expectSelectValue(storeFilter, "Local Shop Alpha");
     await expect(page.getByText("已显示 3 / 3 笔")).toBeVisible();
-    await expect(page.getByText("CNY 国际运费")).toBeVisible();
-    await expect(page.getByText(/CNY\s*150\.50/).first()).toBeVisible();
-    await expect(page.getByText("USD 国际运费")).toBeVisible();
-    await expect(page.getByText(/USD\s*20\.00/).first()).toBeVisible();
+    const freightSummary = page.locator(
+      '[data-slot="dashboard-operational-summary"] [data-summary-tier="secondary"]',
+    );
+    await expect(freightSummary.getByText("国际运费", { exact: true })).toBeVisible();
+    await expect(freightSummary.getByText("CNY", { exact: true })).toBeVisible();
+    await expect(freightSummary.getByText(/CNY\s*150\.50/).first()).toBeVisible();
+    await expect(freightSummary.getByText("USD", { exact: true })).toBeVisible();
+    await expect(freightSummary.getByText(/USD\s*20\.00/).first()).toBeVisible();
 
     // 搜索使用延迟值，请求完成后只保留目标包裹；更换业务员也会查询完整档案。
     await page.getByLabel("搜索").fill("LOCAL-TRACK-003");

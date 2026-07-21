@@ -2,7 +2,7 @@
 
 import { Select } from "@/components/ui/select";
 
-import { ClipboardClock, Filter, ShieldAlert } from "lucide-react";
+import { Filter, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -35,9 +35,7 @@ export function OperationRecordsHeaderSection() {
 
   return (
     <DashboardSectionHeader
-      badge={t("header.badge")}
-      badgeIcon={<ClipboardClock className="size-4" />}
-      description={t("header.description")}
+      presentation="work"
       title={t("header.title")}
     />
   );
@@ -47,11 +45,7 @@ export function OperationRecordsNoPermissionSection() {
   const t = useTranslations("OperationRecords");
 
   return (
-    <DashboardListSection
-      description={t("states.noPermissionDescription")}
-      eyebrow={t("header.badge")}
-      title={t("states.noPermissionTitle")}
-    >
+    <DashboardListSection>
       <EmptyState
         description={t("states.noPermissionDescription")}
         icon={<ShieldAlert className="size-5" />}
@@ -161,11 +155,7 @@ export function OperationRecordsListSection({
   const t = useTranslations("OperationRecords");
 
   return (
-    <DashboardListSection
-      description={t("list.description")}
-      eyebrow={t("list.eyebrow")}
-      title={t("list.title")}
-    >
+    <DashboardListSection ariaLabel={t("list.title")}>
       {records.length === 0 ? (
         <EmptyState
           description={t("list.emptyDescription")}

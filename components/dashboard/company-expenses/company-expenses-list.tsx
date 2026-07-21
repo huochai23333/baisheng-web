@@ -54,7 +54,7 @@ export function CompanyExpensesListSection({
   pendingAction,
 }: CompanyExpensesListSectionProps) {
   return (
-    <DashboardListSection title={copy.recordsTitle}>
+    <DashboardListSection ariaLabel={copy.recordsTitle}>
       {expenses.length === 0 ? (
         <EmptyState
           description={copy.emptyDescription}

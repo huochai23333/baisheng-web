@@ -17,13 +17,10 @@ import {
   type ReferralsPageData,
 } from "@/lib/referrals";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
-import type { AppRole } from "@/lib/user-self-service";
-
 import {
   buildReferralGraph,
   buildTreeDisplayData,
   createReferralsCopy,
-  getReferralSectionDescription,
   toReferralErrorMessage,
 } from "./referrals-display";
 
@@ -64,9 +61,6 @@ export function useReferralsViewModel(initialData: ReferralsPageData) {
   const [currentViewerId, setCurrentViewerId] = useState<string | null>(
     initialData.currentViewerId,
   );
-  const [currentViewerRole, setCurrentViewerRole] = useState<AppRole | null>(
-    initialData.currentViewerRole,
-  );
   const [searchText, setSearchText] = useState("");
 
   const applyPageData = useCallback((pageData: ReferralsPageData) => {
@@ -76,7 +70,6 @@ export function useReferralsViewModel(initialData: ReferralsPageData) {
     setCompanyRoots(pageData.companyRoots);
     setEdges(pageData.edges);
     setCurrentViewerId(pageData.currentViewerId);
-    setCurrentViewerRole(pageData.currentViewerRole);
   }, []);
 
   const loadBoardData = useCallback(
@@ -182,7 +175,6 @@ export function useReferralsViewModel(initialData: ReferralsPageData) {
     pageFeedback,
     pendingBoard,
     searchText,
-    sectionDescription: getReferralSectionDescription(currentViewerRole, copy),
     selectedBoard,
     setSearchText,
     sharedCopy,

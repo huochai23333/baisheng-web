@@ -45,11 +45,6 @@ export type ReferralsCopy = {
     salesman: string;
     unknown: string;
   };
-  sections: {
-    default: string;
-    manager: string;
-    recruiter: string;
-  };
   tree: {
     companyBranch: string;
     companyBranchDescription: string;
@@ -83,11 +78,6 @@ export function createReferralsCopy(t: ReferralTranslator): ReferralsCopy {
       recruiter: t("roles.recruiter"),
       salesman: t("roles.salesman"),
       unknown: t("roles.unknown"),
-    },
-    sections: {
-      default: t("sections.default"),
-      manager: t("sections.manager"),
-      recruiter: t("sections.recruiter"),
     },
     tree: {
       companyBranch: t("tree.companyBranch"),
@@ -252,25 +242,6 @@ export function getRoleLabel(role: AppRole | null, copy: ReferralsCopy) {
   if (role === "finance") return copy.roles.finance;
   if (role === "client") return copy.roles.client;
   return copy.roles.unknown;
-}
-
-export function getReferralSectionDescription(
-  role: AppRole | null,
-  copy: ReferralsCopy,
-) {
-  if (role === "administrator") {
-    return "";
-  }
-
-  if (role === "manager") {
-    return copy.sections.manager;
-  }
-
-  if (role === "recruiter") {
-    return copy.sections.recruiter;
-  }
-
-  return copy.sections.default;
 }
 
 export function toReferralErrorMessage(

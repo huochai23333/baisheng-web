@@ -50,7 +50,6 @@ export function CommissionBeneficiarySummarySection({
 
   return (
     <DashboardListSection
-      description={t("beneficiaries.description")}
       title={t("beneficiaries.title")}
     >
       {rows.length === 0 ? (
@@ -178,7 +177,6 @@ export function AdminCommissionTableSection({
 
   return (
     <DashboardListSection
-      description={t("table.description")}
       title={t("table.title")}
     >
       {rows.length === 0 ? (

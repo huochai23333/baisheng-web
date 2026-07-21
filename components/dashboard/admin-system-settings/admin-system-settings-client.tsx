@@ -26,6 +26,7 @@ export function AdminSystemSettingsClient({
           badgeIcon={<ArrowLeftRight className="size-3.5" />}
           contentClassName="max-w-3xl"
           description={t("header.description")}
+          presentation="overview"
           title={t("header.title")}
         />
       }

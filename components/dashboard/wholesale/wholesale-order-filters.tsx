@@ -72,7 +72,9 @@ export function WholesaleOrderFiltersPanel({
           ? filters.searchText.trim()
           : null
       }
-      gridClassName="md:grid-cols-2 xl:grid-cols-3"
+      // 订单页桌面内容较多，五项常用条件并排后可以少占一整行，
+      // 同时每一列仍使用 minmax(0, 1fr)，避免窄列把日期或下拉框撑出容器。
+      gridClassName="md:grid-cols-2 xl:grid-cols-5"
       onExitExactSearch={onExitExactSearch}
       onPresetChange={onSelectDatePreset}
       onReset={onClear}

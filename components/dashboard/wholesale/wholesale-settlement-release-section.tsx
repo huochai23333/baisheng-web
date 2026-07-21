@@ -141,8 +141,6 @@ export function WholesaleSettlementReleaseSection({
           </Button>
         ) : null
       }
-      description={uiText("attribute001")}
-      eyebrow={uiText("attribute002")}
       title={uiText("attribute003")}
     >
       <WholesaleStatGrid
@@ -190,8 +188,7 @@ export function WholesaleSettlementReleaseSection({
             <UiMessage id="components_dashboard_wholesale_wholesale_settlement_release_section.text002" />
           </Button>
         }
-        description={`共 ${releases.length} 条发布记录，当前显示 ${filteredReleases.length} 条。`}
-        title={uiText("attribute004")}
+        ariaLabel={uiText("attribute004")}
       >
         <div className="mb-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
           <DashboardFilterField label={uiText("attribute005")}>

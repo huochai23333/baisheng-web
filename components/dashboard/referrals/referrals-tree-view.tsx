@@ -87,7 +87,7 @@ export function ReferralTreePanel({
           </div>
         </FormControls.Field>
       }
-      title={title}
+      ariaLabel={title}
     >
       <div className="overflow-x-auto rounded-surface-inset border border-border-subtle bg-surface-inset p-3 sm:p-5">
         {treeDisplay.rootIds.length === 0 ? (

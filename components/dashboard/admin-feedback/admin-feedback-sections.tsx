@@ -2,11 +2,7 @@
 
 import { Select } from "@/components/ui/select";
 
-import {
-  Filter,
-  MessageSquareWarning,
-  ShieldAlert,
-} from "lucide-react";
+import { Filter, ShieldAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -40,9 +36,7 @@ export function AdminFeedbackHeaderSection() {
 
   return (
     <DashboardSectionHeader
-      badge={t("header.badge")}
-      badgeIcon={<MessageSquareWarning className="size-4" />}
-      description={t("header.description")}
+      presentation="work"
       title={t("header.title")}
     />
   );
@@ -52,11 +46,7 @@ export function AdminFeedbackNoPermissionSection() {
   const t = useTranslations("WorkspaceFeedback");
 
   return (
-    <DashboardListSection
-      description={t("states.noPermissionDescription")}
-      eyebrow={t("header.badge")}
-      title={t("states.noPermissionTitle")}
-    >
+    <DashboardListSection>
       <EmptyState
         description={t("states.noPermissionDescription")}
         icon={<ShieldAlert className="size-5" />}
@@ -168,11 +158,7 @@ export function AdminFeedbackListSection({
   const t = useTranslations("WorkspaceFeedback");
 
   return (
-    <DashboardListSection
-      description={t("list.description")}
-      eyebrow={t("list.eyebrow")}
-      title={t("list.title")}
-    >
+    <DashboardListSection ariaLabel={t("list.title")}>
       {feedbackItems.length === 0 ? (
         <EmptyState
           description={t("list.emptyDescription")}

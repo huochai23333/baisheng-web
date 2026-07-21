@@ -78,10 +78,6 @@ export function WholesaleClaimsSection({
     resetKey: JSON.stringify([claims.activeBoard, claims.filters]),
     rows,
   });
-  const activeBoardMeta =
-    WHOLESALE_CLAIM_BOARDS.find((board) => board.key === claims.activeBoard) ??
-    WHOLESALE_CLAIM_BOARDS[0];
-
   const refreshAfter = async (succeeded: boolean) => {
     if (succeeded) await claims.refreshFirstPage();
     return succeeded;
@@ -102,8 +98,6 @@ export function WholesaleClaimsSection({
           </Button>
         ) : null
       }
-      description={uiText("attribute001")}
-      eyebrow={uiText("attribute002")}
       title={uiText("attribute003")}
     >
       <WholesaleClaimsFiltersPanel
@@ -122,6 +116,7 @@ export function WholesaleClaimsSection({
       />
 
       <DashboardOrderListSection
+        ariaLabel={uiText("attribute003")}
         controls={
           claims.page.nextCursor ? (
             <DashboardOrderLoadMoreButton
@@ -130,7 +125,6 @@ export function WholesaleClaimsSection({
             />
           ) : undefined
         }
-        description={activeBoardMeta.description}
         progress={
           claims.page.totalCount > 0
             ? {
@@ -147,9 +141,8 @@ export function WholesaleClaimsSection({
               }
             : null
         }
-        title={uiText("attribute004")}
       >
-        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+        <div className="grid gap-2 sm:grid-cols-3">
           {WHOLESALE_CLAIM_BOARDS.map((board) => (
             <DesignButton
               className={

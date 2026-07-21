@@ -28,8 +28,7 @@ export function SalesmanCommissionClient({
       feedback={viewModel.pageFeedback}
       header={
         <DashboardSectionHeader
-          badge={t("salesman.header.badge")}
-          description={t("salesman.header.description")}
+          presentation="work"
           title={t("salesman.header.title")}
         />
       }

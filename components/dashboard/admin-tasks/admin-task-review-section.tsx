@@ -62,9 +62,8 @@ export function AdminTaskReviewSection({
           {t("reviewBoard.refresh")}
         </Button>
       }
+      ariaLabel={t("reviewBoard.title")}
       description={t("reviewBoard.description")}
-      eyebrow={t("reviewBoard.badge")}
-      title={t("reviewBoard.title")}
     >
       <AdminTaskReviewList
         assetBusyKey={assetBusyKey}

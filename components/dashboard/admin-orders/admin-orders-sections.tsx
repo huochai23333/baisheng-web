@@ -36,11 +36,9 @@ import {
 import { AdminOrdersFilterPanel } from "./admin-orders-filters";
 
 type OrdersHeaderSectionProps = {
-  badge: string;
   canCreateOrders: boolean;
   canOpenCreateDialog: boolean;
   createTitle: string;
-  description: string;
   noCreateTargetHint: string | null;
   onCreate: () => void;
   title: string;
@@ -93,11 +91,9 @@ type OrdersTableSectionProps = {
 };
 
 export const OrdersHeaderSection = memo(function OrdersHeaderSection({
-  badge,
   canCreateOrders,
   canOpenCreateDialog,
   createTitle,
-  description,
   noCreateTargetHint,
   onCreate,
   title,
@@ -118,14 +114,12 @@ export const OrdersHeaderSection = memo(function OrdersHeaderSection({
           </Button>
         ) : null
       }
-      asideFooter={
+      meta={
         noCreateTargetHint && !canOpenCreateDialog ? (
           <p className="text-sm text-content-muted">{noCreateTargetHint}</p>
         ) : null
       }
-      badge={badge}
-      contentClassName="max-w-2xl"
-      description={description}
+      presentation="work"
       title={title}
     />
   );
@@ -183,6 +177,7 @@ export const OrdersTableSection = memo(function OrdersTableSection({
       />
 
       <DashboardOrderListSection
+        ariaLabel={frameworkT("list.title")}
         controls={
           matchedOrdersCount > 0 ? (
             <DashboardOrderPaginationActions
@@ -195,7 +190,6 @@ export const OrdersTableSection = memo(function OrdersTableSection({
             />
           ) : undefined
         }
-        description={frameworkT("list.description")}
         progress={
           matchedOrdersCount > 0
             ? {
@@ -207,7 +201,6 @@ export const OrdersTableSection = memo(function OrdersTableSection({
               }
             : null
         }
-        title={frameworkT("list.title")}
       >
         <div className="mb-5 grid gap-2 text-sm sm:grid-cols-3">
           <p className="rounded-xl bg-surface-inset px-3 py-2 text-content-muted">

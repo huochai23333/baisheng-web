@@ -11,6 +11,7 @@ import { DashboardListSection } from "./dashboard-section-panel";
 /** 列表卡和加载进度底栏的通用组合。 */
 export function DashboardCollectionSection({
   actions,
+  ariaLabel,
   children,
   controls,
   count,
@@ -18,6 +19,7 @@ export function DashboardCollectionSection({
   title,
 }: {
   actions?: ReactNode;
+  ariaLabel?: string;
   children: ReactNode;
   controls?: ReactNode;
   count?: ReactNode;
@@ -27,6 +29,7 @@ export function DashboardCollectionSection({
   return (
     <DashboardListSection
       actions={actions}
+      ariaLabel={ariaLabel}
       description={description}
       title={title}
     >

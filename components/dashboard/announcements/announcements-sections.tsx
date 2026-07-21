@@ -35,7 +35,6 @@ import {
 type AnnouncementsHeaderSectionProps = {
   copy: {
     create: string;
-    description: string;
     title: string;
   };
   onCreate: () => void;
@@ -95,11 +94,7 @@ export function AnnouncementsHeaderSection({
           {copy.create}
         </Button>
       }
-      badge={copy.title}
-      badgeClassName="bg-surface-inset text-status-success"
-      badgeIcon={<Megaphone className="size-3.5" />}
-      description={copy.description}
-      descriptionClassName="max-w-2xl text-sm leading-7"
+      presentation="work"
       title={copy.title}
     />
   );

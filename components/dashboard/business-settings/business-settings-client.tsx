@@ -37,6 +37,7 @@ export function BusinessSettingsClient({
               ? t(settingsModule.descriptionKey)
               : t("businessHeader.description")
           }
+          presentation="overview"
           title={
             settingsModule
               ? t(settingsModule.titleKey)

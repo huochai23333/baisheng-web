@@ -167,7 +167,6 @@ function createCompanyExpensesCopy(t: Translator) {
     },
     header: {
       create: t("header.create"),
-      description: t("header.description"),
       title: t("header.title"),
     },
     list: {

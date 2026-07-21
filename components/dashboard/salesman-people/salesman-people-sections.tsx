@@ -15,10 +15,8 @@ import {
   DashboardTableFrame,
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
-import {
-  DashboardSectionHeader,
-  type DashboardSectionHeaderMetric,
-} from "@/components/dashboard/dashboard-section-header";
+import { DashboardOperationalSummary } from "@/components/dashboard/dashboard-operational-summary";
+import { DashboardSectionHeader } from "@/components/dashboard/dashboard-section-header";
 import { EmptyState } from "@/components/dashboard/dashboard-shared-ui";
 import { Button } from "@/components/ui/button";
 import type { SalesmanCustomerRow } from "@/lib/salesman-people";
@@ -37,44 +35,38 @@ type SalesmanPeopleViewModel = ReturnType<typeof useSalesmanPeopleViewModel>;
 export function SalesmanPeopleHeaderSection({
   summary,
 }: {
-  businessBoards: SalesmanPeopleViewModel["businessBoards"];
   summary: SalesmanPeopleViewModel["summary"];
 }) {
   const t = useTranslations("SalesmanPeople");
-  const metrics = [
+  const summaryItems = [
     {
-      accent: "blue",
-      icon: <UsersRound className="size-5" />,
-      key: "total",
+      icon: <UsersRound className="size-4" />,
+      id: "total",
       label: t("summary.total"),
+      tone: "info" as const,
       value: summary.totalCount,
     },
     {
-      accent: "green",
-      icon: <UserCheck className="size-5" />,
-      key: "retail",
+      icon: <UserCheck className="size-4" />,
+      id: "retail",
       label: t("summary.retail"),
+      tone: "success" as const,
       value: summary.retailCount,
     },
     {
-      accent: "blue",
-      icon: <Filter className="size-5" />,
-      key: "unmarked",
+      icon: <Filter className="size-4" />,
+      id: "unmarked",
       label: t("summary.unmarked"),
+      tone: "info" as const,
       value: summary.unmarkedCount,
     },
-  ] satisfies DashboardSectionHeaderMetric[];
+  ];
 
   return (
-    <DashboardSectionHeader
-      badge={t("header.badge")}
-      badgeIcon={<UsersRound className="size-4" />}
-      description={t("header.descriptionRetailOnly")}
-      metrics={metrics}
-      metricsClassName="grid-cols-2 md:grid-cols-3"
-      metricsPlacement="below"
-      title={t("header.title")}
-    />
+    <div className="space-y-3">
+      <DashboardSectionHeader presentation="work" title={t("header.title")} />
+      <DashboardOperationalSummary primaryItems={summaryItems} />
+    </div>
   );
 }
 
@@ -82,11 +74,7 @@ export function SalesmanPeopleNoPermissionSection() {
   const t = useTranslations("SalesmanPeople");
 
   return (
-    <DashboardListSection
-      description={t("states.noPermissionDescription")}
-      eyebrow={t("header.badge")}
-      title={t("states.noPermissionTitle")}
-    >
+    <DashboardListSection>
       <EmptyState
         description={t("states.noPermissionDescription")}
         icon={<UsersRound className="size-5" />}
@@ -118,11 +106,7 @@ export function SalesmanPeopleDirectorySection({
   const t = useTranslations("SalesmanPeople");
 
   return (
-    <DashboardListSection
-      description={t("directory.description")}
-      eyebrow={t("directory.eyebrow")}
-      title={t("directory.title")}
-    >
+    <DashboardListSection ariaLabel={t("directory.title")}>
       <DashboardResourceFilterSection
         activeFilterCount={searchText ? 1 : 0}
         onReset={onReset}

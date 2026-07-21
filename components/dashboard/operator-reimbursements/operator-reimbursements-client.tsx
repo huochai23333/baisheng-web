@@ -156,7 +156,6 @@ function createOperatorReimbursementsCopy(t: Translator) {
     header: {
       create: t("header.create"),
       currentPeriodLabel: t("header.currentPeriodLabel"),
-      description: t("header.description"),
       reimburseCurrent: t("header.reimburseCurrent"),
       title: t("header.title"),
     },

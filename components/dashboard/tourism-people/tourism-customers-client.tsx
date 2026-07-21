@@ -13,6 +13,7 @@ import {
 } from "@/components/dashboard/dashboard-section-panel";
 import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { DashboardCollectionSection } from "@/components/dashboard/dashboard-collection-section";
+import { DashboardOperationalSummary } from "@/components/dashboard/dashboard-operational-summary";
 import {
   DashboardAccessState,
   DashboardPageShell,
@@ -56,39 +57,41 @@ export function TourismCustomersClient({
     <DashboardPageShell
       feedback={state.feedback}
       header={
-        <DashboardSectionHeader
-          actions={
-            <Button
-              variant="primary"
-              size="default"
-              onClick={() => state.setAddDialogOpen(true)}
-              type="button"
-            >
-              <Plus className="size-4" />
-              {t("addCustomer")}
-            </Button>
-          }
-          badge={t("badge")}
-          badgeIcon={<UsersRound className="size-4" />}
-          description={t("headerDescription")}
-          metrics={[
+        <div className="space-y-3">
+          <DashboardSectionHeader
+            actions={
+              <Button
+                variant="primary"
+                size="default"
+                onClick={() => state.setAddDialogOpen(true)}
+                type="button"
+              >
+                <Plus className="size-4" />
+                {t("addCustomer")}
+              </Button>
+            }
+            presentation="work"
+            title={t("headerTitle")}
+          />
+          <DashboardOperationalSummary
+            primaryItems={[
             {
-              accent: "blue",
-              icon: <UsersRound className="size-5" />,
+              icon: <UsersRound className="size-4" />,
+              id: "total",
               label: t("metricTotal"),
+              tone: "info",
               value: state.tourismCustomers.length,
             },
             {
-              accent: "green",
-              icon: <UserCheck className="size-5" />,
+              icon: <UserCheck className="size-4" />,
+              id: "active",
               label: t("metricActive"),
+              tone: "success",
               value: state.activeCount,
             },
           ]}
-          metricsClassName="grid-cols-1 sm:grid-cols-2"
-          metricsPlacement="below"
-          title={t("headerTitle")}
-        />
+          />
+        </div>
       }
     >
       <DashboardResourceFilterSection
@@ -124,11 +127,11 @@ export function TourismCustomersClient({
       </DashboardResourceFilterSection>
 
       <DashboardCollectionSection
+        ariaLabel={t("listTitle")}
         count={t("listDescription", {
           total: state.tourismCustomers.length,
           visible: state.filteredCustomers.length,
         })}
-        title={t("listTitle")}
       >
         <TourismPeopleTable
           locale={locale}

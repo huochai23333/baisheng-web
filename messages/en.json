@@ -94,7 +94,6 @@
     },
     "list": {
       "title": "Order List",
-      "description": "Orders matching the current filters are shown here.",
       "loaded": "Showing {shown} / {total} {unit}",
       "range": "Showing {start}–{end} / {total} {unit}",
       "loadMore": "Load More",
@@ -612,7 +611,6 @@
     },
     "header": {
       "title": "Company Expenses",
-      "description": "Record monthly company spending so administrators and finance can check it together.",
       "create": "Add Expense"
     },
     "filters": {
@@ -694,7 +692,6 @@
     },
     "header": {
       "title": "Reimbursements",
-      "description": "Record everyday reimbursement items and amounts. Unreimbursed records in the current period can be marked as reimbursed together.",
       "create": "Add Record",
       "reimburseCurrent": "Reimburse This Month",
       "currentPeriodLabel": "This month: "
@@ -858,10 +855,10 @@
         "notGenerated": "Not available"
       },
       "summary": {
-        "orderCount": "Order Count",
-        "customerPaymentRmb": "Customer Payment in CNY",
-        "grossProfit": "Total Gross Profit",
-        "averageMargin": "Average Margin"
+        "orderCount": "Orders",
+        "customerPaymentRmb": "Customer Paid",
+        "grossProfit": "Gross Profit",
+        "averageMargin": "Margin"
       },
       "assessment": {
         "pending": "Assessing",
@@ -886,8 +883,6 @@
     },
     "logisticsArchive": {
       "title": "Logistics Management",
-      "eyebrow": "Dianxiaomi Logistics Archive",
-      "description": "Review logistics orders by store and order date, then total international freight by salesperson and currency.",
       "updating": "Logistics data is being updated. Existing records remain available.",
       "missingCost": "Missing freight",
       "actions": {
@@ -914,7 +909,7 @@
         "recorded": "Freight Recorded",
         "missing": "Missing Freight",
         "lastUpdated": "Last Updated",
-        "freight": "{currency} International Freight"
+        "freightTitle": "International Freight"
       },
       "columns": {
         "orderTime": "Order Date",
@@ -1073,21 +1068,7 @@
       "wholesale": "Wholesale Business"
     },
     "header": {
-      "title": "VIP Management",
-      "admin": {
-        "description": "Handle customer VIP applications, confirm payment, review recharge records, and adjust validity inside this business."
-      },
-      "salesman": {
-        "description": "Review VIP status for customers you can follow and submit opening or renewal applications."
-      },
-      "wholesale": {
-        "admin": {
-          "description": "Review wholesale customer VIP status and directly open or renew membership."
-        },
-        "salesman": {
-          "description": "Review wholesale customers you follow and directly open or renew membership."
-        }
-      }
+      "title": "VIP Management"
     },
     "summary": {
       "total": "Visible Customers",
@@ -1107,11 +1088,8 @@
       }
     },
     "directory": {
-      "eyebrow": "Customer VIP",
       "title": "VIP Customer List",
-      "description": "Each customer's applications, recharges, and adjustments are filed under this business.",
       "wholesaleTitle": "Wholesale Customer VIP",
-      "wholesaleDescription": "Only customer, current status, and action are shown here. Opening or renewing VIP automatically creates a record.",
       "emptyTitle": "No Matching Customers",
       "emptyDescription": "Change the filters and check again.",
       "columns": {
@@ -1425,7 +1403,6 @@
     },
     "header": {
       "title": "Announcement Management",
-      "description": "Administrators can create, edit, publish, and take down announcements while controlling whether clients, internal members, or every role can see them.",
       "create": "New Announcement"
     },
     "filters": {
@@ -1500,9 +1477,7 @@
       "salesman": "Sales"
     },
     "header": {
-      "badge": "Feedback",
-      "title": "Problems and Improvements",
-      "description": "Review feedback submitted inside the workspace and update each item as it is handled."
+      "title": "Problems and Improvements"
     },
     "summary": {
       "total": "All Feedback",
@@ -1519,9 +1494,7 @@
       "allStatuses": "All Statuses"
     },
     "list": {
-      "eyebrow": "Feedback List",
       "title": "User Feedback",
-      "description": "Review the content, submitter, and source page, then update the current handling status.",
       "emptyTitle": "No matching feedback",
       "emptyDescription": "Adjust the filters or wait for users to send new feedback.",
       "feedback": "Feedback",
@@ -1773,30 +1746,21 @@
     },
     "modes": {
       "admin": {
-        "badge": "Order Workspace",
         "title": "Order Center",
-        "description": "The list shows the main order information first. Open any order to inspect the full details.",
         "createTitle": "Create Order",
         "createDescription": "After you fill in the basic order information, the new order is written to the list immediately.",
-        "emptyDescription": "There are no order records yet. Newly created orders will appear here.",
         "noPermissionDescription": "The current account does not have access to the order center."
       },
       "salesman": {
-        "badge": "Sales Orders",
         "title": "Client Orders",
-        "description": "You can create new orders for your own clients here.",
         "createTitle": "Create Client Order",
         "createDescription": "Enter the client and order details, then save.",
-        "emptyDescription": "There are no visible orders right now.",
         "noPermissionDescription": "The current account does not have access to sales orders.",
         "noCreateTargetHint": "You do not have any linked clients available for new orders yet."
       },
       "client": {
-        "badge": "Client Orders",
         "title": "My Orders",
-        "description": "This page shows order records related to you. You can open any row at any time to review the full details.",
         "createTitle": "Create Order",
-        "emptyDescription": "You do not have any order records yet. Future orders will appear here automatically.",
         "noPermissionDescription": "The current account does not have access to client orders."
       }
     },
@@ -2133,7 +2097,6 @@
       "title": "Review Center"
     },
     "header": {
-      "badge": "Review Workspace",
       "title": "Review Center"
     },
     "summary": {
@@ -2248,9 +2211,7 @@
     },
     "loading": "loading",
     "header": {
-      "badge": "FX Rate Workspace",
-      "title": "FX Rate Center",
-      "description": "Review the latest effective currency pairs and their full history in one place so orders and finance see the same reference rates."
+      "title": "FX Rate Center"
     },
     "summary": {
       "pairs": "Currency Pairs",
@@ -2304,9 +2265,7 @@
       }
     },
     "latest": {
-      "eyebrow": "Current Overview",
       "title": "Latest FX Rates",
-      "description": "Each currency pair keeps only its latest effective value, ordered by the most recent update time.",
       "countSummary": "{count} pairs",
       "emptyTitle": "No FX Rates Yet",
       "emptyDescription": "There are no FX rate records yet. New rates will appear here first.",
@@ -2390,7 +2349,6 @@
   "Referrals": {
     "loading": "loading",
     "header": {
-      "badge": "Referral Network",
       "title": "Referral Tree"
     },
     "boards": {
@@ -2435,11 +2393,6 @@
       "client": "Client",
       "unknown": "Unassigned Role"
     },
-    "sections": {
-      "manager": "Managers can view their own upstream and downstream relationships, plus the referral chains of each sales account in their team. Team sales members are marked separately in the tree.",
-      "recruiter": "Recruiters can see who referred them and which sales accounts they referred. The tree does not expand into unrelated team relationships.",
-      "default": "This view shows your direct upstream and downstream relationships in a tree hierarchy instead of separate lists."
-    },
     "errors": {
       "noPermission": "The current account does not have permission to view the referral tree."
     }
@@ -2469,9 +2422,7 @@
       }
     },
     "header": {
-      "badge": "Commission Workspace",
-      "title": "Commission Board",
-      "description": "Review all commission records, pending settlement amounts, and payout progress in one place. Administrators and finance users can manually mark approved commissions as paid."
+      "title": "Commission Board"
     },
     "boards": {
       "normal": {
@@ -2517,7 +2468,6 @@
     },
     "beneficiaries": {
       "title": "Beneficiary Summary",
-      "description": "Click a beneficiary to focus the board on all commission records linked to that person.",
       "emptyTitle": "No Beneficiaries Found",
       "emptyDescription": "No beneficiaries match the current filters.",
       "columns": {
@@ -2536,7 +2486,6 @@
     },
     "table": {
       "title": "Commission Details",
-      "description": "Inspect each commission line by order, beneficiary, source relationship, and settlement history.",
       "emptyTitle": "No Commission Records",
       "emptyDescription": "No commission records match the current filters.",
       "columns": {
@@ -2563,7 +2512,6 @@
     },
     "taskSection": {
       "title": "Task Commission Records",
-      "description": "Approved and completed tasks enter pending settlement first. Administrators and finance users can mark them as paid after review.",
       "summary": {
         "recordCount": "Task Commission Records",
         "totalAmount": "Total Task Commission",
@@ -2663,7 +2611,6 @@
     },
     "salesmanTaskSection": {
       "title": "My Task Commissions",
-      "description": "This section lists task commission records earned by the current account after task reviews are approved, including whether they are still pending settlement.",
       "summary": {
         "totalAmount": "Total Task Commission",
         "pendingAmount": "Pending Task Commission",
@@ -2752,9 +2699,7 @@
     "salesman": {
       "loading": "loading",
       "header": {
-        "badge": "My Commissions",
-        "title": "Salesman Commission History",
-        "description": "Review your own commission totals, pending settlement progress, and the order or task sources behind each payout."
+        "title": "Salesman Commission History"
       },
       "summary": {
         "totalAmount": "Total Commission",
@@ -2769,7 +2714,6 @@
       },
       "table": {
         "title": "Commission History",
-        "description": "Each record shows where the commission came from, which order generated it, and whether it is still pending or already settled.",
         "columns": {
           "origin": "Origin",
           "orderCustomer": "Order & Customer",
@@ -2893,9 +2837,7 @@
         "mediaLibrary": "Task Media Library"
       },
       "header": {
-        "badge": "Task Dispatch",
         "title": "Administrator Task Board",
-        "description": "Review progress in one place, publish new tasks, and adjust target roles before work begins.",
         "refresh": "Refresh Data",
         "history": "Completed History",
         "allTasks": "Back to Board",
@@ -2907,7 +2849,6 @@
         "reviewing": "Under Review"
       },
       "reviewBoard": {
-        "badge": "Task Review",
         "title": "Task Review",
         "description": "Review submitted task work here. Approved tasks move to completed, and rejected submissions can be sent again.",
         "refresh": "Refresh Reviews",
@@ -2939,8 +2880,7 @@
         "targetRoleAll": "All Roles"
       },
       "list": {
-        "title": "Task List",
-        "description": "Matched {count} tasks. Use search and filters to find the right item quickly."
+        "title": "Task List"
       },
       "createDialog": {
         "title": "Create Task",
@@ -3055,9 +2995,7 @@
         "unsupportedDescription": "Download the original file and open it with the matching app on your computer."
       },
       "mediaLibrary": {
-        "badge": "Approved Files",
         "title": "Task Media Library",
-        "description": "Manage member files that have passed task review in one place. {count} file(s) are available.",
         "refresh": "Refresh Library",
         "searchLabel": "Search Files",
         "searchPlaceholder": "Search by file name, task, submitter, or reviewer",
@@ -3141,9 +3079,7 @@
         "completed": "Task completed."
       },
       "header": {
-        "badge": "My Tasks",
         "title": "Task Center",
-        "description": "Review the tasks you can participate in, track what you are currently handling, and submit your completed work for review.",
         "history": "Completed History",
         "allTasks": "Back to Board"
       },
@@ -3175,8 +3111,7 @@
         "scopeAll": "All Types"
       },
       "list": {
-        "title": "Task List",
-        "description": "Matched {count} tasks."
+        "title": "Task List"
       },
       "card": {
         "taskScopeLabel": "Target Roles",
@@ -3229,9 +3164,7 @@
       "title": "Operation Records"
     },
     "header": {
-      "badge": "Administrator only",
-      "title": "Operation Records",
-      "description": "Review account changes, profile approvals, and feedback handling in one place so administrators can see who handled what and when."
+      "title": "Operation Records"
     },
     "summary": {
       "total": "Total records",
@@ -3266,9 +3199,7 @@
       "feedbackDeclined": "Declined feedback"
     },
     "list": {
-      "eyebrow": "Global records",
       "title": "Recent Operations",
-      "description": "This first version summarizes existing tracked actions. Orders, commissions, teams, and announcements can be connected next.",
       "emptyTitle": "No operation records yet",
       "emptyDescription": "Account changes, profile reviews, and feedback handling will appear here.",
       "columns": {
@@ -3354,9 +3285,7 @@
       "noPermissionTitle": "No Travel Customer Access",
       "noPermissionDescription": "Only active administrators can review and add travel customers.",
       "emptyPermissionTitle": "Access Unavailable",
-      "badge": "Travel",
       "headerTitle": "Travel Customer Management",
-      "headerDescription": "Review current travel customers and add other registered customers to the travel business. Account role, status, and city remain in Account Management.",
       "metricTotal": "Travel Customers",
       "metricActive": "Currently Active",
       "addCustomer": "Add Customer",
@@ -3378,9 +3307,7 @@
       "noPermissionTitle": "No Tourism People Access",
       "noPermissionDescription": "Only active administrators can review tourism personnel.",
       "emptyPermissionTitle": "Access Unavailable",
-      "badge": "Tourism Business",
       "headerTitle": "Tourism People Management",
-      "headerDescription": "Review tourism personnel here. Account role, status, and city remain managed in the global Account Management area.",
       "metricTotal": "Promoter Accounts",
       "metricActive": "Currently Active",
       "resetFilters": "Clear Filters",
@@ -3454,9 +3381,7 @@
       "title": "Account Management"
     },
     "header": {
-      "badge": "Admin Only",
-      "title": "Account Management",
-      "description": "Review system sign-in accounts and adjust account role, status, and city. Business profiles are managed in each business area's Customer Management or People Management section."
+      "title": "Account Management"
     },
     "summary": {
       "total": "Total Accounts",
@@ -3477,9 +3402,7 @@
       "allStatuses": "All Statuses"
     },
     "directory": {
-      "eyebrow": "Account Directory",
       "title": "Accounts",
-      "description": "The list keeps account, role, status, city, and note visible. Open an account to review basic details; tourism and wholesale customer profiles are managed in their own business areas.",
       "emptyTitle": "No accounts match these filters",
       "emptyDescription": "Adjust the search text or filters and try again.",
       "columns": {
@@ -3498,9 +3421,7 @@
       "directReferrals": "{count} direct referrals"
     },
     "logs": {
-      "eyebrow": "Audit Records",
       "title": "Recent Adjustments",
-      "description": "Recent administrator changes to account role, status, and city are recorded here for later review.",
       "emptyTitle": "No adjustment records yet",
       "emptyDescription": "Records will appear here after an administrator adjusts an account.",
       "noNote": "No note",
@@ -3604,10 +3525,7 @@
       "title": "Customer Management"
     },
     "header": {
-      "badge": "My Customers",
-      "title": "Customer Management",
-      "description": "Review your customers and mark them as retail for internal use.",
-      "descriptionRetailOnly": "Review your customers and mark them as retail for internal use."
+      "title": "Customer Management"
     },
     "summary": {
       "total": "Total Customers",
@@ -3624,9 +3542,7 @@
       "searchPlaceholder": "Search name, phone, email, or city"
     },
     "directory": {
-      "eyebrow": "Customer Directory",
       "title": "My Customers",
-      "description": "Customer marks are for internal management only and are not shown to customers.",
       "emptyTitle": "No customers match these filters",
       "emptyDescription": "Adjust the search text, or confirm that customers are already linked to you.",
       "columns": {
@@ -3677,7 +3593,6 @@
   "TeamManagement": {
     "loading": "loading",
     "header": {
-      "badge": "Team Collaboration",
       "title": "Team Management",
       "refresh": "Refresh Team Data",
       "manageableHint": "The current team supports direct updates to its name and members."
@@ -3687,13 +3602,6 @@
       "teamMembers": "Team Members",
       "teamClients": "Team Clients",
       "manageableTeams": "Manageable Teams"
-    },
-    "descriptions": {
-      "manager": "Managers can maintain their own team profile, members, and client structure. The panel summarizes the current team information and referral relationships automatically.",
-      "administrator": "Administrators can inspect every team, create and delete teams directly, adjust members, and reassign the team manager.",
-      "salesman": "Salesmen can review the currently visible team structure, including members, accumulated clients, and the responsible manager.",
-      "readOnly": "This page shows the visible team structure based on access permissions so operations and finance can inspect members and client accumulation together.",
-      "fallback": "This panel brings team details, members, and client referral relationships together in a single management view."
     },
     "feedback": {
       "updated": "Team details have been updated.",
@@ -3767,14 +3675,12 @@
     },
     "members": {
       "title": "Team Members",
-      "description": "This section lists the salesmen in the team. Each member card also shows the number of direct clients.",
       "searchPlaceholder": "Search by member name, email, or client status",
       "emptyTitle": "No Member Results",
       "emptyDescription": "No team members match the current search."
     },
     "candidates": {
       "title": "Available Salesmen",
-      "description": "This list shows sales team members who can be added to a team. Anyone already assigned to another team stays marked and cannot be added twice.",
       "searchPlaceholder": "Search salesman name, email, or current team",
       "availableCount": "There are currently {count} salesman candidates who can be added directly.",
       "emptyTitle": "No Candidate Results",
@@ -3784,7 +3690,6 @@
     },
     "clients": {
       "title": "Team Clients",
-      "description": "This section groups team clients by the salespeople who referred them and also shows VIP labels.",
       "searchPlaceholder": "Search client name, email, or referring salesman",
       "emptyTitle": "No Client Results",
       "emptyDescription": "No team clients match the current search."
@@ -3953,13 +3858,10 @@
     "components_dashboard_wholesale_wholesale_claims_section": {
       "text003": " Strip ",
       "text002": " Clear search ",
-      "attribute002": "Wholesale business",
       "text001": " Upload 1688 files ",
       "attribute005": "Search purchase orders",
       "attribute006": "1688 Order number, consignee, product, customer, salesperson",
-      "attribute001": "1688 Purchase orders are processed separately according to claimed, pending classification and claiming hall. After uploading the order form, the system will first assist in categorizing it by the name of the consignee, and only after confirming the customer and wholesale order will the claim be completed.",
       "attribute003": "Order claim",
-      "attribute004": "Purchase order claim",
       "attribute007": "No purchase order yet",
       "assistedEmptyDescription": "There are no 1688 orders waiting for client confirmation.",
       "bulkClaim": "Claim selected orders",
@@ -4026,7 +3928,6 @@
       "text013": " Mark settlement "
     },
     "components_dashboard_wholesale_wholesale_commission_section": {
-      "attribute001": "Wholesale business",
       "attribute002": "Commission",
       "text001": " Clear filter ",
       "attribute006": "Salesman",
@@ -4088,17 +3989,12 @@
       "text003": "No other names have been recorded yet."
     },
     "components_dashboard_wholesale_wholesale_customers_section": {
-      "attribute002": "Wholesale business",
       "attribute003": "Customer management",
-      "text001": " Add new customer profile ",
-      "attribute001": "Separately manage wholesale customer files, contact information, sources, associated salespersons and registered account merger status."
+      "text001": " Add new customer profile "
     },
     "components_dashboard_wholesale_wholesale_order_assessment_panel": {
       "text004": " There are no orders under the current filter conditions. Adjust the date or filter conditions before generating an evaluation. ",
-      "text003": " Each order generates an overview of the amount, status, gross profit and risk points. ",
-      "text005": " The filter criteria have changed and it is recommended to regenerate the assessment. ",
-      "text002": " Filtered based on current ",
-      "text001": " AI order evaluation "
+      "text005": " The filter criteria have changed and it is recommended to regenerate the assessment. "
     },
     "components_dashboard_wholesale_wholesale_order_change_sections": {
       "text002": "Client",
@@ -4231,15 +4127,13 @@
       "attribute002": "Foreign exchange settlement progress"
     },
     "components_dashboard_wholesale_wholesale_orders_section": {
-      "attribute002": "Wholesale business",
       "attribute003": "Wholesale order",
       "text002": " Reload ",
       "attribute004": "Order list",
       "text001": " Create new order ",
       "attribute006": "No matching orders yet",
       "text003": " Loading orders... ",
-      "attribute005": "There are no matching wholesale orders. You can adjust the filter conditions or create a new order.",
-      "attribute001": "View wholesale orders in batches by condition. Keep the complete form on the computer, and click on the order card on the mobile phone to view expenses, profits, foreign exchange settlement and related records."
+      "attribute005": "There are no matching wholesale orders. You can adjust the filter conditions or create a new order."
     },
     "components_dashboard_wholesale_wholesale_orders_table": {
       "text001": " Order number ",
@@ -4294,10 +4188,8 @@
       "attribute001": "There are no matching wholesale customers. You can adjust filter conditions or add new customers."
     },
     "components_dashboard_wholesale_wholesale_people_section": {
-      "attribute002": "Wholesale business",
       "attribute003": "People management",
-      "text001": " Salesperson account ",
-      "attribute001": "View here the salesperson accounts that can undertake wholesale customers and orders. Customer files have been moved to the customer management section."
+      "text001": " Salesperson account "
     },
     "components_dashboard_wholesale_wholesale_people_tabs": {
       "text001": " Clear filter ",
@@ -4324,7 +4216,6 @@
       "attribute008": "Name, email, mobile phone or city"
     },
     "components_dashboard_wholesale_wholesale_referral_commission_section": {
-      "attribute002": "Wholesale business",
       "text001": " Clear filter ",
       "attribute007": "Client",
       "text002": "All customers",
@@ -4336,7 +4227,6 @@
       "attribute006": "Referring customer, recommended customer or order number",
       "text008": " Recommended to ",
       "attribute004": "Customer referral commission",
-      "attribute001": "Summarize the referral commissions generated between wholesale customers and view them separately from the salesperson commissions.",
       "text004": " Recommended customers ",
       "attribute009": "No matching commission yet",
       "text006": " Calculation details ",
@@ -4348,13 +4238,11 @@
       "text013": " Related orders:"
     },
     "components_dashboard_wholesale_wholesale_referrals_section": {
-      "attribute002": "Wholesale business",
       "attribute005": "Search for customers",
       "attribute011": "Recommend customers",
       "attribute012": "Recommended customers",
       "attribute007": "There are no matching wholesale customers.",
       "attribute009": "A customer can only have one direct referral; referral commissions are aggregated based on the recommended customer's orders.",
-      "attribute001": "Display the referral relationship between wholesale customers and use it to subsequently summarize customer referral commissions based on wholesale orders.",
       "attribute006": "Enter customer name to find referral relationships",
       "attribute010": "Add recommendation relationship",
       "text004": " Save relationship ",
@@ -4396,10 +4284,8 @@
     },
     "components_dashboard_wholesale_wholesale_settlement_release_section": {
       "text001": " Post payment ",
-      "attribute002": "Wholesale business",
       "text002": " Clear filter ",
       "text003": "All status",
-      "attribute001": "The financial department publishes the customer's remittance received, and the salesperson matches it to the corresponding wholesale order after claiming it.",
       "attribute008": "Processing status",
       "attribute010": "No foreign exchange settlement and collection yet",
       "attribute003": "Exchange settlement release",

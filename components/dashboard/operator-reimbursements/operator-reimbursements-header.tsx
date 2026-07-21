@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, LoaderCircle, Plus, ReceiptText } from "lucide-react";
+import { CheckCircle2, LoaderCircle, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { OperatorReimbursementPeriod } from "@/lib/operator-reimbursements";
@@ -12,7 +12,6 @@ type OperatorReimbursementsHeaderSectionProps = {
   copy: {
     create: string;
     currentPeriodLabel: string;
-    description: string;
     reimburseCurrent: string;
     title: string;
   };
@@ -59,7 +58,7 @@ export function OperatorReimbursementsHeaderSection({
           </Button>
         </>
       }
-      asideFooter={
+      meta={
         <p className="max-w-full break-words text-sm leading-7 text-content-muted [overflow-wrap:anywhere] min-[1360px]:text-right">
           <span className="font-semibold text-content-muted">
             {copy.currentPeriodLabel}
@@ -67,11 +66,7 @@ export function OperatorReimbursementsHeaderSection({
           {formatOperatorReimbursementPeriod(currentPeriod, locale)}
         </p>
       }
-      badge={copy.title}
-      badgeClassName="bg-surface-inset text-primary"
-      badgeIcon={<ReceiptText className="size-3.5" />}
-      description={copy.description}
-      descriptionClassName="max-w-2xl text-sm leading-7"
+      presentation="work"
       title={copy.title}
     />
   );

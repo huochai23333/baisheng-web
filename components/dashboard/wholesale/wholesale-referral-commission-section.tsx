@@ -80,8 +80,6 @@ export function WholesaleReferralCommissionSection({
   const hasActiveFilters = search || customerFilter !== ALL;
   return (
     <WholesalePageShell
-      description={uiText("attribute001")}
-      eyebrow={uiText("attribute002")}
       title={uiText("attribute003")}
     >
       <WholesaleStatGrid
@@ -128,8 +126,7 @@ export function WholesaleReferralCommissionSection({
             <UiMessage id="components_dashboard_wholesale_wholesale_referral_commission_section.text001" />
           </Button>
         }
-        description={`共 ${referralRows.length} 条月度佣金记录，当前显示 ${filteredRows.length} 条。`}
-        title={uiText("attribute004")}
+        ariaLabel={uiText("attribute004")}
       >
         <div className="mb-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_260px]">
           <DashboardFilterField label={uiText("attribute005")}>

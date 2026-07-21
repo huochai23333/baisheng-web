@@ -98,9 +98,7 @@ export function AdminTaskMediaLibrarySection({
           {t("refresh")}
         </Button>
       }
-      description={t("description", { count: items.length })}
-      eyebrow={t("badge")}
-      title={t("title")}
+      ariaLabel={t("title")}
     >
       <div className="space-y-5">
         <DashboardResourceFilterSection

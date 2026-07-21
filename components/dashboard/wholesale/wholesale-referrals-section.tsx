@@ -75,16 +75,14 @@ export function WholesaleReferralsSection({
           </Button>
         ) : null
       }
-      description={uiText("attribute001")}
-      eyebrow={uiText("attribute002")}
       title={uiText("attribute003")}
     >
       <DashboardListSection
+        ariaLabel={uiText("attribute004")}
         description={t("summary", {
           customers: customers.length,
           referrals: referrals.length,
         })}
-        title={uiText("attribute004")}
       >
         <div className="mb-5">
           <DashboardFilterField label={uiText("attribute005")}>

@@ -51,7 +51,7 @@ export function WorkspaceDesktopSidebar({
   const hasCustomSidebar = Boolean(sidebar);
 
   return (
-    <aside className="fixed inset-y-4 left-4 z-20 hidden w-[252px] overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-chrome/92 shadow-surface-navigation backdrop-blur md:block">
+    <aside className="fixed inset-y-4 left-4 z-20 hidden w-[252px] overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-chrome/92 shadow-surface-navigation backdrop-blur lg:block">
       <div
         className={cn(
           "absolute inset-0 flex flex-col px-4 py-6 transition duration-300 ease-out",

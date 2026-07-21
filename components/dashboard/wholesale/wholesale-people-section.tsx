@@ -50,8 +50,6 @@ export function WholesalePeopleSection({
     accountSearch || accountRoleFilter !== ALL || accountStatusFilter !== ALL;
   return (
     <WholesalePageShell
-      description={uiText("attribute001")}
-      eyebrow={uiText("attribute002")}
       title={uiText("attribute003")}
     >
       <div className="inline-flex w-fit items-center gap-2 rounded-full bg-status-info-soft px-3 py-1 text-xs font-semibold text-primary">

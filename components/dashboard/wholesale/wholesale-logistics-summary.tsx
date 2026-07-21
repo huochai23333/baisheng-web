@@ -10,14 +10,13 @@ import {
 import { useTranslations } from "next-intl";
 
 import { useLocale } from "@/components/i18n/locale-provider";
+import { DashboardOperationalSummary } from "@/components/dashboard/dashboard-operational-summary";
 import type { WholesaleLogisticsPage } from "@/lib/wholesale-logistics-page";
 
 import {
   formatWholesaleLogisticsDateTime,
   formatWholesaleLogisticsMoney,
 } from "./wholesale-logistics-display";
-import { WholesaleStatGrid } from "./wholesale-ui";
-
 export function WholesaleLogisticsSummary({
   page,
 }: {
@@ -29,40 +28,44 @@ export function WholesaleLogisticsSummary({
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([currency, amount]) => ({
       icon: <CircleDollarSign className="size-4" />,
-      label: t("summary.freight", { currency }),
+      id: `freight-${currency}`,
+      label: currency,
       tone: "success" as const,
       value: formatWholesaleLogisticsMoney(amount, currency, locale),
     }));
 
   return (
-    <WholesaleStatGrid
-      stats={[
+    <DashboardOperationalSummary
+      meta={{
+        icon: <Clock3 className="size-4" />,
+        label: t("summary.lastUpdated"),
+        value: formatWholesaleLogisticsDateTime(page.lastUpdatedAt, locale),
+      }}
+      primaryItems={[
         {
           icon: <Package className="size-4" />,
+          id: "orders",
           label: t("summary.orders"),
           tone: "info",
           value: `${page.totalCount}`,
         },
         {
           icon: <BadgeCheck className="size-4" />,
+          id: "recorded",
           label: t("summary.recorded"),
           tone: "success",
           value: `${page.recordedCostCount}`,
         },
         {
           icon: <CircleAlert className="size-4" />,
+          id: "missing",
           label: t("summary.missing"),
           tone: "warning",
           value: `${page.missingCostCount}`,
         },
-        {
-          icon: <Clock3 className="size-4" />,
-          label: t("summary.lastUpdated"),
-          tone: "info",
-          value: formatWholesaleLogisticsDateTime(page.lastUpdatedAt, locale),
-        },
-        ...currencyStats,
       ]}
+      secondaryItems={currencyStats}
+      secondaryTitle={t("summary.freightTitle")}
     />
   );
 }

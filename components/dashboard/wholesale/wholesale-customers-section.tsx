@@ -164,8 +164,6 @@ export function WholesaleCustomersSection({
           </div>
         ) : null
       }
-      description={uiText("attribute001")}
-      eyebrow={uiText("attribute002")}
       title={uiText("attribute003")}
     >
       <WholesaleCustomerPeopleTab

@@ -165,8 +165,6 @@ export function WholesaleOrdersSection({
           </Button>
         ) : null
       }
-      description={uiText("attribute001")}
-      eyebrow={uiText("attribute002")}
       title={uiText("attribute003")}
     >
       <WholesaleOrderFiltersPanel

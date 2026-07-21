@@ -116,8 +116,12 @@ export async function AdminShell({ children, config }: AdminShellProps) {
                   }
                 />
 
-                <div className="flex min-h-screen min-w-0 flex-1 flex-col md:ml-[284px]">
-                  <header className="sticky top-0 z-10 border-b border-surface-panel-border bg-background/82 backdrop-blur">
+                {/* 768px 平板仍使用顶部导航，把完整内容宽度留给两列工作区；1024px 起再让出桌面侧栏。 */}
+                <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[284px]">
+                  <header
+                    className="sticky top-0 z-10 border-b border-border-subtle bg-surface-chrome/95 shadow-surface-header backdrop-blur"
+                    data-slot="workspace-header"
+                  >
                     <div className="mx-auto grid w-full max-w-[1600px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-3 py-3 sm:flex sm:justify-between sm:px-6 sm:py-4 lg:px-8">
                       <div className="min-w-[4.5rem] sm:min-w-0">
                         <p className="font-label whitespace-nowrap text-[10px] tracking-[0.08em] text-content-muted uppercase sm:text-[11px] sm:tracking-[0.2em]">
@@ -143,7 +147,7 @@ export async function AdminShell({ children, config }: AdminShellProps) {
                       </h1>
                     </div>
 
-                    <div className="px-3 pb-3 md:hidden">
+                    <div className="px-3 pb-3 lg:hidden">
                       <AdminShellNav
                         emptyGroupsLabel={t("business.noAccess")}
                         globalItems={workspace.globalNavItems}

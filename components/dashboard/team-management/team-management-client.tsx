@@ -35,7 +35,6 @@ export function TeamManagementClient({
           canManageSelectedTeam={viewModel.canManageSelectedTeam}
           busyKey={viewModel.busyKey}
           onRefresh={() => void viewModel.handleRefresh()}
-          viewerRole={viewModel.viewerRole}
         />
       }
     >

@@ -102,19 +102,20 @@ export function MetricCard({
         <div className="min-w-0 flex-1">
           <p
             className={cn(
-              "font-label truncate text-[10px] font-semibold text-content-muted uppercase sm:text-[11px]",
+              // 中文指标名不能被压成逐字竖排；英文仍可在单词边界自然换行。
+              "font-label break-normal text-[10px] font-semibold leading-4 text-content-muted uppercase [word-break:keep-all] sm:text-[11px]",
               labelClassName,
             )}
           >
             {label}
           </p>
           {description ? (
-            <p className="mt-0.5 truncate text-xs text-content-muted">
+            <p className="mt-0.5 break-words text-xs leading-4 text-content-muted [overflow-wrap:anywhere]">
               {description}
             </p>
           ) : null}
         </div>
-        <div className="min-w-0 shrink-0 whitespace-nowrap text-right text-lg font-bold text-content-strong [overflow-wrap:anywhere] sm:text-xl">
+        <div className="max-w-[62%] shrink-0 whitespace-nowrap text-right text-lg font-bold leading-tight text-content-strong sm:text-xl">
           {value}
         </div>
       </section>
@@ -188,7 +189,7 @@ export function MetricCard({
             <p className="mt-1 text-sm text-content-muted">{description}</p>
           ) : null}
           {isHeader ? (
-            <div className="mt-1 truncate text-xl font-bold text-content-strong sm:text-2xl">
+            <div className="mt-1 break-words text-xl font-bold text-content-strong [overflow-wrap:anywhere] sm:text-2xl">
               {value}
             </div>
           ) : null}
@@ -234,7 +235,8 @@ export function MetricGrid({
         layout === "three-column" && "gap-3 md:grid-cols-3",
         layout === "four-column" && "gap-4 sm:grid-cols-2 xl:grid-cols-4",
         layout === "summary-strip" &&
-          "grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4",
+          // 带侧栏的 1280px 页面实际内容宽度不足四列，过早升到四列会把标签压成竖排。
+          "grid-cols-1 gap-2 sm:grid-cols-2 min-[1360px]:grid-cols-4",
         className,
       )}
       data-layout={layout}

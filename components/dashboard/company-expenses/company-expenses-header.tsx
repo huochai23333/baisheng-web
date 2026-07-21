@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, ReceiptText } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DashboardSectionHeader } from "../dashboard-section-header";
@@ -10,7 +10,7 @@ export function CompanyExpensesHeaderSection({
   copy,
   onCreate,
 }: {
-  copy: { create: string; description: string; title: string };
+  copy: { create: string; title: string };
   onCreate: () => void;
 }) {
   return (
@@ -21,12 +21,7 @@ export function CompanyExpensesHeaderSection({
           {copy.create}
         </Button>
       }
-      badge={copy.title}
-      badgeClassName="bg-surface-inset text-primary"
-      badgeIcon={<ReceiptText className="size-3.5" />}
-      density="compact"
-      description={copy.description}
-      descriptionClassName="max-w-2xl text-sm leading-7"
+      presentation="work"
       title={copy.title}
     />
   );

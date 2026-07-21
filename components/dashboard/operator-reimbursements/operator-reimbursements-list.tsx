@@ -51,7 +51,7 @@ export function OperatorReimbursementsListSection({
   reimbursements,
 }: OperatorReimbursementsListSectionProps) {
   return (
-    <DashboardListSection title={copy.recordsTitle}>
+    <DashboardListSection ariaLabel={copy.recordsTitle}>
       <PresenceSwap
         presenceKey={reimbursements.length === 0 ? "empty" : "reimbursements"}
       >

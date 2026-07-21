@@ -114,9 +114,7 @@ export function AdminTasksHeroSection({
           </Button>
         </>
       }
-      badge={t("header.badge")}
-      badgeClassName="bg-surface-inset"
-      description={t("header.description")}
+      presentation="work"
       title={t("header.title")}
     />
   );
@@ -221,9 +219,8 @@ export function AdminTasksListSection({
 
   return (
     <DashboardListSection
+      ariaLabel={t("list.title")}
       bodyClassName="space-y-4"
-      description={t("list.description", { count: filteredCount })}
-      title={t("list.title")}
     >
       <PresenceSwap presenceKey={filteredCount === 0 ? "empty" : "task-list"}>
         {filteredCount === 0 ? (

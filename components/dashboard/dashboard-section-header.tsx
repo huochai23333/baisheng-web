@@ -2,9 +2,8 @@
 
 import type { ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
-
 import { MetricCard, MetricGrid } from "@/components/ui/data-display";
+import { cn } from "@/lib/utils";
 
 export type DashboardSectionHeaderMetric = {
   accent: "blue" | "gold" | "green";
@@ -15,28 +14,119 @@ export type DashboardSectionHeaderMetric = {
   value: ReactNode;
 };
 
-type DashboardSectionHeaderProps = {
+type DashboardSectionHeaderBaseProps = {
   actions?: ReactNode;
   actionsClassName?: string;
-  asideClassName?: string;
-  asideFooter?: ReactNode;
-  badge: ReactNode;
-  badgeClassName?: string;
-  badgeIcon?: ReactNode;
   className?: string;
-  contentClassName?: string;
-  description?: ReactNode;
-  descriptionClassName?: string;
-  density?: "compact" | "comfortable";
-  layoutClassName?: string;
-  metrics?: readonly DashboardSectionHeaderMetric[];
-  metricsClassName?: string;
-  metricsPlacement?: "aside" | "below";
   title: ReactNode;
   titleClassName?: string;
 };
 
-export function DashboardSectionHeader({
+/**
+ * 高频工作页只保留任务标题、当前状态和主要操作。
+ * 将不允许的属性明确写成 `never`，可以在开发阶段直接阻止大徽标、介绍文字或指标卡重新回到工作页头。
+ */
+type DashboardWorkSectionHeaderProps = DashboardSectionHeaderBaseProps & {
+  presentation: "work";
+  meta?: ReactNode;
+  asideClassName?: never;
+  asideFooter?: never;
+  badge?: never;
+  badgeClassName?: never;
+  badgeIcon?: never;
+  contentClassName?: never;
+  density?: never;
+  description?: never;
+  descriptionClassName?: never;
+  layoutClassName?: never;
+  metrics?: never;
+  metricsClassName?: never;
+  metricsPlacement?: never;
+};
+
+/**
+ * 首页、统计概览和设置页仍可使用带说明与指标的舒展页头。
+ * `presentation` 必须显式传入，新增页面时必须先判断它是工作页还是概览页。
+ */
+type DashboardOverviewSectionHeaderProps =
+  DashboardSectionHeaderBaseProps & {
+    presentation: "overview";
+    asideClassName?: string;
+    asideFooter?: ReactNode;
+    badge: ReactNode;
+    badgeClassName?: string;
+    badgeIcon?: ReactNode;
+    contentClassName?: string;
+    density?: "compact" | "comfortable";
+    description?: ReactNode;
+    descriptionClassName?: string;
+    layoutClassName?: string;
+    meta?: never;
+    metrics?: readonly DashboardSectionHeaderMetric[];
+    metricsClassName?: string;
+    metricsPlacement?: "aside" | "below";
+  };
+
+export type DashboardSectionHeaderProps =
+  | DashboardOverviewSectionHeaderProps
+  | DashboardWorkSectionHeaderProps;
+
+export function DashboardSectionHeader(props: DashboardSectionHeaderProps) {
+  if (props.presentation === "work") {
+    return <DashboardWorkSectionHeader {...props} />;
+  }
+
+  return <DashboardOverviewSectionHeader {...props} />;
+}
+
+function DashboardWorkSectionHeader({
+  actions,
+  actionsClassName,
+  className,
+  meta,
+  title,
+  titleClassName,
+}: DashboardWorkSectionHeaderProps) {
+  return (
+    <section
+      className={cn(
+        "motion-surface-enter flex min-w-0 flex-col gap-3 border-b border-border-subtle pb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:pb-4",
+        className,
+      )}
+      data-presentation="work"
+      data-slot="dashboard-section-header"
+    >
+      <div className="min-w-0">
+        <h2
+          className={cn(
+            "break-words text-2xl font-bold leading-tight tracking-tight text-content-strong [overflow-wrap:anywhere] sm:text-3xl",
+            titleClassName,
+          )}
+        >
+          {title}
+        </h2>
+        {meta ? (
+          <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-6 text-content-muted">
+            {meta}
+          </div>
+        ) : null}
+      </div>
+
+      {actions ? (
+        <div
+          className={cn(
+            "flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end",
+            actionsClassName,
+          )}
+        >
+          {actions}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function DashboardOverviewSectionHeader({
   actions,
   actionsClassName,
   asideClassName,
@@ -55,7 +145,7 @@ export function DashboardSectionHeader({
   metricsPlacement = "aside",
   title,
   titleClassName,
-}: DashboardSectionHeaderProps) {
+}: DashboardOverviewSectionHeaderProps) {
   const asideMetrics = metricsPlacement === "aside" ? metrics : [];
   const belowMetrics = metricsPlacement === "below" ? metrics : [];
   const hasAside =
@@ -69,6 +159,8 @@ export function DashboardSectionHeader({
         className,
       )}
       data-density={density}
+      data-presentation="overview"
+      data-slot="dashboard-section-header"
     >
       <div
         className={cn(
