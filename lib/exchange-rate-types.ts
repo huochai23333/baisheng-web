@@ -77,6 +77,33 @@ export type ManualExchangeRateFetchResult = {
   successCount: number;
 };
 
+export type HistoricalExchangeRateFetchStatus =
+  | "inserted"
+  | "skipped"
+  | "failed";
+
+export type HistoricalExchangeRateFetchInput = {
+  baseCurrencies: string[];
+  fromDate: string;
+  toDate: string;
+};
+
+export type HistoricalExchangeRateFetchItem = {
+  baseCurrency: string;
+  targetCurrency: "CNY";
+  rateDate: string;
+  status: HistoricalExchangeRateFetchStatus;
+  rate?: number;
+  message?: string;
+};
+
+export type HistoricalExchangeRateFetchResult = {
+  results: HistoricalExchangeRateFetchItem[];
+  insertedCount: number;
+  skippedCount: number;
+  failedCount: number;
+};
+
 export type ExchangeRatesPageData = {
   hasPermission: boolean;
   rates: ExchangeRateRow[];

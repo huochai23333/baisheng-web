@@ -24,6 +24,8 @@ import {
 } from "./exchange-rate-types";
 import { withRequestTimeout } from "./request-timeout";
 
+const EXCHANGE_RATE_PAGE_QUERY_LIMIT = 1_000;
+
 /** 页面查询先校验身份，再并行读取汇率和管理员专用的自动同步设置。 */
 export async function getExchangeRatesPageData(
   supabase: SupabaseClient,
@@ -47,13 +49,15 @@ export async function getExchangeRatesPageData(
 
 export async function getExchangeRates(
   supabase: SupabaseClient,
-  limit = MAX_DASHBOARD_QUERY_ROWS,
+  limit = EXCHANGE_RATE_PAGE_QUERY_LIMIT,
 ): Promise<ExchangeRateRow[]> {
   const { from, to } = getDashboardQueryRange(limit);
   const { data, error } = await withRequestTimeout(
     supabase
       .from("exchange_rate")
       .select(EXCHANGE_RATE_SELECT)
+      .order("rate_date", { ascending: false })
+      .order("fetched_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false })
       .range(from, to)
       .returns<ExchangeRateRow[]>(),
@@ -87,6 +91,7 @@ export async function getLatestCnyExchangeRates(
       .from("exchange_rate")
       .select(EXCHANGE_RATE_SELECT)
       .eq("target_currency", "CNY")
+      .order("rate_date", { ascending: false })
       .order("fetched_at", { ascending: false, nullsFirst: false })
       .order("provider_updated_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false })

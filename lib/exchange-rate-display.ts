@@ -41,10 +41,33 @@ export function buildExchangeRateLatestRows(rows: ExchangeRateRow[]) {
 
 export function sortExchangeRateRows(rows: ExchangeRateRow[]) {
   return [...rows].sort(
-    (left, right) =>
-      toExchangeRateComparableTimestamp(right) -
-      toExchangeRateComparableTimestamp(left),
+    (left, right) => {
+      // 历史补充记录的抓取时间很新，但它不能盖过业务日期更晚的汇率。
+      const rateDateComparison = (right.rate_date ?? "").localeCompare(
+        left.rate_date ?? "",
+      );
+
+      return rateDateComparison !== 0
+        ? rateDateComparison
+        : toExchangeRateComparableTimestamp(right) -
+            toExchangeRateComparableTimestamp(left);
+    },
   );
+}
+
+export type ExchangeRateSourceKind =
+  | "automatic"
+  | "historical"
+  | "manual"
+  | "system";
+
+export function getExchangeRateSourceKind(
+  source: string | null | undefined,
+): ExchangeRateSourceKind {
+  if (source === "frankfurter") return "historical";
+  if (source === "exchangerate-api") return "automatic";
+  if (source === "system") return "system";
+  return "manual";
 }
 
 export function normalizeCurrencyCode(value: string | null | undefined) {

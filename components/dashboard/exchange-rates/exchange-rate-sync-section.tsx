@@ -7,7 +7,14 @@ import * as FormControls from "@/components/ui/form-controls";
 import { memo } from "react";
 
 import { useTranslations } from "next-intl";
-import { Clock3, LoaderCircle, Plus, RefreshCw, Trash2 } from "lucide-react";
+import {
+  CalendarRange,
+  Clock3,
+  LoaderCircle,
+  Plus,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
 
 import {
   normalizeCurrencyCode,
@@ -40,6 +47,7 @@ type ExchangeRateSyncSectionProps = {
   onAutoSyncChange: (enabled: boolean) => void;
   onManualCurrencyChange: (index: number, value: string) => void;
   onManualFetch: () => void;
+  onOpenHistoricalFetch: () => void;
   onPairInputChange: (value: string) => void;
   onRemoveManualCurrency: (index: number) => void;
   onRemovePair: (pairId: string, currency: string) => void;
@@ -60,6 +68,7 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
   onAutoSyncChange,
   onManualCurrencyChange,
   onManualFetch,
+  onOpenHistoricalFetch,
   onPairInputChange,
   onRemoveManualCurrency,
   onRemovePair,
@@ -257,6 +266,16 @@ export const ExchangeRateSyncSection = memo(function ExchangeRateSyncSection({
                   <RefreshCw className="size-4" />
                 )}
                 {t("sync.fetchNow")}
+              </Button>
+              <Button
+                disabled={manualFetchPending}
+                onClick={onOpenHistoricalFetch}
+                type="button"
+                variant="outline"
+                size="default"
+              >
+                <CalendarRange className="size-4" />
+                {t("sync.fetchHistorical")}
               </Button>
             </div>
 

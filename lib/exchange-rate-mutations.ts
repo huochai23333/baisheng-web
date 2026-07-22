@@ -8,6 +8,8 @@ import {
   type ExchangeRateRow,
   type ExchangeRateSyncPairRow,
   type ExchangeRateSyncSettingsRow,
+  type HistoricalExchangeRateFetchInput,
+  type HistoricalExchangeRateFetchResult,
   type ManualExchangeRateFetchResult,
 } from "./exchange-rate-types";
 import { withRequestTimeout } from "./request-timeout";
@@ -98,6 +100,55 @@ export async function triggerManualExchangeRateFetch(
         : Array.isArray(payload?.results)
           ? payload.results.filter((item) => item.ok).length
           : 0,
+  };
+}
+
+/**
+ * 历史补充始终把日期和币种一起交给服务端重新校验。
+ * 浏览器只负责改善填写体验，不能成为日期上限或管理员权限的唯一防线。
+ */
+export async function triggerHistoricalExchangeRateFetch(
+  supabase: SupabaseClient,
+  input: HistoricalExchangeRateFetchInput,
+): Promise<HistoricalExchangeRateFetchResult> {
+  const normalizedBaseCurrencies = normalizeCurrencyList(input.baseCurrencies);
+  if (normalizedBaseCurrencies.length === 0) {
+    throw new Error("请至少填写一个要补充的币种。");
+  }
+
+  const { data, error } = await withRequestTimeout(
+    supabase.functions.invoke("exchange-rate-sync", {
+      body: {
+        trigger: "historical",
+        baseCurrencies: normalizedBaseCurrencies,
+        fromDate: input.fromDate,
+        toDate: input.toDate,
+      },
+    }),
+    {
+      timeoutMs: EXCHANGE_RATE_SYNC_TIMEOUT_MS,
+      message: "历史汇率暂时获取失败，请稍后重试。",
+    },
+  );
+  if (error) throw await toExchangeRateFunctionError(error);
+
+  const payload = data as Partial<HistoricalExchangeRateFetchResult> | null;
+  const results = Array.isArray(payload?.results) ? payload.results : [];
+
+  return {
+    results,
+    insertedCount:
+      typeof payload?.insertedCount === "number"
+        ? payload.insertedCount
+        : results.filter((item) => item.status === "inserted").length,
+    skippedCount:
+      typeof payload?.skippedCount === "number"
+        ? payload.skippedCount
+        : results.filter((item) => item.status === "skipped").length,
+    failedCount:
+      typeof payload?.failedCount === "number"
+        ? payload.failedCount
+        : results.filter((item) => item.status === "failed").length,
   };
 }
 

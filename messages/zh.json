@@ -2253,6 +2253,7 @@
       "addManualCurrency": "添加币种",
       "removeManualCurrency": "移除币种",
       "fetchNow": "立即获取",
+      "fetchHistorical": "按日期补充",
       "resultSuccess": "{currency} 已获取，汇率 {rate}",
       "resultFailed": "{currency} 暂时获取失败",
       "feedback": {
@@ -2262,6 +2263,36 @@
         "pairAdded": "{currency} 已加入每天获取列表。",
         "pairRemoved": "{currency} 已从每天获取列表移除。",
         "manualFetched": "已获取 {count} 个币种的当日汇率。"
+      }
+    },
+    "historicalFetch": {
+      "title": "按日期补充汇率",
+      "description": "选择过去的日期和币种，只补充还没有记录的人民币汇率，已有汇率不会改变。",
+      "cancel": "关闭",
+      "submit": "获取并保存",
+      "pending": "正在获取",
+      "fromDate": "开始日期",
+      "toDate": "结束日期",
+      "currencies": "要补充的币种",
+      "currenciesHint": "已带入每天获取的币种，可临时增删，最多 10 个。",
+      "currencyLabel": "币种 {index}",
+      "currencyPlaceholder": "例如 USD",
+      "removeCurrency": "移除第 {index} 个币种",
+      "addCurrency": "添加币种",
+      "estimate": "将检查 {days} 天、{currencies} 个币种，共 {total} 条日期汇率。已有记录会自动跳过。",
+      "failedTitle": "未能获取的日期",
+      "failedItem": "{date} · {currency} 暂时没有可用汇率",
+      "feedback": {
+        "complete": "已新增 {inserted} 条，跳过已有 {skipped} 条，失败 {failed} 条。",
+        "failed": "历史汇率暂时获取失败，请稍后重试。"
+      },
+      "validation": {
+        "currency": "币种代码需要是 3 位字母，例如 USD。",
+        "currencyCount": "一次可以补充 1 到 10 个币种。",
+        "datesRequired": "请选择完整的开始日期和结束日期。",
+        "dateOrder": "开始日期不能晚于结束日期。",
+        "latestDate": "历史汇率最晚只能补充到昨天，今天请使用“立即获取”。",
+        "range": "一次最多补充连续 31 天的汇率。"
       }
     },
     "latest": {
@@ -2298,8 +2329,16 @@
         "originalCurrency": "原始货币",
         "targetCurrency": "目标货币",
         "rate": "汇率值",
+        "rateDate": "汇率日期",
+        "source": "获取方式",
         "updatedAt": "更新时间",
         "actions": "操作"
+      },
+      "sources": {
+        "automatic": "当日获取",
+        "historical": "按日期补充",
+        "manual": "手动录入",
+        "system": "系统提供"
       }
     },
     "dialogs": {

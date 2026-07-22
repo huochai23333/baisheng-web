@@ -3,7 +3,10 @@ import type {
   ExchangeRateRow,
 } from "@/lib/exchange-rates";
 
-import { normalizeCurrencyCode } from "@/lib/exchange-rates";
+import {
+  getBeijingDateString,
+  normalizeCurrencyCode,
+} from "@/lib/exchange-rates";
 import {
   DEFAULT_LOCALE,
   type Locale,
@@ -151,6 +154,53 @@ export function formatExchangeRateValue(
     maximumFractionDigits: 6,
     minimumFractionDigits: numericValue % 1 === 0 ? 0 : 2,
   }).format(numericValue);
+}
+
+/** 汇率日期没有时分秒，固定按 UTC 日历格式化可避免浏览器时区把日期减一天。 */
+export function formatExchangeRateDate(
+  value: string | null | undefined,
+  locale: Locale = DEFAULT_LOCALE,
+  noRecordLabel = "",
+) {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return noRecordLabel;
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) return noRecordLabel;
+
+  return new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "UTC",
+    year: "numeric",
+  }).format(date);
+}
+
+export function addExchangeRateCalendarDays(value: string, amount: number) {
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + amount));
+
+  return [
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, "0"),
+    String(date.getUTCDate()).padStart(2, "0"),
+  ].join("-");
+}
+
+export function getHistoricalExchangeRateMaxDate() {
+  return addExchangeRateCalendarDays(getBeijingDateString(), -1);
+}
+
+export function getExchangeRateDateRangeDayCount(
+  fromDate: string,
+  toDate: string,
+) {
+  if (!fromDate || !toDate || fromDate > toDate) return 0;
+
+  const fromTimestamp = Date.parse(`${fromDate}T00:00:00.000Z`);
+  const toTimestamp = Date.parse(`${toDate}T00:00:00.000Z`);
+  if (!Number.isFinite(fromTimestamp) || !Number.isFinite(toTimestamp)) return 0;
+
+  return Math.floor((toTimestamp - fromTimestamp) / 86_400_000) + 1;
 }
 
 export function toExchangeRateErrorMessage(

@@ -2253,6 +2253,7 @@
       "addManualCurrency": "Add Currency",
       "removeManualCurrency": "Remove Currency",
       "fetchNow": "Fetch Now",
+      "fetchHistorical": "Backfill by Date",
       "resultSuccess": "{currency} fetched, rate {rate}",
       "resultFailed": "{currency} could not be fetched",
       "feedback": {
@@ -2262,6 +2263,36 @@
         "pairAdded": "{currency} was added to the daily list.",
         "pairRemoved": "{currency} was removed from the daily list.",
         "manualFetched": "Fetched today's rates for {count} currencies."
+      }
+    },
+    "historicalFetch": {
+      "title": "Backfill FX Rates by Date",
+      "description": "Choose past dates and currencies. Only missing CNY rates are added, and existing rates are left unchanged.",
+      "cancel": "Close",
+      "submit": "Fetch and Save",
+      "pending": "Fetching",
+      "fromDate": "Start Date",
+      "toDate": "End Date",
+      "currencies": "Currencies to Backfill",
+      "currenciesHint": "Your daily currencies are prefilled. You can temporarily add or remove up to 10 currencies.",
+      "currencyLabel": "Currency {index}",
+      "currencyPlaceholder": "For example USD",
+      "removeCurrency": "Remove currency {index}",
+      "addCurrency": "Add Currency",
+      "estimate": "This will check {days} days for {currencies} currencies, or {total} dated rates. Existing records are skipped.",
+      "failedTitle": "Dates Without an Available Rate",
+      "failedItem": "{date} · No {currency} rate was available",
+      "feedback": {
+        "complete": "Added {inserted}, skipped {skipped} existing records, and failed {failed}.",
+        "failed": "Historical rates could not be fetched right now. Please try again later."
+      },
+      "validation": {
+        "currency": "Enter a three-letter currency code such as USD.",
+        "currencyCount": "Choose between 1 and 10 currencies.",
+        "datesRequired": "Choose both a start date and an end date.",
+        "dateOrder": "The start date cannot be later than the end date.",
+        "latestDate": "Historical rates can only be backfilled through yesterday. Use Fetch Now for today.",
+        "range": "You can backfill up to 31 consecutive days at a time."
       }
     },
     "latest": {
@@ -2298,8 +2329,16 @@
         "originalCurrency": "Original Currency",
         "targetCurrency": "Target Currency",
         "rate": "Rate",
+        "rateDate": "Rate Date",
+        "source": "How It Was Added",
         "updatedAt": "Updated At",
         "actions": "Actions"
+      },
+      "sources": {
+        "automatic": "Today's Fetch",
+        "historical": "Backfilled by Date",
+        "manual": "Entered Manually",
+        "system": "Provided by the System"
       }
     },
     "dialogs": {

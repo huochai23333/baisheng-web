@@ -32,6 +32,7 @@ import {
   type ExchangeRateFormState,
 } from "./exchange-rates-utils";
 import { useExchangeRateSyncSettings } from "./use-exchange-rate-sync-settings";
+import { useExchangeRateHistoryFetch } from "./use-exchange-rate-history-fetch";
 
 type FilterState = {
   originalCurrency: string;
@@ -115,6 +116,11 @@ export function useExchangeRatesViewModel({
     initialState: initialData.syncState,
     onPageDataLoaded: applyPageData,
     supabase,
+  });
+  const historyFetch = useExchangeRateHistoryFetch({
+    canManage,
+    onPageDataLoaded: applyPageData,
+    syncPairs: syncSettings.syncState?.pairs ?? [],
   });
   const latestRows = useMemo(() => buildExchangeRateLatestRows(rates), [rates]);
   const normalizedFilters = useMemo(
@@ -316,6 +322,7 @@ export function useExchangeRatesViewModel({
     handleEditRate,
     hasActiveFilters: Boolean(filters.originalCurrency || filters.targetCurrency),
     hasPermission,
+    historyFetch,
     historyPagination,
     latestPagination,
     latestRows,

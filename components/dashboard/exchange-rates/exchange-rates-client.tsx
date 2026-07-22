@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import type { ExchangeRatesPageData } from "@/lib/exchange-rates";
 
 import { ExchangeRateSyncSection } from "./exchange-rate-sync-section";
+import { ExchangeRateHistoryFetchDialog } from "./exchange-rate-history-fetch-dialog";
 import {
   ExchangeRateFormDialog,
   ExchangeRatesHeaderSection,
@@ -54,6 +55,7 @@ export function ExchangeRatesClient({
     handleEditRate,
     hasActiveFilters,
     hasPermission,
+    historyFetch,
     historyPagination,
     latestPagination,
     latestRows,
@@ -133,6 +135,7 @@ export function ExchangeRatesClient({
               onAutoSyncChange={syncSettings.handleAutoSyncChange}
               onManualCurrencyChange={syncSettings.handleManualCurrencyChange}
               onManualFetch={syncSettings.handleManualFetch}
+              onOpenHistoricalFetch={historyFetch.openDialog}
               onPairInputChange={syncSettings.setPairInput}
               onRemoveManualCurrency={syncSettings.handleRemoveManualCurrency}
               onRemovePair={syncSettings.handleRemovePair}
@@ -185,6 +188,22 @@ export function ExchangeRatesClient({
         onFieldChange={viewModel.updateEditFormField}
         onOpenChange={viewModel.setEditDialogVisibility}
         onSubmit={handleEditRate}
+      />
+      <ExchangeRateHistoryFetchDialog
+        canAddCurrency={historyFetch.canAddCurrency}
+        dayCount={historyFetch.dayCount}
+        feedback={historyFetch.feedback}
+        formState={historyFetch.formState}
+        maxDate={historyFetch.maxDate}
+        open={historyFetch.open}
+        pending={historyFetch.pending}
+        result={historyFetch.result}
+        onAddCurrency={historyFetch.addCurrency}
+        onCurrencyChange={historyFetch.updateCurrency}
+        onDateChange={historyFetch.updateDate}
+        onOpenChange={historyFetch.setOpen}
+        onRemoveCurrency={historyFetch.removeCurrency}
+        onSubmit={historyFetch.submit}
       />
     </DashboardPageShell>
   );
