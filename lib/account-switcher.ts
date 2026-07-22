@@ -4,33 +4,29 @@ import {
   getDefaultSignedInPathForRole,
   type AppRole,
 } from "./auth-routing";
+import {
+  clearAccountSwitcherStorageValues,
+  createAccountNeedingReauthentication,
+  createReadyStoredAccount,
+  getStoredAccountIdentity,
+  isReadyStoredAccount,
+  readPendingAccountSwitcherLogin,
+  readStoredAlternateAccount,
+  refreshReadyStoredAccount,
+  removePendingAccountSwitcherLogin,
+  removeStoredAlternateAccountValue,
+  writePendingAccountSwitcherLogin,
+  writeStoredAlternateAccount,
+  type AccountSwitcherPendingLogin,
+  type AccountSwitcherReadyAccount,
+  type AccountSwitcherStoredAccount,
+} from "./account-switcher-storage";
 
-const ACCOUNT_SWITCHER_STORAGE_KEY = "baisheng.account-switcher.alternate";
-const ACCOUNT_SWITCHER_PENDING_KEY = "baisheng.account-switcher.pending";
-const ACCOUNT_SWITCHER_TTL_MS = 8 * 60 * 60 * 1000;
-const PENDING_LOGIN_TTL_MS = 30 * 60 * 1000;
-
-export type AccountSwitcherStoredAccount = {
-  defaultPath: string;
-  displayName: string;
-  email: string;
-  expiresAt: number;
-  lastUsedAt: number;
-  reauthenticationRequiredAt?: number;
-  role: AppRole;
-  session: {
-    accessToken: string;
-    refreshToken: string;
-  };
-  userId: string;
-};
-
-export type AccountSwitcherPendingLogin = {
-  createdAt: number;
-  currentAccount: AccountSwitcherStoredAccount;
-  kind: "add" | "reauthenticate";
-  targetAccount?: AccountSwitcherStoredAccount;
-};
+export type {
+  AccountSwitcherPendingLogin,
+  AccountSwitcherReadyAccount,
+  AccountSwitcherStoredAccount,
+} from "./account-switcher-storage";
 
 export type AccountSwitcherLoginIntent = Pick<
   AccountSwitcherPendingLogin,
@@ -44,48 +40,53 @@ export type AccountSwitcherLoginCompletion =
   | { status: "target-mismatch"; targetEmail: string };
 
 export function getStoredAlternateAccount() {
-  return readStoredAccount(ACCOUNT_SWITCHER_STORAGE_KEY);
+  return readStoredAlternateAccount();
 }
 
-export function saveStoredAlternateAccount(account: AccountSwitcherStoredAccount) {
-  writeJson(ACCOUNT_SWITCHER_STORAGE_KEY, refreshStoredAccount(account));
+export function saveStoredAlternateAccount(account: AccountSwitcherReadyAccount) {
+  writeStoredAlternateAccount(refreshReadyStoredAccount(account));
 }
 
 export function markStoredAlternateAccountNeedsReauthentication(
   account: AccountSwitcherStoredAccount,
 ) {
-  const nextAccount = {
-    ...account,
-    reauthenticationRequiredAt: Date.now(),
-  } satisfies AccountSwitcherStoredAccount;
+  const nextAccount = createAccountNeedingReauthentication(
+    account,
+    "session-invalid",
+  );
 
-  writeJson(ACCOUNT_SWITCHER_STORAGE_KEY, nextAccount);
+  writeStoredAlternateAccount(nextAccount);
   return nextAccount;
 }
 
 export function removeStoredAlternateAccount() {
-  removeStorageItem(ACCOUNT_SWITCHER_STORAGE_KEY);
+  removeStoredAlternateAccountValue();
 }
 
 export function clearAccountSwitcherStorage() {
-  removeStorageItem(ACCOUNT_SWITCHER_STORAGE_KEY);
-  removeStorageItem(ACCOUNT_SWITCHER_PENDING_KEY);
+  clearAccountSwitcherStorageValues();
 }
 
 export function isStoredAccountExpired(account: AccountSwitcherStoredAccount) {
-  return account.expiresAt <= Date.now();
+  return (
+    (account.state === "ready" && account.expiresAt <= Date.now()) ||
+    (account.state === "reauthentication-required" &&
+      account.reauthenticationReason === "expired")
+  );
 }
 
 export function isStoredAccountReauthenticationRequired(
   account: AccountSwitcherStoredAccount,
 ) {
-  return Boolean(account.reauthenticationRequiredAt) || isStoredAccountExpired(account);
+  return account.state === "reauthentication-required" || isStoredAccountExpired(account);
 }
 
-export function startAddAlternateAccount(currentAccount: AccountSwitcherStoredAccount) {
-  writePendingLogin({
+export function startAddAlternateAccount(
+  currentAccount: AccountSwitcherReadyAccount,
+) {
+  writePendingAccountSwitcherLogin({
     createdAt: Date.now(),
-    currentAccount: refreshStoredAccount(currentAccount),
+    currentAccount: refreshReadyStoredAccount(currentAccount),
     kind: "add",
   });
 }
@@ -94,19 +95,20 @@ export function startAlternateAccountReauthentication({
   currentAccount,
   targetAccount,
 }: {
-  currentAccount: AccountSwitcherStoredAccount;
+  currentAccount: AccountSwitcherReadyAccount;
   targetAccount: AccountSwitcherStoredAccount;
 }) {
-  writePendingLogin({
+  writePendingAccountSwitcherLogin({
     createdAt: Date.now(),
-    currentAccount: refreshStoredAccount(currentAccount),
+    currentAccount: refreshReadyStoredAccount(currentAccount),
     kind: "reauthenticate",
-    targetAccount,
+    // 目标账号只用于核对登录身份，不把已经失效的令牌复制到临时记录中。
+    targetAccount: getStoredAccountIdentity(targetAccount),
   });
 }
 
 export function getAccountSwitcherLoginIntent(): AccountSwitcherLoginIntent | null {
-  const pending = readPendingLogin();
+  const pending = readPendingAccountSwitcherLogin();
 
   if (!pending) {
     return null;
@@ -125,7 +127,7 @@ export function completeAccountSwitcherLogin({
   role: AppRole | null;
   session: Session | null | undefined;
 }): AccountSwitcherLoginCompletion {
-  const pending = readPendingLogin();
+  const pending = readPendingAccountSwitcherLogin();
 
   if (!pending || !session?.user) {
     return { status: "none" };
@@ -153,8 +155,9 @@ export function completeAccountSwitcherLogin({
     }
   }
 
-  removeStorageItem(ACCOUNT_SWITCHER_PENDING_KEY);
+  // 先确认长期保存成功，再结束临时流程；写入失败时用户仍可返回登录页重试。
   saveStoredAlternateAccount(pending.currentAccount);
+  removePendingAccountSwitcherLogin();
   return { status: "completed" };
 }
 
@@ -202,21 +205,17 @@ export function createStoredAccountFromSession({
     throw new Error("account-switcher-session-missing");
   }
 
-  const now = Date.now();
-
-  return {
+  return createReadyStoredAccount({
     defaultPath: getDefaultSignedInPathForRole(role),
     displayName: displayName.trim() || email,
     email,
-    expiresAt: now + ACCOUNT_SWITCHER_TTL_MS,
-    lastUsedAt: now,
     role,
     session: {
       accessToken: session.access_token,
       refreshToken: session.refresh_token,
     },
     userId: session.user.id,
-  } satisfies AccountSwitcherStoredAccount;
+  });
 }
 
 export async function restoreStoredAccountSession({
@@ -230,7 +229,7 @@ export async function restoreStoredAccountSession({
     throw new Error("account-switcher-unavailable");
   }
 
-  if (isStoredAccountExpired(account)) {
+  if (!isReadyStoredAccount(account) || isStoredAccountExpired(account)) {
     throw new Error("account-switcher-expired");
   }
 
@@ -248,125 +247,4 @@ export async function restoreStoredAccountSession({
   }
 
   return data.session;
-}
-
-function refreshStoredAccount(account: AccountSwitcherStoredAccount) {
-  const now = Date.now();
-  const accountReadyForSwitching = { ...account };
-
-  delete accountReadyForSwitching.reauthenticationRequiredAt;
-
-  return {
-    ...accountReadyForSwitching,
-    expiresAt: now + ACCOUNT_SWITCHER_TTL_MS,
-    lastUsedAt: now,
-  };
-}
-
-function readStoredAccount(key: string) {
-  const parsed = readJson(key);
-
-  if (!isStoredAccount(parsed)) {
-    removeStorageItem(key);
-    return null;
-  }
-
-  return parsed;
-}
-
-function readPendingLogin() {
-  const parsed = readJson(ACCOUNT_SWITCHER_PENDING_KEY);
-
-  if (!isPendingLogin(parsed)) {
-    removeStorageItem(ACCOUNT_SWITCHER_PENDING_KEY);
-    return null;
-  }
-
-  if (parsed.createdAt + PENDING_LOGIN_TTL_MS <= Date.now()) {
-    removeStorageItem(ACCOUNT_SWITCHER_PENDING_KEY);
-    return null;
-  }
-
-  return parsed;
-}
-
-function writePendingLogin(pending: AccountSwitcherPendingLogin) {
-  writeJson(ACCOUNT_SWITCHER_PENDING_KEY, pending);
-}
-
-function readJson(key: string) {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    clearLegacyLocalStorageItem(key);
-    const value = window.sessionStorage.getItem(key);
-    return value ? (JSON.parse(value) as unknown) : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeJson(key: string, value: unknown) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  clearLegacyLocalStorageItem(key);
-  window.sessionStorage.setItem(key, JSON.stringify(value));
-}
-
-function removeStorageItem(key: string) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.sessionStorage.removeItem(key);
-  clearLegacyLocalStorageItem(key);
-}
-
-function clearLegacyLocalStorageItem(key: string) {
-  try {
-    window.localStorage.removeItem(key);
-  } catch {
-    // Ignore storage access failures. Session storage remains the active store.
-  }
-}
-
-function isStoredAccount(value: unknown): value is AccountSwitcherStoredAccount {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const account = value as Partial<AccountSwitcherStoredAccount>;
-
-  return (
-    typeof account.userId === "string" &&
-    typeof account.email === "string" &&
-    typeof account.displayName === "string" &&
-    typeof account.role === "string" &&
-    typeof account.defaultPath === "string" &&
-    typeof account.lastUsedAt === "number" &&
-    typeof account.expiresAt === "number" &&
-    (account.reauthenticationRequiredAt === undefined ||
-      typeof account.reauthenticationRequiredAt === "number") &&
-    typeof account.session?.accessToken === "string" &&
-    typeof account.session?.refreshToken === "string"
-  );
-}
-
-function isPendingLogin(value: unknown): value is AccountSwitcherPendingLogin {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const pending = value as Partial<AccountSwitcherPendingLogin>;
-
-  return (
-    (pending.kind === "add" || pending.kind === "reauthenticate") &&
-    typeof pending.createdAt === "number" &&
-    isStoredAccount(pending.currentAccount) &&
-    (pending.targetAccount === undefined || isStoredAccount(pending.targetAccount))
-  );
 }
