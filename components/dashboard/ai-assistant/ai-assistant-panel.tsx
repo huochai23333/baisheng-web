@@ -1,9 +1,5 @@
 "use client";
 
-import { InteractiveButton as DesignButton } from "@/components/ui/button";
-
-import * as FormControls from "@/components/ui/form-controls";
-
 import { useEffect, useRef, useState } from "react";
 
 import { Bot, LoaderCircle, RefreshCw, Send, UserRound, X } from "lucide-react";
@@ -13,7 +9,8 @@ import {
   MotionList,
   MotionListItem,
 } from "@/components/motion/motion-primitives";
-import { Button } from "@/components/ui/button";
+import { Button, InteractiveButton as DesignButton } from "@/components/ui/button";
+import * as FormControls from "@/components/ui/form-controls";
 import { MOTION_DURATION, MOTION_EASING } from "@/lib/motion-tokens";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +19,11 @@ import {
   AiAssistantFeedbackEntry,
   type AiAssistantFeedbackEntryCopy,
 } from "./ai-assistant-feedback-entry";
-import type { AiAssistantUiMessage } from "./use-ai-assistant-chat";
+import { AiAssistantSettlementReleaseCard } from "./ai-assistant-settlement-release-card";
+import type {
+  AiAssistantSettlementReleaseCopy,
+  AiAssistantUiMessage,
+} from "./ai-assistant-ui-types";
 
 type AiAssistantPanelCopy = {
   close: string;
@@ -34,16 +35,21 @@ type AiAssistantPanelCopy = {
   resetConfirmCancel: string;
   resetConfirmDescription: string;
   send: string;
+  settlementRelease: AiAssistantSettlementReleaseCopy;
   thinking: string;
   title: string;
 };
 
 type AiAssistantPanelProps = {
+  busy: boolean;
   copy: AiAssistantPanelCopy;
   errorMessage: string | null;
   input: string;
+  locale: "en" | "zh";
   messages: AiAssistantUiMessage[];
+  onCancelSettlementRelease: (messageId: string) => void;
   onClose: () => void;
+  onConfirmSettlementRelease: (messageId: string) => void;
   onOpenFeedback: AiAssistantOpenFeedback;
   onInputChange: (value: string) => void;
   onReset: () => void;
@@ -52,11 +58,15 @@ type AiAssistantPanelProps = {
 };
 
 export function AiAssistantPanel({
+  busy,
   copy,
   errorMessage,
   input,
+  locale,
   messages,
+  onCancelSettlementRelease,
   onClose,
+  onConfirmSettlementRelease,
   onOpenFeedback,
   onInputChange,
   onReset,
@@ -101,7 +111,7 @@ export function AiAssistantPanel({
           <DesignButton
             aria-label={copy.reset}
             className="inline-flex h-9 items-center gap-2 rounded-full px-3 text-sm font-medium text-primary transition-colors hover:bg-status-info-soft disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={pending}
+            disabled={busy}
             onClick={() => setResetConfirmOpen(true)}
             type="button"
           >
@@ -167,7 +177,13 @@ export function AiAssistantPanel({
           .filter((message) => message.content.length > 0)
           .map((message, index) => (
             <MotionListItem index={index} key={message.id}>
-              <AssistantMessageBubble message={message} />
+              <AssistantMessageBubble
+                copy={copy.settlementRelease}
+                locale={locale}
+                message={message}
+                onCancelSettlementRelease={onCancelSettlementRelease}
+                onConfirmSettlementRelease={onConfirmSettlementRelease}
+              />
             </MotionListItem>
           ))}
 
@@ -184,7 +200,10 @@ export function AiAssistantPanel({
 
         {errorMessage ? (
           <MotionListItem key="assistant-error">
-            <div className="rounded-record-card border border-border-subtle bg-status-danger-soft px-4 py-3 text-sm leading-6 text-content-muted">
+            <div
+              className="rounded-record-card border border-border-subtle bg-status-danger-soft px-4 py-3 text-sm leading-6 text-content-muted"
+              role="alert"
+            >
               {errorMessage}
             </div>
           </MotionListItem>
@@ -217,7 +236,7 @@ export function AiAssistantPanel({
           <div className="flex items-end gap-2 rounded-control-large border border-border-subtle bg-surface-interactive p-2 focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/30">
             <FormControls.Textarea
               className="max-h-28 min-h-11 flex-1 resize-none bg-transparent px-2 py-2 text-sm leading-6 text-content-strong outline-none placeholder:text-content-muted"
-              disabled={pending}
+              disabled={busy}
               id="ai-assistant-input"
               onChange={(event) => onInputChange(event.target.value)}
               onKeyDown={(event) => {
@@ -232,12 +251,11 @@ export function AiAssistantPanel({
               value={input}
             />
             <Button
-              variant="primary"
-              size="icon-compact"
               aria-label={copy.send}
-
-              disabled={!input.trim() || pending}
+              disabled={!input.trim() || busy}
+              size="icon-compact"
               type="submit"
+              variant="primary"
             >
               {pending ? (
                 <LoaderCircle className="size-4 animate-spin" />
@@ -253,11 +271,20 @@ export function AiAssistantPanel({
 }
 
 function AssistantMessageBubble({
+  copy,
+  locale,
   message,
+  onCancelSettlementRelease,
+  onConfirmSettlementRelease,
 }: {
+  copy: AiAssistantSettlementReleaseCopy;
+  locale: "en" | "zh";
   message: AiAssistantUiMessage;
+  onCancelSettlementRelease: (messageId: string) => void;
+  onConfirmSettlementRelease: (messageId: string) => void;
 }) {
   const fromUser = message.role === "user";
+  const hasSettlementRelease = Boolean(message.settlementRelease);
 
   return (
     <div
@@ -270,13 +297,24 @@ function AssistantMessageBubble({
       ) : null}
       <div
         className={cn(
-          "max-w-[84%] whitespace-pre-wrap rounded-surface-inset px-4 py-3 text-sm leading-6 shadow-surface-interactive",
+          "whitespace-pre-wrap rounded-surface-inset px-4 py-3 text-sm leading-6 shadow-surface-interactive",
+          hasSettlementRelease ? "min-w-0 flex-1" : "max-w-[84%]",
           fromUser
             ? "bg-primary text-white"
             : "border border-border-subtle bg-surface-interactive text-content-muted",
         )}
       >
         {message.content}
+        {message.settlementRelease ? (
+          <AiAssistantSettlementReleaseCard
+            copy={copy}
+            locale={locale}
+            messageId={message.id}
+            onCancel={onCancelSettlementRelease}
+            onConfirm={onConfirmSettlementRelease}
+            settlementRelease={message.settlementRelease}
+          />
+        ) : null}
       </div>
       {fromUser ? (
         <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-inset text-content-muted">

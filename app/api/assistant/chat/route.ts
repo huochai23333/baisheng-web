@@ -5,11 +5,17 @@ import type {
   AiAssistantChatErrorCode,
   AiAssistantChatMessage,
   AiAssistantLocale,
+  AiAssistantStructuredResponse,
 } from "@/lib/ai-assistant/assistant-types";
 import {
   AiAssistantServiceError,
   createDeepSeekAssistantTextStream,
 } from "@/lib/ai-assistant/deepseek-client";
+import { parseSettlementReleaseCommand } from "@/lib/ai-assistant/settlement-release-command";
+import {
+  buildSettlementReleaseConfirmation,
+  SettlementReleaseServiceError,
+} from "@/lib/ai-assistant/settlement-release-server";
 import {
   acquireApiRequestQuota,
   releaseApiRequestQuota,
@@ -58,6 +64,16 @@ export async function POST(request: Request) {
   }
 
   const supabase = await getServerSupabaseClient();
+  const settlementResponse = await buildSettlementResponse(
+    supabase,
+    payload.message,
+    role,
+  );
+
+  if (settlementResponse) {
+    return settlementResponse;
+  }
+
   let leaseId: string | null = null;
 
   try {
@@ -112,6 +128,57 @@ export async function POST(request: Request) {
     await releaseQuota();
 
     if (error instanceof AiAssistantServiceError) {
+      return createErrorResponse("serviceUnavailable");
+    }
+
+    return createErrorResponse("serviceUnavailable");
+  }
+}
+
+async function buildSettlementResponse(
+  supabase: Awaited<ReturnType<typeof getServerSupabaseClient>>,
+  message: string,
+  role: Awaited<ReturnType<typeof getServerAuthContext>>["role"],
+) {
+  const parsed = parseSettlementReleaseCommand(message);
+
+  if (parsed.kind === "notCommand") {
+    return null;
+  }
+
+  if (parsed.kind === "guidance") {
+    return NextResponse.json<AiAssistantStructuredResponse>({
+      code: parsed.code,
+      kind: "settlementReleaseGuidance",
+    });
+  }
+
+  if (role !== "administrator" && role !== "finance") {
+    return NextResponse.json<AiAssistantStructuredResponse>({
+      code: "notAllowed",
+      kind: "settlementReleaseGuidance",
+    });
+  }
+
+  try {
+    const confirmation = await buildSettlementReleaseConfirmation(
+      supabase,
+      parsed.value,
+    );
+
+    if (confirmation.kind === "ambiguousCustomer") {
+      return NextResponse.json<AiAssistantStructuredResponse>({
+        code: "ambiguousCustomer",
+        kind: "settlementReleaseGuidance",
+      });
+    }
+
+    return NextResponse.json<AiAssistantStructuredResponse>({
+      action: confirmation.action,
+      kind: "settlementReleaseConfirmation",
+    });
+  } catch (error) {
+    if (error instanceof SettlementReleaseServiceError) {
       return createErrorResponse("serviceUnavailable");
     }
 

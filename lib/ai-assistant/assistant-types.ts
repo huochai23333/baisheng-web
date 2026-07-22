@@ -16,8 +16,49 @@ export type AiAssistantChatRequest = {
   pathname?: string;
 };
 
-export type AiAssistantChatResponse = {
-  reply: string;
+export type AiAssistantSettlementReleaseCustomerKind =
+  | "existing"
+  | "temporary";
+
+export type AiAssistantSettlementReleaseAction = {
+  amount: number;
+  currency: string;
+  customerId: string | null;
+  customerKind: AiAssistantSettlementReleaseCustomerKind;
+  customerName: string;
+  inputCustomerName: string;
+  note: string | null;
+  receivedOn: string;
+  requestId: string;
+};
+
+export type AiAssistantSettlementReleaseGuidanceCode =
+  | "ambiguousCustomer"
+  | "invalidAmount"
+  | "invalidCurrency"
+  | "invalidDate"
+  | "missingAmount"
+  | "missingCurrency"
+  | "missingCustomer"
+  | "multipleAmounts"
+  | "notAllowed";
+
+export type AiAssistantStructuredResponse =
+  | {
+      action: AiAssistantSettlementReleaseAction;
+      kind: "settlementReleaseConfirmation";
+    }
+  | {
+      code: AiAssistantSettlementReleaseGuidanceCode;
+      kind: "settlementReleaseGuidance";
+    };
+
+export type AiAssistantSettlementReleaseConfirmRequest = {
+  action: AiAssistantSettlementReleaseAction;
+};
+
+export type AiAssistantSettlementReleaseConfirmResponse = {
+  releaseId: string;
 };
 
 export type AiAssistantChatErrorCode =
@@ -25,6 +66,15 @@ export type AiAssistantChatErrorCode =
   | "notSignedIn"
   | "requestTooLarge"
   | "tooManyRequests"
+  | "serviceUnavailable";
+
+export type AiAssistantSettlementReleaseErrorCode =
+  | "customerChanged"
+  | "forbidden"
+  | "invalidInput"
+  | "notSignedIn"
+  | "requestConflict"
+  | "requestTooLarge"
   | "serviceUnavailable";
 
 export type AiAssistantPromptContext = {

@@ -139,7 +139,8 @@ test.describe("工作台分阶段视觉升级", () => {
     const category = page.getByLabel("费用分类");
     await expect(search).toBeVisible();
     await expect(category).toBeHidden();
-    await expect(page.getByRole("heading", { name: "费用记录" })).toBeInViewport();
+    // 页面名已经说明当前业务，列表不再重复显示“费用记录”标题；首条业务卡应直接进入首屏。
+    await expect(page.locator("article").first()).toBeInViewport();
     await expectNoHorizontalOverflow(page);
 
     await page.getByRole("button", { name: /更多筛选条件/ }).click();

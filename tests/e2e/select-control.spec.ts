@@ -71,6 +71,8 @@ test.describe("shared rounded select", () => {
     page,
   }) => {
     await page.setViewportSize({ height: 844, width: 390 });
+    // 移动端次要筛选默认折叠，先按真实用户路径展开后再检查选择菜单。
+    await page.getByRole("button", { name: /更多筛选条件/ }).click();
     const currencySelect = page.getByLabel("币种");
     await currencySelect.click();
     const options = page.getByRole("option");

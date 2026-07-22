@@ -24,6 +24,7 @@ export type WholesaleSettlementRelease = {
   status: WholesaleSettlementReleaseStatus;
   note: string | null;
   published_by_user_id: string | null;
+  publication_request_id: string | null;
   claimed_by_user_id: string | null;
   matched_order_id: string | null;
   settlement_id: string | null;

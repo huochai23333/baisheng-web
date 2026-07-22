@@ -8,7 +8,10 @@ import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
 import { useLocale } from "@/components/i18n/locale-provider";
-import type { AiAssistantLocale } from "@/lib/ai-assistant/assistant-types";
+import type {
+  AiAssistantLocale,
+  AiAssistantSettlementReleaseAction,
+} from "@/lib/ai-assistant/assistant-types";
 import { getCompanyText } from "@/lib/company-config";
 
 import { AiAssistantFeedbackBridge } from "./ai-assistant-feedback-bridge";
@@ -60,6 +63,55 @@ export function AiAssistantClient() {
       requestTooLarge: t("requestTooLarge"),
       send: t("send"),
       serviceUnavailable: t("serviceUnavailable"),
+      settlementRelease: {
+        amountLabel: t("settlementAmount"),
+        cancel: t("settlementCancel"),
+        cancelled: t("settlementCancelled"),
+        cancelledMessage: (action: AiAssistantSettlementReleaseAction) =>
+          t("settlementCancelledMessage", {
+            customer: action.customerName,
+          }),
+        confirmationIntro: t("settlementConfirmationIntro"),
+        confirm: t("settlementConfirm"),
+        customerLabel: t("settlementCustomer"),
+        dateLabel: t("settlementDate"),
+        errorMessages: {
+          customerChanged: t("settlementErrorCustomerChanged"),
+          forbidden: t("settlementErrorForbidden"),
+          invalidInput: t("settlementErrorInvalidInput"),
+          notSignedIn: t("settlementErrorNotSignedIn"),
+          requestConflict: t("settlementErrorRequestConflict"),
+          requestTooLarge: t("settlementErrorRequestTooLarge"),
+          serviceUnavailable: t("settlementErrorServiceUnavailable"),
+        },
+        existingCustomer: t("settlementExistingCustomer"),
+        guidance: {
+          ambiguousCustomer: t("settlementGuidanceAmbiguousCustomer"),
+          invalidAmount: t("settlementGuidanceInvalidAmount"),
+          invalidCurrency: t("settlementGuidanceInvalidCurrency"),
+          invalidDate: t("settlementGuidanceInvalidDate"),
+          missingAmount: t("settlementGuidanceMissingAmount"),
+          missingCurrency: t("settlementGuidanceMissingCurrency"),
+          missingCustomer: t("settlementGuidanceMissingCustomer"),
+          multipleAmounts: t("settlementGuidanceMultipleAmounts"),
+          notAllowed: t("settlementGuidanceNotAllowed"),
+        },
+        inputCustomerLabel: t("settlementInputCustomer"),
+        noNote: t("settlementNoNote"),
+        noteLabel: t("settlementNote"),
+        published: t("settlementPublished"),
+        publishedMessage: (action: AiAssistantSettlementReleaseAction) =>
+          t("settlementPublishedMessage", {
+            amount: formatSettlementAmount(action.amount, assistantLocale),
+            currency: action.currency,
+            customer: action.customerName,
+            date: action.receivedOn,
+          }),
+        publishing: t("settlementPublishing"),
+        retry: t("settlementRetry"),
+        temporaryCustomer: t("settlementTemporaryCustomer"),
+        title: t("settlementTitle"),
+      },
       thinking: t("thinking"),
       title: companyText.assistantName,
       tooManyRequests: t("tooManyRequests"),
@@ -97,11 +149,15 @@ export function AiAssistantClient() {
           <AnimatePresence>
             {open ? (
               <AiAssistantPanel
+                busy={chat.busy}
                 copy={copy}
                 errorMessage={chat.errorMessage}
                 input={chat.input}
+                locale={assistantLocale}
                 messages={chat.messages}
+                onCancelSettlementRelease={chat.cancelSettlementRelease}
                 onClose={() => setOpen(false)}
+                onConfirmSettlementRelease={chat.confirmSettlementRelease}
                 onInputChange={chat.setInput}
                 onOpenFeedback={openFeedback}
                 onReset={chat.reset}
@@ -139,4 +195,14 @@ export function AiAssistantClient() {
       )}
     </AiAssistantFeedbackBridge>
   );
+}
+
+function formatSettlementAmount(
+  amount: number,
+  locale: AiAssistantLocale,
+) {
+  return new Intl.NumberFormat(locale === "en" ? "en-US" : "zh-CN", {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  }).format(amount);
 }

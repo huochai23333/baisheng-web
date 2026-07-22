@@ -3,20 +3,26 @@
 import { useCallback, useMemo, useState } from "react";
 
 import type {
-  AiAssistantChatMessage,
   AiAssistantChatRequest,
   AiAssistantLocale,
+  AiAssistantStructuredResponse,
 } from "@/lib/ai-assistant/assistant-types";
 
-export type AiAssistantUiMessage = AiAssistantChatMessage & {
-  id: string;
-  intro?: boolean;
-};
+import type {
+  AiAssistantSettlementReleaseCopy,
+  AiAssistantUiMessage,
+} from "./ai-assistant-ui-types";
+import { buildAiAssistantReadableHistory } from "./ai-assistant-history";
+import { readAssistantStructuredResponse } from "./ai-assistant-response";
+import { useAiAssistantSettlementRelease } from "./use-ai-assistant-settlement-release";
+
+export type { AiAssistantUiMessage } from "./ai-assistant-ui-types";
 
 type AiAssistantChatCopy = {
   greeting: string;
   requestTooLarge: string;
   serviceUnavailable: string;
+  settlementRelease: AiAssistantSettlementReleaseCopy;
   tooManyRequests: string;
 };
 
@@ -46,27 +52,36 @@ export function useAiAssistantChat({
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const {
+    actionPending,
+    cancelSettlementRelease,
+    confirmSettlementRelease,
+  } = useAiAssistantSettlementRelease({
+    copy: copy.settlementRelease,
+    messages,
+    setMessages,
+  });
+  const busy = pending || actionPending;
 
   const reset = useCallback(() => {
+    if (actionPending) {
+      return;
+    }
+
     setMessages([introMessage]);
     setInput("");
     setErrorMessage(null);
     setPending(false);
-  }, [introMessage]);
+  }, [actionPending, introMessage]);
 
   const sendMessage = useCallback(async () => {
     const trimmedInput = input.trim();
 
-    if (!trimmedInput || pending) {
+    if (!trimmedInput || busy) {
       return;
     }
 
-    const history = messages
-      .filter((item) => !item.intro)
-      .map(({ content, role }) => ({
-        content,
-        role,
-      }));
+    const history = buildAiAssistantReadableHistory(messages, locale);
     const userMessage: AiAssistantUiMessage = {
       content: trimmedInput,
       id: createMessageId("user"),
@@ -102,6 +117,19 @@ export function useAiAssistantChat({
       if (!response.ok) {
         const errorCode = await readAssistantErrorCode(response);
         throw new AiAssistantRequestError(errorCode);
+      }
+
+      if (response.headers.get("content-type")?.includes("application/json")) {
+        const structuredResponse = await readAssistantStructuredResponse(response);
+
+        setMessages((current) =>
+          current.map((item) =>
+            item.id === assistantMessageId
+              ? buildStructuredMessage(item, structuredResponse, copy)
+              : item,
+          ),
+        );
+        return;
       }
 
       if (!response.body) {
@@ -167,14 +195,17 @@ export function useAiAssistantChat({
     }
   }, [
     copy,
+    busy,
     input,
     locale,
     messages,
     pathname,
-    pending,
   ]);
 
   return {
+    busy,
+    cancelSettlementRelease,
+    confirmSettlementRelease,
     errorMessage,
     input,
     messages,
@@ -198,6 +229,28 @@ async function readAssistantErrorCode(response: Response) {
   } catch {
     return null;
   }
+}
+
+function buildStructuredMessage(
+  message: AiAssistantUiMessage,
+  response: AiAssistantStructuredResponse,
+  copy: AiAssistantChatCopy,
+): AiAssistantUiMessage {
+  if (response.kind === "settlementReleaseGuidance") {
+    return {
+      ...message,
+      content: copy.settlementRelease.guidance[response.code],
+    };
+  }
+
+  return {
+    ...message,
+    content: copy.settlementRelease.confirmationIntro,
+    settlementRelease: {
+      action: response.action,
+      state: "ready",
+    },
+  };
 }
 
 function getAssistantErrorMessage(

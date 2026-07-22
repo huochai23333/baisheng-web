@@ -15,7 +15,9 @@ test("wholesale orders remain usable in English at mobile width", async ({
   await expectWorkspaceShell(page);
   await expectNotForbiddenPage(page);
 
-  await page.getByRole("button", { name: "EN", exact: true }).click();
+  // 移动端语言入口使用紧凑菜单，先展开，再选择英文。
+  await page.getByRole("button", { name: "切换语言" }).click();
+  await page.getByRole("menuitemradio", { name: "EN", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Wholesale order" }),
   ).toBeVisible();
