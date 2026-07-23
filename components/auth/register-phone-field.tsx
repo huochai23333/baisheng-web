@@ -78,7 +78,7 @@ export function RegisterPhoneField({
               className="z-[70]"
               sideOffset={6}
             >
-              <Combobox.Popup className="w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-[22px] border border-border-subtle bg-surface-panel p-2 shadow-[var(--surface-shadow-floating)] outline-none">
+              <Combobox.Popup className="w-[min(360px,calc(100vw-32px))] overflow-hidden rounded-[22px] border border-border-subtle bg-surface-overlay p-2 shadow-[var(--surface-shadow-floating)] outline-none backdrop-blur-md">
                 <div className="relative mb-2">
                   <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-content-muted" />
                   <Combobox.Input

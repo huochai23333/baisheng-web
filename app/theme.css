@@ -101,7 +101,7 @@
 }
 
 :root {
-  --background: #faf9f7;
+  --background: #f4f2ef;
   --foreground: #1c262d;
   --card: #fffdfa;
   --card-foreground: #1c262d;
@@ -111,7 +111,7 @@
   --primary-foreground: #ffffff;
   --secondary: #4c7259;
   --secondary-foreground: #ffffff;
-  --muted: #f2efeb;
+  --muted: #ece8e3;
   --muted-foreground: #6d767d;
   --accent: #e7efe8;
   --accent-foreground: #355443;
@@ -138,18 +138,18 @@
    * 下面这些变量描述的是“用途”而不是某个具体页面的颜色。
    * 业务组件只使用语义名称，后续调整品牌色或表面层级时就不需要逐文件修改。
    */
-  --surface-panel: rgba(255, 255, 255, 0.72);
+  --surface-panel: rgba(255, 255, 255, 0.62);
   --surface-inset: #fbfaf8;
   --surface-interactive: #ffffff;
   --surface-chrome: #f4f3f1;
   --surface-brand-soft: #e4edf3;
-  --surface-panel-border: rgba(255, 255, 255, 0.85);
-  --surface-overlay: rgba(255, 255, 255, 0.92);
+  --surface-panel-border: rgba(255, 255, 255, 0.6);
+  --surface-overlay: rgba(255, 255, 255, 0.86);
   --surface-on-media: rgba(255, 255, 255, 0.18);
   --content-strong: #23313a;
   --content-muted: #66737e;
-  --content-subtle: #6d7881;
-  --border-subtle: #ebe7e1;
+  --content-subtle: #8b949c;
+  --border-subtle: #e5dfd6;
   --control-border: #8a949c;
   --filter-control-border: #dfe5ea;
   --filter-control-hover: #c5d0d8;
@@ -177,20 +177,23 @@
   --metric-warning-surface: #fbf5e8;
   --metric-warning-border: #eadfbf;
 
-  /* 页面底色和工作台固定环境光分开维护，分别对应暂存前的两层柔和光晕。 */
-  --page-glow-blue: rgba(190, 209, 222, 0.35);
-  --page-glow-green: rgba(204, 221, 213, 0.22);
-  --workspace-glow-blue: rgba(187, 208, 223, 0.24);
-  --workspace-glow-green: rgba(208, 226, 217, 0.2);
+  /*
+   * 页面底色和工作台固定环境光分开维护。
+   * 光晕需要足够的强度与覆盖范围，磨砂表面模糊后才能透出色彩，否则玻璃感无从谈起。
+   */
+  --page-glow-blue: rgba(163, 196, 220, 0.55);
+  --page-glow-green: rgba(178, 210, 192, 0.45);
+  --workspace-glow-blue: rgba(172, 199, 221, 0.5);
+  --workspace-glow-green: rgba(185, 214, 199, 0.42);
 
   /*
    * 认证页可以拥有独立的照片和玻璃材质，但仍只能从这一组语义变量取值。
    * 这样它是同一设计系统中的页面级变体，而不是散落在组件里的第二套色板。
    */
-  --auth-glass-surface: rgba(255, 255, 255, 0.72);
+  --auth-glass-surface: rgba(255, 255, 255, 0.62);
   --auth-glass-fallback: #fffdfa;
-  --auth-glass-border: rgba(255, 255, 255, 0.75);
-  --auth-glass-blur: 16px;
+  --auth-glass-border: rgba(255, 255, 255, 0.6);
+  --auth-glass-blur: 20px;
   --auth-shell-shadow: 0 24px 80px rgba(86, 103, 119, 0.12);
   --auth-grid-dot: rgba(72, 103, 130, 0.12);
   --auth-aside-overlay: linear-gradient(
@@ -206,8 +209,8 @@
   );
   --auth-form-surface: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.62),
-    rgba(250, 249, 247, 0.94)
+    rgba(255, 255, 255, 0.55),
+    rgba(250, 249, 247, 0.9)
   );
 
   /*
@@ -228,11 +231,21 @@
   --record-card-radius: 1.125rem;
   --metric-card-radius: 1.25rem;
   --option-radius: 0.75rem;
-  --surface-shadow-panel: 0 10px 30px rgba(96, 113, 128, 0.04);
-  --surface-shadow-header: 0 14px 36px rgba(96, 113, 128, 0.06);
-  --surface-shadow-navigation: 0 18px 45px rgba(96, 113, 128, 0.12);
-  --surface-shadow-inset: none;
-  --surface-shadow-interactive: none;
+  /*
+   * 阴影分三层职责：面板内侧顶部高光是玻璃边缘的反光，
+   * 贴地接触影给出边界，大范围软阴影给出海拔。
+   * 三者透明度都必须足够，否则面板会在浅色底上消失。
+   */
+  --surface-shadow-panel:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 1px 2px rgba(35, 49, 58, 0.06),
+    0 12px 32px -8px rgba(35, 49, 58, 0.1);
+  --surface-shadow-header:
+    0 1px 2px rgba(35, 49, 58, 0.05),
+    0 14px 36px -12px rgba(35, 49, 58, 0.12);
+  --surface-shadow-navigation: 0 18px 45px -12px rgba(35, 49, 58, 0.16);
+  --surface-shadow-inset: inset 0 1px 3px rgba(35, 49, 58, 0.05);
+  --surface-shadow-interactive: 0 1px 2px rgba(35, 49, 58, 0.05);
   --surface-shadow-floating: 0 20px 60px rgba(35, 49, 58, 0.18);
 }
 

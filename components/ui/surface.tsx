@@ -8,7 +8,7 @@ const surfaceVariants = cva("min-w-0 border", {
   variants: {
     variant: {
       panel:
-        "rounded-surface-panel border-surface-panel-border bg-surface-panel shadow-surface-panel",
+        "rounded-surface-panel border-surface-panel-border bg-surface-panel shadow-surface-panel backdrop-blur-xl backdrop-saturate-150",
       inset:
         "rounded-surface-inset border-border-subtle bg-surface-inset shadow-surface-inset",
       interactive:

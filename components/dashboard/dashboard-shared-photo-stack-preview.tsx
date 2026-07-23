@@ -54,8 +54,8 @@ export function PhotoStackPreview({
         </div>
       ))}
 
-      <div className="absolute inset-x-4 bottom-4 z-30 flex justify-end rounded-control-compact bg-surface-panel px-4 py-3 backdrop-blur-sm">
-        <span className="text-xs font-medium text-content-muted">
+      <div className="absolute inset-x-4 bottom-4 z-30 flex justify-end rounded-control-compact bg-surface-panel px-4 py-3 backdrop-blur-md">
+        <span className="text-xs font-medium text-content-strong">
           {footerLabel}
         </span>
       </div>

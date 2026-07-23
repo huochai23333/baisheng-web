@@ -75,7 +75,7 @@ export function AuthHeroPanel({
       </div>
 
       <div className="relative z-10 min-w-0 max-w-full space-y-6">
-        <div className="max-w-[360px] min-w-0 rounded-[28px] border border-border-subtle bg-surface-panel p-6 shadow-[var(--surface-shadow-panel)]">
+        <div className="max-w-[360px] min-w-0 rounded-[28px] border border-border-subtle bg-surface-panel p-6 shadow-[var(--surface-shadow-panel)] backdrop-blur-md">
           <div className="mb-4 flex min-w-0 items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-full bg-status-success-soft text-status-success">
               {isRegister ? (

@@ -134,7 +134,7 @@ export function LanguageToggle() {
       <div
         aria-busy={isSwitching}
         aria-live="polite"
-        className="hidden items-center gap-1 rounded-full border border-border-subtle bg-white/88 p-1 shadow-[var(--surface-shadow-interactive)] backdrop-blur sm:inline-flex"
+        className="hidden items-center gap-1 rounded-full border border-border-subtle bg-white/70 p-1 shadow-[var(--surface-shadow-interactive)] backdrop-blur sm:inline-flex"
       >
         <span className="flex h-9 w-9 items-center justify-center rounded-full text-primary">
           {isSwitching ? (
@@ -189,7 +189,7 @@ export function LanguageToggle() {
           >
             <motion.div
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex h-10 items-center gap-2 rounded-full border border-border-subtle bg-white/94 px-4 text-sm font-semibold text-primary shadow-[var(--surface-shadow-interactive)] backdrop-blur"
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-border-subtle bg-white/80 px-4 text-sm font-semibold text-primary shadow-[var(--surface-shadow-interactive)] backdrop-blur"
               exit={{ opacity: 0, y: -6 }}
               initial={{ opacity: 0, y: -6 }}
               role="status"

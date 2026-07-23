@@ -154,7 +154,7 @@ function DashboardOverviewSectionHeader({
   return (
     <section
       className={cn(
-        "motion-surface-enter rounded-surface-panel border border-surface-panel-border bg-surface-chrome/92 shadow-surface-header sm:rounded-surface-panel",
+        "motion-surface-enter rounded-surface-panel border border-surface-panel-border bg-surface-chrome/80 shadow-surface-header backdrop-blur sm:rounded-surface-panel",
         density === "compact" ? "p-4 sm:p-5 xl:p-6" : "p-5 sm:p-6 xl:p-8",
         className,
       )}

@@ -115,7 +115,7 @@ export function DashboardHomeWidgetCard({
   return (
     <article
       className={cn(
-        "dashboard-home-widget-card group relative min-w-0 overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-panel p-4 shadow-surface-interactive transition-[box-shadow,border-color,opacity] duration-200 will-change-transform sm:p-5",
+        "dashboard-home-widget-card group relative min-w-0 overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-panel p-4 shadow-surface-interactive backdrop-blur transition-[box-shadow,border-color,opacity] duration-200 will-change-transform sm:p-5",
         editing &&
           !deleting &&
           !entering &&
@@ -285,7 +285,7 @@ export function DashboardHomeWidgetSidebar({
 }: DashboardHomeWidgetSidebarProps) {
   return (
     <section
-      className="flex h-full min-h-0 flex-col rounded-surface-panel border border-surface-panel-border bg-surface-panel p-4 shadow-surface-interactive"
+      className="flex h-full min-h-0 flex-col rounded-surface-panel border border-surface-panel-border bg-surface-panel p-4 shadow-surface-interactive backdrop-blur"
       data-testid="home-widget-sidebar"
     >
       <div className="flex items-start justify-between gap-3">

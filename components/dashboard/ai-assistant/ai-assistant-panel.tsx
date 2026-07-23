@@ -89,7 +89,7 @@ export function AiAssistantPanel({
     <motion.section
       animate={{ opacity: 1, scale: 1, y: 0 }}
       aria-label={copy.title}
-      className="fixed bottom-[5.5rem] right-3 z-40 flex h-[min(640px,calc(100dvh-7rem))] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-inset shadow-surface-interactive sm:bottom-24 sm:right-6"
+      className="fixed bottom-[5.5rem] right-3 z-40 flex h-[min(640px,calc(100dvh-7rem))] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-inset shadow-surface-floating sm:bottom-24 sm:right-6"
       exit={{ opacity: 0, scale: 0.98, y: 18 }}
       initial={{ opacity: 0, scale: 0.96, y: 24 }}
       transition={{

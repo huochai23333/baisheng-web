@@ -21,8 +21,8 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(circle at top right, var(--page-glow-blue), transparent 32%),
-      radial-gradient(circle at bottom left, var(--page-glow-green), transparent 28%);
+      radial-gradient(circle at top right, var(--page-glow-blue), transparent 45%),
+      radial-gradient(circle at bottom left, var(--page-glow-green), transparent 40%);
   }
 
   :where(button, a, [role="button"], summary) {

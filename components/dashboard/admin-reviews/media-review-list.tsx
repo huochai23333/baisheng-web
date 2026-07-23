@@ -363,7 +363,7 @@ function MediaPreviewFallback({
 
 function MediaPreviewBadge({ children }: { children: ReactNode }) {
   return (
-    <span className="absolute left-2.5 top-2.5 inline-flex items-center rounded-full bg-surface-panel px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+    <span className="absolute left-2.5 top-2.5 inline-flex items-center rounded-full bg-content-strong/70 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
       {children}
     </span>
   );
