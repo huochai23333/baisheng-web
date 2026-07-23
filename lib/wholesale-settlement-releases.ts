@@ -11,7 +11,8 @@ import type {
 
 export type WholesaleSettlementReleaseStatus =
   | "cancelled"
-  | "claimed"
+  | "allocated"
+  | "partially_allocated"
   | "pending";
 
 export type WholesaleSettlementRelease = {
@@ -25,19 +26,39 @@ export type WholesaleSettlementRelease = {
   note: string | null;
   published_by_user_id: string | null;
   publication_request_id: string | null;
-  claimed_by_user_id: string | null;
-  matched_order_id: string | null;
-  settlement_id: string | null;
-  claimed_at: string | null;
+  allocation_customer_id: string | null;
+  allocation_revision: number;
   cancelled_by_user_id: string | null;
   cancelled_at: string | null;
   created_at: string;
   updated_at: string;
 };
 
+export type WholesaleSettlementReleaseAllocationStatus = "active" | "reversed";
+
+/**
+ * 一条分配记录描述“这笔客户收款中的多少金额被放到哪张批发订单”。
+ * 调整方案时旧记录不会删除，而是改成 reversed，便于以后核对谁在何时改过金额。
+ */
+export type WholesaleSettlementReleaseAllocation = {
+  id: string;
+  release_id: string;
+  order_id: string;
+  settlement_id: string | null;
+  allocation_amount: number;
+  settlement_exchange_rate: number;
+  settled_on: string;
+  status: WholesaleSettlementReleaseAllocationStatus;
+  created_by_user_id: string | null;
+  created_at: string;
+  reversed_by_user_id: string | null;
+  reversed_at: string | null;
+};
+
 export type WholesaleSettlementReleasePageData = {
   currentRole: AppRole | null;
   currentUserId: string | null;
+  allocations: WholesaleSettlementReleaseAllocation[];
   customers: WholesaleCustomer[];
   orders: WholesaleOrder[];
   orderSettlements: WholesaleOrderSettlement[];
@@ -61,6 +82,7 @@ export async function getWholesaleSettlementReleasePageData(
   // 这里并行读取可以减少首屏等待时间，真正的数据范围仍交给数据库 RLS 控制。
   const [
     releasesResult,
+    allocationsResult,
     customersResult,
     ordersResult,
     orderSettlementsResult,
@@ -74,6 +96,12 @@ export async function getWholesaleSettlementReleasePageData(
       .order("received_on", { ascending: false })
       .order("created_at", { ascending: false }) as unknown as Promise<
       QueryResult<WholesaleSettlementRelease>
+    >,
+    supabase
+      .from("wholesale_settlement_release_allocations")
+      .select("*")
+      .order("created_at", { ascending: false }) as unknown as Promise<
+      QueryResult<WholesaleSettlementReleaseAllocation>
     >,
     supabase
       .from("wholesale_customers")
@@ -124,6 +152,7 @@ export async function getWholesaleSettlementReleasePageData(
   }));
 
   return {
+    allocations: readRows(allocationsResult),
     currentRole,
     currentUserId,
     customers: readRows(customersResult),

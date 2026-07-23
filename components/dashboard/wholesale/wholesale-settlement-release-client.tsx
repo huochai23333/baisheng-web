@@ -15,7 +15,7 @@ export function WholesaleSettlementReleaseClient({
   const canPublish =
     initialData.currentRole === "administrator" ||
     initialData.currentRole === "finance";
-  const canClaim =
+  const canAllocate =
     initialData.currentRole === "administrator" ||
     initialData.currentRole === "salesman";
 
@@ -24,12 +24,14 @@ export function WholesaleSettlementReleaseClient({
       <WholesaleActionFeedbackNotice feedback={actions.feedback} />
 
       <WholesaleSettlementReleaseSection
-        canClaim={canClaim}
+        allocations={initialData.allocations}
+        canAllocate={canAllocate}
         canPublish={canPublish}
         customers={initialData.customers}
         onCancelRelease={actions.cancelRelease}
-        onClaimRelease={actions.claimRelease}
+        onClearAllocations={actions.clearAllocations}
         onCreateRelease={actions.createRelease}
+        onSaveAllocations={actions.saveAllocations}
         orderSettlements={initialData.orderSettlements}
         orders={initialData.orders}
         pendingKey={actions.pendingKey}

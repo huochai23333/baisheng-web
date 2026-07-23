@@ -11,6 +11,13 @@ import {
 } from "./wholesale-action-utils";
 import { useWholesaleActionRunner } from "./use-wholesale-action-runner";
 
+export type SettlementReleaseAllocationSubmission = {
+  allocations: Array<{ amount: number; order_id: string }>;
+  customerId: string;
+  expectedRevision: number;
+  releaseId: string;
+};
+
 export function useWholesaleSettlementReleaseActions() {
   // 结汇发布与批发页面使用同一个成功契约，避免这里再次维护一套容易走偏的反馈逻辑。
   const { feedback, pendingKey, runAction } = useWholesaleActionRunner();
@@ -60,22 +67,22 @@ export function useWholesaleSettlementReleaseActions() {
     [runAction],
   );
 
-  const claimRelease = useCallback(
-    (formData: FormData) => {
-      const releaseId = requiredString(formData.get("release_id"));
-
+  const saveAllocations = useCallback(
+    (submission: SettlementReleaseAllocationSubmission) => {
       return runAction(
-        `settlement-release:claim:${releaseId}`,
-        "结汇收款已匹配到订单。",
+        `settlement-release:allocate:${submission.releaseId}`,
+        "结汇收款分配已保存。",
         async () => {
           const supabase = getBrowserSupabaseClient();
           if (!supabase) throw new Error("client unavailable");
 
           const { error } = await supabase.rpc(
-            "claim_wholesale_settlement_release",
+            "replace_wholesale_settlement_release_allocations",
             {
-              p_order_id: requiredString(formData.get("order_id")),
-              p_release_id: releaseId,
+              p_allocations: submission.allocations,
+              p_customer_id: submission.customerId,
+              p_expected_revision: submission.expectedRevision,
+              p_release_id: submission.releaseId,
             },
           );
 
@@ -86,11 +93,35 @@ export function useWholesaleSettlementReleaseActions() {
     [runAction],
   );
 
+  const clearAllocations = useCallback(
+    (releaseId: string, expectedRevision: number) =>
+      runAction(
+        `settlement-release:clear:${releaseId}`,
+        "这笔收款的订单分配已清空。",
+        async () => {
+          const supabase = getBrowserSupabaseClient();
+          if (!supabase) throw new Error("client unavailable");
+
+          const { error } = await supabase.rpc(
+            "clear_wholesale_settlement_release_allocations",
+            {
+              p_expected_revision: expectedRevision,
+              p_release_id: releaseId,
+            },
+          );
+
+          if (error) throw error;
+        },
+      ),
+    [runAction],
+  );
+
   return {
     cancelRelease,
-    claimRelease,
+    clearAllocations,
     createRelease,
     feedback,
     pendingKey,
+    saveAllocations,
   };
 }

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import {
   expectNotForbiddenPage,
@@ -9,26 +9,26 @@ import { fillDateControl } from "./helpers/date-control";
 import {
   chooseSelectOption,
   expectSelectValue,
-  getSelectOptionValueByText,
   getSelectValue,
 } from "./helpers/select-control";
 
 test.describe("wholesale settlement releases", () => {
-  test("finance publishes releases and salesman claims one into an order", async ({
+  test("一笔收款可部分分配到多笔订单并整组调整", async ({
     browser,
   }, testInfo) => {
-    testInfo.setTimeout(150_000);
+    testInfo.setTimeout(180_000);
     const uniqueSuffix = Date.now();
-    const claimNote = `结汇发布认领 ${uniqueSuffix}`;
-    const manualCustomerName = `临时结汇客户 ${uniqueSuffix}`;
-    const manualClaimCustomerName = `临时认领客户 ${uniqueSuffix}`;
-    const manualClaimNote = `手填客户认领 ${uniqueSuffix}`;
+    const allocationNote = `多订单结汇分配 ${uniqueSuffix}`;
+    const temporaryCustomerName = `待确认客户 ${uniqueSuffix}`;
+    const temporaryAllocationNote = `手填客户后分配 ${uniqueSuffix}`;
+    const cancelledCustomerName = `取消收款 ${uniqueSuffix}`;
     const receivedDate = getShanghaiDateInputValue();
     const currentMonth = receivedDate.slice(0, 7).replace("-", "");
-    const targetOrderNumber = `WH-LOCAL-${currentMonth}-004`;
-    const manualTargetOrderNumber = `WH-LOCAL-${currentMonth}-008`;
+    const firstOrderNumber = `WH-LOCAL-${currentMonth}-001`;
+    const secondOrderNumber = `WH-LOCAL-${currentMonth}-023`;
 
     const financePage = await browser.newPage();
+    await financePage.setViewportSize({ height: 900, width: 1440 });
     await loginAs(financePage, "finance");
     await financePage.goto("/finance/wholesale/settlement-releases");
     await expectWorkspaceShell(financePage);
@@ -38,46 +38,41 @@ test.describe("wholesale settlement releases", () => {
     ).toBeVisible();
 
     await publishRelease(financePage, {
-      amount: "1.37",
+      amount: "3000",
       customerLabel: "Wholesale Alpha",
-      currency: "CNY",
-      note: claimNote,
+      currency: "USD",
+      note: allocationNote,
       receivedDate,
     });
     await expect(financePage.getByText("结汇收款已发布。")).toBeVisible();
-    await financePage.getByLabel("搜索收款").fill(claimNote);
-    await expect(financePage.getByRole("row").filter({ hasText: claimNote }))
-      .toBeVisible();
 
     await publishRelease(financePage, {
-      amount: "2.46",
-      customerName: manualCustomerName,
-      currency: "CNY",
-      note: `手填客户 ${uniqueSuffix}`,
+      amount: "500",
+      customerName: temporaryCustomerName,
+      currency: "USD",
+      note: temporaryAllocationNote,
       receivedDate,
     });
     await expect(financePage.getByText("结汇收款已发布。")).toBeVisible();
-    await financePage.getByLabel("搜索收款").fill(manualCustomerName);
 
-    const manualRow = financePage.getByRole("row").filter({
-      hasText: manualCustomerName,
+    await publishRelease(financePage, {
+      amount: "88.66",
+      customerName: cancelledCustomerName,
+      currency: "USD",
+      note: `取消验证 ${uniqueSuffix}`,
+      receivedDate,
     });
-    await expect(manualRow).toBeVisible();
-    await manualRow.getByRole("button", { name: "取消" }).click();
+    await financePage.getByLabel("搜索收款").fill(cancelledCustomerName);
+    const cancelledRow = financePage.getByRole("row").filter({
+      hasText: cancelledCustomerName,
+    });
+    await cancelledRow.getByRole("button", { name: "取消" }).click();
     await expect(financePage.getByText("这条结汇收款已取消。")).toBeVisible();
-    await expect(manualRow).toContainText("已取消");
-
-    await publishRelease(financePage, {
-      amount: "3.21",
-      customerName: manualClaimCustomerName,
-      currency: "CNY",
-      note: manualClaimNote,
-      receivedDate,
-    });
-    await expect(financePage.getByText("结汇收款已发布。")).toBeVisible();
+    await expect(cancelledRow).toContainText("已取消");
     await financePage.close();
 
     const salesmanPage = await browser.newPage();
+    await salesmanPage.setViewportSize({ height: 900, width: 1440 });
     await loginAs(salesmanPage, "salesman");
     await salesmanPage.goto("/salesman/wholesale/settlement-releases");
     await expectWorkspaceShell(salesmanPage);
@@ -86,118 +81,136 @@ test.describe("wholesale settlement releases", () => {
       salesmanPage.getByRole("button", { name: "发布收款" }),
     ).toHaveCount(0);
 
-    await salesmanPage.getByLabel("搜索收款").fill(claimNote);
-    const claimRow = salesmanPage.getByRole("row").filter({ hasText: claimNote });
-    await expect(claimRow).toBeVisible();
-    await expect(claimRow.getByRole("button", { name: "取消" })).toHaveCount(0);
-    await claimRow.getByRole("button", { name: "认领匹配" }).click();
+    await salesmanPage.getByLabel("搜索收款").fill(allocationNote);
+    const allocationRow = salesmanPage.getByRole("row").filter({
+      hasText: allocationNote,
+    });
+    await expect(allocationRow).toBeVisible();
+    await allocationRow.getByRole("button", { name: "开始分配" }).click();
 
-    const claimDialog = salesmanPage.getByRole("dialog", { name: "认领结汇收款" });
-    await expect(claimDialog).toBeVisible();
-    const fixedCustomerSelect = claimDialog.getByLabel("客户");
-    const orderSelect = claimDialog.getByLabel("匹配批发订单");
+    const allocationDialog = salesmanPage.getByRole("dialog", {
+      name: "分配收款",
+    });
+    await expect(allocationDialog).toBeVisible();
+    const fixedCustomerSelect = allocationDialog.getByLabel("归属客户");
     await expect(fixedCustomerSelect).toBeDisabled();
     expect(await getSelectValue(fixedCustomerSelect)).not.toBe("");
-    await expectSelectValue(orderSelect, "");
-    const targetOrderValue = await getSelectOptionValueByText(
-      orderSelect,
-      targetOrderNumber,
+
+    const firstOrderInput = getAllocationInput(
+      allocationDialog,
+      firstOrderNumber,
     );
-    await orderSelect.click();
-    await expect(
-      salesmanPage.getByRole("option").filter({ hasText: targetOrderNumber }),
-    ).toContainText(" · ");
-    await salesmanPage.keyboard.press("Escape");
-    // Select 有短暂退出动画；等 Portal 真正卸载后再改变视口，避免旧桌面坐标污染移动宽度测量。
-    await expect(salesmanPage.getByRole("option")).toHaveCount(0);
+    const secondOrderInput = getAllocationInput(
+      allocationDialog,
+      secondOrderNumber,
+    );
+    // 第一次打开已经按最早订单优先生成完整建议：先填满第一笔，再分到第二笔。
+    await expect(firstOrderInput).toHaveValue("1800.00");
+    await expect(secondOrderInput).toHaveValue("1200.00");
+
+    await firstOrderInput.fill("1000");
+    await secondOrderInput.fill("500");
+    await expect(allocationDialog.getByText("US$1,500.00")).toHaveCount(2);
+    await expectNoDocumentHorizontalOverflow(salesmanPage);
+    await expectNoCompressedText(salesmanPage);
+
+    // 真正提交前切到手机宽度，验证金额卡片、按钮和长订单号不会把页面撑宽或挤成竖排。
     await salesmanPage.setViewportSize({ height: 844, width: 390 });
     await expectNoDocumentHorizontalOverflow(salesmanPage);
     await expectNoCompressedText(salesmanPage);
+    await expectTouchTargets(allocationDialog);
     await salesmanPage.setViewportSize({ height: 900, width: 1440 });
-    await chooseSelectOption(orderSelect, { value: targetOrderValue });
-    await claimDialog.getByRole("button", { name: "确认匹配" }).click();
+    await allocationDialog.getByRole("button", { name: "保存全部分配" }).click();
 
-    await expect(salesmanPage.getByText("结汇收款已匹配到订单。")).toBeVisible();
-    await expect(claimRow).toContainText("已匹配");
-    await expect(claimRow).toContainText(targetOrderNumber);
-    await expect(claimRow.getByRole("button", { name: "认领匹配" })).toHaveCount(0);
+    await expect(salesmanPage.getByText("结汇收款分配已保存。")).toBeVisible();
+    await expect(allocationRow).toContainText("部分分配");
+    await expect(allocationRow).toContainText(firstOrderNumber);
+    await expect(allocationRow).toContainText(secondOrderNumber);
+    await expect(allocationRow).toContainText("US$1,500.00");
 
-    await salesmanPage.getByLabel("搜索收款").fill(manualClaimNote);
-    const manualClaimRow = salesmanPage.getByRole("row").filter({
-      hasText: manualClaimNote,
+    await allocationRow.getByRole("button", { name: "继续分配" }).click();
+    const continueDialog = salesmanPage.getByRole("dialog", {
+      name: "继续分配收款",
     });
-    await expect(manualClaimRow).toBeVisible();
-    await manualClaimRow.getByRole("button", { name: "认领匹配" }).click();
+    await expect(
+      getAllocationInput(continueDialog, firstOrderNumber),
+    ).toHaveValue("1000.00");
+    await expect(
+      getAllocationInput(continueDialog, secondOrderNumber),
+    ).toHaveValue("500.00");
+    await continueDialog
+      .getByRole("button", { name: "按最早订单重新分配" })
+      .click();
+    await expect(
+      getAllocationInput(continueDialog, firstOrderNumber),
+    ).toHaveValue("1800.00");
+    await expect(
+      getAllocationInput(continueDialog, secondOrderNumber),
+    ).toHaveValue("1200.00");
+    await continueDialog
+      .getByRole("button", { name: "保存全部分配" })
+      .click();
 
-    const manualClaimDialog = salesmanPage.getByRole("dialog", {
-      name: "认领结汇收款",
+    await expect(salesmanPage.getByText("结汇收款分配已保存。")).toBeVisible();
+    await expect(allocationRow).toContainText("已分配");
+    await allocationRow.getByRole("button", { name: "调整分配" }).click();
+    const adjustDialog = salesmanPage.getByRole("dialog", {
+      name: "调整收款分配",
     });
-    await expect(manualClaimDialog).toBeVisible();
-    const manualCustomerSelect = manualClaimDialog.getByLabel("客户");
-    const manualOrderSelect = manualClaimDialog.getByLabel("匹配批发订单");
-    await expect(manualOrderSelect).toBeDisabled();
-    await chooseSelectOption(manualCustomerSelect, {
+    await adjustDialog
+      .getByRole("button", { name: "清空当前分配" })
+      .click();
+    await expect(adjustDialog.getByText("确认清空这笔收款的全部分配？"))
+      .toBeVisible();
+    await adjustDialog.getByRole("button", { name: "保留当前分配" }).click();
+    await adjustDialog.getByRole("button", { name: "关闭弹窗" }).click();
+
+    // 手填名称的收款必须先归到正式客户；保存失败后客户和逐笔金额都应保留。
+    await salesmanPage.getByLabel("搜索收款").fill(temporaryAllocationNote);
+    const temporaryRow = salesmanPage.getByRole("row").filter({
+      hasText: temporaryAllocationNote,
+    });
+    await temporaryRow.getByRole("button", { name: "开始分配" }).click();
+    const temporaryDialog = salesmanPage.getByRole("dialog", {
+      name: "分配收款",
+    });
+    const temporaryCustomerSelect = temporaryDialog.getByLabel("归属客户");
+    await expect(temporaryCustomerSelect).toBeEnabled();
+    await chooseSelectOption(temporaryCustomerSelect, {
       label: "Wholesale Alpha",
     });
-    await expect(manualOrderSelect).toBeEnabled();
-    await expectSelectValue(manualOrderSelect, "");
-    const manualTargetOrderValue = await getSelectOptionValueByText(
-      manualOrderSelect,
-      manualTargetOrderNumber,
-    );
-    await chooseSelectOption(manualOrderSelect, {
-      value: manualTargetOrderValue,
-    });
-    const manualCustomerValue = await getSelectValue(manualCustomerSelect);
-    const manualOrderValue = await getSelectValue(manualOrderSelect);
-    const claimRequestPattern =
-      "**/rest/v1/rpc/claim_wholesale_settlement_release";
-    await salesmanPage.route(claimRequestPattern, async (route) => {
+    const temporaryFirstInput = temporaryDialog
+      .locator('input[type="number"]')
+      .first();
+    await expect(temporaryFirstInput).not.toHaveValue("");
+    const savedCustomerValue = await getSelectValue(temporaryCustomerSelect);
+    const savedFirstAmount = await temporaryFirstInput.inputValue();
+
+    const replaceRequestPattern =
+      "**/rest/v1/rpc/replace_wholesale_settlement_release_allocations";
+    await salesmanPage.route(replaceRequestPattern, async (route) => {
       await route.fulfill({
         body: JSON.stringify({ message: "forced_failure" }),
         contentType: "application/json",
         status: 500,
       });
     });
-    const manualConfirmButton = manualClaimDialog.getByRole("button", {
-      name: "确认匹配",
-    });
-    await manualConfirmButton.click();
+    await temporaryDialog
+      .getByRole("button", { name: "保存全部分配" })
+      .click();
     await expect(
       salesmanPage.getByText("操作没有成功，请检查内容和权限后再试。"),
     ).toBeVisible();
-    await expect(manualClaimDialog).toBeVisible();
-    await expectSelectValue(manualCustomerSelect, manualCustomerValue);
-    await expectSelectValue(manualOrderSelect, manualOrderValue);
+    await expect(temporaryDialog).toBeVisible();
+    await expectSelectValue(temporaryCustomerSelect, savedCustomerValue);
+    await expect(temporaryFirstInput).toHaveValue(savedFirstAmount);
 
-    // 失败验证完成后恢复真实请求，同一份选择应该可以直接重新提交。
-    await salesmanPage.unroute(claimRequestPattern);
-    await expect(manualConfirmButton).toBeEnabled();
-    // 成功后弹窗会立即移除；直接派发点击可避免 Playwright 因按钮消失而误判为点击失败。
-    await manualConfirmButton.dispatchEvent("click");
-
-    await expect(salesmanPage.getByText("结汇收款已匹配到订单。")).toBeVisible();
-    await expect(manualClaimRow).toContainText("已匹配");
-    await expect(manualClaimRow).toContainText(manualTargetOrderNumber);
-    await expect(
-      manualClaimRow.getByRole("button", { name: "认领匹配" }),
-    ).toHaveCount(0);
-
-    await salesmanPage.goto("/salesman/wholesale/orders");
-    await expect(salesmanPage.getByRole("heading", { name: "批发订单" }))
-      .toBeVisible();
-    await expect(
-      salesmanPage.getByRole("button", { name: "登记结汇" }).first(),
-    ).toBeVisible();
-    await salesmanPage.getByLabel("搜索订单").fill(targetOrderNumber);
-
-    const orderRow = salesmanPage.getByRole("row").filter({
-      hasText: targetOrderNumber,
-    });
-    await expect(orderRow).toBeVisible();
-    await expect(orderRow).toContainText("已结");
-    await expect(orderRow).toContainText("剩余");
-    await expect(orderRow).toContainText("1.37");
+    await salesmanPage.unroute(replaceRequestPattern);
+    await temporaryDialog
+      .getByRole("button", { name: "保存全部分配" })
+      .click();
+    await expect(salesmanPage.getByText("结汇收款分配已保存。")).toBeVisible();
+    await expect(temporaryRow).toContainText("已分配");
 
     await expectNoDocumentHorizontalOverflow(salesmanPage);
     await salesmanPage.setViewportSize({ height: 844, width: 390 });
@@ -206,6 +219,7 @@ test.describe("wholesale settlement releases", () => {
       salesmanPage.getByRole("heading", { name: "结汇发布" }),
     ).toBeVisible();
     await expectNoDocumentHorizontalOverflow(salesmanPage);
+    await expectNoCompressedText(salesmanPage);
     await salesmanPage.close();
   });
 });
@@ -241,6 +255,13 @@ async function publishRelease(
   await fillDateControl(dialog.getByLabel("收款日期"), options.receivedDate);
   await dialog.getByLabel("备注").fill(options.note);
   await dialog.getByRole("button", { name: "发布收款" }).click();
+}
+
+function getAllocationInput(dialog: Locator, orderNumber: string) {
+  return dialog.getByRole("spinbutton", {
+    exact: true,
+    name: `订单 ${orderNumber} 的分配金额`,
+  });
 }
 
 function getShanghaiDateInputValue() {
@@ -282,4 +303,28 @@ async function expectNoCompressedText(page: Page) {
   );
 
   expect(compressedText).toEqual([]);
+}
+
+async function expectTouchTargets(scope: Locator) {
+  const tooSmallTargets = await scope.locator("button, input").evaluateAll(
+    (elements) =>
+      elements
+        .filter((element) => {
+          const rect = element.getBoundingClientRect();
+          // Base UI 会为下拉框生成 1px 的隐藏表单输入；它不参与点击和键盘导航，不属于触控目标。
+          return (
+            (element as HTMLElement).tabIndex >= 0 &&
+            rect.width > 0 &&
+            rect.height > 0 &&
+            rect.height < 43.5
+          );
+        })
+        .map((element) => ({
+          height: element.getBoundingClientRect().height,
+          text: (element as HTMLElement).innerText || element.getAttribute("aria-label"),
+        }))
+        .slice(0, 5),
+  );
+
+  expect(tooSmallTargets).toEqual([]);
 }

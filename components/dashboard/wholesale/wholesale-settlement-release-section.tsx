@@ -25,30 +25,39 @@ import type {
   WholesaleOrderSettlement,
   WholesaleProfile,
 } from "@/lib/wholesale";
-import type { WholesaleSettlementRelease } from "@/lib/wholesale-settlement-releases";
+import type {
+  WholesaleSettlementRelease,
+  WholesaleSettlementReleaseAllocation,
+} from "@/lib/wholesale-settlement-releases";
 import { normalizeSearchText } from "@/lib/value-normalizers";
 import { formatCurrency } from "./wholesale-display";
-import {
-  WholesaleSettlementReleaseClaimDialog,
-  WholesaleSettlementReleaseCreateDialog,
-} from "./wholesale-settlement-release-dialogs";
+import { WholesaleSettlementReleaseAllocationDialog } from "./wholesale-settlement-release-allocation-dialog";
+import { WholesaleSettlementReleaseCreateDialog } from "./wholesale-settlement-release-dialogs";
 import {
   getSettlementReleaseSearchText,
   WHOLESALE_SETTLEMENT_RELEASE_STATUS_LABELS,
 } from "./wholesale-settlement-release-display";
 import { WholesaleSettlementReleaseTable } from "./wholesale-settlement-release-table";
+import type { SettlementReleaseAllocationSubmission } from "./use-wholesale-settlement-release-actions";
 import {
   WholesaleEmptyState,
   WholesalePageShell,
   WholesaleStatGrid,
 } from "./wholesale-ui";
 type WholesaleSettlementReleaseSectionProps = {
-  canClaim: boolean;
+  allocations: WholesaleSettlementReleaseAllocation[];
+  canAllocate: boolean;
   canPublish: boolean;
   customers: WholesaleCustomer[];
   onCancelRelease: (releaseId: string) => Promise<boolean>;
-  onClaimRelease: (formData: FormData) => Promise<boolean>;
+  onClearAllocations: (
+    releaseId: string,
+    expectedRevision: number,
+  ) => Promise<boolean>;
   onCreateRelease: (formData: FormData) => Promise<boolean>;
+  onSaveAllocations: (
+    submission: SettlementReleaseAllocationSubmission,
+  ) => Promise<boolean>;
   orderSettlements: WholesaleOrderSettlement[];
   orders: WholesaleOrder[];
   pendingKey: string | null;
@@ -58,12 +67,14 @@ type WholesaleSettlementReleaseSectionProps = {
 const ALL = "all";
 const FALLBACK_CURRENCIES = ["USD", "CNY", "EUR", "JPY", "AUD"];
 export function WholesaleSettlementReleaseSection({
-  canClaim,
+  allocations,
+  canAllocate,
   canPublish,
   customers,
   onCancelRelease,
-  onClaimRelease,
+  onClearAllocations,
   onCreateRelease,
+  onSaveAllocations,
   orderSettlements,
   orders,
   pendingKey,
@@ -74,7 +85,7 @@ export function WholesaleSettlementReleaseSection({
     "UiText.components_dashboard_wholesale_wholesale_settlement_release_section",
   );
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [selectedClaimRelease, setSelectedClaimRelease] =
+  const [selectedAllocationRelease, setSelectedAllocationRelease] =
     useState<WholesaleSettlementRelease | null>(null);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState(ALL);
@@ -82,20 +93,24 @@ export function WholesaleSettlementReleaseSection({
     () => new Map(orders.map((order) => [order.id, order])),
     [orders],
   );
+  const customersById = useMemo(
+    () => new Map(customers.map((customer) => [customer.id, customer])),
+    [customers],
+  );
   const profilesById = useMemo(
     () => new Map(profiles.map((profile) => [profile.user_id, profile])),
     [profiles],
   );
-  const orderSettlementsByOrderId = useMemo(() => {
-    // 认领弹窗要按“订单剩余可结汇金额”筛选订单，所以先按订单 ID 分组已有结汇记录。
-    const grouped = new Map<string, WholesaleOrderSettlement[]>();
-    for (const settlement of orderSettlements) {
-      const rows = grouped.get(settlement.order_id) ?? [];
-      rows.push(settlement);
-      grouped.set(settlement.order_id, rows);
+  const allocationsByReleaseId = useMemo(() => {
+    // 列表的进度、订单摘要和搜索都需要同一组分配记录，集中分组可以避免每行反复扫描完整数组。
+    const grouped = new Map<string, WholesaleSettlementReleaseAllocation[]>();
+    for (const allocation of allocations) {
+      const rows = grouped.get(allocation.release_id) ?? [];
+      rows.push(allocation);
+      grouped.set(allocation.release_id, rows);
     }
     return grouped;
-  }, [orderSettlements]);
+  }, [allocations]);
   const currencyOptions = useMemo(() => {
     const values = new Set([
       ...FALLBACK_CURRENCIES,
@@ -111,20 +126,33 @@ export function WholesaleSettlementReleaseSection({
       if (!searchValue) return true;
       return normalizeSearchText(
         getSettlementReleaseSearchText({
+          allocationsByReleaseId,
           ordersById,
           profilesById,
           release,
         }),
       ).includes(searchValue);
     });
-  }, [ordersById, profilesById, releases, searchText, statusFilter]);
-  const pendingCount = releases.filter(
-    (release) => release.status === "pending",
+  }, [
+    allocationsByReleaseId,
+    ordersById,
+    profilesById,
+    releases,
+    searchText,
+    statusFilter,
+  ]);
+  const waitingCount = releases.filter(
+    (release) =>
+      release.status === "pending" || release.status === "partially_allocated",
   ).length;
-  const claimedCount = releases.filter(
-    (release) => release.status === "claimed",
+  const allocatedCount = releases.filter(
+    (release) => release.status === "allocated",
   ).length;
-  const pendingAmountSummary = formatPendingAmountSummary(releases);
+  const unallocatedAmountSummary = formatUnallocatedAmountSummary(
+    releases,
+    allocationsByReleaseId,
+    uiText("allAllocated"),
+  );
   const hasActiveFilters = searchText || statusFilter !== ALL;
   return (
     <WholesalePageShell
@@ -147,27 +175,27 @@ export function WholesaleSettlementReleaseSection({
         stats={[
           {
             icon: <ReceiptText className="size-4" />,
-            label: "发布记录",
+            label: uiText("statRecords"),
             tone: "info",
             value: `${releases.length}`,
           },
           {
             icon: <Clock3 className="size-4" />,
-            label: "待认领",
+            label: uiText("statWaiting"),
             tone: "warning",
-            value: `${pendingCount}`,
+            value: `${waitingCount}`,
           },
           {
             icon: <BadgeCheck className="size-4" />,
-            label: "已匹配",
+            label: uiText("statAllocated"),
             tone: "success",
-            value: `${claimedCount}`,
+            value: `${allocatedCount}`,
           },
           {
             icon: <CircleDollarSign className="size-4" />,
-            label: "待认领金额",
+            label: uiText("statUnallocatedAmount"),
             tone: "warning",
-            value: pendingAmountSummary,
+            value: unallocatedAmountSummary,
           },
         ]}
       />
@@ -222,10 +250,12 @@ export function WholesaleSettlementReleaseSection({
 
         {filteredReleases.length > 0 ? (
           <WholesaleSettlementReleaseTable
-            canClaim={canClaim}
+            allocationsByReleaseId={allocationsByReleaseId}
+            canAllocate={canAllocate}
             canPublish={canPublish}
+            customersById={customersById}
             onCancelRelease={onCancelRelease}
-            onOpenClaim={setSelectedClaimRelease}
+            onOpenAllocation={setSelectedAllocationRelease}
             ordersById={ordersById}
             pendingKey={pendingKey}
             profilesById={profilesById}
@@ -250,37 +280,64 @@ export function WholesaleSettlementReleaseSection({
         />
       ) : null}
 
-      {selectedClaimRelease ? (
-        <WholesaleSettlementReleaseClaimDialog
+      {selectedAllocationRelease ? (
+        <WholesaleSettlementReleaseAllocationDialog
+          allocations={allocations}
           customers={customers}
-          onClaimRelease={onClaimRelease}
+          onClearAllocations={onClearAllocations}
           onOpenChange={(open) => {
-            if (!open) setSelectedClaimRelease(null);
+            if (!open) setSelectedAllocationRelease(null);
           }}
-          orderSettlementsByOrderId={orderSettlementsByOrderId}
+          onSaveAllocations={onSaveAllocations}
+          orderSettlements={orderSettlements}
           orders={orders}
-          pending={
-            pendingKey === `settlement-release:claim:${selectedClaimRelease.id}`
+          pendingAction={
+            pendingKey ===
+            `settlement-release:allocate:${selectedAllocationRelease.id}`
+              ? "save"
+              : pendingKey ===
+                  `settlement-release:clear:${selectedAllocationRelease.id}`
+                ? "clear"
+                : null
           }
-          release={selectedClaimRelease}
+          release={selectedAllocationRelease}
         />
       ) : null}
     </WholesalePageShell>
   );
 }
-function formatPendingAmountSummary(releases: WholesaleSettlementRelease[]) {
+function formatUnallocatedAmountSummary(
+  releases: WholesaleSettlementRelease[],
+  allocationsByReleaseId: Map<
+    string,
+    WholesaleSettlementReleaseAllocation[]
+  >,
+  allAllocatedLabel: string,
+) {
   const totals = new Map<string, number>();
   for (const release of releases) {
-    if (release.status !== "pending") continue;
+    if (release.status === "cancelled" || release.status === "allocated") {
+      continue;
+    }
+    const allocatedAmount = (allocationsByReleaseId.get(release.id) ?? [])
+      .filter((allocation) => allocation.status === "active")
+      .reduce(
+        (sum, allocation) => sum + Number(allocation.allocation_amount ?? 0),
+        0,
+      );
+    const remainingAmount = Math.max(
+      Number(release.release_amount) - allocatedAmount,
+      0,
+    );
     // 不同币种不能直接相加，先按币种分别累计再展示。
     totals.set(
       release.release_currency,
       (totals.get(release.release_currency) ?? 0) +
-        Number(release.release_amount ?? 0),
+        remainingAmount,
     );
   }
   if (totals.size === 0) {
-    return "无待认领";
+    return allAllocatedLabel;
   }
   return Array.from(totals.entries())
     .sort(([left], [right]) => left.localeCompare(right))

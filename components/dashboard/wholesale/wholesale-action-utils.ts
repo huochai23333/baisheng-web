@@ -133,8 +133,33 @@ export function toWholesaleActionErrorMessage(error: unknown) {
     return "这条收款的币种和所选订单不一致。";
   }
 
+  if (normalized.includes("wholesale_settlement_release_amount_exceeds")) {
+    return "订单分配金额合计不能超过这笔实际收款。";
+  }
+
+  if (normalized.includes("wholesale_settlement_release_allocations_invalid")) {
+    return "请至少选择一笔订单，并为每笔订单填写大于 0 的分配金额。";
+  }
+
+  if (normalized.includes("wholesale_settlement_release_revision_conflict")) {
+    return "这笔收款刚刚被其他人调整过，请刷新后按最新金额重新分配。";
+  }
+
+  if (
+    normalized.includes("wholesale_settlement_release_commission_already_paid")
+  ) {
+    return "相关订单的业务员提成已经发放，请先处理已发提成后再调整分配。";
+  }
+
+  if (
+    normalized.includes("wholesale_settlement_release_not_available") ||
+    normalized.includes("wholesale_settlement_release_allocation_target_invalid")
+  ) {
+    return "这笔收款当前不能分配，请刷新后查看最新状态。";
+  }
+
   if (normalized.includes("wholesale_settlement_release_customer_mismatch")) {
-    return "这条收款选择了指定客户，请匹配这个客户的订单。";
+    return "这笔收款已经确定客户，请只选择该客户的订单。";
   }
 
   if (normalized.includes("wholesale_settlement_release_not_pending")) {
