@@ -185,7 +185,7 @@ export function DashboardDialog({
           <motion.button
             aria-label={uiText("closeDialog")}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-foreground/35"
+            className="absolute inset-0 bg-foreground/35 backdrop-blur-sm"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             onClick={() => onOpenChangeRef.current(false)}
@@ -200,7 +200,7 @@ export function DashboardDialog({
             aria-describedby={description ? descriptionId : undefined}
             aria-labelledby={titleId}
             aria-modal="true"
-            className="relative z-10 flex max-h-[calc(100dvh-2rem)] min-w-0 w-full max-w-4xl flex-col overflow-hidden rounded-surface-panel border border-border-subtle bg-surface-inset shadow-surface-floating"
+            className="relative z-10 flex max-h-[calc(100dvh-2rem)] min-w-0 w-full max-w-4xl flex-col overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-overlay shadow-surface-floating backdrop-blur-2xl backdrop-saturate-150"
             data-motion-dialog="true"
             exit={{ opacity: 0, scale: 0.985, y: 16 }}
             initial={{ opacity: 0, scale: 0.985, y: 20 }}
@@ -243,7 +243,7 @@ export function DashboardDialog({
               </Button>
             </div>
 
-            <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain bg-surface-inset px-4 py-5 sm:px-8 sm:py-8">
+            <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-8 sm:py-8">
               {children}
             </div>
 

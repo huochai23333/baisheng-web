@@ -14,7 +14,7 @@ const surfaceVariants = cva("min-w-0 border", {
       interactive:
         "rounded-surface-inset border-border-subtle bg-surface-interactive shadow-surface-interactive transition hover:border-ring",
       floating:
-        "rounded-surface-panel border-surface-panel-border bg-surface-overlay shadow-surface-floating",
+        "rounded-surface-panel border-surface-panel-border bg-surface-overlay shadow-surface-floating backdrop-blur-2xl backdrop-saturate-150",
     },
     padding: {
       compact: "p-3 sm:p-4",

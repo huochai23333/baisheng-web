@@ -105,7 +105,7 @@ export function LanguageToggle() {
           {mobileMenuOpen ? (
             <motion.div
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="absolute right-0 top-[calc(100%+0.5rem)] z-40 w-36 origin-top-right rounded-control-large border border-border-subtle bg-surface-interactive p-2 shadow-surface-floating"
+              className="absolute right-0 top-[calc(100%+0.5rem)] z-40 w-36 origin-top-right rounded-control-large border border-border-subtle bg-surface-overlay p-2 shadow-surface-floating backdrop-blur-2xl backdrop-saturate-150"
               exit={{ opacity: 0, scale: 0.985, y: -4 }}
               initial={{ opacity: 0, scale: 0.985, y: -4 }}
               role="menu"

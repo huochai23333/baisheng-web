@@ -92,7 +92,7 @@ export function DatePickerPopup({
         <Popover.Popup
           aria-label={title}
           className={cn(
-            "max-h-[min(38rem,var(--available-height))] w-[min(22rem,calc(100vw-1.5rem))] origin-[var(--transform-origin)] overflow-y-auto overscroll-contain rounded-[18px] border border-border-subtle bg-popover p-3 text-popover-foreground shadow-[var(--surface-shadow-floating)] outline-none",
+            "max-h-[min(38rem,var(--available-height))] w-[min(22rem,calc(100vw-1.5rem))] origin-[var(--transform-origin)] overflow-y-auto overscroll-contain rounded-[18px] border border-border-subtle bg-surface-overlay p-3 text-popover-foreground shadow-[var(--surface-shadow-floating)] outline-none backdrop-blur-2xl backdrop-saturate-150",
             "transition-[opacity,transform] duration-200 data-[starting-style]:translate-y-1 data-[starting-style]:opacity-0 data-[ending-style]:translate-y-1 data-[ending-style]:opacity-0 motion-reduce:transition-none",
           )}
           data-mode={mode}

@@ -135,10 +135,10 @@ export function Select<Value extends string = string>({
             sideOffset={8}
           >
             <SelectPrimitive.Popup
-              className="min-w-[var(--anchor-width)] max-w-[min(32rem,calc(100vw-1.5rem))] overflow-hidden rounded-[18px] border border-border-subtle bg-popover text-popover-foreground shadow-[var(--surface-shadow-floating)] outline-none"
+              className="min-w-[var(--anchor-width)] max-w-[min(32rem,calc(100vw-1.5rem))] overflow-hidden rounded-[18px] border border-border-subtle bg-surface-overlay text-popover-foreground shadow-[var(--surface-shadow-floating)] outline-none backdrop-blur-2xl backdrop-saturate-150"
               data-slot="select-popup"
             >
-              <SelectPrimitive.ScrollUpArrow className="flex h-8 items-center justify-center border-b border-border-subtle bg-popover text-content-muted">
+              <SelectPrimitive.ScrollUpArrow className="flex h-8 items-center justify-center border-b border-border-subtle bg-surface-overlay text-content-muted">
                 <ChevronUp aria-hidden="true" className="size-4" />
               </SelectPrimitive.ScrollUpArrow>
               <SelectPrimitive.List className="max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain p-2">
@@ -164,7 +164,7 @@ export function Select<Value extends string = string>({
                   </SelectPrimitive.Item>
                 ))}
               </SelectPrimitive.List>
-              <SelectPrimitive.ScrollDownArrow className="flex h-8 items-center justify-center border-t border-border-subtle bg-popover text-content-muted">
+              <SelectPrimitive.ScrollDownArrow className="flex h-8 items-center justify-center border-t border-border-subtle bg-surface-overlay text-content-muted">
                 <ChevronDown aria-hidden="true" className="size-4" />
               </SelectPrimitive.ScrollDownArrow>
             </SelectPrimitive.Popup>

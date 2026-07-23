@@ -121,7 +121,7 @@ export function WorkspaceAccountMenu({
         {accountMenuOpen ? (
           <motion.div
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[min(240px,calc(100vw-1.5rem))] origin-top-right overflow-hidden rounded-control-large border border-border-subtle bg-surface-interactive shadow-surface-floating"
+            className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[min(240px,calc(100vw-1.5rem))] origin-top-right overflow-hidden rounded-control-large border border-border-subtle bg-surface-overlay shadow-surface-floating backdrop-blur-2xl backdrop-saturate-150"
             data-testid="workspace-account-menu"
             exit={{ opacity: 0, scale: 0.985, y: -6 }}
             initial={{ opacity: 0, scale: 0.985, y: -6 }}
