@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Popover } from "@base-ui/react/popover";
+import { useMemo, useState } from "react";
 
 import Link from "next/link";
 import {
@@ -12,12 +13,10 @@ import {
   Settings,
   ShieldCheck,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 
 import { InteractiveButton as DesignButton } from "@/components/ui/button";
 import { signOutCurrentBrowserSession } from "@/lib/browser-auth-session";
-import { MOTION_DURATION, MOTION_EASING } from "@/lib/motion-tokens";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useStaleFocusRecovery } from "@/lib/use-stale-focus-recovery";
 
@@ -35,7 +34,6 @@ export function WorkspaceAccountMenu({
   const t = useTranslations("DashboardShell");
   const shouldUseFullPageLoad = useStaleFocusRecovery();
   const supabase = getBrowserSupabaseClient();
-  const menuRef = useRef<HTMLDivElement | null>(null);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
   const accountMenuItems = useMemo(
@@ -64,30 +62,6 @@ export function WorkspaceAccountMenu({
     [myHref, t],
   );
 
-  useEffect(() => {
-    if (!accountMenuOpen) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (
-        menuRef.current &&
-        event.target instanceof Node &&
-        !menuRef.current.contains(event.target)
-      ) {
-        setAccountMenuOpen(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setAccountMenuOpen(false);
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [accountMenuOpen]);
-
   const handleLogout = () => {
     if (logoutPending) return;
     setLogoutPending(true);
@@ -95,14 +69,19 @@ export function WorkspaceAccountMenu({
   };
 
   return (
-    <div className="relative" ref={menuRef}>
-      <DesignButton
-        aria-expanded={accountMenuOpen}
-        aria-label={t("accountMenu.open")}
-        className="inline-flex min-h-11 min-w-11 items-center justify-center gap-3 rounded-full bg-surface-inset p-1.5 transition-colors hover:bg-surface-interactive sm:pr-3"
-        data-testid="workspace-account-menu-trigger"
-        onClick={() => setAccountMenuOpen((current) => !current)}
-        type="button"
+    <Popover.Root
+      onOpenChange={setAccountMenuOpen}
+      open={accountMenuOpen}
+    >
+      <Popover.Trigger
+        render={
+          <DesignButton
+            aria-label={t("accountMenu.open")}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center gap-3 rounded-full bg-surface-inset p-1.5 transition-colors hover:bg-surface-interactive sm:pr-3"
+            data-testid="workspace-account-menu-trigger"
+            type="button"
+          />
+        }
       >
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
           {initials}
@@ -111,29 +90,39 @@ export function WorkspaceAccountMenu({
           {accountLabel}
         </span>
         <ChevronDown
+          aria-hidden="true"
           className={`hidden size-4 text-content-muted transition-transform duration-200 sm:block ${
             accountMenuOpen ? "rotate-180" : "rotate-0"
           }`}
         />
-      </DesignButton>
+      </Popover.Trigger>
 
-      <AnimatePresence>
-        {accountMenuOpen ? (
-          <motion.div
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[min(240px,calc(100vw-1.5rem))] origin-top-right overflow-hidden rounded-control-large border border-border-subtle bg-surface-overlay shadow-surface-floating backdrop-blur-2xl backdrop-saturate-150"
+      {/*
+       * Portal 会把菜单实际渲染到页面根层。这样菜单就不会被顶栏的 z-index
+       * 层叠环境限制，页面里的吸顶表格、固定列或首页组件也无法覆盖到菜单上方。
+       * Positioner 继续负责贴近账号按钮定位，并在窗口边缘自动翻转或平移。
+       */}
+      <Popover.Portal>
+        <Popover.Positioner
+          align="end"
+          className="z-[65] max-w-[calc(100vw-1.5rem)] outline-none"
+          collisionAvoidance={{
+            align: "shift",
+            fallbackAxisSide: "none",
+            side: "flip",
+          }}
+          collisionPadding={12}
+          sideOffset={12}
+        >
+          <Popover.Popup
+            className="w-[min(240px,calc(100vw-1.5rem))] origin-[var(--transform-origin)] overflow-hidden rounded-control-large border border-border-subtle bg-surface-overlay shadow-surface-floating outline-none backdrop-blur-2xl backdrop-saturate-150 transition-[opacity,transform] duration-200 data-[starting-style]:translate-y-[-0.375rem] data-[starting-style]:scale-[0.985] data-[starting-style]:opacity-0 data-[ending-style]:translate-y-[-0.375rem] data-[ending-style]:scale-[0.985] data-[ending-style]:opacity-0 motion-reduce:transition-none"
             data-testid="workspace-account-menu"
-            exit={{ opacity: 0, scale: 0.985, y: -6 }}
-            initial={{ opacity: 0, scale: 0.985, y: -6 }}
-            transition={{
-              duration: MOTION_DURATION.standard,
-              ease: MOTION_EASING.enter,
-            }}
+            initialFocus={false}
           >
             <div className="border-b border-border-subtle px-4 py-3">
-              <p className="truncate text-sm font-semibold text-content-muted">
+              <Popover.Title className="truncate text-sm font-semibold text-content-muted">
                 {accountLabel}
-              </p>
+              </Popover.Title>
             </div>
 
             <div className="p-2">
@@ -178,9 +167,9 @@ export function WorkspaceAccountMenu({
                 {t("logout")}
               </DesignButton>
             </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </div>
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
   );
 }

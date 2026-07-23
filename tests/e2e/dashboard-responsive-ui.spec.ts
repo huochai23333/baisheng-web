@@ -83,8 +83,12 @@ test.describe("工作台分阶段视觉升级", () => {
 
     const accountTrigger = page.getByTestId("workspace-account-menu-trigger");
     await accountTrigger.click();
+    const accountMenu = page.getByTestId("workspace-account-menu");
     const accountCenter = page.getByRole("link", { name: "账号中心" });
     const accountVerification = page.getByRole("link", { name: "账号与认证" });
+    await expect(accountMenu).toBeVisible();
+    await expectTouchTarget(accountCenter, 44);
+    await expectTouchTarget(accountVerification, 44);
     await expect(accountCenter).toHaveAttribute(
       "href",
       "/admin/my#account-center",
@@ -93,6 +97,13 @@ test.describe("工作台分阶段视觉升级", () => {
       "href",
       "/admin/my#account-verification",
     );
+    const accountMenuBounds = await accountMenu.boundingBox();
+    expect(accountMenuBounds).not.toBeNull();
+    expect(Math.round(accountMenuBounds?.x ?? -1)).toBeGreaterThanOrEqual(0);
+    expect(
+      Math.round((accountMenuBounds?.x ?? 0) + (accountMenuBounds?.width ?? 0)),
+    ).toBeLessThanOrEqual(390);
+    await expectNoHorizontalOverflow(page);
 
     const avatarContrast = await accountTrigger.locator("span").first().evaluate(
       (element) => {

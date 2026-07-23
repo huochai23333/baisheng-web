@@ -144,7 +144,11 @@
   --surface-chrome: #f4f3f1;
   --surface-brand-soft: #e4edf3;
   --surface-panel-border: rgba(255, 255, 255, 0.6);
-  --surface-overlay: rgba(255, 255, 255, 0.8);
+  /*
+   * 全局浮层使用七成暖白覆盖，并由组件配合 40px 背景模糊。
+   * 这样可以看见后方区域的柔和色晕，同时不会让文字和细边框清晰穿透。
+   */
+  --surface-overlay: rgba(255, 255, 255, 0.7);
   --surface-on-media: rgba(255, 255, 255, 0.18);
   --content-strong: #23313a;
   --content-muted: #66737e;

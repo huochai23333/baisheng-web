@@ -44,6 +44,7 @@ test.describe("全系统动效回归", () => {
     await page.setViewportSize({ height: 900, width: 1440 });
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await loginAs(page, "administrator");
+    await page.goto("/admin/wholesale/order-claims");
 
     const trigger = page.getByTestId("workspace-account-menu-trigger");
     await trigger.click();
@@ -51,6 +52,36 @@ test.describe("全系统动效回归", () => {
     const menu = page.getByTestId("workspace-account-menu");
     await expect(menu).toBeVisible();
     await expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await expect(menu).toHaveCSS(
+      "background-color",
+      "rgba(255, 255, 255, 0.7)",
+    );
+    await expect(menu).toHaveCSS("backdrop-filter", /blur\(40px\)/);
+
+    const portalLayer = menu.locator("xpath=..");
+    await expect(portalLayer).toHaveCSS("z-index", "65");
+    expect(
+      await menu.evaluate(
+        (element) => element.closest('[data-slot="workspace-header"]') === null,
+      ),
+    ).toBe(true);
+    expect(
+      await menu.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        const checkpoints = [
+          [bounds.left + 12, bounds.top + 52],
+          [bounds.left + bounds.width / 2, bounds.top + bounds.height / 2],
+          [bounds.right - 12, bounds.bottom - 30],
+        ];
+
+        // elementFromPoint 返回该坐标真正位于最上面的节点。
+        // 三个位置都必须命中菜单自身或其子元素，避免吸顶表格再次盖住菜单。
+        return checkpoints.every(([x, y]) => {
+          const topElement = document.elementFromPoint(x, y);
+          return topElement !== null && element.contains(topElement);
+        });
+      }),
+    ).toBe(true);
 
     await trigger.click();
     await expect(menu).toHaveCount(0);
