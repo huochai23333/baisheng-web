@@ -9,6 +9,7 @@ export type WorkspaceBusinessKey = (typeof allWorkspaceBusinessKeys)[number];
 
 export const workspaceWholesaleSectionKeys = [
   "orders",
+  "inventory-orders",
   "settlement-releases",
   "order-claims",
   "logistics",
@@ -65,6 +66,7 @@ export type WorkspaceNavLabelKey =
   | "settlementReleases"
   | "orderClaims"
   | "logistics"
+  | "customerInventoryOrders"
   | "wholesaleOrders";
 
 export type WorkspaceBusinessLabelKey = WorkspaceBusinessKey;
@@ -131,7 +133,10 @@ export type WorkspaceBusinessModule = {
   >;
   settings?: WorkspaceBusinessSettingsModule;
   wholesalePageVariantsByRouteSegment?: Partial<
-    Record<WorkspaceRouteSegment, Partial<Record<WorkspaceWholesaleSectionKey, true>>>
+    Record<
+      WorkspaceRouteSegment,
+      Partial<Record<WorkspaceWholesaleSectionKey, true>>
+    >
   >;
 };
 
@@ -182,6 +187,7 @@ const adminTourismNavItems = [
 
 const adminWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
+  ["inventory-orders", "customerInventoryOrders"],
   ["settlement-releases", "settlementReleases"],
   ["order-claims", "orderClaims"],
   ["logistics", "logistics"],
@@ -208,6 +214,7 @@ const salesWholesaleNavItems = createWholesaleNavItems([
 // 业务员只管理自己的批发客户与订单，承接账号目录留给管理员查看。
 const salesmanWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
+  ["inventory-orders", "customerInventoryOrders"],
   ["settlement-releases", "settlementReleases"],
   ["order-claims", "orderClaims"],
   ["logistics", "logistics"],
@@ -220,12 +227,15 @@ const salesmanWholesaleNavItems = createWholesaleNavItems([
 
 const clientWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
+  ["inventory-orders", "customerInventoryOrders"],
   ["referrals", "referrals"],
   ["commission", "commission"],
 ]);
 
-// 财务批发权限和业务员保持一致，避免两个角色的入口清单出现差异。
-const financeWholesaleNavItems = salesmanWholesaleNavItems;
+// 财务只进入库存订单的信贷管理视图，不继承业务员的订单创建和维护入口。
+const financeWholesaleNavItems = createWholesaleNavItems([
+  ["inventory-orders", "customerInventoryOrders"],
+]);
 
 const managerWholesaleNavItems = createWholesaleNavItems([
   ["orders", "wholesaleOrders"],
@@ -369,7 +379,9 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
   },
 ];
 
-const enabledBusinessKeySet = new Set<string>(companyConfig.enabledBusinessKeys);
+const enabledBusinessKeySet = new Set<string>(
+  companyConfig.enabledBusinessKeys,
+);
 
 export const workspaceBusinessModules = allWorkspaceBusinessModules.filter(
   (module) => enabledBusinessKeySet.has(module.key),

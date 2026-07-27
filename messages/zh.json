@@ -523,6 +523,7 @@
       "incentives": "提成",
       "settlementReleases": "结汇发布",
       "logistics": "物流管理",
+      "customerInventoryOrders": "库存订单",
       "wholesaleOrders": "批发订单"
     },
     "business": {
@@ -788,11 +789,241 @@
     "noPermissionTitle": "当前账号不能查看报销记录",
     "noPermissionDescription": "报销记录只开放给运营账号。"
   },
+  "CustomerInventory": {
+    "header": {
+      "title": "库存订单",
+      "description": "记录客户库存采购、Order List、信贷使用、延期和还款情况。",
+      "clientDescription": "这里可以查看自己的库存订单、Order List 和信贷情况。订单内容由业务员维护。",
+      "orderCount": "共 {count} 笔订单"
+    },
+    "tabs": {
+      "orders": "库存订单",
+      "credit": "信贷管理"
+    },
+    "common": {
+      "cancel": "取消",
+      "close": "关闭",
+      "saving": "正在保存…",
+      "noNotes": "没有填写说明"
+    },
+    "filters": {
+      "keyword": "搜索",
+      "orderKeywordPlaceholder": "订单编号、客户、业务员、币种或备注",
+      "creditKeywordPlaceholder": "订单编号、客户、信贷档位或说明",
+      "allCustomers": "全部客户",
+      "allSalesmen": "全部业务员",
+      "allStatuses": "全部状态",
+      "allCurrencies": "全部币种",
+      "allTiers": "全部信贷档位",
+      "allDueStates": "全部到期情况",
+      "creditTier": "信贷档位",
+      "creditStatus": "信贷状态",
+      "dueState": "到期情况",
+      "fromDate": "录入开始日期",
+      "toDate": "录入结束日期",
+      "applicationFromDate": "申请开始日期",
+      "applicationToDate": "申请结束日期",
+      "clear": "清空筛选",
+      "resultCount": "共 {total} 条，当前显示 {visible} 条",
+      "noResultsTitle": "没有符合筛选条件的记录",
+      "noOrderResultsDescription": "可以调整关键词、状态或日期，或者清空筛选后查看全部库存订单。",
+      "noCreditResultsDescription": "可以调整信贷档位、状态或到期情况，或者清空筛选后查看全部信贷记录。"
+    },
+    "fields": {
+      "actions": "操作",
+      "actualPayment": "订单剩余实付金额",
+      "amounts": "金额",
+      "approvedAmountUsd": "批准金额（美元）",
+      "attachments": "Order List",
+      "cancelReason": "作废原因",
+      "createdAt": "系统录入时间",
+      "currency": "币种",
+      "currentInterest": "当前利息",
+      "customer": "客户",
+      "dueOn": "当前还款日",
+      "extensionMonths": "延期时长",
+      "notes": "备注或说明",
+      "orderNumber": "订单编号",
+      "overdueDays": "逾期天数",
+      "principalUsd": "应还本金",
+      "purchaseAmount": "购买金额",
+      "repaidOn": "实际还款日期",
+      "repaymentTotal": "已还总额",
+      "reviewDecision": "审核结果",
+      "salesman": "业务员",
+      "status": "状态",
+      "usedOn": "使用日"
+    },
+    "placeholders": {
+      "customer": "选择客户",
+      "salesman": "选择业务员"
+    },
+    "amounts": {
+      "purchase": "购买",
+      "credit": "信贷抵消",
+      "paid": "实际支付",
+      "remaining": "待支付"
+    },
+    "paymentStatus": {
+      "awaiting_payment": "待支付",
+      "paid": "已付清",
+      "cancelled": "已作废"
+    },
+    "creditStatus": {
+      "pending": "待审核",
+      "active": "使用中",
+      "rejected": "未通过",
+      "repaid": "已还清"
+    },
+    "dueStates": {
+      "not_started": "尚未开始",
+      "more_than_7_days": "正常使用中",
+      "due_within_7_days": "7天内到期",
+      "due_today": "今日到期",
+      "overdue": "已逾期",
+      "repaid": "已还清"
+    },
+    "tiers": {
+      "fixed_200_usd": "固定200美元",
+      "single_order_50": "一单库存订单金额的50%",
+      "all_orders_5": "所有订单金额的5%"
+    },
+    "tierDescriptions": {
+      "fixed_200_usd": "审核通过后固定使用200美元。",
+      "single_order_50": "这是业务分类名称，最终金额由审核人填写。",
+      "all_orders_5": "这是业务分类名称，最终金额由审核人填写。"
+    },
+    "decisions": {
+      "approve": "批准",
+      "reject": "拒绝"
+    },
+    "orders": {
+      "title": "库存订单",
+      "description": "库存订单只能由管理员或业务员创建和维护，客户查看时所有订单内容均为只读。",
+      "create": "创建库存订单",
+      "edit": "修改",
+      "pay": "全额实付",
+      "cancel": "作废",
+      "notes": "维护备注",
+      "applyCredit": "申请信贷",
+      "attachments": "查看 Order List",
+      "attachmentCount": "{count} 个附件",
+      "emptyTitle": "暂无库存订单",
+      "emptyDescription": "创建后的库存订单会显示在这里。"
+    },
+    "orderDialogs": {
+      "createTitle": "创建库存订单",
+      "createDescription": "系统会按上海业务日期自动生成订单编号和录入时间。",
+      "createSubmit": "创建订单",
+      "editTitle": "修改库存订单",
+      "editDescription": "客户提交申请后，客户、币种、购买金额和支付字段会暂时锁定。",
+      "editSubmit": "保存修改",
+      "notesTitle": "维护订单备注",
+      "notesDescription": "财务金额锁定后仍可以更新备注。",
+      "notesSubmit": "保存备注",
+      "payTitle": "登记全额实付",
+      "payDescription": "确认将订单 {number} 一次登记为全额实付？",
+      "payHint": "登记后订单立即付清，不能再申请信贷，也不能再次修改财务金额。",
+      "paySubmit": "确认已付清",
+      "cancelTitle": "作废库存订单",
+      "cancelDescription": "确认作废订单 {number}？已付清或产生获批信贷的订单不能作废。",
+      "cancelSubmit": "确认作废",
+      "paidInFull": "创建时已经全额实付",
+      "paidInFullHint": "勾选后订单会立即付清；不勾选则保持待支付，不能登记部分实付。"
+    },
+    "attachments": {
+      "title": "{number} 的 Order List",
+      "description": "附件仅支持表格文件；客户和财务可以查看和下载。",
+      "choose": "选择表格",
+      "rules": "支持 CSV、XLS、XLSX；每单最多10个，单个不超过20 MB，合计不超过100 MB。",
+      "upload": "上传所选文件",
+      "empty": "这笔订单还没有 Order List 附件。",
+      "download": "下载",
+      "delete": "删除",
+      "fileMeta": "{size} · {time}"
+    },
+    "creditStats": {
+      "pendingCredit": "待审核信贷",
+      "pendingExtension": "待审核延期",
+      "withinSevenDays": "7天内到期",
+      "dueToday": "今日到期",
+      "overdue": "已逾期"
+    },
+    "reviews": {
+      "title": "待处理申请",
+      "description": "同一订单的待审信贷需要一次统一处理；延期申请可以分别审核。",
+      "pendingCredit": "信贷申请待审核",
+      "pendingExtension": "延期申请待审核",
+      "reviewCredit": "统一审核",
+      "reviewExtension": "审核延期",
+      "creditSummary": "订单 {number} 有 {count} 个档位等待处理。",
+      "extensionSummary": "{tier} 申请延期 {count} 个月。"
+    },
+    "credits": {
+      "title": "信贷记录",
+      "description": "本金统一以美元记录；到期后按未还本金每天折算月单利，不会产生复利。",
+      "emptyTitle": "暂无信贷记录",
+      "emptyDescription": "客户提交信贷申请后会显示在这里。",
+      "days": "{count} 天",
+      "applyExtension": "申请延期",
+      "extensionPending": "延期审核中",
+      "recordRepayment": "登记一次还清"
+    },
+    "creditDialogs": {
+      "applyTitle": "申请订单信贷",
+      "applyDescription": "可以同时选择多个不同档位。提交后，这笔订单的财务字段会暂时锁定。",
+      "applySubmit": "提交申请",
+      "applyOrder": "订单 {number}，购买金额 {amount}。",
+      "reviewTitle": "统一审核订单信贷",
+      "reviewDescription": "必须一次处理这笔订单的全部待审档位，并让信贷抵消与剩余实付正好覆盖购买金额。",
+      "reviewSubmit": "确认审核",
+      "reviewBalance": "订单购买金额为 {amount}。",
+      "ratePreview": "审批汇率：1美元 = {rate} {currency}，系统已按此汇率给出剩余实付建议。",
+      "rateMissing": "当天汇率尚未准备好，目前不能批准信贷。",
+      "fixedAmountHint": "固定档位由系统强制使用200美元。",
+      "manualAmountHint": "该档位不自动计算百分比，请填写最终批准的美元金额。",
+      "actualPaymentHint": "若全部拒绝，请填写0；批准任一档位后，信贷换算额与这里的金额必须正好等于购买金额。",
+      "extendTitle": "申请延期",
+      "extendDescription": "最晚可以在原还款日当天申请，每笔信贷最多批准一次延期。",
+      "extendSubmit": "提交延期申请",
+      "extendDue": "原还款日为 {date}。",
+      "months": "{count} 个月",
+      "reviewExtensionTitle": "审核延期申请",
+      "reviewExtensionDescription": "批准后会从原还款日顺延对应自然月，并且不能再次延期。",
+      "reviewExtensionSubmit": "确认审核",
+      "extensionRequestSummary": "原还款日 {date}，客户申请延期 {count} 个月。",
+      "repayTitle": "登记一次还清",
+      "repayDescription": "系统会按实际还款日期计算全部本金和截至当天的利息，不支持部分还款。",
+      "repaySubmit": "确认还清",
+      "repayPrincipal": "本金：{amount}",
+      "repayInterest": "按今天查看的利息：{amount}"
+    },
+    "feedback": {
+      "connectionError": "当前无法连接系统，请刷新页面后再试。",
+      "createSuccess": "库存订单已创建。",
+      "editSuccess": "库存订单已更新。",
+      "notesSuccess": "订单备注已更新。",
+      "paySuccess": "订单已登记为全额实付。",
+      "cancelSuccess": "库存订单已作废。",
+      "uploadSuccess": "Order List 已上传。",
+      "downloadReady": "附件已开始下载。",
+      "deleteAttachmentSuccess": "附件已删除。",
+      "applySuccess": "信贷申请已提交。",
+      "reviewSuccess": "订单信贷已审核。",
+      "extendSuccess": "延期申请已提交。",
+      "reviewExtensionSuccess": "延期申请已审核。",
+      "repaySuccess": "信贷已一次还清。"
+    }
+  },
   "WholesaleBusiness": {
     "sections": {
       "orders": {
         "title": "批发订单",
         "description": "集中管理批发客户订单、采购金额、运费、费用、毛利、订单月份和关联 1688 采购订单。"
+      },
+      "inventory-orders": {
+        "title": "库存订单",
+        "description": "记录客户库存采购订单、Order List、专属信贷、延期和还款。"
       },
       "settlement-releases": {
         "title": "结汇发布",

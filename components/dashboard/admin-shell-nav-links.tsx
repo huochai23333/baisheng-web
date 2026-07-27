@@ -40,6 +40,7 @@ export const ADMIN_NAV_ICONS: Record<WorkspaceNavSegment, LucideIcon> = {
   feedback: MessageSquareWarning,
   home: Home,
   incentives: BadgeDollarSign,
+  "inventory-orders": ClipboardList,
   logistics: Truck,
   my: UserRound,
   "order-claims": ClipboardCheck,

@@ -523,6 +523,7 @@
       "incentives": "Incentives",
       "settlementReleases": "Settlement Releases",
       "logistics": "Logistics",
+      "customerInventoryOrders": "Inventory Orders",
       "wholesaleOrders": "Wholesale Orders"
     },
     "business": {
@@ -788,11 +789,241 @@
     "noPermissionTitle": "This account cannot view reimbursements",
     "noPermissionDescription": "Reimbursements are available only to operators."
   },
+  "CustomerInventory": {
+    "header": {
+      "title": "Inventory Orders",
+      "description": "Track inventory purchases, Order Lists, credit, extensions, and repayments.",
+      "clientDescription": "View your inventory orders, Order Lists, and credit here. Order details are maintained by your salesperson.",
+      "orderCount": "{count} orders"
+    },
+    "tabs": {
+      "orders": "Inventory Orders",
+      "credit": "Credit Management"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "close": "Close",
+      "saving": "Saving…",
+      "noNotes": "No note"
+    },
+    "filters": {
+      "keyword": "Search",
+      "orderKeywordPlaceholder": "Order number, customer, salesperson, currency, or note",
+      "creditKeywordPlaceholder": "Order number, customer, credit tier, or note",
+      "allCustomers": "All customers",
+      "allSalesmen": "All salespeople",
+      "allStatuses": "All statuses",
+      "allCurrencies": "All currencies",
+      "allTiers": "All credit tiers",
+      "allDueStates": "All due states",
+      "creditTier": "Credit tier",
+      "creditStatus": "Credit status",
+      "dueState": "Due state",
+      "fromDate": "Recorded from",
+      "toDate": "Recorded to",
+      "applicationFromDate": "Applied from",
+      "applicationToDate": "Applied to",
+      "clear": "Clear filters",
+      "resultCount": "{visible} of {total} records shown",
+      "noResultsTitle": "No records match these filters",
+      "noOrderResultsDescription": "Adjust the keyword, status, or dates, or clear filters to view all inventory orders.",
+      "noCreditResultsDescription": "Adjust the credit tier, status, or due state, or clear filters to view all credit records."
+    },
+    "fields": {
+      "actions": "Actions",
+      "actualPayment": "Remaining cash payment",
+      "amounts": "Amounts",
+      "approvedAmountUsd": "Approved amount (USD)",
+      "attachments": "Order List",
+      "cancelReason": "Cancellation reason",
+      "createdAt": "Recorded at",
+      "currency": "Currency",
+      "currentInterest": "Current interest",
+      "customer": "Customer",
+      "dueOn": "Current due date",
+      "extensionMonths": "Extension period",
+      "notes": "Note",
+      "orderNumber": "Order number",
+      "overdueDays": "Overdue days",
+      "principalUsd": "Principal due",
+      "purchaseAmount": "Purchase amount",
+      "repaidOn": "Repayment date",
+      "repaymentTotal": "Total repaid",
+      "reviewDecision": "Decision",
+      "salesman": "Salesperson",
+      "status": "Status",
+      "usedOn": "Used on"
+    },
+    "placeholders": {
+      "customer": "Select a customer",
+      "salesman": "Select a salesperson"
+    },
+    "amounts": {
+      "purchase": "Purchase",
+      "credit": "Credit offset",
+      "paid": "Paid",
+      "remaining": "Remaining"
+    },
+    "paymentStatus": {
+      "awaiting_payment": "Awaiting payment",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    },
+    "creditStatus": {
+      "pending": "Pending",
+      "active": "Active",
+      "rejected": "Rejected",
+      "repaid": "Repaid"
+    },
+    "dueStates": {
+      "not_started": "Not started",
+      "more_than_7_days": "Active",
+      "due_within_7_days": "Due within 7 days",
+      "due_today": "Due today",
+      "overdue": "Overdue",
+      "repaid": "Repaid"
+    },
+    "tiers": {
+      "fixed_200_usd": "Fixed USD 200",
+      "single_order_50": "50% of one inventory order",
+      "all_orders_5": "5% of all orders"
+    },
+    "tierDescriptions": {
+      "fixed_200_usd": "Approval always uses USD 200.",
+      "single_order_50": "This is a business category; the reviewer enters the final amount.",
+      "all_orders_5": "This is a business category; the reviewer enters the final amount."
+    },
+    "decisions": {
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "orders": {
+      "title": "Inventory Orders",
+      "description": "Only administrators and salespeople maintain orders. Customers have read-only access.",
+      "create": "Create inventory order",
+      "edit": "Edit",
+      "pay": "Pay in full",
+      "cancel": "Cancel",
+      "notes": "Edit note",
+      "applyCredit": "Apply for credit",
+      "attachments": "View Order List",
+      "attachmentCount": "{count} files",
+      "emptyTitle": "No inventory orders",
+      "emptyDescription": "Created inventory orders will appear here."
+    },
+    "orderDialogs": {
+      "createTitle": "Create inventory order",
+      "createDescription": "The order number and recorded time are generated automatically using the Shanghai business date.",
+      "createSubmit": "Create order",
+      "editTitle": "Edit inventory order",
+      "editDescription": "Customer, currency, purchase amount, and payment fields lock when a customer submits an application.",
+      "editSubmit": "Save changes",
+      "notesTitle": "Edit order note",
+      "notesDescription": "Notes can still be updated after financial amounts are locked.",
+      "notesSubmit": "Save note",
+      "payTitle": "Record full payment",
+      "payDescription": "Record order {number} as paid in full?",
+      "payHint": "The order closes immediately and can no longer use credit or change financial amounts.",
+      "paySubmit": "Confirm payment",
+      "cancelTitle": "Cancel inventory order",
+      "cancelDescription": "Cancel order {number}? Paid orders and orders with approved credit cannot be cancelled.",
+      "cancelSubmit": "Confirm cancellation",
+      "paidInFull": "Already paid in full",
+      "paidInFullHint": "Selected orders close immediately. Unselected orders remain unpaid; partial payment is not supported."
+    },
+    "attachments": {
+      "title": "Order List for {number}",
+      "description": "Only spreadsheet files are accepted. Customers and finance can view and download.",
+      "choose": "Choose spreadsheets",
+      "rules": "CSV, XLS, or XLSX; up to 10 files, 20 MB each, 100 MB total.",
+      "upload": "Upload selected files",
+      "empty": "This order has no Order List attachment.",
+      "download": "Download",
+      "delete": "Delete",
+      "fileMeta": "{size} · {time}"
+    },
+    "creditStats": {
+      "pendingCredit": "Credit reviews",
+      "pendingExtension": "Extension reviews",
+      "withinSevenDays": "Due within 7 days",
+      "dueToday": "Due today",
+      "overdue": "Overdue"
+    },
+    "reviews": {
+      "title": "Pending Reviews",
+      "description": "All pending credit tiers for an order are reviewed together. Extension requests are reviewed individually.",
+      "pendingCredit": "Credit review",
+      "pendingExtension": "Extension review",
+      "reviewCredit": "Review together",
+      "reviewExtension": "Review extension",
+      "creditSummary": "Order {number} has {count} pending tiers.",
+      "extensionSummary": "{tier} requests a {count}-month extension."
+    },
+    "credits": {
+      "title": "Credit History",
+      "description": "Principal is recorded in USD. Simple interest is prorated daily on unpaid principal after the due date.",
+      "emptyTitle": "No credit history",
+      "emptyDescription": "Customer credit applications will appear here.",
+      "days": "{count} days",
+      "applyExtension": "Request extension",
+      "extensionPending": "Extension pending",
+      "recordRepayment": "Record full repayment"
+    },
+    "creditDialogs": {
+      "applyTitle": "Apply for order credit",
+      "applyDescription": "You may select multiple different tiers. Financial fields lock while they are pending.",
+      "applySubmit": "Submit application",
+      "applyOrder": "Order {number}, purchase amount {amount}.",
+      "reviewTitle": "Review order credit",
+      "reviewDescription": "Review every pending tier and make credit plus cash equal the purchase amount.",
+      "reviewSubmit": "Confirm review",
+      "reviewBalance": "Order purchase amount: {amount}.",
+      "ratePreview": "Approval rate: USD 1 = {rate} {currency}. The remaining cash suggestion uses this rate.",
+      "rateMissing": "Today's exchange rate is not ready, so credit cannot be approved yet.",
+      "fixedAmountHint": "The fixed tier is always USD 200.",
+      "manualAmountHint": "No percentage is calculated automatically. Enter the final approved USD amount.",
+      "actualPaymentHint": "Enter 0 if all tiers are rejected. Otherwise credit plus this amount must equal the purchase amount.",
+      "extendTitle": "Request extension",
+      "extendDescription": "Request by the original due date. Each credit can receive one approved extension.",
+      "extendSubmit": "Submit extension",
+      "extendDue": "Original due date: {date}.",
+      "months": "{count} months",
+      "reviewExtensionTitle": "Review extension",
+      "reviewExtensionDescription": "Approval moves the original due date by the selected calendar months and cannot be repeated.",
+      "reviewExtensionSubmit": "Confirm review",
+      "extensionRequestSummary": "Original due date {date}; requested extension: {count} months.",
+      "repayTitle": "Record full repayment",
+      "repayDescription": "Principal and interest through the selected date are settled together. Partial repayment is not supported.",
+      "repaySubmit": "Confirm repayment",
+      "repayPrincipal": "Principal: {amount}",
+      "repayInterest": "Interest as of today: {amount}"
+    },
+    "feedback": {
+      "connectionError": "Unable to connect. Refresh the page and try again.",
+      "createSuccess": "Inventory order created.",
+      "editSuccess": "Inventory order updated.",
+      "notesSuccess": "Order note updated.",
+      "paySuccess": "Order marked paid in full.",
+      "cancelSuccess": "Inventory order cancelled.",
+      "uploadSuccess": "Order List uploaded.",
+      "downloadReady": "Download started.",
+      "deleteAttachmentSuccess": "Attachment deleted.",
+      "applySuccess": "Credit application submitted.",
+      "reviewSuccess": "Order credit reviewed.",
+      "extendSuccess": "Extension request submitted.",
+      "reviewExtensionSuccess": "Extension reviewed.",
+      "repaySuccess": "Credit repaid in full."
+    }
+  },
   "WholesaleBusiness": {
     "sections": {
       "orders": {
         "title": "Wholesale Orders",
         "description": "Manage wholesale customer orders, purchase cost, shipping, fees, gross profit, order month, and related 1688 purchase orders."
+      },
+      "inventory-orders": {
+        "title": "Inventory Orders",
+        "description": "Track customer inventory purchase orders, Order Lists, dedicated credit, extensions, and repayments."
       },
       "settlement-releases": {
         "title": "Settlement Releases",

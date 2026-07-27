@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
 import { getBusinessVipPageData } from "@/lib/business-vip-management";
 import { getBusinessSettingsPageData } from "@/lib/business-settings";
+import { getCustomerInventoryPageData } from "@/lib/customer-inventory";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import { redirectToWorkspaceAccessLimited } from "@/lib/server-auth";
 import { getWholesalePageData } from "@/lib/wholesale";
@@ -37,6 +38,12 @@ const BusinessSettingsClient = dynamic(() =>
 const WholesaleSettlementReleaseClient = dynamic(() =>
   import("@/components/dashboard/wholesale/wholesale-settlement-release-client").then(
     (mod) => mod.WholesaleSettlementReleaseClient,
+  ),
+);
+
+const CustomerInventoryClient = dynamic(() =>
+  import("@/components/dashboard/customer-inventory/customer-inventory-client").then(
+    (mod) => mod.CustomerInventoryClient,
   ),
 );
 
@@ -97,6 +104,16 @@ export const renderWholesaleSectionPage: WorkspaceSectionRenderer = async ({
     return (
       <ScopedIntlProvider namespaces={["DashboardShared", "WholesaleBusiness"]}>
         <WholesaleSettlementReleaseClient initialData={initialData} />
+      </ScopedIntlProvider>
+    );
+  }
+
+  if (wholesaleSection === "inventory-orders") {
+    const initialData = await getCustomerInventoryPageData(supabase);
+
+    return (
+      <ScopedIntlProvider namespaces={["CustomerInventory", "DashboardShared"]}>
+        <CustomerInventoryClient initialData={initialData} />
       </ScopedIntlProvider>
     );
   }

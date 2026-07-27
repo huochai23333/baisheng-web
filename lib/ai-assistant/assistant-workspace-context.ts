@@ -1,7 +1,4 @@
-import {
-  getDefaultWorkspaceBasePath,
-  type AppRole,
-} from "@/lib/auth-routing";
+import { getDefaultWorkspaceBasePath, type AppRole } from "@/lib/auth-routing";
 import {
   getWorkspaceConfigByBasePath,
   getWorkspaceConfigForPathname,
@@ -31,6 +28,7 @@ const NAV_LABELS = {
   businessSettings: "业务设置",
   companyExpenses: "公司费用",
   commission: "佣金",
+  customerInventoryOrders: "库存订单",
   customers: "客户管理",
   exchangeRates: "汇率设置",
   feedback: "反馈管理",
@@ -59,6 +57,8 @@ const NAV_ENTRY_DESCRIPTIONS = {
   businessSettings: "维护当前业务内的价格、佣金和相关规则",
   companyExpenses: "按月份记录公司对外支出费用",
   commission: "查看或处理订单佣金与任务奖励",
+  customerInventoryOrders:
+    "查看客户库存采购订单、Order List、专属信贷、延期和还款",
   customers: "按当前业务查看和维护客户资料、客户标记或客户归属",
   exchangeRates: "维护币种汇率、自动获取和历史记录",
   feedback: "管理员查看和跟进用户反馈",
@@ -134,8 +134,9 @@ function buildRoleGuide(config: WorkspaceRouteConfig) {
   const entries = [
     ...config.globalNavItems.map((item) => buildNavEntryGuide(config, item)),
     ...config.navGroups.flatMap((group) =>
-      group.navItems.map((item) =>
-        `${BUSINESS_LABELS[group.business]} / ${buildNavEntryGuide(config, item)}`,
+      group.navItems.map(
+        (item) =>
+          `${BUSINESS_LABELS[group.business]} / ${buildNavEntryGuide(config, item)}`,
       ),
     ),
   ];
@@ -199,7 +200,11 @@ function buildCurrentPageGuide(
   const globalSection = section[0] ?? "";
   const business = section[0] ?? "";
   const businessSection = section[1] ?? "";
-  const navItem = findWorkspaceNavItem(currentPageConfig, business, businessSection);
+  const navItem = findWorkspaceNavItem(
+    currentPageConfig,
+    business,
+    businessSection,
+  );
   const globalNavItem = currentPageConfig.globalNavItems.find(
     (item) => item.segment === globalSection,
   );
@@ -246,8 +251,12 @@ function buildPageVariantGuide(pageVariants: WorkspacePageVariants) {
     pageVariants.people ? getPeopleGuide(pageVariants.people) : null,
     pageVariants.vip ? getVipGuide(pageVariants.vip) : null,
     pageVariants.tasks ? getTasksGuide(pageVariants.tasks) : null,
-    pageVariants.commission ? getCommissionGuide(pageVariants.commission) : null,
-    pageVariants.settings ? "业务设置在对应业务侧栏内维护；外侧设置只维护汇率。" : null,
+    pageVariants.commission
+      ? getCommissionGuide(pageVariants.commission)
+      : null,
+    pageVariants.settings
+      ? "业务设置在对应业务侧栏内维护；外侧设置只维护汇率。"
+      : null,
     pageVariants.feedback ? "反馈管理只用于管理员查看和处理用户反馈。" : null,
     pageVariants.operatorReimbursements
       ? "报销记录只用于运营记录自己的报销内容和金额，并把当前周期未报销记录标记为已报销。"
