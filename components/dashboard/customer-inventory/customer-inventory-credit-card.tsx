@@ -62,6 +62,10 @@ export function CustomerInventoryCreditCard({
           <p className="font-semibold text-content-strong">
             {t(`tiers.${credit.tier}`)}
           </p>
+          {/* 新名称便于日常沟通，原档位名称紧跟在下方说明具体额度规则。 */}
+          <p className="mt-1 break-words text-xs leading-5 text-content-muted">
+            {t(`tierDescriptions.${credit.tier}`)}
+          </p>
           <p className="mt-1 break-all text-xs text-content-muted">
             {order?.order_number ?? "—"}
           </p>

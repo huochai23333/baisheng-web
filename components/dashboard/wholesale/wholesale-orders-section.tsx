@@ -171,6 +171,8 @@ export function WholesaleOrdersSection({
         customers={customers}
         filters={filterState.filters}
         hasActiveFilters={filterState.hasActiveFilters}
+        // 客户的订单数据已经由数据库限制为本人范围，所以前端隐藏无意义的客户筛选框。
+        hideCustomerFilter={currentRole === "client"}
         onClear={filterState.clearFilters}
         onExactSearch={filterState.activateExactSearch}
         onExitExactSearch={filterState.exitExactSearch}

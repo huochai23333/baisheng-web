@@ -7,6 +7,12 @@ import type {
   CustomerInventoryPageData,
   CustomerInventoryPaymentStatus,
 } from "@/lib/customer-inventory-types";
+import {
+  getDefaultOrderDateRange,
+  getOrderDatePresetRange,
+  isOrderDateValue,
+  type OrderDatePreset,
+} from "@/lib/order-date-range";
 
 import { getInventoryShanghaiDateKey } from "./customer-inventory-display";
 
@@ -20,15 +26,25 @@ export type InventoryOrderFilters = {
   toDate: string;
 };
 
-const defaultOrderFilters: InventoryOrderFilters = {
-  currency: "all",
-  customerId: "all",
-  fromDate: "",
-  keyword: "",
-  paymentStatus: "all",
-  salesUserId: "all",
-  toDate: "",
-};
+type QuickOrderDatePreset = Exclude<OrderDatePreset, "custom">;
+
+/**
+ * 默认日期每次都按当前上海业务日期生成，不能在模块加载时写死。
+ * 这样页面跨过午夜后再次恢复筛选，仍会回到真正的“最近30天”。
+ */
+export function createDefaultInventoryOrderFilters(): InventoryOrderFilters {
+  const range = getDefaultOrderDateRange();
+
+  return {
+    currency: "all",
+    customerId: "all",
+    fromDate: range.fromDate,
+    keyword: "",
+    paymentStatus: "all",
+    salesUserId: "all",
+    toDate: range.toDate,
+  };
+}
 
 /**
  * 订单筛选放在独立 view-model hook 中。
@@ -37,8 +53,9 @@ const defaultOrderFilters: InventoryOrderFilters = {
 export function useCustomerInventoryOrderFilters(
   data: CustomerInventoryPageData,
 ) {
-  const [filters, setFilters] =
-    useState<InventoryOrderFilters>(defaultOrderFilters);
+  const [filters, setFilters] = useState<InventoryOrderFilters>(() =>
+    createDefaultInventoryOrderFilters(),
+  );
   const customerNames = useMemo(
     () =>
       new Map(
@@ -83,21 +100,54 @@ export function useCustomerInventoryOrderFilters(
       ),
     [customerNames, data.orders, filters, itemSearchText, profileNames],
   );
-  const activeFilterCount = Object.entries(filters).filter(([key, value]) => {
-    const defaultValue =
-      defaultOrderFilters[key as keyof InventoryOrderFilters];
-    return value !== defaultValue;
-  }).length;
+  const defaultFilters = createDefaultInventoryOrderFilters();
+  // 起止日期共同表示一个筛选条件，因此日期范围发生变化时只显示一个活动条件。
+  const activeFilterCount = [
+    filters.currency !== defaultFilters.currency,
+    filters.customerId !== defaultFilters.customerId,
+    filters.fromDate !== defaultFilters.fromDate ||
+      filters.toDate !== defaultFilters.toDate,
+    filters.keyword !== defaultFilters.keyword,
+    filters.paymentStatus !== defaultFilters.paymentStatus,
+    filters.salesUserId !== defaultFilters.salesUserId,
+  ].filter(Boolean).length;
 
   return {
     activeFilterCount,
-    clearFilters: () => setFilters(defaultOrderFilters),
+    applyDatePreset: (preset: QuickOrderDatePreset) => {
+      const range = getOrderDatePresetRange(preset);
+      setFilters((current) => ({
+        ...current,
+        fromDate: range.fromDate,
+        toDate: range.toDate,
+      }));
+    },
+    clearFilters: () => setFilters(createDefaultInventoryOrderFilters()),
     filteredOrders,
     filters,
     setFilter: <Key extends keyof InventoryOrderFilters>(
       key: Key,
       value: InventoryOrderFilters[Key],
-    ) => setFilters((current) => ({ ...current, [key]: value })),
+    ) =>
+      setFilters((current) => {
+        // 日期是必填范围。用户手动修改一端时，若新日期越过另一端，
+        // 同步移动另一端，保证筛选始终是有效且连续的日期区间。
+        if (
+          (key === "fromDate" || key === "toDate") &&
+          !isOrderDateValue(value)
+        ) {
+          return current;
+        }
+
+        const next = { ...current, [key]: value };
+        if (key === "fromDate" && next.fromDate > next.toDate) {
+          next.toDate = next.fromDate;
+        }
+        if (key === "toDate" && next.toDate < next.fromDate) {
+          next.fromDate = next.toDate;
+        }
+        return next;
+      }),
   };
 }
 

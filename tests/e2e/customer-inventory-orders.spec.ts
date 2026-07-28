@@ -23,6 +23,17 @@ test.describe("库存订单与专属信贷", () => {
     await expect(
       page.getByRole("cell", { name: "INV-LOCAL-001" }),
     ).toBeVisible();
+    const orderFilters = page.getByTestId("customer-inventory-order-filters");
+    const recentThirtyDays = orderFilters.getByRole("button", {
+      name: "最近 30 天",
+    });
+    await expect(recentThirtyDays).toHaveAttribute("aria-pressed", "true");
+    await orderFilters.getByRole("button", { name: "上月" }).click();
+    await expect(page.getByText("没有符合筛选条件的记录")).toBeVisible();
+    await recentThirtyDays.click();
+    await expect(
+      page.getByRole("cell", { name: "INV-LOCAL-001" }),
+    ).toBeVisible();
 
     // 先覆盖关键词、状态和无结果恢复，确认筛选不会影响后续订单操作。
     const orderSearch =
@@ -36,7 +47,7 @@ test.describe("库存订单与专属信贷", () => {
     );
     await orderSearch.fill("不存在的库存订单");
     await expect(page.getByText("没有符合筛选条件的记录")).toBeVisible();
-    await page.getByRole("button", { name: "清空筛选" }).click();
+    await page.getByRole("button", { name: "恢复默认范围" }).click();
     await chooseSelectOption(page.getByLabel("状态"), {
       label: "已付清",
     });
@@ -46,7 +57,7 @@ test.describe("库存订单与专属信贷", () => {
     await expect(page.getByRole("cell", { name: "INV-LOCAL-001" })).toHaveCount(
       0,
     );
-    await page.getByRole("button", { name: "清空筛选" }).click();
+    await page.getByRole("button", { name: "恢复默认范围" }).click();
 
     await page.getByRole("button", { name: "创建库存订单" }).click();
     const dialog = page.getByRole("dialog", { name: "创建库存订单" });
@@ -71,7 +82,12 @@ test.describe("库存订单与专属信贷", () => {
 
     await expect(dialog).toHaveCount(0);
     await expect(page.getByText("库存订单已创建。")).toBeVisible();
-    const newOrderRow = page.locator("tbody tr").filter({ hasText: "350.00" });
+    // 测试被手动中断后可能留下同金额订单；列表按最新订单在前排列，
+    // 因此只取第一行，避免一次重跑同时命中多条记录而产生假失败。
+    const newOrderRow = page
+      .locator("tbody tr")
+      .filter({ hasText: "350.00" })
+      .first();
     await expect(newOrderRow).toContainText("Wholesale Beta");
     await expect(newOrderRow).toContainText("待支付");
 
@@ -105,10 +121,15 @@ test.describe("库存订单与专属信贷", () => {
     await expect(orderFilters.getByLabel("客户")).toHaveCount(0);
     await expect(orderFilters.getByLabel("业务员")).toHaveCount(0);
 
-    const targetRow = page.locator("tbody tr").filter({ hasText: "350.00" });
+    const targetRow = page
+      .locator("tbody tr")
+      .filter({ hasText: "350.00" })
+      .first();
     await targetRow.getByRole("button", { name: "申请信贷" }).click();
     const applyDialog = page.getByRole("dialog", { name: "申请订单信贷" });
-    await applyDialog.getByLabel("固定200美元").check();
+    await expect(applyDialog.getByText("固定200美元", { exact: true }))
+      .toBeVisible();
+    await applyDialog.getByLabel("安心周转额度").check();
     await applyDialog.getByLabel("备注或说明").fill("申请固定档位");
     await applyDialog.getByRole("button", { name: "提交申请" }).click();
 
@@ -199,13 +220,15 @@ test.describe("库存订单与专属信贷", () => {
     });
     await expect(page.getByText("共 1 条，当前显示 1 条")).toBeVisible();
     await chooseSelectOption(page.getByLabel("信贷档位"), {
-      label: "一单库存订单金额的50%",
+      label: "订单助力额度",
     });
     await expect(page.getByText("没有符合筛选条件的记录")).toBeVisible();
     await page.getByRole("button", { name: "清空筛选" }).click();
-    await expect(
-      page.getByRole("article").filter({ hasText: "固定200美元" }),
-    ).toContainText("已还清");
+    const repaidCredit = page
+      .getByRole("article")
+      .filter({ hasText: "安心周转额度" });
+    await expect(repaidCredit).toContainText("已还清");
+    await expect(repaidCredit).toContainText("固定200美元");
   });
 
   test("固定200美元还清后客户只看到长期资格", async ({ page }) => {
@@ -220,8 +243,11 @@ test.describe("库存订单与专属信贷", () => {
     });
     await awaitingRow.getByRole("button", { name: "申请信贷" }).click();
     const applyDialog = page.getByRole("dialog", { name: "申请订单信贷" });
-    await expect(applyDialog.getByLabel("固定200美元")).toHaveCount(0);
-    await expect(applyDialog.getByLabel("一单库存订单金额的50%")).toBeVisible();
+    await expect(applyDialog.getByLabel("安心周转额度")).toHaveCount(0);
+    await expect(applyDialog.getByLabel("订单助力额度")).toBeVisible();
+    await expect(
+      applyDialog.getByText("一单库存订单金额的50%", { exact: true }),
+    ).toBeVisible();
     await applyDialog.getByRole("button", { name: "取消" }).click();
   });
 
@@ -269,20 +295,23 @@ test.describe("库存订单与专属信贷", () => {
     });
     const fixedSection = manageDialog
       .locator("section")
-      .filter({ hasText: "固定200美元" });
+      .filter({ hasText: "安心周转额度" });
+    await expect(fixedSection).toContainText("固定200美元");
     await chooseSelectOption(fixedSection.getByLabel("是否使用"), {
       label: "直接使用",
     });
     const singleSection = manageDialog
       .locator("section")
-      .filter({ hasText: "一单库存订单金额的50%" });
+      .filter({ hasText: "订单助力额度" });
+    await expect(singleSection).toContainText("一单库存订单金额的50%");
     await chooseSelectOption(singleSection.getByLabel("是否使用"), {
       label: "直接使用",
     });
     await singleSection.getByLabel("批准金额（美元）").fill("100");
     const allSection = manageDialog
       .locator("section")
-      .filter({ hasText: "所有订单金额的5%" });
+      .filter({ hasText: "长期合作额度" });
+    await expect(allSection).toContainText("所有订单金额的5%");
     await chooseSelectOption(allSection.getByLabel("是否使用"), {
       label: "直接使用",
     });
@@ -346,6 +375,14 @@ test.describe("库存订单与专属信贷", () => {
       .getByRole("button", { name: "更多筛选条件" })
       .click();
     await expect(mobileOrderFilters.getByLabel("状态")).toBeVisible();
+    await expect(
+      mobileOrderFilters.getByRole("button", { name: "最近 30 天" }),
+    ).toHaveAttribute("aria-pressed", "true");
+    for (const presetLabel of ["本月", "上月", "最近 3 个月", "自定义"]) {
+      await expect(
+        mobileOrderFilters.getByRole("button", { name: presetLabel }),
+      ).toBeVisible();
+    }
     await expectNoDocumentHorizontalOverflow(page);
 
     await page.getByRole("button", { name: "查看 Order List" }).first().click();

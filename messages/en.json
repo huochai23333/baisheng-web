@@ -826,7 +826,7 @@
       "clear": "Clear filters",
       "resultCount": "{visible} of {total} records shown",
       "noResultsTitle": "No records match these filters",
-      "noOrderResultsDescription": "Adjust the keyword, status, or dates, or clear filters to view all inventory orders.",
+      "noOrderResultsDescription": "Adjust the keyword, status, or dates, or restore the default range to view inventory orders from the last 30 days.",
       "noCreditResultsDescription": "Adjust the credit tier, status, or due state, or clear filters to view all credit records."
     },
     "fields": {
@@ -887,14 +887,14 @@
       "repaid": "Repaid"
     },
     "tiers": {
+      "fixed_200_usd": "Peace-of-Mind Credit",
+      "single_order_50": "Order Boost Credit",
+      "all_orders_5": "Long-Term Partnership Credit"
+    },
+    "tierDescriptions": {
       "fixed_200_usd": "Fixed USD 200",
       "single_order_50": "50% of one inventory order",
       "all_orders_5": "5% of all orders"
-    },
-    "tierDescriptions": {
-      "fixed_200_usd": "Approval always uses USD 200.",
-      "single_order_50": "This is a business category; the reviewer enters the final amount.",
-      "all_orders_5": "This is a business category; the reviewer enters the final amount."
     },
     "decisions": {
       "approve": "Approve",

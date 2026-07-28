@@ -826,7 +826,7 @@
       "clear": "清空筛选",
       "resultCount": "共 {total} 条，当前显示 {visible} 条",
       "noResultsTitle": "没有符合筛选条件的记录",
-      "noOrderResultsDescription": "可以调整关键词、状态或日期，或者清空筛选后查看全部库存订单。",
+      "noOrderResultsDescription": "可以调整关键词、状态或日期，或者恢复默认范围后查看最近30天的库存订单。",
       "noCreditResultsDescription": "可以调整信贷档位、状态或到期情况，或者清空筛选后查看全部信贷记录。"
     },
     "fields": {
@@ -887,14 +887,14 @@
       "repaid": "已还清"
     },
     "tiers": {
+      "fixed_200_usd": "安心周转额度",
+      "single_order_50": "订单助力额度",
+      "all_orders_5": "长期合作额度"
+    },
+    "tierDescriptions": {
       "fixed_200_usd": "固定200美元",
       "single_order_50": "一单库存订单金额的50%",
       "all_orders_5": "所有订单金额的5%"
-    },
-    "tierDescriptions": {
-      "fixed_200_usd": "审核通过后固定使用200美元。",
-      "single_order_50": "这是业务分类名称，最终金额由审核人填写。",
-      "all_orders_5": "这是业务分类名称，最终金额由审核人填写。"
     },
     "decisions": {
       "approve": "批准",

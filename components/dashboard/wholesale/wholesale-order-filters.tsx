@@ -22,6 +22,7 @@ type WholesaleOrderFiltersProps = {
   customers: WholesaleCustomer[];
   filters: WholesaleOrderFilters;
   hasActiveFilters: boolean;
+  hideCustomerFilter: boolean;
   onClear: () => void;
   onExactSearch: () => void;
   onExitExactSearch: () => void;
@@ -39,6 +40,7 @@ export function WholesaleOrderFiltersPanel({
   customers,
   filters,
   hasActiveFilters,
+  hideCustomerFilter,
   onClear,
   onExactSearch,
   onExitExactSearch,
@@ -56,7 +58,9 @@ export function WholesaleOrderFiltersPanel({
       activeFilterCount={[
         Boolean(filters.searchText),
         filters.status !== "all",
-        Boolean(filters.customerId),
+        // 客户账号只能看到自己的订单，再展示“客户”条件既没有筛选价值，
+        // 也容易让客户误以为可以查询其他客户，因此客户视角不计入这一条件。
+        !hideCustomerFilter && Boolean(filters.customerId),
         Boolean(filters.salesUserId),
         filters.orderedFromDate !== defaultRange.fromDate ||
           filters.orderedToDate !== defaultRange.toDate,
@@ -74,7 +78,11 @@ export function WholesaleOrderFiltersPanel({
       }
       // 订单页桌面内容较多，五项常用条件并排后可以少占一整行，
       // 同时每一列仍使用 minmax(0, 1fr)，避免窄列把日期或下拉框撑出容器。
-      gridClassName="md:grid-cols-2 xl:grid-cols-5"
+      gridClassName={
+        hideCustomerFilter
+          ? "md:grid-cols-2 xl:grid-cols-4"
+          : "md:grid-cols-2 xl:grid-cols-5"
+      }
       onExitExactSearch={onExitExactSearch}
       onPresetChange={onSelectDatePreset}
       onReset={onClear}
@@ -145,25 +153,27 @@ export function WholesaleOrderFiltersPanel({
           value={filters.status}
         />
       </DashboardFilterField>
-      <DashboardFilterField label={uiText("attribute004")}>
-        <Select
-          aria-label={uiText("attribute004")}
-          onValueChange={(value) => onUpdate("customerId", value)}
-          options={[
-            {
-              label: (
-                <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text008" />
-              ),
-              value: "",
-            },
-            ...customers.map((customer) => ({
-              label: customer.unique_name,
-              value: customer.id,
-            })),
-          ]}
-          value={filters.customerId}
-        />
-      </DashboardFilterField>
+      {!hideCustomerFilter ? (
+        <DashboardFilterField label={uiText("attribute004")}>
+          <Select
+            aria-label={uiText("attribute004")}
+            onValueChange={(value) => onUpdate("customerId", value)}
+            options={[
+              {
+                label: (
+                  <UiMessage id="components_dashboard_wholesale_wholesale_order_filters.text008" />
+                ),
+                value: "",
+              },
+              ...customers.map((customer) => ({
+                label: customer.unique_name,
+                value: customer.id,
+              })),
+            ]}
+            value={filters.customerId}
+          />
+        </DashboardFilterField>
+      ) : null}
       <DashboardFilterField label={uiText("attribute005")}>
         <Select
           aria-label={uiText("attribute005")}

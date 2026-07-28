@@ -139,7 +139,7 @@ export function CustomerInventoryCreditApplicationDialog({
             <FormControls.ChoiceField
               description={
                 unavailable
-                  ? t("creditDialogs.tierAlreadyOpen")
+                  ? `${t(`tierDescriptions.${tier}`)} ${t("creditDialogs.tierAlreadyOpen")}`
                   : t(`tierDescriptions.${tier}`)
               }
               disabled={unavailable}

@@ -190,6 +190,10 @@ export function CustomerInventoryCreditManageDialog({
                 <p className="font-semibold text-content-strong">
                   {t(`tiers.${decision.tier}`)}
                 </p>
+                {/* 新名称用于识别档位，原名称作为常驻说明，状态提示另起一行。 */}
+                <p className="mt-1 text-xs leading-5 text-content-muted">
+                  {t(`tierDescriptions.${decision.tier}`)}
+                </p>
                 <p className="mt-1 text-xs leading-5 text-content-muted">
                   {unavailable
                     ? t("creditDialogs.tierUsedElsewhere")

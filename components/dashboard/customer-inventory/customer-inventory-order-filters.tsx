@@ -6,12 +6,16 @@ import {
   DashboardFilterField,
   DashboardSearchInput,
 } from "@/components/dashboard/dashboard-section-panel";
+import { DashboardOrderDateToolbar } from "@/components/dashboard/dashboard-order-filter-section";
 import { DashboardResourceFilterSection } from "@/components/dashboard/dashboard-resource-filter-section";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select } from "@/components/ui/select";
 import type { CustomerInventoryPageData } from "@/lib/customer-inventory-types";
+import type { OrderDatePreset } from "@/lib/order-date-range";
 
 import type { InventoryOrderFilters } from "./use-customer-inventory-order-filters";
+
+type QuickOrderDatePreset = Exclude<OrderDatePreset, "custom">;
 
 export function CustomerInventoryOrderFilters({
   activeFilterCount,
@@ -20,6 +24,7 @@ export function CustomerInventoryOrderFilters({
   isClient,
   onClear,
   onFilterChange,
+  onSelectDatePreset,
   visibleCount,
 }: {
   activeFilterCount: number;
@@ -31,9 +36,11 @@ export function CustomerInventoryOrderFilters({
     key: Key,
     value: InventoryOrderFilters[Key],
   ) => void;
+  onSelectDatePreset: (preset: QuickOrderDatePreset) => void;
   visibleCount: number;
 }) {
   const t = useTranslations("CustomerInventory");
+  const frameworkT = useTranslations("OrderListFramework");
   const currencyOptions = Array.from(
     new Set(data.orders.map((order) => order.currency)),
   )
@@ -44,6 +51,16 @@ export function CustomerInventoryOrderFilters({
     <div className="mb-4" data-testid="customer-inventory-order-filters">
       <DashboardResourceFilterSection
         activeFilterCount={activeFilterCount}
+        footer={
+          <DashboardOrderDateToolbar
+            customInputId="customer-inventory-order-date-from"
+            onSelect={onSelectDatePreset}
+            range={{
+              fromDate: filters.fromDate,
+              toDate: filters.toDate,
+            }}
+          />
+        }
         gridClassName="sm:grid-cols-2 xl:grid-cols-4"
         onReset={onClear}
         primary={
@@ -56,7 +73,7 @@ export function CustomerInventoryOrderFilters({
           </DashboardFilterField>
         }
         resetDisabled={activeFilterCount === 0}
-        resetLabel={t("filters.clear")}
+        resetLabel={frameworkT("filters.reset")}
         summary={t("filters.resultCount", {
           total: data.orders.length,
           visible: visibleCount,
@@ -128,17 +145,21 @@ export function CustomerInventoryOrderFilters({
             value={filters.currency}
           />
         </DashboardFilterField>
-        <DashboardFilterField label={t("filters.fromDate")}>
+        <DashboardFilterField
+          controlId="customer-inventory-order-date-from"
+          label={t("filters.fromDate")}
+        >
           <DatePicker
-            max={filters.toDate || undefined}
             onValueChange={(value) => onFilterChange("fromDate", value)}
+            required
             value={filters.fromDate}
           />
         </DashboardFilterField>
         <DashboardFilterField label={t("filters.toDate")}>
           <DatePicker
-            min={filters.fromDate || undefined}
+            min={filters.fromDate}
             onValueChange={(value) => onFilterChange("toDate", value)}
+            required
             value={filters.toDate}
           />
         </DashboardFilterField>

@@ -15,6 +15,8 @@ test.describe("wholesale order pagination", () => {
     await page.goto("/admin/wholesale/orders");
     await expectWorkspaceShell(page);
     await expectNotForbiddenPage(page);
+    await expect(page.getByLabel("客户", { exact: true })).toBeVisible();
+    await expectNoDocumentHorizontalOverflow(page);
 
     const rows = page.locator('[data-testid^="wholesale-order-row-"]');
     await expect(rows).toHaveCount(20);
@@ -198,6 +200,10 @@ test.describe("wholesale order pagination", () => {
 
       await loginAs(clientPage, "client");
       await clientPage.goto("/client/wholesale/orders");
+      // 客户的数据范围已经固定为本人，因此筛选区不再显示无意义的客户选择框。
+      await expect(
+        clientPage.getByLabel("客户", { exact: true }),
+      ).toHaveCount(0);
 
       const rpcResponsePromise = clientPage.waitForResponse(
         (response) =>
@@ -335,10 +341,43 @@ async function expectMobileOrderCards(
     await expectWorkspaceShell(page);
     await expectNotForbiddenPage(page);
     await expect(page.getByLabel("搜索订单")).toBeVisible();
+    if (role === "client") {
+      await expect(page.getByLabel("客户", { exact: true })).toHaveCount(0);
+    }
     await expect(page.locator('[data-testid^="wholesale-order-card-"]').first())
       .toBeVisible();
     await expectNoDocumentHorizontalOverflow(page);
+    await expectNoVerticalText(page);
+    await expectVisibleButtonsHaveTouchSize(page);
   } finally {
     await context.close();
   }
+}
+
+async function expectNoVerticalText(page: Page) {
+  const verticalElements = await page.locator("main *:visible").evaluateAll(
+    (elements) =>
+      elements.filter((element) => {
+        const style = window.getComputedStyle(element);
+        return style.writingMode !== "horizontal-tb";
+      }).length,
+  );
+  expect(verticalElements).toBe(0);
+}
+
+async function expectVisibleButtonsHaveTouchSize(page: Page) {
+  const undersizedLabels = await page
+    .locator("main button:visible")
+    .evaluateAll((buttons) =>
+      buttons
+        .filter((button) => {
+          const box = button.getBoundingClientRect();
+          return box.width < 40 || box.height < 40;
+        })
+        .map(
+          (button) =>
+            button.textContent?.trim() || button.getAttribute("aria-label"),
+        ),
+    );
+  expect(undersizedLabels).toEqual([]);
 }

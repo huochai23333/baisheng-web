@@ -41,7 +41,11 @@ export function CustomerInventoryCreditReviewCard({
         <p className="font-semibold text-content-strong">
           {t(`tiers.${credit.tier}`)}
         </p>
+        {/* 审核人同时看到业务名称和原始额度解释，减少选错档位的风险。 */}
         <p className="mt-1 text-xs leading-5 text-content-muted">
+          {t(`tierDescriptions.${credit.tier}`)}
+        </p>
+        <p className="mt-2 text-xs leading-5 text-content-muted">
           {credit.application_note || t("common.noNotes")}
         </p>
       </div>

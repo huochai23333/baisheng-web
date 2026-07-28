@@ -68,6 +68,7 @@ export function CustomerInventoryOrdersSection({
   );
   const {
     activeFilterCount,
+    applyDatePreset,
     clearFilters,
     filteredOrders,
     filters,
@@ -116,6 +117,7 @@ export function CustomerInventoryOrdersSection({
           isClient={data.currentRole === "client"}
           onClear={clearFilters}
           onFilterChange={setFilter}
+          onSelectDatePreset={applyDatePreset}
           visibleCount={filteredOrders.length}
         />
       ) : null}

@@ -112,7 +112,14 @@ export const renderWholesaleSectionPage: WorkspaceSectionRenderer = async ({
     const initialData = await getCustomerInventoryPageData(supabase);
 
     return (
-      <ScopedIntlProvider namespaces={["CustomerInventory", "DashboardShared"]}>
+      <ScopedIntlProvider
+        namespaces={[
+          "CustomerInventory",
+          "DashboardShared",
+          // 库存订单复用批发订单的日期快捷范围，必须一并下发共享文案。
+          "OrderListFramework",
+        ]}
+      >
         <CustomerInventoryClient initialData={initialData} />
       </ScopedIntlProvider>
     );
