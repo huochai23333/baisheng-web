@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Bell, ListTodo, Megaphone } from "lucide-react";
+import { Bell, ListTodo } from "lucide-react";
 
 import type { AnnouncementRow } from "@/lib/announcements";
 import type {
@@ -11,10 +11,8 @@ import type {
 } from "@/lib/dashboard-home";
 import { cn } from "@/lib/utils";
 
-import {
-  formatHomeAnnouncementDate,
-  getHomeDisplayName,
-} from "./dashboard-home-display";
+import { HomeAnnouncementsWidget } from "./dashboard-home-announcements-widget";
+import { getHomeDisplayName } from "./dashboard-home-display";
 import {
   HomeClockSection,
   type HomeClockCopy,
@@ -123,12 +121,15 @@ export function DashboardHomeWidgetContent({
 
   if (widget.type === "announcements") {
     return (
-      <AnnouncementsWidgetContent
+      <HomeAnnouncementsWidget
         announcements={announcements}
+        compact={
+          displayMode === "automatic" ||
+          widget.width <= 2 ||
+          widget.height <= 2
+        }
         copy={copy}
         locale={locale}
-        compactOverride={displayMode === "automatic"}
-        widget={widget}
       />
     );
   }
@@ -147,7 +148,11 @@ export function DashboardHomeWidgetContent({
 }
 
 function getUtilityWidgetDensity(widget: HomeWidgetInstance) {
-  if (widget.width <= 2 && widget.height <= 2) {
+  /*
+   * 只有任一方向压到一格时才使用只保留核心信息的迷你模式。
+   * 2×2 已能容纳时间的日期/时区和邀请码的全部复制操作，因此使用紧凑模式。
+   */
+  if (widget.width <= 1 || widget.height <= 1) {
     return "mini" as const;
   }
 
@@ -194,73 +199,6 @@ function GreetingWidgetContent({
           {copy.greeting.subtitle}
         </p>
       ) : null}
-    </div>
-  );
-}
-
-function AnnouncementsWidgetContent({
-  announcements,
-  compactOverride,
-  copy,
-  locale,
-  widget,
-}: Pick<
-  DashboardHomeWidgetContentProps,
-  "announcements" | "copy" | "locale" | "widget"
-> & { compactOverride: boolean }) {
-  const compact = compactOverride || widget.width <= 2 || widget.height <= 2;
-
-  if (compact) {
-    return (
-      <CompactSummary
-        description={
-          announcements[0]?.title ?? copy.announcements.emptyDescription
-        }
-        icon={<Megaphone className="size-5" />}
-        metric={copy.widgets.announcementCount(announcements.length)}
-        title={copy.announcements.sectionTitle}
-      />
-    );
-  }
-
-  return (
-    <div className="flex h-full min-h-0 flex-col">
-      <WidgetHeading
-        description={copy.announcements.sectionDescription}
-        icon={<Megaphone className="size-5 text-primary" />}
-        title={copy.announcements.sectionTitle}
-      />
-      {announcements.length === 0 ? (
-        <div className="mt-5 rounded-control-large border border-border-subtle bg-surface-inset p-5">
-          <h4 className="text-base font-semibold text-content-strong">
-            {copy.announcements.emptyTitle}
-          </h4>
-          <p className="mt-2 break-words text-sm leading-7 text-content-muted">
-            {copy.announcements.emptyDescription}
-          </p>
-        </div>
-      ) : (
-        <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
-          {announcements.map((announcement) => (
-            <article
-              className="rounded-control-large border border-border-subtle bg-surface-inset p-4"
-              key={announcement.id}
-            >
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <h4 className="break-words text-base font-semibold text-content-strong">
-                  {announcement.title}
-                </h4>
-                <time className="shrink-0 text-xs font-medium text-content-muted">
-                  {formatHomeAnnouncementDate(announcement, locale)}
-                </time>
-              </div>
-              <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-content-muted">
-                {announcement.content}
-              </p>
-            </article>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -336,28 +274,6 @@ function CompactSummary({
           {description}
         </p>
       </div>
-    </div>
-  );
-}
-
-function WidgetHeading({
-  description,
-  icon,
-  title,
-}: {
-  description: string;
-  icon: ReactNode;
-  title: string;
-}) {
-  return (
-    <div className="min-w-0">
-      <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-content-strong">
-        {icon}
-        <span className="min-w-0 break-words">{title}</span>
-      </h3>
-      <p className="mt-2 break-words text-sm leading-7 text-content-muted">
-        {description}
-      </p>
     </div>
   );
 }

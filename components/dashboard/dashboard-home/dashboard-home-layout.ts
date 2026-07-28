@@ -18,7 +18,6 @@ export type HomeWidgetInstance = {
 
 export const HOME_WIDGET_GRID_COLUMNS = 5;
 export const HOME_WIDGET_MAX_SIZE = 5;
-export const HOME_WIDGET_MIN_SIZE = 1;
 export const HOME_WIDGET_ROW_UNIT_PX = 112;
 
 export const HOME_WIDGET_TYPES: readonly HomeWidgetType[] = [
@@ -34,10 +33,31 @@ const DEFAULT_WIDGET_SIZE: Record<
   Pick<HomeWidgetInstance, "height" | "width">
 > = {
   announcements: { height: 2, width: 2 },
-  clock: { height: 1, width: 1 },
+  clock: { height: 2, width: 2 },
   greeting: { height: 1, width: 5 },
-  invite: { height: 1, width: 1 },
+  invite: { height: 2, width: 3 },
   todos: { height: 3, width: 3 },
+};
+
+export type HomeWidgetSizeLimits = {
+  minHeight: number;
+  minWidth: number;
+};
+
+/**
+ * 每个组件的最小尺寸由“完整功能是否还能使用”决定：
+ * 待办需要容纳快速添加、筛选和列表；邀请码需要显示所有复制操作；
+ * 时间需要保留日期与时区。问候和公告没有复杂操作，因此可以更紧凑。
+ */
+export const HOME_WIDGET_SIZE_LIMITS: Record<
+  HomeWidgetType,
+  HomeWidgetSizeLimits
+> = {
+  announcements: { minHeight: 2, minWidth: 2 },
+  clock: { minHeight: 2, minWidth: 2 },
+  greeting: { minHeight: 1, minWidth: 2 },
+  invite: { minHeight: 2, minWidth: 2 },
+  todos: { minHeight: 3, minWidth: 3 },
 };
 
 export const DEFAULT_HOME_WIDGET_LAYOUT: readonly HomeWidgetInstance[] = [
@@ -66,15 +86,15 @@ export const DEFAULT_HOME_WIDGET_LAYOUT: readonly HomeWidgetInstance[] = [
     ...DEFAULT_WIDGET_SIZE.invite,
     id: "home-invite",
     type: "invite",
-    x: 3,
-    y: 3,
+    x: 2,
+    y: 4,
   },
   {
     ...DEFAULT_WIDGET_SIZE.clock,
     id: "home-clock",
     type: "clock",
-    x: 4,
-    y: 3,
+    x: 0,
+    y: 4,
   },
 ];
 
@@ -91,14 +111,18 @@ export function createHomeWidgetInstance(
   };
 }
 
-export function clampHomeWidgetSize(value: number) {
-  if (!Number.isFinite(value)) {
-    return HOME_WIDGET_MIN_SIZE;
-  }
+export function getHomeWidgetSizeLimits(type: HomeWidgetType) {
+  return HOME_WIDGET_SIZE_LIMITS[type];
+}
 
-  return Math.min(
-    HOME_WIDGET_MAX_SIZE,
-    Math.max(HOME_WIDGET_MIN_SIZE, Math.round(value)),
+export function clampHomeWidgetWidth(type: HomeWidgetType, value: number) {
+  return clampHomeWidgetDimension(value, getHomeWidgetSizeLimits(type).minWidth);
+}
+
+export function clampHomeWidgetHeight(type: HomeWidgetType, value: number) {
+  return clampHomeWidgetDimension(
+    value,
+    getHomeWidgetSizeLimits(type).minHeight,
   );
 }
 
@@ -125,8 +149,8 @@ export function normalizeHomeWidgetLayout(value: unknown) {
       return;
     }
 
-    const width = clampHomeWidgetSize(item.width);
-    const height = clampHomeWidgetSize(item.height);
+    const width = clampHomeWidgetWidth(item.type, item.width);
+    const height = clampHomeWidgetHeight(item.type, item.height);
     const hasSavedPosition =
       typeof item.x === "number" && typeof item.y === "number";
     const position = hasSavedPosition
@@ -134,7 +158,11 @@ export function normalizeHomeWidgetLayout(value: unknown) {
           x: clampHomeWidgetX(item.x, width),
           y: clampHomeWidgetY(item.y),
         }
-      : findAvailableHomeWidgetPosition(widgets, { height, width });
+      : findAvailableHomeWidgetPosition(widgets, {
+          height,
+          type: item.type,
+          width,
+        });
 
     seenIds.add(id);
     widgets.push({
@@ -151,10 +179,10 @@ export function normalizeHomeWidgetLayout(value: unknown) {
 
 export function findAvailableHomeWidgetPosition(
   widgets: readonly HomeWidgetInstance[],
-  size: Pick<HomeWidgetInstance, "height" | "width">,
+  size: Pick<HomeWidgetInstance, "height" | "type" | "width">,
 ) {
-  const width = clampHomeWidgetSize(size.width);
-  const height = clampHomeWidgetSize(size.height);
+  const width = clampHomeWidgetWidth(size.type, size.width);
+  const height = clampHomeWidgetHeight(size.type, size.height);
 
   for (let y = 0; y < 200; y += 1) {
     for (let x = 0; x <= HOME_WIDGET_GRID_COLUMNS - width; x += 1) {
@@ -180,8 +208,8 @@ export function normalizeHomeWidgetCoordinates(
   pinnedWidgetId?: string,
 ) {
   const normalized = widgets.map((widget) => {
-    const width = clampHomeWidgetSize(widget.width);
-    const height = clampHomeWidgetSize(widget.height);
+    const width = clampHomeWidgetWidth(widget.type, widget.width);
+    const height = clampHomeWidgetHeight(widget.type, widget.height);
 
     return {
       ...widget,
@@ -232,6 +260,17 @@ export function clampHomeWidgetY(value: number) {
   }
 
   return Math.max(0, Math.round(value));
+}
+
+function clampHomeWidgetDimension(value: number, minimum: number) {
+  if (!Number.isFinite(value)) {
+    return minimum;
+  }
+
+  return Math.min(
+    HOME_WIDGET_MAX_SIZE,
+    Math.max(minimum, Math.round(value)),
+  );
 }
 
 function findNonOverlappingWidget(

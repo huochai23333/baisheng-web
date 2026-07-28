@@ -1,54 +1,26 @@
 "use client";
 
-import { InteractiveButton as DesignButton } from "@/components/ui/button";
-
 import type { CSSProperties, ReactNode } from "react";
 
-import {
-  Bell,
-  Clock3,
-  KeyRound,
-  type LucideIcon,
-  ListTodo,
-  Megaphone,
-  Plus,
-  RotateCcw,
-  Trash2,
-} from "lucide-react";
+import { SlidersHorizontal, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import type { HomeCustomizerCopy } from "./dashboard-home-customizer-copy";
 import {
   HOME_WIDGET_ROW_UNIT_PX,
-  HOME_WIDGET_TYPES,
   type HomeWidgetInstance,
-  type HomeWidgetType,
 } from "./dashboard-home-layout";
+import { HOME_WIDGET_ICONS } from "./dashboard-home-widget-meta";
 import {
   startHomeWidgetPositionDrag,
   startHomeWidgetResize,
 } from "./dashboard-home-widget-interactions";
-import { getHomeWidgetResizeCursor } from "./dashboard-home-widget-resize";
-import { useDashboardHomeWidgetLayoutAnimation } from "./use-dashboard-home-widget-layout-animation";
+import {
+  DashboardHomeWidgetResizeHandle,
+} from "./dashboard-home-widget-resize-handle";
 import { useDashboardHomeWidgetResizeHandle } from "./use-dashboard-home-widget-resize-handle";
-
-export type HomeCustomizerCopy = {
-  addWidget: string;
-  done: string;
-  edit: string;
-  emptyDescription: string;
-  emptyTitle: string;
-  moveLeft: string;
-  moveRight: string;
-  removeWidget: string;
-  reset: string;
-  resizeWidget: string;
-  sidebarDescription: string;
-  sidebarTitle: string;
-  sizeLabel: (width: number, height: number) => string;
-  widgets: Record<HomeWidgetType, { description: string; title: string }>;
-};
 
 type DashboardHomeWidgetCardProps = {
   children: ReactNode;
@@ -58,6 +30,7 @@ type DashboardHomeWidgetCardProps = {
   editing: boolean;
   entering: boolean;
   index: number;
+  onAdjust: () => void;
   onDragEnd: () => void;
   onDragStart: () => void;
   onMove: (position: Pick<HomeWidgetInstance, "x" | "y">) => void;
@@ -67,16 +40,9 @@ type DashboardHomeWidgetCardProps = {
   ) => void;
   onResizeEnd: () => void;
   onResizeStart: () => void;
+  pauseWiggle: boolean;
   resizing: boolean;
   widget: HomeWidgetInstance;
-};
-
-const widgetIcons: Record<HomeWidgetType, LucideIcon> = {
-  announcements: Megaphone,
-  clock: Clock3,
-  greeting: Bell,
-  invite: KeyRound,
-  todos: ListTodo,
 };
 
 export function DashboardHomeWidgetCard({
@@ -87,6 +53,7 @@ export function DashboardHomeWidgetCard({
   editing,
   entering,
   index,
+  onAdjust,
   onDragEnd,
   onDragStart,
   onMove,
@@ -94,47 +61,51 @@ export function DashboardHomeWidgetCard({
   onResize,
   onResizeEnd,
   onResizeStart,
+  pauseWiggle,
   resizing,
   widget,
 }: DashboardHomeWidgetCardProps) {
-  const Icon = widgetIcons[widget.type];
-  const widgetLabel = copy.widgets[widget.type].title;
-  const { handleResizePointerLeave, handleResizePointerMove, resizeHandle } =
-    useDashboardHomeWidgetResizeHandle({
+  const {
+    handleResizePointerLeave,
+    handleResizePointerMove,
+    pointerOnControl,
+    resizeHandle,
+  } = useDashboardHomeWidgetResizeHandle({
       deleting,
       dragging,
       editing,
       entering,
       resizing,
     });
-  const cardRef = useDashboardHomeWidgetLayoutAnimation({
-    disabled: !editing || !resizing || deleting || entering,
-    resizing,
-  });
+  /*
+   * 外层始终是静止的网格定位层，内层才播放摇晃。
+   * 拖动和缩放只读取外层尺寸，因此动画中的旋转不会改变计算边界；
+   * 靠近缩放边缘时再暂停内层动画，视觉上也会先停稳再开始操作。
+   */
+  const shouldWiggle =
+    editing &&
+    !deleting &&
+    !entering &&
+    !dragging &&
+    !resizing &&
+    !pauseWiggle &&
+    !pointerOnControl &&
+    !resizeHandle;
 
   return (
-    <article
+    <div
       className={cn(
-        "dashboard-home-widget-card group relative min-w-0 overflow-hidden rounded-surface-panel border border-surface-panel-border bg-surface-panel p-4 shadow-surface-interactive backdrop-blur transition-[box-shadow,border-color,opacity] duration-200 will-change-transform sm:p-5",
-        editing &&
-          !deleting &&
-          !entering &&
-          !dragging &&
-          !resizing &&
-          "dashboard-home-wiggle cursor-grab border-ring bg-surface-overlay shadow-surface-interactive active:cursor-grabbing",
-        editing &&
-          (deleting || entering || resizing) &&
-          "border-ring bg-surface-overlay shadow-surface-interactive",
+        "dashboard-home-widget-card group relative min-w-0 transition-[opacity,scale] duration-200",
         deleting && "dashboard-home-widget-exit pointer-events-none",
-        dragging &&
-          "scale-[1.01] opacity-72 shadow-surface-interactive ring-4 ring-ring/45",
+        dragging && "scale-[1.01] opacity-72",
         entering && "dashboard-home-widget-enter",
-        resizing && "dashboard-home-widget-resizing",
       )}
       data-home-widget-id={widget.id}
+      data-home-widget-height={widget.height}
       data-home-widget-type={widget.type}
+      data-home-widget-width={widget.width}
+      data-home-widget-wiggling={shouldWiggle ? "true" : "false"}
       data-testid="home-widget-card"
-      ref={cardRef}
       onPointerDown={(event) => {
         startHomeWidgetPositionDrag(event, {
           editing,
@@ -148,202 +119,175 @@ export function DashboardHomeWidgetCard({
       onPointerMove={handleResizePointerMove}
       style={
         {
-        animationDelay: `${(index % 5) * -45}ms`,
           "--home-widget-grid-column": `${widget.x + 1} / span ${widget.width}`,
           "--home-widget-grid-row": `${widget.y + 1} / span ${widget.height}`,
           "--home-widget-min-height": `${widget.height * HOME_WIDGET_ROW_UNIT_PX}px`,
         } as CSSProperties
       }
     >
-      {editing ? (
-        <>
-          <DesignButton
-            aria-label={copy.removeWidget}
-            className="absolute left-1/2 top-3 z-40 inline-flex size-9 -translate-x-1/2 items-center justify-center rounded-full border border-border bg-surface-overlay text-content-muted shadow-sm transition hover:bg-surface-inset"
-            data-home-widget-control="true"
-            onClick={(event) => {
-              event.stopPropagation();
-              onRemove();
+      <article
+        className={cn(
+          "relative h-full min-h-0 rounded-surface-panel border border-surface-panel-border bg-surface-panel shadow-surface-interactive backdrop-blur transition-[box-shadow,border-color] duration-200",
+          editing ? "overflow-visible p-3" : "overflow-hidden p-4 sm:p-5",
+          editing &&
+            !deleting &&
+            !entering &&
+            !dragging &&
+            !resizing &&
+            "cursor-grab border-ring bg-surface-overlay shadow-surface-interactive ring-1 ring-ring/20 active:cursor-grabbing",
+          shouldWiggle && "dashboard-home-wiggle",
+          editing &&
+            (deleting || entering || resizing) &&
+            "border-ring bg-surface-overlay shadow-surface-interactive",
+          dragging &&
+            "shadow-surface-interactive ring-4 ring-ring/45",
+          resizing && "border-ring bg-surface-overlay ring-2 ring-ring/35",
+        )}
+        style={{ animationDelay: `${(index % 5) * -45}ms` }}
+      >
+        {editing && resizeHandle ? (
+          <DashboardHomeWidgetResizeHandle
+            copy={copy}
+            handle={resizeHandle}
+            onPointerDown={(event) => {
+              startHomeWidgetResize(event, widget, resizeHandle.direction, {
+                onResize,
+                onResizeEnd,
+                onResizeStart,
+              });
             }}
-            onPointerDown={(event) => event.stopPropagation()}
-            title={copy.removeWidget}
-            type="button"
+          />
+        ) : null}
+
+        {editing ? (
+          <DashboardHomeWidgetEditorContent
+            copy={copy}
+            onAdjust={onAdjust}
+            onRemove={onRemove}
+            widget={widget}
           >
-            <Trash2 className="size-4" />
-          </DesignButton>
-          {resizeHandle ? (
-            <DesignButton
-              aria-label={copy.resizeWidget}
-              className={cn(
-                "absolute z-30 inline-flex -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-ring bg-primary text-white shadow-surface-interactive transition-[opacity,transform,background-color] duration-150 hover:bg-brand-hover",
-                getResizeHandleButtonClass(resizeHandle.direction),
-                resizeHandle.visible
-                  ? "scale-100 opacity-100"
-                  : "scale-75 opacity-0",
-              )}
-              data-resize-direction={resizeHandle.direction}
-              data-home-widget-control="true"
-              data-testid="home-widget-resize-handle-active"
-              onPointerDown={(event) => {
-                startHomeWidgetResize(event, widget, resizeHandle.direction, {
-                  onResize,
-                  onResizeEnd,
-                  onResizeStart,
-                });
-              }}
-              style={{
-                cursor: getHomeWidgetResizeCursor(resizeHandle.direction),
-                left: `${resizeHandle.left}px`,
-                top: `${resizeHandle.top}px`,
-              }}
-              title={copy.resizeWidget}
-              type="button"
-            >
-              <HomeWidgetResizeHandleMark direction={resizeHandle.direction} />
-            </DesignButton>
-          ) : null}
-        </>
-      ) : null}
-
-      <div className={cn("h-full min-h-0", editing && "pt-11")}>{children}</div>
-
-      {editing ? (
-        <div className="absolute bottom-3 right-3 z-20 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-2 rounded-full border border-border bg-surface-overlay px-3 py-1 text-xs font-semibold text-content-muted shadow-sm">
-          <Icon className="size-3.5 shrink-0 text-primary" />
-          <span className="min-w-0 truncate">{widgetLabel}</span>
-          <span className="shrink-0 text-content-muted">
-            {copy.sizeLabel(widget.width, widget.height)}
-          </span>
-        </div>
-      ) : null}
-    </article>
+            {children}
+          </DashboardHomeWidgetEditorContent>
+        ) : (
+          <div className="h-full min-h-0">{children}</div>
+        )}
+      </article>
+    </div>
   );
 }
 
-function getResizeHandleButtonClass(direction: string) {
-  if (direction === "left" || direction === "right") {
-    return "h-12 w-4 rounded-full";
-  }
-
-  if (direction === "top" || direction === "bottom") {
-    return "h-4 w-12 rounded-full";
-  }
-
-  return "size-9 rounded-control-compact";
-}
-
-function HomeWidgetResizeHandleMark({ direction }: { direction: string }) {
-  if (direction === "left" || direction === "right") {
-    return (
-      <span
-        aria-hidden="true"
-        className="block h-7 w-0.5 rounded-full bg-surface-overlay"
-        data-resize-handle-shape="vertical"
-      />
-    );
-  }
-
-  if (direction === "top" || direction === "bottom") {
-    return (
-      <span
-        aria-hidden="true"
-        className="block h-0.5 w-7 rounded-full bg-surface-overlay"
-        data-resize-handle-shape="horizontal"
-      />
-    );
-  }
-
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "block size-4",
-        direction === "top-left" &&
-          "border-l-2 border-t-2 border-surface-panel-border",
-        direction === "top-right" &&
-          "border-r-2 border-t-2 border-surface-panel-border",
-        direction === "bottom-right" &&
-          "border-b-2 border-r-2 border-surface-panel-border",
-        direction === "bottom-left" &&
-          "border-b-2 border-l-2 border-surface-panel-border",
-      )}
-      data-resize-handle-shape="corner"
-    />
-  );
-}
-
-type DashboardHomeWidgetSidebarProps = {
-  copy: HomeCustomizerCopy;
-  onAddWidget: (type: HomeWidgetType) => void;
-  onReset: () => void;
-};
-
-export function DashboardHomeWidgetSidebar({
+function DashboardHomeWidgetEditorContent({
+  children,
   copy,
-  onAddWidget,
-  onReset,
-}: DashboardHomeWidgetSidebarProps) {
-  return (
-    <section
-      className="flex h-full min-h-0 flex-col rounded-surface-panel border border-surface-panel-border bg-surface-panel p-4 shadow-surface-interactive backdrop-blur"
-      data-testid="home-widget-sidebar"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="break-words text-lg font-bold text-content-strong">
-            {copy.sidebarTitle}
-          </h3>
-          <p className="mt-2 break-words text-sm leading-6 text-content-muted">
-            {copy.sidebarDescription}
+  onAdjust,
+  onRemove,
+  widget,
+}: {
+  children: ReactNode;
+  copy: HomeCustomizerCopy;
+  onAdjust: () => void;
+  onRemove: () => void;
+  widget: HomeWidgetInstance;
+}) {
+  const WidgetIcon = HOME_WIDGET_ICONS[widget.type];
+  const compactEditor = widget.height === 1 || widget.width === 1;
+
+  const actions = (
+    <div className="flex shrink-0 items-center gap-1">
+      <Button
+        aria-label={copy.adjustWidget}
+        data-home-widget-control="true"
+        data-testid="home-widget-adjust-button"
+        onClick={onAdjust}
+        onPointerDown={(event) => event.stopPropagation()}
+        size="icon"
+        title={copy.adjustWidget}
+        type="button"
+        variant="secondary"
+      >
+        <SlidersHorizontal className="size-4" />
+      </Button>
+      <Button
+        aria-label={copy.removeWidget}
+        data-home-widget-control="true"
+        data-testid="home-widget-remove-button"
+        onClick={onRemove}
+        onPointerDown={(event) => event.stopPropagation()}
+        size="icon"
+        title={copy.removeWidget}
+        type="button"
+        variant="secondary"
+      >
+        <Trash2 className="size-4" />
+      </Button>
+    </div>
+  );
+
+  if (compactEditor) {
+    /*
+     * 一行高或一列宽的卡片没有足够空间继续展示完整业务内容。
+     * 编辑时只保留名称、尺寸和两个明确操作，避免内容被工具按钮遮住。
+     */
+    return (
+      <div
+        className="flex h-full min-h-0 items-center gap-2"
+        data-testid="home-widget-editor-compact"
+      >
+        <span
+          className={cn(
+            "inline-flex size-9 shrink-0 items-center justify-center rounded-control-default bg-surface-inset text-primary",
+          )}
+        >
+          <WidgetIcon className="size-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p
+            className="truncate text-sm font-semibold text-content-strong"
+            data-testid="home-widget-editor-label"
+          >
+            {copy.widgets[widget.type].title}
+          </p>
+          <p className="truncate text-xs text-content-muted">
+            {copy.sizeLabel(widget.width, widget.height)}
           </p>
         </div>
-        <DesignButton
-          aria-label={copy.reset}
-          className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-surface-interactive text-content-muted transition hover:bg-surface-inset"
-          onClick={onReset}
-          title={copy.reset}
-          type="button"
+        {actions}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div
+        className="flex min-h-11 shrink-0 items-center gap-2"
+        data-testid="home-widget-editor-toolbar"
+      >
+        <span
+          className={cn(
+            "inline-flex size-9 shrink-0 items-center justify-center rounded-control-default bg-surface-inset text-primary",
+          )}
         >
-          <RotateCcw className="size-4" />
-        </DesignButton>
+          <WidgetIcon className="size-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p
+            className="truncate text-sm font-semibold text-content-strong"
+            data-testid="home-widget-editor-label"
+          >
+            {copy.widgets[widget.type].title}
+          </p>
+          <p className="truncate text-xs text-content-muted">
+            {copy.sizeLabel(widget.width, widget.height)}
+          </p>
+        </div>
+        {actions}
       </div>
-
-      <div className="mt-5 grid min-h-0 gap-3 overflow-y-auto pr-1">
-        {HOME_WIDGET_TYPES.map((type) => {
-          const Icon = widgetIcons[type];
-
-          return (
-            <div
-              className="rounded-surface-inset border border-border-subtle bg-surface-inset p-4"
-              key={type}
-            >
-              <div className="flex items-start gap-3">
-                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-control-default bg-surface-inset text-primary">
-                  <Icon className="size-5" />
-                </span>
-                <div className="min-w-0">
-                  <h4 className="break-words text-sm font-semibold text-content-strong">
-                    {copy.widgets[type].title}
-                  </h4>
-                  <p className="mt-1 break-words text-xs leading-5 text-content-muted">
-                    {copy.widgets[type].description}
-                  </p>
-                </div>
-              </div>
-              <Button
-                variant="primary"
-                size="compact"
-                className="mt-4 w-full"
-                onClick={() => onAddWidget(type)}
-                type="button"
-              >
-                <Plus className="size-4" />
-                {copy.addWidget}
-              </Button>
-            </div>
-          );
-        })}
+      <div
+        className="mt-2 min-h-0 flex-1 overflow-hidden rounded-surface-inset border border-border-subtle bg-surface-inset p-2"
+        data-testid="home-widget-editor-preview"
+      >
+        {children}
       </div>
-    </section>
+    </div>
   );
 }

@@ -7,7 +7,6 @@ import { CalendarDays, Clock3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type HomeClockCopy = {
-  compactDescription: string;
   description: string;
   miniTitle: string;
   timezoneLabel: string;
@@ -22,10 +21,9 @@ type HomeClockSectionProps = {
 
 const CLOCK_TIME_ZONE = "Asia/Shanghai";
 const EMPTY_TIME_TEXT = "--:--";
-const EMPTY_SECONDS_TEXT = "--";
 
 let currentTimestamp = Date.now();
-let timer: ReturnType<typeof setInterval> | null = null;
+let timer: ReturnType<typeof setTimeout> | null = null;
 const listeners = new Set<() => void>();
 
 export function HomeClockSection({
@@ -35,7 +33,7 @@ export function HomeClockSection({
 }: HomeClockSectionProps) {
   const timestamp = useClockTimestamp();
   const date = timestamp ? new Date(timestamp) : null;
-  const compact = density !== "comfortable";
+  const compact = density === "compact";
   const mini = density === "mini";
   const display = formatClockDisplay(date, locale);
   const hands = getClockHandAngles(date);
@@ -50,21 +48,13 @@ export function HomeClockSection({
           <Clock3 className="size-5 shrink-0 text-primary" />
           <span className="min-w-0 truncate">{copy.miniTitle}</span>
         </h3>
-        <div className="mt-2 flex min-w-0 items-baseline gap-2">
-          <time
-            className="truncate font-mono text-xl font-bold leading-none text-content-strong"
-            dateTime={date?.toISOString()}
-            data-testid="home-clock-time"
-          >
-            {display.time}
-          </time>
-          <span
-            className="shrink-0 font-mono text-xs font-semibold text-primary"
-            data-testid="home-clock-seconds"
-          >
-            {display.seconds}
-          </span>
-        </div>
+        <time
+          className="mt-2 truncate font-mono text-xl font-bold leading-none text-content-strong"
+          dateTime={date?.toISOString()}
+          data-testid="home-clock-time"
+        >
+          {display.time}
+        </time>
       </section>
     );
   }
@@ -82,32 +72,23 @@ export function HomeClockSection({
           )}
         >
           <Clock3 className="size-5 shrink-0 text-primary" />
-          <span className="min-w-0 break-words">
-            {copy.title}
-          </span>
+          <span className="min-w-0 break-words">{copy.title}</span>
         </h3>
-        <p
-          className={cn(
-            "mt-2 break-words text-sm leading-7 text-content-muted",
-            compact && "line-clamp-2 text-xs leading-6",
-          )}
-        >
-          {compact ? copy.compactDescription : copy.description}
-        </p>
+        {!compact ? (
+          <p className="mt-2 break-words text-sm leading-7 text-content-muted">
+            {copy.description}
+          </p>
+        ) : null}
       </div>
 
       <div
         className={cn(
-          "mt-4 flex min-h-0 flex-1 items-center gap-4",
-          compact && "justify-between",
+          "flex min-h-0 flex-1 items-center",
+          compact ? "mt-3" : "mt-4 gap-4",
         )}
       >
-        <ClockFace angles={hands} mini={false} />
-        <div
-          className={cn(
-            "min-w-0 flex-1",
-          )}
-        >
+        {!compact ? <ClockFace angles={hands} /> : null}
+        <div className="min-w-0 flex-1">
           <time
             className={cn(
               "block break-words font-mono font-bold leading-none text-content-strong",
@@ -118,17 +99,13 @@ export function HomeClockSection({
           >
             {display.time}
           </time>
-          <p
-            className={cn(
-              "mt-2 font-mono font-semibold leading-none text-primary",
-              "text-sm",
-            )}
-            data-testid="home-clock-seconds"
-          >
-            {display.seconds}
-          </p>
 
-          <div className="mt-4 min-w-0 space-y-2 text-sm leading-6 text-content-muted">
+          <div
+            className={cn(
+              "min-w-0 space-y-2 text-sm leading-6 text-content-muted",
+              compact ? "mt-3" : "mt-4",
+            )}
+          >
             <p className="flex min-w-0 items-center gap-2">
               <CalendarDays className="size-4 shrink-0 text-primary" />
               <span className="min-w-0 break-words">{display.date}</span>
@@ -143,20 +120,11 @@ export function HomeClockSection({
   );
 }
 
-function ClockFace({
-  angles,
-  mini,
-}: {
-  angles: ClockHandAngles;
-  mini: boolean;
-}) {
+function ClockFace({ angles }: { angles: ClockHandAngles }) {
   return (
     <div
       aria-hidden="true"
-      className={cn(
-        "relative shrink-0 rounded-full border border-border-subtle bg-surface-inset shadow-inner",
-        mini ? "size-14" : "size-24",
-      )}
+      className="relative size-24 shrink-0 rounded-full border border-border-subtle bg-surface-inset shadow-inner"
       data-testid="home-clock-face"
     >
       <span className="absolute left-1/2 top-1.5 h-1.5 w-0.5 -translate-x-1/2 rounded-full bg-content-muted" />
@@ -168,10 +136,6 @@ function ClockFace({
         degrees={angles.hour}
       />
       <ClockHand className="h-[36%] w-0.5 bg-primary" degrees={angles.minute} />
-      <ClockHand
-        className="h-[40%] w-px bg-surface-inset"
-        degrees={angles.second}
-      />
       <span className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary" />
     </div>
   );
@@ -211,7 +175,7 @@ function subscribeClock(callback: () => void) {
     listeners.delete(callback);
 
     if (listeners.size === 0 && timer) {
-      clearInterval(timer);
+      clearTimeout(timer);
       timer = null;
     }
   };
@@ -223,10 +187,26 @@ function startClock() {
   }
 
   currentTimestamp = Date.now();
-  timer = setInterval(() => {
+  scheduleNextMinute();
+}
+
+function scheduleNextMinute() {
+  /*
+   * 页面不再显示秒数，所以只在下一分钟到来时更新。
+   * 额外等待 50 毫秒可以避开浏览器计时器略微提前触发而仍显示上一分钟的情况。
+   */
+  const delay = 60_000 - (Date.now() % 60_000) + 50;
+
+  timer = setTimeout(() => {
     currentTimestamp = Date.now();
     listeners.forEach((listener) => listener());
-  }, 1000);
+
+    if (listeners.size > 0) {
+      scheduleNextMinute();
+    } else {
+      timer = null;
+    }
+  }, delay);
 }
 
 function getClockSnapshot() {
@@ -240,7 +220,6 @@ function getServerClockSnapshot() {
 type ClockHandAngles = {
   hour: number;
   minute: number;
-  second: number;
 };
 
 function getClockHandAngles(date: Date | null): ClockHandAngles {
@@ -248,7 +227,6 @@ function getClockHandAngles(date: Date | null): ClockHandAngles {
     return {
       hour: 0,
       minute: 0,
-      second: 0,
     };
   }
 
@@ -257,8 +235,7 @@ function getClockHandAngles(date: Date | null): ClockHandAngles {
 
   return {
     hour: hour * 30 + parts.minute * 0.5,
-    minute: parts.minute * 6 + parts.second * 0.1,
-    second: parts.second * 6,
+    minute: parts.minute * 6,
   };
 }
 
@@ -266,7 +243,6 @@ function formatClockDisplay(date: Date | null, locale: string) {
   if (!date) {
     return {
       date: "",
-      seconds: EMPTY_SECONDS_TEXT,
       time: EMPTY_TIME_TEXT,
     };
   }
@@ -277,10 +253,6 @@ function formatClockDisplay(date: Date | null, locale: string) {
       month: "long",
       timeZone: CLOCK_TIME_ZONE,
       weekday: "long",
-    }).format(date),
-    seconds: new Intl.DateTimeFormat(locale, {
-      second: "2-digit",
-      timeZone: CLOCK_TIME_ZONE,
     }).format(date),
     time: new Intl.DateTimeFormat(locale, {
       hour: "2-digit",
@@ -296,13 +268,11 @@ function getClockParts(date: Date) {
     hour: "2-digit",
     hour12: false,
     minute: "2-digit",
-    second: "2-digit",
     timeZone: CLOCK_TIME_ZONE,
   }).formatToParts(date);
 
   return {
     hour: Number(parts.find((part) => part.type === "hour")?.value ?? 0),
     minute: Number(parts.find((part) => part.type === "minute")?.value ?? 0),
-    second: Number(parts.find((part) => part.type === "second")?.value ?? 0),
   };
 }

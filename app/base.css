@@ -183,6 +183,11 @@
       }
     }
 
+    /*
+     * 首页组件的轻微摇晃只用于提示编辑状态。
+     * React 会在靠近缩放边缘、拖动、缩放或打开调整弹窗时移除这个类，
+     * 因此动画不会干扰真实卡片的位置和尺寸计算。
+     */
     .dashboard-home-wiggle {
       animation: dashboard-home-wiggle var(--motion-duration-feedback) ease-in-out infinite alternate;
     }
@@ -197,9 +202,6 @@
       transform-origin: center;
     }
 
-    .dashboard-home-widget-resizing {
-      transform-origin: center;
-    }
   }
 
   .motion-skeleton {

@@ -135,6 +135,8 @@ for (const viewport of viewports) {
     });
 
     test("representative workspaces and standard form dialog", async ({ page }) => {
+      // 该用例连续覆盖多角色、多页面和日期浮层，强制重建基线时截图写盘会更慢。
+      test.setTimeout(90_000);
       await loginAs(page, "administrator");
 
       const adminRoutes = [

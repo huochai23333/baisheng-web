@@ -26,7 +26,6 @@ type UseDashboardHomeWidgetResizeHandleOptions = {
 };
 
 const RESIZE_EDGE_THRESHOLD_PX = 34;
-const RESIZE_HANDLE_OFFSET_PX = 18;
 
 export function useDashboardHomeWidgetResizeHandle({
   deleting,
@@ -36,6 +35,7 @@ export function useDashboardHomeWidgetResizeHandle({
   resizing,
 }: UseDashboardHomeWidgetResizeHandleOptions) {
   const hideHandleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [pointerOnControl, setPointerOnControl] = useState(false);
   const [resizeHandle, setResizeHandle] =
     useState<ActiveHomeWidgetResizeHandle | null>(null);
 
@@ -76,6 +76,7 @@ export function useDashboardHomeWidgetResizeHandle({
   }, []);
 
   const handleResizePointerLeave = useCallback(() => {
+    setPointerOnControl(false);
     if (!resizing) {
       hideResizeHandle();
     }
@@ -84,6 +85,7 @@ export function useDashboardHomeWidgetResizeHandle({
   const handleResizePointerMove = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
       if (!editing || deleting || dragging || entering) {
+        setPointerOnControl(false);
         hideResizeHandle();
         return;
       }
@@ -93,10 +95,16 @@ export function useDashboardHomeWidgetResizeHandle({
       }
 
       if (isPointerOnCardControl(event)) {
+        /*
+         * 编辑按钮跟着卡片一起摇晃时，鼠标目标会持续移动。
+         * 指针进入按钮后先暂停当前卡片，让调整、删除等操作可以稳定点击。
+         */
+        setPointerOnControl(true);
         hideResizeHandle();
         return;
       }
 
+      setPointerOnControl(false);
       const nextHandle = getResizeHandleFromPointer(event);
 
       if (nextHandle) {
@@ -119,6 +127,7 @@ export function useDashboardHomeWidgetResizeHandle({
   return {
     handleResizePointerLeave,
     handleResizePointerMove,
+    pointerOnControl,
     resizeHandle: editing ? resizeHandle : null,
   };
 }
@@ -220,12 +229,16 @@ function getFixedResizeHandle(
   width: number,
   height: number,
 ): Omit<ActiveHomeWidgetResizeHandle, "visible"> {
-  const left = RESIZE_HANDLE_OFFSET_PX;
+  /*
+   * 44px 的透明操作区以真实边缘为中心，小型视觉把手再向卡片内侧偏移。
+   * 这样鼠标无需精确瞄准，用户看到的标记又始终贴着要调整的边。
+   */
+  const left = 0;
   const centerX = width / 2;
-  const right = Math.max(left, width - RESIZE_HANDLE_OFFSET_PX);
-  const top = RESIZE_HANDLE_OFFSET_PX;
+  const right = width;
+  const top = 0;
   const centerY = height / 2;
-  const bottom = Math.max(top, height - RESIZE_HANDLE_OFFSET_PX);
+  const bottom = height;
 
   return {
     direction,

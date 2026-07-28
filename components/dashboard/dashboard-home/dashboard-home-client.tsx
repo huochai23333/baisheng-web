@@ -42,7 +42,6 @@ export function DashboardHomeClient({ initialData }: DashboardHomeClientProps) {
   );
   const clockCopy = useMemo(
     () => ({
-      compactDescription: t("clock.compactDescription"),
       description: t("clock.description"),
       miniTitle: t("clock.miniTitle"),
       timezoneLabel: t("clock.timezoneLabel"),
@@ -61,7 +60,6 @@ export function DashboardHomeClient({ initialData }: DashboardHomeClientProps) {
         t("invite.copiedBoardLink", { board }),
       copiedCode: t("invite.copiedCode"),
       copiedLink: t("invite.copiedLink"),
-      compactDescription: t("invite.compactDescription"),
       copyBoardLink: (board: string) => t("invite.copyBoardLink", { board }),
       copyCode: t("invite.copyCode"),
       copyFailed: t("invite.copyFailed"),
@@ -92,19 +90,42 @@ export function DashboardHomeClient({ initialData }: DashboardHomeClientProps) {
   const customizerCopy = useMemo(
     () => ({
       addWidget: t("customizer.addWidget"),
+      addWidgetsTitle: t("customizer.addWidgetsTitle"),
+      adjustWidget: t("customizer.adjustWidget"),
+      currentWidgetsTitle: t("customizer.currentWidgetsTitle"),
       done: t("customizer.done"),
       edit: t("customizer.edit"),
       emptyDescription: t("customizer.emptyDescription"),
       emptyTitle: t("customizer.emptyTitle"),
+      instanceLabel: (title: string, index: number) =>
+        t("customizer.instanceLabel", { index, title }),
+      makeNarrower: t("customizer.makeNarrower"),
+      makeShorter: t("customizer.makeShorter"),
+      makeTaller: t("customizer.makeTaller"),
+      makeWider: t("customizer.makeWider"),
+      manage: t("customizer.manage"),
+      manageDescription: t("customizer.manageDescription"),
+      moveDown: t("customizer.moveDown"),
+      moveEarlier: t("customizer.moveEarlier"),
+      moveLater: t("customizer.moveLater"),
       moveLeft: t("customizer.moveLeft"),
       moveRight: t("customizer.moveRight"),
+      moveUp: t("customizer.moveUp"),
+      positionTitle: t("customizer.positionTitle"),
       removeWidget: t("customizer.removeWidget"),
       reset: t("customizer.reset"),
-      resizeWidget: t("customizer.resizeWidget"),
+      resizeDiagonal: t("customizer.resizeDiagonal"),
+      resizeHorizontal: t("customizer.resizeHorizontal"),
+      resizeVertical: t("customizer.resizeVertical"),
+      retrySave: t("customizer.retrySave"),
+      saveError: t("customizer.saveError"),
+      savePending: t("customizer.savePending"),
+      saveSuccess: t("customizer.saveSuccess"),
       sidebarDescription: t("customizer.sidebarDescription"),
       sidebarTitle: t("customizer.sidebarTitle"),
       sizeLabel: (width: number, height: number) =>
         t("customizer.sizeLabel", { height, width }),
+      sizeTitle: t("customizer.sizeTitle"),
       widgets: {
         announcements: {
           description: t("customizer.widgets.announcements.description"),

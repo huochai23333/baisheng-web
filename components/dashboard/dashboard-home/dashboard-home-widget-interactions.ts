@@ -5,10 +5,12 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import {
   clampHomeWidgetX,
   clampHomeWidgetY,
-  HOME_WIDGET_GRID_COLUMNS,
-  HOME_WIDGET_ROW_UNIT_PX,
   type HomeWidgetInstance,
 } from "./dashboard-home-layout";
+import {
+  createHomeWidgetResizePreview,
+  readHomeWidgetGridMetrics,
+} from "./dashboard-home-widget-resize-preview";
 import {
   getHomeWidgetResizeCursor,
   getResizedHomeWidgetLayout,
@@ -168,45 +170,25 @@ export function startHomeWidgetResize(
     return;
   }
 
-  const gridMetrics = readGridMetrics(gridElement);
+  const gridMetrics = readHomeWidgetGridMetrics(gridElement);
   const bodyState = lockBodyForDrag(getHomeWidgetResizeCursor(direction));
+  const resizePreview = createHomeWidgetResizePreview(gridElement, gridMetrics, {
+    height: startHeight,
+    width: startWidth,
+    x: startWidgetX,
+    y: startWidgetY,
+  });
 
   let active = true;
-  let animationFrame: number | null = null;
   let lastLayout: HomeWidgetLayout = {
     height: startHeight,
     width: startWidth,
     x: startWidgetX,
     y: startWidgetY,
   };
-  let pendingLayout: HomeWidgetLayout = lastLayout;
 
   capturePointer(resizeHandle, event.pointerId);
   callbacks.onResizeStart();
-
-  const commitPendingSize = () => {
-    animationFrame = null;
-
-    if (
-      pendingLayout.height === lastLayout.height &&
-      pendingLayout.width === lastLayout.width &&
-      pendingLayout.x === lastLayout.x &&
-      pendingLayout.y === lastLayout.y
-    ) {
-      return;
-    }
-
-    lastLayout = pendingLayout;
-    callbacks.onResize(pendingLayout);
-  };
-
-  const scheduleResize = () => {
-    if (animationFrame !== null) {
-      return;
-    }
-
-    animationFrame = window.requestAnimationFrame(commitPendingSize);
-  };
 
   const handlePointerMove = (moveEvent: globalThis.PointerEvent) => {
     moveEvent.preventDefault();
@@ -218,43 +200,52 @@ export function startHomeWidgetResize(
       (moveEvent.clientY - startY) / gridMetrics.rowStridePx,
     );
 
-    pendingLayout = getResizedHomeWidgetLayout(
+    const nextLayout = getResizedHomeWidgetLayout(
       widget,
       direction,
       deltaColumns,
       deltaRows,
     );
-    scheduleResize();
+
+    if (areHomeWidgetLayoutsEqual(lastLayout, nextLayout)) {
+      return;
+    }
+
+    lastLayout = nextLayout;
+    resizePreview.update(nextLayout);
   };
 
-  const cleanup = () => {
+  const cleanup = (commit: boolean) => {
     if (!active) {
       return;
     }
 
     active = false;
-
-    if (animationFrame !== null) {
-      window.cancelAnimationFrame(animationFrame);
-      animationFrame = null;
-      commitPendingSize();
-    }
-
+    resizePreview.remove();
     releasePointer(resizeHandle, event.pointerId);
     restoreBodyAfterDrag(bodyState);
     window.removeEventListener("pointermove", handlePointerMove);
-    window.removeEventListener("pointerup", cleanup);
-    window.removeEventListener("pointercancel", cleanup);
-    window.removeEventListener("blur", cleanup);
+    window.removeEventListener("pointerup", handlePointerUp);
+    window.removeEventListener("pointercancel", handlePointerCancel);
+    window.removeEventListener("blur", handleWindowBlur);
+
+    if (commit && !areHomeWidgetLayoutsEqual(lastLayout, widget)) {
+      callbacks.onResize(lastLayout);
+    }
+
     callbacks.onResizeEnd();
   };
+
+  const handlePointerUp = () => cleanup(true);
+  const handlePointerCancel = () => cleanup(false);
+  const handleWindowBlur = () => cleanup(false);
 
   window.addEventListener("pointermove", handlePointerMove, {
     passive: false,
   });
-  window.addEventListener("pointerup", cleanup);
-  window.addEventListener("pointercancel", cleanup);
-  window.addEventListener("blur", cleanup);
+  window.addEventListener("pointerup", handlePointerUp);
+  window.addEventListener("pointercancel", handlePointerCancel);
+  window.addEventListener("blur", handleWindowBlur);
 }
 
 function getHomeWidgetPositionAtPoint(
@@ -263,9 +254,10 @@ function getHomeWidgetPositionAtPoint(
   x: number,
   y: number,
 ) {
-  const gridMetrics = readGridMetrics(gridElement);
-  const gridX = x - gridMetrics.left;
-  const gridY = y - gridMetrics.top;
+  const gridMetrics = readHomeWidgetGridMetrics(gridElement);
+  const gridRect = gridElement.getBoundingClientRect();
+  const gridX = x - gridRect.left;
+  const gridY = y - gridRect.top;
 
   return {
     x: clampHomeWidgetX(
@@ -276,21 +268,16 @@ function getHomeWidgetPositionAtPoint(
   };
 }
 
-function readGridMetrics(gridElement: HTMLElement) {
-  const rect = gridElement.getBoundingClientRect();
-  const style = window.getComputedStyle(gridElement);
-  const columnGap = Number.parseFloat(style.columnGap || "0") || 0;
-  const rowGap = Number.parseFloat(style.rowGap || "0") || 0;
-  const columnWidth =
-    (rect.width - columnGap * (HOME_WIDGET_GRID_COLUMNS - 1)) /
-    HOME_WIDGET_GRID_COLUMNS;
-
-  return {
-    columnStridePx: Math.max(1, columnWidth + columnGap),
-    left: rect.left,
-    rowStridePx: HOME_WIDGET_ROW_UNIT_PX + rowGap,
-    top: rect.top,
-  };
+function areHomeWidgetLayoutsEqual(
+  first: HomeWidgetLayout,
+  second: HomeWidgetLayout,
+) {
+  return (
+    first.height === second.height &&
+    first.width === second.width &&
+    first.x === second.x &&
+    first.y === second.y
+  );
 }
 
 function isInteractiveDragTarget(target: EventTarget | null) {

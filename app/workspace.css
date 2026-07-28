@@ -17,8 +17,8 @@
 @source "../components/ui";
 
 /*
- * 首页在小屏和中屏只根据组件类型自动排列，不读取或改写桌面坐标。
- * 1280px 起才消费账号保存的五列坐标、自定义高度与拖拽结果。
+ * 首页在小屏和中屏按照已保存的组件数组顺序自动排列，不读取或改写桌面坐标。
+ * 1280px 起才使用账号保存的五列位置、自定义高度与拖拽结果。
  */
 .dashboard-home-widget-grid {
   grid-template-columns: minmax(0, 1fr);
@@ -29,26 +29,6 @@
   grid-column: 1;
   grid-row: auto;
   min-height: auto;
-}
-
-.dashboard-home-widget-card[data-home-widget-type="greeting"] {
-  order: 1;
-}
-
-.dashboard-home-widget-card[data-home-widget-type="todos"] {
-  order: 2;
-}
-
-.dashboard-home-widget-card[data-home-widget-type="announcements"] {
-  order: 3;
-}
-
-.dashboard-home-widget-card[data-home-widget-type="invite"] {
-  order: 4;
-}
-
-.dashboard-home-widget-card[data-home-widget-type="clock"] {
-  order: 5;
 }
 
 @media (min-width: 40rem) and (max-width: 79.999rem) {
@@ -78,6 +58,5 @@
     grid-column: var(--home-widget-grid-column);
     grid-row: var(--home-widget-grid-row);
     min-height: var(--home-widget-min-height);
-    order: initial;
   }
 }

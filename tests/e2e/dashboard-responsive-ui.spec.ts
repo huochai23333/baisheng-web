@@ -12,6 +12,7 @@ test.describe("工作台分阶段视觉升级", () => {
       await page.goto("/admin/home");
 
       await expect(page.getByTestId("home-edit-button")).toBeHidden();
+      await expect(page.getByTestId("home-manage-button")).toBeVisible();
       await expect(page.getByTestId("home-todo-title-input")).toBeVisible();
       await expectNoHorizontalOverflow(page);
       await expectAutomaticHomeLayout(page, width);
@@ -59,6 +60,7 @@ test.describe("工作台分阶段视觉升级", () => {
     });
     await page.setViewportSize({ height: 900, width: 1279 });
     await expect(page.getByTestId("home-edit-button")).toBeHidden();
+    await expect(page.getByTestId("home-manage-button")).toBeVisible();
     await expect(page.getByTestId("home-widget-placement-boundary")).toHaveCSS(
       "opacity",
       "0",

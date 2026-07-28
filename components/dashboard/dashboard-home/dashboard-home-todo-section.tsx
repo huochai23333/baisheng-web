@@ -78,8 +78,8 @@ export function HomeTodosSection({
 
       <form
         className={cn(
-          "grid gap-3 rounded-surface-panel border border-border-subtle bg-surface-inset lg:grid-cols-[minmax(0,1fr)_180px_auto_auto]",
-          compact ? "mt-3 p-3" : "mt-6 p-4",
+          "grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 rounded-surface-panel border border-border-subtle bg-surface-inset md:grid-cols-[minmax(0,1fr)_160px_auto_auto] md:gap-3",
+          compact ? "mt-2 p-3" : "mt-6 p-4",
           frame === "plain" && !compact && "mt-4",
         )}
         onSubmit={(event) => {
@@ -89,7 +89,7 @@ export function HomeTodosSection({
       >
         <FormControls.Input
           aria-label={copy.quickAdd.placeholder}
-          className="h-12 min-w-0 rounded-record-card border border-border bg-surface-interactive px-4 text-sm text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30"
+          className="col-span-full h-12 min-w-0 rounded-record-card border border-border bg-surface-interactive px-4 text-sm text-content-strong outline-none transition placeholder:text-content-subtle focus:border-ring focus:ring-4 focus:ring-ring/30 md:col-span-1"
           data-testid="home-todo-title-input"
           onChange={(event) =>
             todoState.updateQuickDraftField("title", event.target.value)
@@ -117,7 +117,7 @@ export function HomeTodosSection({
           }
           aria-pressed={todoState.quickDraft.isImportant}
           className={cn(
-            "flex h-12 w-full items-center justify-center rounded-record-card border text-content-muted transition sm:w-12",
+            "flex size-12 items-center justify-center rounded-record-card border text-content-muted transition",
             todoState.quickDraft.isImportant
               ? "border-border-subtle bg-surface-inset text-content-muted"
               : "border-border bg-surface-interactive hover:bg-surface-inset",
@@ -161,7 +161,7 @@ export function HomeTodosSection({
       </form>
 
       <div
-        className={cn("flex flex-wrap gap-2", compact ? "mt-3" : "mt-5")}
+        className={cn("flex flex-wrap gap-2", compact ? "mt-2" : "mt-5")}
         role="tablist"
       >
         {homeTodoFilterValues.map((filterValue) => (
@@ -186,7 +186,7 @@ export function HomeTodosSection({
 
       <div
         className={cn(
-          compact ? "mt-3" : "mt-6",
+          compact ? "mt-2" : "mt-6",
           frame === "plain" && "min-h-0 flex-1 overflow-y-auto pr-1",
         )}
       >
@@ -199,9 +199,9 @@ export function HomeTodosSection({
         >
           {todoState.filteredTodos.length === 0 ? (
             compact ? (
-              <div className="flex min-h-20 items-center gap-3 rounded-surface-panel border border-dashed border-border bg-surface-panel p-4 text-left">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-status-info-soft text-status-info">
-                  <ListTodo className="size-5" />
+              <div className="flex min-h-16 items-center gap-3 rounded-surface-panel border border-dashed border-border bg-surface-panel p-3 text-left">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-status-info-soft text-status-info">
+                  <ListTodo className="size-4" />
                 </span>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-content-strong">

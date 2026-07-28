@@ -5,10 +5,15 @@ import { useMemo, useState, type ReactNode } from "react";
 import { Copy, KeyRound, Link as LinkIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { buildBoardInviteLink } from "@/lib/business-referrals";
 import { isSalesStaffRole } from "@/lib/sales-staff-roles";
 import type { SalesmanBusinessBoard } from "@/lib/salesman-business-access";
 import { cn } from "@/lib/utils";
+
+import {
+  buildInviteLinkActions,
+  buildInviteLinkValue,
+  writeInviteValueToClipboard,
+} from "./dashboard-home-invite-links";
 
 type HomeInviteNotice = {
   message: string;
@@ -19,7 +24,6 @@ export type HomeInviteCopy = {
   businessBoards: Record<SalesmanBusinessBoard, string>;
   codeLabel: string;
   copiedBoardLink: (board: string) => string;
-  compactDescription: string;
   copiedCode: string;
   copiedLink: string;
   copyBoardLink: (board: string) => string;
@@ -41,14 +45,6 @@ type HomeInviteSectionProps = {
   role: string | null;
 };
 
-type InviteLinkAction = {
-  board?: SalesmanBusinessBoard;
-  label: string;
-  miniLabel?: string;
-  successMessage: string;
-  testId: string;
-};
-
 export function HomeInviteSection({
   businessBoards,
   copy,
@@ -58,7 +54,7 @@ export function HomeInviteSection({
 }: HomeInviteSectionProps) {
   const [notice, setNotice] = useState<HomeInviteNotice | null>(null);
   const mini = density === "mini";
-  const compact = density !== "comfortable";
+  const compact = density === "compact";
   const normalizedReferralCode = referralCode?.trim().toUpperCase() ?? "";
   const linkActions = useMemo(
     () =>
@@ -77,7 +73,7 @@ export function HomeInviteSection({
     }
 
     try {
-      await writeClipboard(value);
+      await writeInviteValueToClipboard(value);
       setNotice({ message: successMessage, tone: "success" });
     } catch {
       setNotice({ message: copy.copyFailed, tone: "error" });
@@ -107,7 +103,7 @@ export function HomeInviteSection({
               onClick={() =>
                 void handleCopy(normalizedReferralCode, copy.copiedCode)
               }
-              size="icon-compact"
+              size="icon"
               type="button"
               variant="ghost"
             >
@@ -143,12 +139,95 @@ export function HomeInviteSection({
     );
   }
 
+  if (compact) {
+    return (
+      <section
+        className="flex h-full min-h-0 flex-col overflow-hidden"
+        data-testid="home-invite-section"
+      >
+        <InviteHeading compact copy={copy} mini={false} />
+        <div className="mt-3 flex min-w-0 items-center gap-2 rounded-control-large border border-border-subtle bg-surface-inset p-2">
+          <div className="min-w-0 flex-1 px-1">
+            <span className="block text-xs font-semibold text-content-muted">
+              {copy.codeLabel}
+            </span>
+            <p
+              className="mt-0.5 truncate font-mono text-lg font-bold leading-tight text-content-strong"
+              data-testid="home-invite-code"
+            >
+              {normalizedReferralCode}
+            </p>
+          </div>
+          <Button
+            aria-label={copy.copyCode}
+            className="shrink-0"
+            data-testid="home-invite-copy-code"
+            onClick={() =>
+              void handleCopy(normalizedReferralCode, copy.copiedCode)
+            }
+            size="icon"
+            title={copy.copyCode}
+            type="button"
+            variant="ghost"
+          >
+            <Copy className="size-4" />
+          </Button>
+        </div>
+
+        <div
+          className={cn(
+            "mt-3 grid gap-2",
+            linkActions.length > 1 && "grid-cols-2",
+          )}
+        >
+          {linkActions.map((action) => (
+            <InviteActionButton
+              icon={<LinkIcon className="size-4" />}
+              iconOnly={false}
+              key={action.testId}
+              label={action.label}
+              miniLabel={action.miniLabel}
+              onClick={() =>
+                void handleCopy(
+                  buildInviteLinkValue(action, normalizedReferralCode),
+                  action.successMessage,
+                )
+              }
+              testId={action.testId}
+            />
+          ))}
+        </div>
+
+        {isSalesStaffRole(role) && linkActions.length === 0 ? (
+          <p className="mt-3 break-words text-xs leading-5 text-content-muted">
+            {copy.noLinkAccess}
+          </p>
+        ) : null}
+
+        {notice ? (
+          <p
+            aria-live="polite"
+            className={cn(
+              "mt-2 line-clamp-1 break-words text-xs leading-5",
+              notice.tone === "success"
+                ? "text-status-success"
+                : "text-content-muted",
+            )}
+            role="status"
+          >
+            {notice.message}
+          </p>
+        ) : null}
+      </section>
+    );
+  }
+
   return (
     <section
       className="flex h-full min-h-0 flex-col overflow-hidden"
       data-testid="home-invite-section"
     >
-      <InviteHeading compact={compact} copy={copy} mini={mini} />
+      <InviteHeading compact={false} copy={copy} mini={false} />
 
       <div
         className={cn(
@@ -206,7 +285,7 @@ export function HomeInviteSection({
         ))}
       </div>
 
-      {!mini && isSalesStaffRole(role) && linkActions.length === 0 ? (
+      {isSalesStaffRole(role) && linkActions.length === 0 ? (
         <p className="mt-3 break-words text-xs leading-5 text-content-muted">
           {copy.noLinkAccess}
         </p>
@@ -253,14 +332,9 @@ function InviteHeading({
           {mini ? copy.codeLabel : copy.title}
         </span>
       </h3>
-      {!mini ? (
-        <p
-          className={cn(
-            "mt-2 break-words text-sm leading-7 text-content-muted",
-            compact && "line-clamp-2 text-xs leading-6",
-          )}
-        >
-          {compact ? copy.compactDescription : copy.description}
+      {!mini && !compact ? (
+        <p className="mt-2 break-words text-sm leading-7 text-content-muted">
+          {copy.description}
         </p>
       ) : null}
     </div>
@@ -289,7 +363,7 @@ function InviteActionButton({
       onClick={onClick}
       title={label}
       type="button"
-      size="compact"
+      size="default"
       variant="outline"
       wrap
     >
@@ -310,84 +384,4 @@ function InviteActionButton({
       </span>
     </Button>
   );
-}
-
-function buildInviteLinkActions({
-  businessBoards,
-  copy,
-  role,
-}: {
-  businessBoards: readonly SalesmanBusinessBoard[];
-  copy: HomeInviteCopy;
-  role: string | null;
-}): InviteLinkAction[] {
-  if (isSalesStaffRole(role)) {
-    return businessBoards.map((board) => {
-      const boardLabel = copy.businessBoards[board];
-
-      return {
-        board,
-        label: copy.copyBoardLink(boardLabel),
-        miniLabel: boardLabel.slice(0, 1),
-        successMessage: copy.copiedBoardLink(boardLabel),
-        testId: `home-invite-copy-link-${board}`,
-      };
-    });
-  }
-
-  return [
-    {
-      label: copy.copyLink,
-      successMessage: copy.copiedLink,
-      testId: "home-invite-copy-link",
-    },
-  ];
-}
-
-function buildInviteLinkValue(action: InviteLinkAction, referralCode: string) {
-  if (typeof window === "undefined") {
-    return "";
-  }
-
-  if (action.board) {
-    return buildBoardInviteLink({
-      board: action.board,
-      origin: window.location.origin,
-      referralCode,
-    });
-  }
-
-  return buildGeneralInviteLink(window.location.origin, referralCode);
-}
-
-function buildGeneralInviteLink(origin: string, referralCode: string) {
-  const params = new URLSearchParams({
-    ref: referralCode,
-  });
-
-  return `${origin}/register?${params.toString()}`;
-}
-
-async function writeClipboard(value: string) {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(value);
-    return;
-  }
-
-  const textarea = document.createElement("textarea");
-
-  textarea.value = value;
-  textarea.setAttribute("readonly", "true");
-  textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
-  document.body.appendChild(textarea);
-  textarea.select();
-
-  try {
-    if (!document.execCommand("copy")) {
-      throw new Error("copy_failed");
-    }
-  } finally {
-    document.body.removeChild(textarea);
-  }
 }
