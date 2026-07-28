@@ -1,12 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getCurrentSessionContext } from "./current-session-context";
+import { normalizeCurrencyCode } from "./exchange-rate-display";
+import { getLatestCnyExchangeRates } from "./exchange-rate-queries";
 import type {
   CustomerInventoryAttachment,
   CustomerInventoryAuditLog,
   CustomerInventoryCreditApplication,
   CustomerInventoryExtensionRequest,
   CustomerInventoryOrder,
+  CustomerInventoryOrderItem,
   CustomerInventoryPageData,
   CustomerInventoryRepayment,
 } from "./customer-inventory-types";
@@ -30,6 +33,7 @@ export async function getCustomerInventoryPageData(
   const session = await getCurrentSessionContext(supabase);
   const [
     orders,
+    items,
     credits,
     extensions,
     repayments,
@@ -37,6 +41,7 @@ export async function getCustomerInventoryPageData(
     auditLogs,
     customers,
     profiles,
+    exchangeRates,
   ] = await Promise.all([
     queryRows<CustomerInventoryOrder>(
       supabase
@@ -46,6 +51,15 @@ export async function getCustomerInventoryPageData(
         .order("id", { ascending: false })
         .limit(200),
       "库存订单",
+    ),
+    queryRows<CustomerInventoryOrderItem>(
+      supabase
+        .from("customer_inventory_order_items")
+        .select("*")
+        .order("sort_order", { ascending: true })
+        .order("id", { ascending: true })
+        .limit(20_000),
+      "库存订单商品",
     ),
     queryRows<CustomerInventoryCreditApplication>(
       supabase
@@ -97,18 +111,43 @@ export async function getCustomerInventoryPageData(
       "已注册批发客户",
     ),
     getWholesaleProfiles(supabase, false),
+    getLatestCnyExchangeRates(supabase, 500),
   ]);
   const usdToCurrencyRates = await loadUsdToCurrencyRates(supabase, orders);
+  const currencyOptions = Array.from(
+    new Set(
+      [
+        "USD",
+        "CNY",
+        ...exchangeRates.map((row) =>
+          normalizeCurrencyCode(row.original_currency),
+        ),
+        ...orders.map((order) => order.currency),
+      ].filter(Boolean),
+    ),
+  ).sort((left, right) => {
+    // 常用币种固定在前，其他币种按代码排序，减少每次打开表单时的查找成本。
+    const priority = ["USD", "CNY"];
+    const leftPriority = priority.indexOf(left);
+    const rightPriority = priority.indexOf(right);
+    if (leftPriority >= 0 || rightPriority >= 0) {
+      return (leftPriority < 0 ? priority.length : leftPriority) -
+        (rightPriority < 0 ? priority.length : rightPriority);
+    }
+    return left.localeCompare(right);
+  });
 
   return {
     attachments,
     auditLogs,
     credits,
+    currencyOptions,
     currentBusinessDate: getShanghaiDateValue(new Date()),
     currentRole: session.role,
     currentUserId: session.user?.id ?? null,
     customers,
     extensions,
+    items,
     orders,
     profiles,
     repayments,

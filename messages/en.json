@@ -808,7 +808,7 @@
     },
     "filters": {
       "keyword": "Search",
-      "orderKeywordPlaceholder": "Order number, customer, salesperson, currency, or note",
+      "orderKeywordPlaceholder": "Order, customer, product, 1688 link, currency, or note",
       "creditKeywordPlaceholder": "Order number, customer, credit tier, or note",
       "allCustomers": "All customers",
       "allSalesmen": "All salespeople",
@@ -838,6 +838,7 @@
       "cancelReason": "Cancellation reason",
       "createdAt": "Recorded at",
       "currency": "Currency",
+      "creditUsageDecision": "Use this credit",
       "currentInterest": "Current interest",
       "customer": "Customer",
       "dueOn": "Current due date",
@@ -846,6 +847,7 @@
       "orderNumber": "Order number",
       "overdueDays": "Overdue days",
       "principalUsd": "Principal due",
+      "products": "Products",
       "purchaseAmount": "Purchase amount",
       "repaidOn": "Repayment date",
       "repaymentTotal": "Total repaid",
@@ -856,7 +858,8 @@
     },
     "placeholders": {
       "customer": "Select a customer",
-      "salesman": "Select a salesperson"
+      "salesman": "Select a salesperson",
+      "sourceUrl": "Paste a 1688 product link"
     },
     "amounts": {
       "purchase": "Purchase",
@@ -895,7 +898,9 @@
     },
     "decisions": {
       "approve": "Approve",
-      "reject": "Reject"
+      "reject": "Reject",
+      "activate": "Use now",
+      "skip": "Do not use"
     },
     "orders": {
       "title": "Inventory Orders",
@@ -906,10 +911,30 @@
       "cancel": "Cancel",
       "notes": "Edit note",
       "applyCredit": "Apply for credit",
+      "manageCredit": "Manage credit",
+      "itemCount": "Products ({count})",
+      "manageItemCount": "Edit products ({count})",
       "attachments": "View Order List",
       "attachmentCount": "{count} files",
       "emptyTitle": "No inventory orders",
       "emptyDescription": "Created inventory orders will appear here."
+    },
+    "items": {
+      "title": "Products",
+      "editorHint": "Add at least one and up to 100 products. Each product may have its own 1688 link.",
+      "add": "Add product",
+      "remove": "Delete",
+      "removeLabel": "Delete product {number}",
+      "productNameLabel": "Product {number} name",
+      "quantity": "Quantity",
+      "sourceUrl": "1688 product link",
+      "linkHint": "Optional. Only 1688 website links are accepted.",
+      "save": "Save products",
+      "dialogTitle": "Products in order {number}",
+      "manageDescription": "Products can still be maintained after payment without changing financial amounts.",
+      "readDescription": "View the products, quantities, and 1688 links in this order.",
+      "quantityValue": "Quantity: {count}",
+      "openLink": "Open 1688"
     },
     "orderDialogs": {
       "createTitle": "Create inventory order",
@@ -983,6 +1008,17 @@
       "fixedAmountHint": "The fixed tier is always USD 200.",
       "manualAmountHint": "No percentage is calculated automatically. Enter the final approved USD amount.",
       "actualPaymentHint": "Enter 0 if all tiers are rejected. Otherwise credit plus this amount must equal the purchase amount.",
+      "manageTitle": "Manage order credit",
+      "manageDescription": "Administrator or salesperson confirmation takes effect immediately without a second review. Existing customer applications must also be decided here.",
+      "manageSubmit": "Confirm and activate",
+      "manageOrder": "Order {number}, purchase amount {amount}.",
+      "manageActualPaymentHint": "When any credit is used, credit offsets plus this amount must exactly equal the purchase amount.",
+      "customerRequested": "The customer requested this tier. Approve or reject it.",
+      "staffCanActivate": "The customer did not request this tier. An administrator or salesperson may activate it directly.",
+      "tierUsedElsewhere": "This tier is pending on another order or has not yet been repaid.",
+      "tierAlreadyOpen": "This tier is pending or unpaid and cannot be requested again yet.",
+      "fixedQualification": "You have ongoing USD 200 eligibility. After the previous use is repaid, ask a salesperson or administrator to use it on a new unpaid order.",
+      "fixedInUse": "Your reusable USD 200 credit is pending or active. After repayment, a salesperson or administrator can use it on a new unpaid order.",
       "extendTitle": "Request extension",
       "extendDescription": "Request by the original due date. Each credit can receive one approved extension.",
       "extendSubmit": "Submit extension",
@@ -1002,6 +1038,7 @@
       "connectionError": "Unable to connect. Refresh the page and try again.",
       "createSuccess": "Inventory order created.",
       "editSuccess": "Inventory order updated.",
+      "itemsSuccess": "Product details updated.",
       "notesSuccess": "Order note updated.",
       "paySuccess": "Order marked paid in full.",
       "cancelSuccess": "Inventory order cancelled.",
@@ -1010,6 +1047,7 @@
       "deleteAttachmentSuccess": "Attachment deleted.",
       "applySuccess": "Credit application submitted.",
       "reviewSuccess": "Order credit reviewed.",
+      "manageSuccess": "Order credit is active and the order is settled.",
       "extendSuccess": "Extension request submitted.",
       "reviewExtensionSuccess": "Extension reviewed.",
       "repaySuccess": "Credit repaid in full."

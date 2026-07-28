@@ -808,7 +808,7 @@
     },
     "filters": {
       "keyword": "搜索",
-      "orderKeywordPlaceholder": "订单编号、客户、业务员、币种或备注",
+      "orderKeywordPlaceholder": "订单编号、客户、商品、1688链接、币种或备注",
       "creditKeywordPlaceholder": "订单编号、客户、信贷档位或说明",
       "allCustomers": "全部客户",
       "allSalesmen": "全部业务员",
@@ -838,6 +838,7 @@
       "cancelReason": "作废原因",
       "createdAt": "系统录入时间",
       "currency": "币种",
+      "creditUsageDecision": "是否使用",
       "currentInterest": "当前利息",
       "customer": "客户",
       "dueOn": "当前还款日",
@@ -846,6 +847,7 @@
       "orderNumber": "订单编号",
       "overdueDays": "逾期天数",
       "principalUsd": "应还本金",
+      "products": "商品明细",
       "purchaseAmount": "购买金额",
       "repaidOn": "实际还款日期",
       "repaymentTotal": "已还总额",
@@ -856,7 +858,8 @@
     },
     "placeholders": {
       "customer": "选择客户",
-      "salesman": "选择业务员"
+      "salesman": "选择业务员",
+      "sourceUrl": "粘贴1688货品链接"
     },
     "amounts": {
       "purchase": "购买",
@@ -895,7 +898,9 @@
     },
     "decisions": {
       "approve": "批准",
-      "reject": "拒绝"
+      "reject": "拒绝",
+      "activate": "直接使用",
+      "skip": "暂不使用"
     },
     "orders": {
       "title": "库存订单",
@@ -906,10 +911,30 @@
       "cancel": "作废",
       "notes": "维护备注",
       "applyCredit": "申请信贷",
+      "manageCredit": "管理信贷",
+      "itemCount": "商品明细（{count}）",
+      "manageItemCount": "维护商品（{count}）",
       "attachments": "查看 Order List",
       "attachmentCount": "{count} 个附件",
       "emptyTitle": "暂无库存订单",
       "emptyDescription": "创建后的库存订单会显示在这里。"
+    },
+    "items": {
+      "title": "商品明细",
+      "editorHint": "至少填写一件商品，最多100件；每件商品可以单独填写1688链接。",
+      "add": "增加产品",
+      "remove": "删除",
+      "removeLabel": "删除第 {number} 件商品",
+      "productNameLabel": "第 {number} 件商品名称",
+      "quantity": "产品数量",
+      "sourceUrl": "1688货品链接",
+      "linkHint": "选填，仅支持1688网站链接。",
+      "save": "保存商品",
+      "dialogTitle": "订单 {number} 的商品明细",
+      "manageDescription": "商品明细可以在订单付清后继续维护，不会改变订单金额。",
+      "readDescription": "这里展示订单中的商品、数量和1688货品链接。",
+      "quantityValue": "数量：{count}",
+      "openLink": "打开1688"
     },
     "orderDialogs": {
       "createTitle": "创建库存订单",
@@ -983,6 +1008,17 @@
       "fixedAmountHint": "固定档位由系统强制使用200美元。",
       "manualAmountHint": "该档位不自动计算百分比，请填写最终批准的美元金额。",
       "actualPaymentHint": "若全部拒绝，请填写0；批准任一档位后，信贷换算额与这里的金额必须正好等于购买金额。",
+      "manageTitle": "管理订单信贷",
+      "manageDescription": "管理员或业务员确认后立即生效，无需第二人审核。已提交的客户申请也必须在这里明确处理。",
+      "manageSubmit": "确认并立即生效",
+      "manageOrder": "订单 {number}，购买金额 {amount}。",
+      "manageActualPaymentHint": "使用任一信贷后，信贷抵消额与这里的金额必须正好等于购买金额。",
+      "customerRequested": "客户已经申请该档位，请批准或拒绝。",
+      "staffCanActivate": "客户未申请，管理员或业务员可以直接启用。",
+      "tierUsedElsewhere": "该客户的这个档位正在其他订单处理中或尚未还清。",
+      "tierAlreadyOpen": "该档位正在审核中或尚未还清，暂时不能再次申请。",
+      "fixedQualification": "已获200美元长期使用资格。上一笔还清后，请联系业务员或管理员在新的待支付订单中直接使用。",
+      "fixedInUse": "200美元长期额度正在审核或使用中，还清后可以由业务员或管理员用于新的待支付订单。",
       "extendTitle": "申请延期",
       "extendDescription": "最晚可以在原还款日当天申请，每笔信贷最多批准一次延期。",
       "extendSubmit": "提交延期申请",
@@ -1002,6 +1038,7 @@
       "connectionError": "当前无法连接系统，请刷新页面后再试。",
       "createSuccess": "库存订单已创建。",
       "editSuccess": "库存订单已更新。",
+      "itemsSuccess": "商品明细已更新。",
       "notesSuccess": "订单备注已更新。",
       "paySuccess": "订单已登记为全额实付。",
       "cancelSuccess": "库存订单已作废。",
@@ -1010,6 +1047,7 @@
       "deleteAttachmentSuccess": "附件已删除。",
       "applySuccess": "信贷申请已提交。",
       "reviewSuccess": "订单信贷已审核。",
+      "manageSuccess": "订单信贷已生效，订单已经结清。",
       "extendSuccess": "延期申请已提交。",
       "reviewExtensionSuccess": "延期申请已审核。",
       "repaySuccess": "信贷已一次还清。"

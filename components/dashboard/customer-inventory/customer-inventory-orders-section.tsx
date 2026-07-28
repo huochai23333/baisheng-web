@@ -1,16 +1,10 @@
 "use client";
 
 import {
-  CreditCard,
   FileSpreadsheet,
-  MoreHorizontal,
   PackageOpen,
-  Pencil,
   Plus,
-  ReceiptText,
-  XCircle,
 } from "lucide-react";
-import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -22,15 +16,18 @@ import type {
 } from "@/lib/customer-inventory-types";
 
 import {
-  canEditInventoryFinancials,
   formatInventoryDateTime,
-  formatInventoryMoney,
   getInventoryCustomerName,
   getInventoryProfileName,
   getPaymentStatusTone,
-  hasPendingInventoryCredit,
 } from "./customer-inventory-display";
 import { CustomerInventoryFilterEmptyState } from "./customer-inventory-filter-empty-state";
+import {
+  InventoryOrderActions,
+  InventoryOrderAmountSummary,
+  InventoryOrderItemsButton,
+  InventoryOrderMobileField,
+} from "./customer-inventory-order-card-parts";
 import { CustomerInventoryOrderFilters } from "./customer-inventory-order-filters";
 import type { InventoryOrderDialogState } from "./customer-inventory-order-dialogs";
 import { useCustomerInventoryOrderFilters } from "./use-customer-inventory-order-filters";
@@ -47,12 +44,16 @@ export function CustomerInventoryOrdersSection({
   data,
   onApplyCredit,
   onAttachments,
+  onItems,
+  onManageCredit,
   onOrderDialog,
 }: {
   canManageOrders: boolean;
   data: CustomerInventoryPageData;
   onApplyCredit: (order: CustomerInventoryOrder) => void;
   onAttachments: (order: CustomerInventoryOrder) => void;
+  onItems: (order: CustomerInventoryOrder) => void;
+  onManageCredit: (order: CustomerInventoryOrder) => void;
   onOrderDialog: (dialog: InventoryOrderDialogState) => void;
 }) {
   const t = useTranslations("CustomerInventory");
@@ -72,6 +73,17 @@ export function CustomerInventoryOrdersSection({
     filters,
     setFilter,
   } = useCustomerInventoryOrderFilters(data);
+  const hasReusableFixedCredit =
+    data.currentRole === "client" &&
+    data.credits.some(
+      (credit) =>
+        credit.tier === "fixed_200_usd" && credit.status === "repaid",
+    ) &&
+    !data.credits.some(
+      (credit) =>
+        credit.tier === "fixed_200_usd" &&
+        ["pending", "active"].includes(credit.status),
+    );
 
   return (
     <WholesalePanel
@@ -87,6 +99,12 @@ export function CustomerInventoryOrdersSection({
             <Plus className="size-4" />
             {t("orders.create")}
           </Button>
+        </div>
+      ) : null}
+
+      {hasReusableFixedCredit ? (
+        <div className="mb-4 rounded-record-card border border-status-success-border bg-status-success-soft px-4 py-3 text-sm leading-6 text-status-success">
+          {t("creditDialogs.fixedQualification")}
         </div>
       ) : null}
 
@@ -115,7 +133,7 @@ export function CustomerInventoryOrdersSection({
       ) : (
         <ResponsiveDataView
           desktop={
-            <WholesaleTable minWidth={1120}>
+            <WholesaleTable minWidth={1240}>
               <thead>
                 <tr>
                   <WholesaleTh>{t("fields.orderNumber")}</WholesaleTh>
@@ -123,6 +141,7 @@ export function CustomerInventoryOrdersSection({
                   <WholesaleTh>{t("fields.salesman")}</WholesaleTh>
                   <WholesaleTh>{t("fields.amounts")}</WholesaleTh>
                   <WholesaleTh>{t("fields.status")}</WholesaleTh>
+                  <WholesaleTh>{t("fields.products")}</WholesaleTh>
                   <WholesaleTh>{t("fields.createdAt")}</WholesaleTh>
                   <WholesaleTh>{t("fields.attachments")}</WholesaleTh>
                   <WholesaleTh>{t("fields.actions")}</WholesaleTh>
@@ -144,7 +163,18 @@ export function CustomerInventoryOrdersSection({
                       )}
                     </WholesaleTd>
                     <WholesaleTd>
-                      <OrderAmountSummary order={order} />
+                      <InventoryOrderAmountSummary order={order} />
+                    </WholesaleTd>
+                    <WholesaleTd>
+                      <InventoryOrderItemsButton
+                        canManageOrders={canManageOrders}
+                        count={
+                          data.items.filter(
+                            (item) => item.order_id === order.id,
+                          ).length
+                        }
+                        onClick={() => onItems(order)}
+                      />
                     </WholesaleTd>
                     <WholesaleTd>
                       <StatusBadge
@@ -172,10 +202,11 @@ export function CustomerInventoryOrdersSection({
                       </Button>
                     </WholesaleTd>
                     <WholesaleTd className="whitespace-normal">
-                      <OrderActions
+                      <InventoryOrderActions
                         canManageOrders={canManageOrders}
                         credits={data.credits}
                         onApplyCredit={onApplyCredit}
+                        onManageCredit={onManageCredit}
                         onOrderDialog={onOrderDialog}
                         order={order}
                       />
@@ -208,17 +239,17 @@ export function CustomerInventoryOrdersSection({
                     </StatusBadge>
                   </div>
                   <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-4">
-                    <MobileField label={t("fields.salesman")}>
+                    <InventoryOrderMobileField label={t("fields.salesman")}>
                       {getInventoryProfileName(
                         order.sales_user_id,
                         profileNames,
                       )}
-                    </MobileField>
-                    <MobileField label={t("fields.createdAt")}>
+                    </InventoryOrderMobileField>
+                    <InventoryOrderMobileField label={t("fields.createdAt")}>
                       {formatInventoryDateTime(order.created_at)}
-                    </MobileField>
+                    </InventoryOrderMobileField>
                     <div className="col-span-2">
-                      <OrderAmountSummary order={order} />
+                      <InventoryOrderAmountSummary order={order} />
                     </div>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2 border-t border-border-subtle pt-4">
@@ -230,10 +261,20 @@ export function CustomerInventoryOrdersSection({
                       <FileSpreadsheet className="size-4" />
                       {t("orders.attachments")}
                     </Button>
-                    <OrderActions
+                    <InventoryOrderItemsButton
+                      canManageOrders={canManageOrders}
+                      count={
+                        data.items.filter(
+                          (item) => item.order_id === order.id,
+                        ).length
+                      }
+                      onClick={() => onItems(order)}
+                    />
+                    <InventoryOrderActions
                       canManageOrders={canManageOrders}
                       credits={data.credits}
                       onApplyCredit={onApplyCredit}
+                      onManageCredit={onManageCredit}
                       onOrderDialog={onOrderDialog}
                       order={order}
                     />
@@ -245,120 +286,5 @@ export function CustomerInventoryOrdersSection({
         />
       )}
     </WholesalePanel>
-  );
-}
-
-function OrderAmountSummary({ order }: { order: CustomerInventoryOrder }) {
-  const t = useTranslations("CustomerInventory");
-  return (
-    <div className="grid min-w-44 gap-1 text-xs">
-      <span className="font-semibold text-content-strong">
-        {t("amounts.purchase")}:{" "}
-        {formatInventoryMoney(order.purchase_amount, order.currency)}
-      </span>
-      <span className="text-content-muted">
-        {t("amounts.credit")}:{" "}
-        {formatInventoryMoney(order.credit_offset_amount, order.currency)}
-      </span>
-      <span className="text-content-muted">
-        {t("amounts.paid")}:{" "}
-        {formatInventoryMoney(order.actual_payment_amount, order.currency)}
-      </span>
-      <span className="text-content-muted">
-        {t("amounts.remaining")}:{" "}
-        {formatInventoryMoney(order.remaining_amount, order.currency)}
-      </span>
-    </div>
-  );
-}
-
-function OrderActions({
-  canManageOrders,
-  credits,
-  onApplyCredit,
-  onOrderDialog,
-  order,
-}: {
-  canManageOrders: boolean;
-  credits: CustomerInventoryPageData["credits"];
-  onApplyCredit: (order: CustomerInventoryOrder) => void;
-  onOrderDialog: (dialog: InventoryOrderDialogState) => void;
-  order: CustomerInventoryOrder;
-}) {
-  const t = useTranslations("CustomerInventory");
-  const financialEditable = canEditInventoryFinancials(order, credits);
-  const pendingCredit = hasPendingInventoryCredit(order.id, credits);
-
-  if (canManageOrders) {
-    return (
-      <div className="flex flex-wrap gap-2">
-        {financialEditable ? (
-          <>
-            <Button
-              onClick={() => onOrderDialog({ kind: "edit", order })}
-              size="compact"
-              type="button"
-              variant="outline"
-            >
-              <Pencil className="size-4" />
-              {t("orders.edit")}
-            </Button>
-            <Button
-              onClick={() => onOrderDialog({ kind: "pay", order })}
-              size="compact"
-              type="button"
-              variant="outline"
-            >
-              <ReceiptText className="size-4" />
-              {t("orders.pay")}
-            </Button>
-            <Button
-              onClick={() => onOrderDialog({ kind: "cancel", order })}
-              size="compact"
-              type="button"
-              variant="danger"
-            >
-              <XCircle className="size-4" />
-              {t("orders.cancel")}
-            </Button>
-          </>
-        ) : null}
-        {order.payment_status !== "cancelled" ? (
-          <Button
-            onClick={() => onOrderDialog({ kind: "notes", order })}
-            size="compact"
-            type="button"
-            variant="ghost"
-          >
-            <MoreHorizontal className="size-4" />
-            {t("orders.notes")}
-          </Button>
-        ) : null}
-      </div>
-    );
-  }
-
-  return order.payment_status === "awaiting_payment" && !pendingCredit ? (
-    <Button onClick={() => onApplyCredit(order)} type="button">
-      <CreditCard className="size-4" />
-      {t("orders.applyCredit")}
-    </Button>
-  ) : null;
-}
-
-function MobileField({
-  children,
-  label,
-}: {
-  children: ReactNode;
-  label: string;
-}) {
-  return (
-    <div className="min-w-0">
-      <p className="text-[11px] font-semibold tracking-wide text-content-subtle">
-        {label}
-      </p>
-      <p className="mt-1 break-words text-sm text-content-strong">{children}</p>
-    </div>
   );
 }

@@ -56,17 +56,32 @@ export function useCustomerInventoryOrderFilters(
       ),
     [data.profiles],
   );
+  const itemSearchText = useMemo(() => {
+    const grouped = new Map<string, string[]>();
+    for (const item of data.items) {
+      const values = grouped.get(item.order_id) ?? [];
+      values.push(item.product_name, item.source_url ?? "");
+      grouped.set(item.order_id, values);
+    }
+    return new Map(
+      Array.from(grouped, ([orderId, values]) => [
+        orderId,
+        values.join(" "),
+      ]),
+    );
+  }, [data.items]);
   const filteredOrders = useMemo(
     () =>
       data.orders.filter((order) =>
         matchesInventoryOrder({
           customerName: customerNames.get(order.customer_id) ?? "",
           filters,
+          itemText: itemSearchText.get(order.id) ?? "",
           order,
           salesmanName: profileNames.get(order.sales_user_id) ?? "",
         }),
       ),
-    [customerNames, data.orders, filters, profileNames],
+    [customerNames, data.orders, filters, itemSearchText, profileNames],
   );
   const activeFilterCount = Object.entries(filters).filter(([key, value]) => {
     const defaultValue =
@@ -89,11 +104,13 @@ export function useCustomerInventoryOrderFilters(
 function matchesInventoryOrder({
   customerName,
   filters,
+  itemText,
   order,
   salesmanName,
 }: {
   customerName: string;
   filters: InventoryOrderFilters;
+  itemText: string;
   order: CustomerInventoryOrder;
   salesmanName: string;
 }) {
@@ -106,6 +123,7 @@ function matchesInventoryOrder({
       salesmanName,
       order.currency,
       order.notes,
+      itemText,
     ].join(" "),
   );
 

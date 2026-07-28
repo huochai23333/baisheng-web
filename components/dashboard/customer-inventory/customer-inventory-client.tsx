@@ -18,6 +18,7 @@ import {
   type InventoryCreditDialogState,
 } from "./customer-inventory-credit-dialogs";
 import { CustomerInventoryCreditSection } from "./customer-inventory-credit-section";
+import { CustomerInventoryItemsDialog } from "./customer-inventory-items-dialog";
 import {
   CustomerInventoryOrderDialogs,
   type InventoryOrderDialogState,
@@ -49,6 +50,8 @@ export function CustomerInventoryClient({
   const [creditDialog, setCreditDialog] =
     useState<InventoryCreditDialogState>(null);
   const [attachmentOrder, setAttachmentOrder] =
+    useState<CustomerInventoryOrder | null>(null);
+  const [itemOrder, setItemOrder] =
     useState<CustomerInventoryOrder | null>(null);
   const { feedback, pendingKey, runAction } = useCustomerInventoryActions(
     t("feedback.connectionError"),
@@ -108,6 +111,14 @@ export function CustomerInventoryClient({
             data={initialData}
             onApplyCredit={(order) => setCreditDialog({ kind: "apply", order })}
             onAttachments={setAttachmentOrder}
+            onItems={setItemOrder}
+            onManageCredit={(order) =>
+              setCreditDialog({
+                credits: initialData.credits,
+                kind: "manage",
+                order,
+              })
+            }
             onOrderDialog={setOrderDialog}
           />
         ) : (
@@ -123,17 +134,29 @@ export function CustomerInventoryClient({
       <CustomerInventoryOrderDialogs
         data={initialData}
         dialog={orderDialog}
+        key={
+          orderDialog
+            ? `${orderDialog.kind}:${
+                orderDialog.kind === "create"
+                  ? "new"
+                  : orderDialog.order.id
+              }`
+            : "closed"
+        }
         onClose={() => setOrderDialog(null)}
         pendingKey={pendingKey}
         runAction={runAction}
       />
       <CustomerInventoryCreditDialogs
+        credits={initialData.credits}
         currentBusinessDate={initialData.currentBusinessDate}
         dialog={creditDialog}
         key={
           creditDialog
             ? `${creditDialog.kind}:${
-                creditDialog.kind === "apply" || creditDialog.kind === "review"
+                creditDialog.kind === "apply" ||
+                creditDialog.kind === "review" ||
+                creditDialog.kind === "manage"
                   ? creditDialog.order.id
                   : creditDialog.credit.id
               }`
@@ -152,6 +175,17 @@ export function CustomerInventoryClient({
         currentUserId={initialData.currentUserId}
         onClose={() => setAttachmentOrder(null)}
         order={attachmentOrder}
+        pendingKey={pendingKey}
+        runAction={runAction}
+      />
+      <CustomerInventoryItemsDialog
+        canWrite={canManageOrders}
+        items={initialData.items.filter(
+          (item) => item.order_id === itemOrder?.id,
+        )}
+        key={itemOrder?.id ?? "closed"}
+        onClose={() => setItemOrder(null)}
+        order={itemOrder}
         pendingKey={pendingKey}
         runAction={runAction}
       />

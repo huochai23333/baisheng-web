@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import type {
   CustomerInventoryOrder,
+  CustomerInventoryOrderItem,
   CustomerInventoryPageData,
 } from "@/lib/customer-inventory-types";
 
+import { CustomerInventoryOrderItemEditor } from "./customer-inventory-order-item-editor";
 import type { RunInventoryAction } from "./use-customer-inventory-actions";
 import {
   callRpc,
@@ -73,6 +75,7 @@ export function CustomerInventoryOrderDialogs({
             supabase.rpc("create_customer_inventory_order", {
               p_currency: requiredValue(formData, "currency"),
               p_customer_id: requiredValue(formData, "customerId"),
+              p_items: parseInventoryItems(formData),
               p_notes: optionalValue(formData, "notes"),
               p_paid_in_full: formData.get("paidInFull") === "on",
               p_purchase_amount: numberValue(formData, "purchaseAmount"),
@@ -88,6 +91,7 @@ export function CustomerInventoryOrderDialogs({
               p_currency: requiredValue(formData, "currency"),
               p_customer_id: requiredValue(formData, "customerId"),
               p_expected_revision: currentDialog.order.revision,
+              p_items: parseInventoryItems(formData),
               p_notes: optionalValue(formData, "notes"),
               p_order_id: currentDialog.order.id,
               p_purchase_amount: numberValue(formData, "purchaseAmount"),
@@ -208,13 +212,21 @@ export function CustomerInventoryOrderDialogs({
               />
             </FormControls.Field>
             <FormControls.Field label={t("fields.currency")} required>
-              <FormControls.Input
+              <Select
                 defaultValue={order?.currency ?? "USD"}
-                maxLength={3}
                 name="currency"
+                options={data.currencyOptions.map((currency) => ({
+                  label: currency,
+                  value: currency,
+                }))}
                 required
               />
             </FormControls.Field>
+            <CustomerInventoryOrderItemEditor
+              initialItems={data.items
+                .filter((item) => item.order_id === order?.id)
+                .sort((left, right) => left.sort_order - right.sort_order)}
+            />
             {dialog.kind === "create" ? (
               <FormControls.ChoiceField
                 description={t("orderDialogs.paidInFullHint")}
@@ -252,6 +264,23 @@ export function CustomerInventoryOrderDialogs({
       </form>
     </DashboardDialog>
   );
+}
+
+function parseInventoryItems(formData: FormData) {
+  const raw = String(formData.get("items") ?? "[]");
+  const parsed = JSON.parse(raw) as Array<
+    Pick<
+      CustomerInventoryOrderItem,
+      "product_name" | "quantity" | "source_url"
+    >
+  >;
+
+  // 浏览器原生 required 先给出就近反馈；这里仍检查整体结构，
+  // 避免脚本请求把非数组内容传给数据库。
+  if (!Array.isArray(parsed) || parsed.length < 1 || parsed.length > 100) {
+    throw new Error("customer_inventory_items_count_invalid");
+  }
+  return parsed;
 }
 
 function getSubmitLabel(

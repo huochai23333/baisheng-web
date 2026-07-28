@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { Select } from "@/components/ui/select";
 import type { CustomerInventoryCreditApplication } from "@/lib/customer-inventory-types";
 
-import type { CreditDecision } from "./customer-inventory-credit-dialogs";
+import type { CreditDecision } from "./customer-inventory-credit-dialog-types";
 
 export function createInitialCreditDecisions(
   credits: CustomerInventoryCreditApplication[],

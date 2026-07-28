@@ -34,6 +34,19 @@ export type CustomerInventoryOrder = {
   updated_at: string;
 };
 
+export type CustomerInventoryOrderItem = {
+  id: string;
+  order_id: string;
+  product_name: string;
+  quantity: number;
+  source_url: string | null;
+  sort_order: number;
+  created_by_user_id: string;
+  updated_by_user_id: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type CustomerInventoryCreditApplication = {
   id: string;
   order_id: string;
@@ -42,6 +55,7 @@ export type CustomerInventoryCreditApplication = {
   status: CustomerInventoryCreditStatus;
   application_note: string | null;
   applied_by_user_id: string;
+  application_source: "client" | "staff_direct";
   approved_amount_usd: number | null;
   order_currency_credit_amount: number | null;
   usd_to_order_currency_rate: number | null;
@@ -114,11 +128,13 @@ export type CustomerInventoryPageData = {
   attachments: CustomerInventoryAttachment[];
   auditLogs: CustomerInventoryAuditLog[];
   credits: CustomerInventoryCreditApplication[];
+  currencyOptions: string[];
   currentBusinessDate: string;
   currentRole: AppRole | null;
   currentUserId: string | null;
   customers: WholesaleCustomer[];
   extensions: CustomerInventoryExtensionRequest[];
+  items: CustomerInventoryOrderItem[];
   orders: CustomerInventoryOrder[];
   profiles: WholesaleProfile[];
   repayments: CustomerInventoryRepayment[];
