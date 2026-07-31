@@ -83,21 +83,25 @@ test.describe("finance business access", () => {
     await expectForbiddenPage(page);
   });
 
-  test("finance can review claim groups but cannot change them", async ({
+  test("finance can manage claim groups while administrator-only pages stay protected", async ({
     page,
   }) => {
     await loginAs(page, "finance");
     await page.goto("/finance/wholesale/order-claims");
 
-    await expect(page.getByRole("button", { name: "上传 1688 文件" })).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "上传 1688 文件" }),
+    ).toBeVisible();
     await page.getByRole("button", { name: /已认领/ }).click();
     await expect(page.getByText("1688-LOCAL-001").first()).toBeVisible();
-    await expect(page.getByRole("button", { name: "调整关联" })).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "调整关联" }).first(),
+    ).toBeVisible();
 
     await page.getByRole("button", { name: /认领大厅/ }).click();
     await expect(
       page.getByRole("button", { exact: true, name: "认领" }),
-    ).toHaveCount(0);
+    ).not.toHaveCount(0);
     await page.setViewportSize({ height: 844, width: 390 });
     await expectNoDocumentHorizontalOverflow(page);
   });

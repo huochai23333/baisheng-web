@@ -27,6 +27,8 @@ test.describe("shared rounded select", () => {
 
     // Escape 关闭菜单后必须把焦点交还触发器，不能让键盘用户掉到页面开头。
     await categorySelect.click();
+    // 必须先等菜单真实挂载；否则 Escape 可能早于 Base UI 注册键盘监听。
+    await expect(page.getByRole("option").first()).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(page.getByRole("option")).toHaveCount(0);
     await expect(categorySelect).toBeFocused();
@@ -54,6 +56,12 @@ test.describe("shared rounded select", () => {
     // 输入首字母应跳到匹配项，保留原生选择菜单常用的快速键盘操作。
     const dialogCurrency = dialog.getByLabel("币种");
     await dialogCurrency.click();
+    await expect(page.getByRole("option").first()).toBeVisible();
+    // 菜单可见后 Base UI 还会把焦点移到当前选项；等焦点真正进入菜单，
+    // 再输入首字母，才能验证真实键盘路径而不是挂载瞬间的竞争。
+    await expect(
+      page.getByRole("option", { exact: true, name: "CNY" }),
+    ).toBeFocused();
     await page.keyboard.press("u");
     await page.keyboard.press("Enter");
     await expectSelectValue(dialogCurrency, "USD");

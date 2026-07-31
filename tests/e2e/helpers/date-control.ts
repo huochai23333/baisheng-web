@@ -6,7 +6,17 @@ import { expect, type Locator } from "@playwright/test";
  * 同时覆盖用户操作与最终 FormData 值，不依赖 DatePicker 的内部隐藏 input 结构。
  */
 export async function fillDateControl(input: Locator, value: string) {
-  await input.fill(value);
+  // 连续修改日期范围时，前一个字段会触发路由回写。先像用户一样聚焦并全选，
+  // 再逐字输入，可以让 DatePicker 的“聚焦草稿保护”先建立，避免旧受控值在
+  // Playwright 快速 fill 的同一时刻回写并与新文本拼接。
+  await input.focus();
+  await expect(input).toBeFocused();
+  await input.press("Control+A");
+  if (value) {
+    await input.type(value);
+  } else {
+    await input.press("Backspace");
+  }
   await input.press("Enter");
 }
 

@@ -18,7 +18,9 @@ export function WholesaleActionFeedbackNotice({
   return (
     // 外层只负责把反馈放到弹窗之上；播报角色由 FeedbackNotice 统一提供。
     // 如果两层都声明 role="alert"，屏幕阅读器会把同一条错误重复朗读两次。
-    <div className="fixed inset-x-4 top-4 z-[70] mx-auto max-w-2xl">
+    // 提示会持续显示，pointer-events-none 可以让用户继续点击提示下方的页面操作，
+    // 避免保存成功后顶部提示挡住“新增客户”等按钮。
+    <div className="pointer-events-none fixed inset-x-4 top-4 z-[70] mx-auto max-w-2xl">
       <FeedbackNotice tone={feedback.tone}>{feedback.message}</FeedbackNotice>
     </div>
   );

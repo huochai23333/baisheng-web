@@ -2,9 +2,6 @@
 
 import { useEffect, type ReactNode } from "react";
 
-import { motion, useReducedMotion } from "motion/react";
-
-import { MOTION_DURATION, MOTION_EASING } from "@/lib/motion-tokens";
 import { cn } from "@/lib/utils";
 
 type PageRevealProps = {
@@ -13,8 +10,6 @@ type PageRevealProps = {
 };
 
 export function PageReveal({ children, className }: PageRevealProps) {
-  const reduceMotion = useReducedMotion();
-
   useEffect(() => {
     // 手机键盘会为了聚焦登录输入框向下滚动页面。软导航进入工作台后如果保留该位置，
     // 首个标题会被粘性页头遮住；普通页面挂载时回到顶部，带 # 锚点的入口仍交给浏览器定位。
@@ -30,18 +25,10 @@ export function PageReveal({ children, className }: PageRevealProps) {
   }, []);
 
   return (
-    <motion.div
-      animate={{ opacity: 1, y: 0 }}
-      className={cn("min-w-0", className)}
-      data-motion-page="true"
-      // 页面在服务端已经有完整内容，不能从完全透明开始，否则水合瞬间会出现白屏闪烁。
-      initial={reduceMotion ? false : { opacity: 0.72, y: 10 }}
-      transition={{
-        duration: reduceMotion ? 0 : MOTION_DURATION.page,
-        ease: MOTION_EASING.enter,
-      }}
-    >
+    // 服务端与客户端都输出同一个普通 div，避免动画库在水合前后生成不同属性。
+    // CSS 只在允许动态效果时播放；偏好减少动态效果的用户会直接看到最终状态。
+    <div className={cn("motion-page-reveal min-w-0", className)} data-motion-page="true">
       {children}
-    </motion.div>
+    </div>
   );
 }

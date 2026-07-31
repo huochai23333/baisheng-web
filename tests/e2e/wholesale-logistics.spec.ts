@@ -128,7 +128,7 @@ test.describe("店小秘物流永久档案", () => {
     await expectResponsiveLayout(page);
   });
 
-  test("业务员可查看全部并设置归属，财务只读", async ({ browser }) => {
+  test("业务员和财务都可查看全部物流并设置店铺归属", async ({ browser }) => {
     const salesmanPage = await browser.newPage({
       viewport: { height: 900, width: 1440 },
     });
@@ -157,7 +157,7 @@ test.describe("店小秘物流永久档案", () => {
     await expectNotForbiddenPage(financePage);
     await expect(
       financePage.getByRole("button", { name: "店铺归属设置" }),
-    ).toHaveCount(0);
+    ).toBeVisible();
     await chooseSelectOption(financePage.getByLabel("店小秘店铺"), {
       label: "Local Shop Peer",
     });

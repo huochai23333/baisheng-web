@@ -30,7 +30,7 @@ test.describe("wholesale order pagination", () => {
     expect(new Set(loadedIds).size).toBe(loadedIds.length);
     expect(loadedIds.slice(0, 20)).toEqual(firstBatchIds);
 
-    await page.getByLabel("搜索订单").fill("1688-LOCAL-001");
+    await searchWholesaleOrdersAcrossDates(page, "1688-LOCAL-001");
     await expect(rows).toHaveCount(2);
     for (const orderId of [
       "c2000000-0000-4000-8000-000000000001",
@@ -98,7 +98,7 @@ test.describe("wholesale order pagination", () => {
       try {
         await loginAs(page, roleCase.role);
         await page.goto(roleCase.url);
-        await page.getByLabel("搜索订单").fill("WH-LOCAL-202607-002");
+        await searchWholesaleOrdersAcrossDates(page, "WH-LOCAL-202607-002");
         const row = page.locator(
           '[data-testid="wholesale-order-row-c2000000-0000-4000-8000-000000000002"]',
         );
@@ -123,7 +123,7 @@ test.describe("wholesale order pagination", () => {
         status: 500,
       });
     });
-    await page.getByLabel("搜索订单").fill("1688-LOCAL-001");
+    await searchWholesaleOrdersAcrossDates(page, "1688-LOCAL-001");
     await expect(page.getByText("部分结汇记录暂时没有加载成功。"))
       .toBeVisible();
     await expect(
@@ -165,7 +165,10 @@ test.describe("wholesale order pagination", () => {
     try {
       await loginAs(adminPage, "administrator");
       await adminPage.goto("/admin/wholesale/orders");
-      await adminPage.getByLabel("搜索订单").fill("WH-LOCAL-202607-002");
+      await searchWholesaleOrdersAcrossDates(
+        adminPage,
+        "WH-LOCAL-202607-002",
+      );
 
       const adminRow = adminPage.locator(
         '[data-testid="wholesale-order-row-c2000000-0000-4000-8000-000000000002"]',
@@ -210,7 +213,10 @@ test.describe("wholesale order pagination", () => {
           response.url().includes("/rest/v1/rpc/get_wholesale_order_page") &&
           response.request().method() === "POST",
       );
-      await clientPage.getByLabel("搜索订单").fill("WH-LOCAL-202607-002");
+      await searchWholesaleOrdersAcrossDates(
+        clientPage,
+        "WH-LOCAL-202607-002",
+      );
       const rpcPayload = (await (await rpcResponsePromise).json()) as {
         canViewInternalFields: boolean;
         orders: Array<Record<string, unknown>>;
@@ -268,7 +274,10 @@ test.describe("wholesale order pagination", () => {
 
       await clientPage.setViewportSize({ height: 844, width: 390 });
       await clientPage.goto("/client/wholesale/orders");
-      await clientPage.getByLabel("搜索订单").fill("WH-LOCAL-202607-002");
+      await searchWholesaleOrdersAcrossDates(
+        clientPage,
+        "WH-LOCAL-202607-002",
+      );
       await clientPage
         .locator('[data-testid="wholesale-order-card-c2000000-0000-4000-8000-000000000002"]')
         .click();
@@ -325,6 +334,15 @@ async function expectNoDocumentHorizontalOverflow(page: Page) {
   );
 
   expect(overflowPixels).toBeLessThanOrEqual(2);
+}
+
+/**
+ * 本地固定订单可能早于页面默认的最近 30 天范围。
+ * 精确回归应使用产品已有的“跨日期查此单号”，而不是放宽真实用户的默认查询范围。
+ */
+async function searchWholesaleOrdersAcrossDates(page: Page, orderNumber: string) {
+  await page.getByLabel("搜索订单").fill(orderNumber);
+  await page.getByRole("button", { name: "跨日期查此单号" }).click();
 }
 
 async function expectMobileOrderCards(

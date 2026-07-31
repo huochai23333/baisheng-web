@@ -20,6 +20,12 @@ test.describe("首页组件管理与紧凑布局", () => {
 
     await expect(page.getByTestId("home-manage-button")).toBeVisible();
     await expect(announcementCard).toBeInViewport();
+    // 首页数据和布局会并行恢复；先确认所有待测节点已经真实显示，
+    // 再读取 boundingBox，避免把尚未挂载完成误判为组件被裁切。
+    await expect(todoCard).toBeVisible();
+    await expect(inviteCard).toBeVisible();
+    await expect(titleInput).toBeVisible();
+    await expect(dueDate).toBeVisible();
     expect((await requiredBox(todoCard)).height).toBeLessThanOrEqual(340);
     expect((await requiredBox(inviteCard)).height).toBeLessThanOrEqual(220);
     expect((await requiredBox(titleInput)).y).toBeLessThan(

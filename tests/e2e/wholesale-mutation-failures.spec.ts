@@ -41,6 +41,8 @@ test.describe("批发写入失败保留表单", () => {
     await page
       .getByLabel("搜索订单")
       .fill(`WH-LOCAL-${currentShanghaiMonth().replace("-", "")}-001`);
+    // 固定夹具可能位于当前月份较早日期，精确找单应走产品已有的全历史入口。
+    await page.getByRole("button", { name: "跨日期查此单号" }).click();
     const orderRow = page.getByTestId(`wholesale-order-row-${FIRST_ORDER_ID}`);
     await expect(orderRow).toBeVisible();
     await orderRow.getByRole("button", { name: "修改订单" }).click();
@@ -203,7 +205,7 @@ test.describe("批发写入失败保留表单", () => {
     await page.goto("/admin/wholesale/logistics");
     await failJsonRequest(
       page,
-      "**/rest/v1/rpc/change_wholesale_logistics_store_assignment",
+      "**/rest/v1/rpc/change_wholesale_logistics_store_assignment**",
     );
     await page.getByRole("button", { name: "店铺归属设置" }).click();
     const logisticsDialog = page.getByRole("dialog", {
@@ -216,7 +218,18 @@ test.describe("批发写入失败保留表单", () => {
       .click();
     const salesSelect = logisticsDialog.getByLabel("负责业务员");
     const customerSelect = logisticsDialog.getByLabel("批发客户（可选）");
-    await chooseSelectOption(salesSelect, { label: "本地协作业务员" });
+    const currentSalesValue = await getSelectValue(salesSelect);
+    // 第 0 项是“请选择业务员”的空值；实际可选的两名业务员从第 1 项开始。
+    const firstSalesValue = await getSelectOptionValueAt(salesSelect, 1);
+    const secondSalesValue = await getSelectOptionValueAt(salesSelect, 2);
+    // 前面的物流回归可能已经调整过当前负责人；始终选择与当前值不同的业务员，
+    // 确保“保存归属”一定发出真实请求，路由拦截才能验证失败后保留表单。
+    await chooseSelectOption(salesSelect, {
+      value:
+        firstSalesValue === currentSalesValue
+          ? secondSalesValue
+          : firstSalesValue,
+    });
     await chooseSelectOption(customerSelect, { label: "Wholesale Alpha" });
     const salesValue = await getSelectValue(salesSelect);
     const customerValue = await getSelectValue(customerSelect);

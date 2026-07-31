@@ -19,7 +19,7 @@
 
 ## 技术栈
 
-- `Next.js 16.2.9` + App Router
+- `Next.js 16.2.12` + App Router
 - `React 19.2.4`
 - `TypeScript 5`
 - `Tailwind CSS 4`
@@ -51,8 +51,11 @@ node -v
 2. 安装依赖
 
 ```bash
-npm install
+npm ci
 ```
+
+项目只使用 npm，唯一锁文件是 `package-lock.json`，`package.json` 声明
+`npm@11.16.0`；不要生成或提交 pnpm、Yarn 锁文件。
 
 3. 准备环境变量
 
@@ -76,7 +79,7 @@ npm run dev
 开发约束：
 
 - 同一个 Next 项目目录不要同时启动两个 dev server。
-- `instrumentation-client.ts` 在 React 水合前保护开发期 User Timing：只把 React 服务端组件调试信息中的非法负时间归零，避免 Next.js 16.2.9 在高频整页导航时误报性能测量错误；生产环境和正常性能记录不受影响。
+- `instrumentation-client.ts` 在 React 水合前保护开发期 User Timing：只把 React 服务端组件调试信息中的非法负时间归零，避免高频整页导航时误报性能测量错误；生产环境和正常性能记录不受影响。
 - Playwright 或本地验证建议固定使用 `http://localhost:3000`，避免热更新资源来源不一致；`127.0.0.1` 已加入开发来源允许列表，但改动配置后需要重启 dev server 才生效。
 - 如果 `3000` 已被其他项目占用，本项目临时运行在 `3001` 等端口，Playwright 验证必须显式指定当前端口，并跳过自动启动服务：
 
@@ -123,6 +126,8 @@ npm run typecheck
 npm run check:i18n
 npm run check:dashboard-ui
 npm run build
+npm audit --omit=dev
+npm audit
 npm run start
 npm run test:e2e
 npm run test:e2e:ui
@@ -137,7 +142,7 @@ npm run supabase:admin -- summary
 
 - `npm run check:i18n` 会核对中英文消息键结构，并拦截 TSX 中直接编写的用户可见文案；品牌、币种、邮箱示例和 `1688` 等不可翻译标识使用小型明确白名单。
 - `npm run check:dashboard-ui` 使用 TypeScript AST 检查 JSX、导入和职责边界：拦截业务层原生控件与 `<label>`、Select/DatePicker 视觉覆盖、Button 尺寸或材质覆盖、绕过共享资源筛选区、手写桌面/移动双视图、状态函数返回颜色类名、非共享组件持有面板阴影、`href` 混入 CSS 变量，以及 Page/Client 同时导入查询或 mutation 并渲染表格/弹窗。信息层级规则位于独立模块，要求页头明确选择工作或概览形态，禁止工作页重新加入徽标、介绍、指标大面板，并禁止订单列表恢复通用介绍。检查同时保留硬编码颜色、400 行上限、深色模式、原生确认框、复制页面外壳和旧分页组件等规则；导航与首页布局编辑器是明确的响应式白名单。
-- `npm run test:regression` 会依次执行 lint、typecheck、双语静态检查、工作台结构检查、build 和 Playwright 回归测试。
+- `npm run test:regression` 会依次执行 lint、typecheck、双语静态检查、工作台结构检查、build 和 Playwright 回归测试。完整浏览器验收由 Playwright 独占一个开发服务器并使用 `--workers=1`，避免测试夹具相互覆盖。
 - `npm run clean:artifacts` 清理 `.playwright-cli` 和 `output/playwright` 下的临时验证产物。
 - `npm run clean:cache` 清理 `.next` 和 `tsconfig.tsbuildinfo`。
 - `npm run supabase:admin -- summary` 查看订单、汇率等表的概览。
@@ -154,7 +159,7 @@ npm run supabase:admin -- summary
 | `client`        | `/client/home`    | 全局首页；自助注册只获得所选旅游或批发业务，管理员可在对应业务客户管理中追加另一业务；批发客户可以只读查看自己的库存订单和附件，并提交信贷、延期申请                                                                                                                                   |
 | `manager`       | `/manager/home`   | 全局首页；旅游业务下的推荐树、团队、任务                                                                                                                                                                                                                                               |
 | `operator`      | `/operator/home`  | 全局首页、报销记录；旅游业务下的推荐树、团队、任务                                                                                                                                                                                                                                     |
-| `finance`       | `/finance/home`   | 全局首页、公司费用；固定仅可见批发业务，库存订单板块默认进入信贷管理，可以审核信贷与延期并登记还款，不能创建或修改库存订单                                                                                                                                                             |
+| `finance`       | `/finance/home`   | 全局首页、公司费用；固定仅可见批发业务，显示批发订单、库存订单、结汇发布、订单认领、物流、客户、VIP、推荐、佣金和提成；可管理批发日常业务与库存信贷，但不获得人员、业务设置、超期审批、佣金结算和原始采购删除权限 |
 | `recruiter`     | `/recruiter/home` | 全局首页；旅游业务下的推荐树、任务                                                                                                                                                                                                                                                     |
 
 访问规则：
@@ -169,11 +174,12 @@ npm run supabase:admin -- summary
 - `/admin/wholesale/settings` 是批发业务设置，维护批发订单可直接修改天数、批发订单业务员提成和批发客户推荐佣金。
 - `/[role]/tourism/[section]` 承载当前旅游业务页面。
 - `/[role]/wholesale/[section]` 承载批发业务页面，使用独立批发模型，不复用旅游订单结构。
-- `/admin/wholesale/inventory-orders` 和 `/salesman/wholesale/inventory-orders` 提供“库存订单、信贷管理”两个视图；`/finance/wholesale/inventory-orders` 默认显示信贷管理，`/client/wholesale/inventory-orders` 只读显示本人订单。
+- `/admin/wholesale/inventory-orders`、`/salesman/wholesale/inventory-orders` 和 `/finance/wholesale/inventory-orders` 提供“库存订单、信贷管理”两个视图；`/client/wholesale/inventory-orders` 只读显示本人订单。
 - 有效账号访问工作范围之外的页面时保留登录状态，显示“这个页面不在你的工作范围内”并提供返回当前角色首页的按钮；只有没有会话、会话失效或账号已停用时才通过服务端退出入口清理 Cookie 并回到登录页。
 - 左侧导航先按账号当前可见业务过滤，再展示当前角色在该业务下可用的模块。
 - 桌面端左侧业务分组会按当前登录账号记住旅游、批发各自的展开或收起状态，换浏览器或设备再次登录时继续使用；新账号默认展开第一个可见业务，进入具体业务页面时仍自动展开当前业务，用户也可以手动收起。展开和收起带平滑过渡；移动端顶部菜单始终展示完整业务分组，不读取桌面折叠偏好，并保留淡入下拉动画。
-- 当前阶段批发业务允许管理员、财务、业务员、以及拥有批发业务标记的客户访问；财务在批发业务中按业务员同类范围使用，不再访问旅游业务；地推、经理、运营、招聘员和只有旅游业务标记的客户只能访问旅游业务。
+- 当前阶段批发业务允许管理员、财务、业务员、以及拥有批发业务标记的客户访问。财务和业务员都能跨业务员协作处理全部批发订单、客户、附件、VIP、推荐关系、1688 认领、物流归属、库存订单及信贷；财务还可发布、确认和分配结汇收款，取消仍只允许尚未分配的收款。人员管理、业务设置、超期修改审批、佣金结算和删除原始采购数据继续仅限管理员。
+- 佣金和提成页面对财务使用业务员视角，只显示本人相关记录，不因此获得管理员结算能力。页面入口统一读取 `WholesaleRoleCapabilities`，数据库 RPC 与 RLS 仍是最终授权边界。
 - 人员管理不提供手动勾选“可见旅游业务 / 可见批发业务”的入口。客户的业务权限由注册选择或管理员在目标业务客户管理中追加；追加只扩展权限，不提供移除入口。
 - 每个账号只有一个邀请码。业务员邀请码锁定批发业务，地推邀请码锁定旅游业务；其他有效邀请码不锁定业务。邀请码为空时客户作为虚拟“公司”节点的直接下游，不写推荐关系，也不产生推荐佣金。
 - 已知但未授权的同工作台模块进入统一的工作范围提示页，不显示空白占位入口，也不退出有效账号。
@@ -182,14 +188,14 @@ npm run supabase:admin -- summary
 ## 库存订单与专属信贷
 
 - 库存订单与普通批发订单完全独立。订单只允许选择已绑定登录账号的批发客户；编号和录入时间由系统按上海业务日期生成。
-- 每笔订单至少包含一件商品，最多100件；商品记录名称、正整数数量和可选的1688货品链接。管理员、业务员可在订单付清后继续维护商品，客户和财务只读。
-- 管理员、业务员可以创建、修改、一次登记全额实付、作废以及维护商品和 Order List；不支持部分实付。购买金额由业务员填写，币种从现有汇率币种中选择，系统不按200美元门槛自动判断订单资格。
+- 每笔订单至少包含一件商品，最多100件；商品记录名称、正整数数量和可选的1688货品链接。管理员、财务和业务员可在订单付清后继续维护商品，客户只读。
+- 管理员、财务和业务员可以创建、修改、一次登记全额实付、作废以及维护商品和 Order List；不支持部分实付。购买金额由工作人员填写，币种从现有汇率币种中选择，系统不按200美元门槛自动判断订单资格。
 - 客户可以在自己的待支付订单选择一个或多个可用信贷档位。三个档位分别显示为“安心周转额度”“订单助力额度”“长期合作额度”，并在名称下保留“固定200美元”“一单库存订单金额的50%”“所有订单金额的5%”作为规则说明。安心周转额度只需首次申请和获批；还清后资格长期保留，由管理员或业务员在另一笔新订单直接复用，客户不再重复申请。后两个档位名称不触发自动百分比计算，最终美元金额由审核人填写。
-- 管理员、业务员可以直接启用任意一个或多个档位，确认即生效，无需第二人审核；如果订单已有客户申请，必须一起批准或拒绝。财务只能统一审核客户已经提交的待审档位，不能主动增加未申请档位。
+- 管理员、财务和业务员可以直接启用任意一个或多个档位，确认即生效，无需第二人审核；如果订单已有客户申请，必须一起批准或拒绝。
 - 批准金额按当天汇率锁定到订单币种，信贷抵消与剩余实付必须正好覆盖购买金额，随后订单立即付清。
 - 信贷批准即开始使用，原还款日为30天后。客户最晚在原还款日申请一次1–3个自然月延期；管理员、业务员或财务审核。
 - 到期次日按未还本金计算月单利：`本金 × 1% × 逾期天数 ÷ 30`。不支持部分还款；后台选择实际还款日并一次结清本金和利息。
-- Order List 位于私有存储，只接受 CSV、XLS、XLSX；每单最多10个、单个20 MB、合计100 MB。管理员和业务员可写，财务和订单客户只读。
+- Order List 位于私有存储，只接受 CSV、XLS、XLSX；每单最多10个、单个20 MB、合计100 MB。管理员、财务和业务员可写，订单客户只读。
 - 库存订单可以按订单、商品名称、1688链接、客户、业务员、支付状态、币种和录入日期筛选；录入日期默认使用上海业务日期最近30天，并提供“最近30天、本月、上月、最近3个月、自定义”快捷范围，恢复筛选会回到最近30天。信贷记录可以按关键词、客户、信贷档位、信贷状态、到期情况和申请日期筛选。客户页面隐藏没有意义的客户、业务员筛选，筛选无结果时可以一键恢复默认范围。
 - 页面模块按 `queries / actions hook / filter view-model / filters / order section / item editor and dialog / credit application, review, direct management and lifecycle dialogs / display` 拆分；桌面使用紧凑表格，移动端使用信息卡片和自动换行的筛选区。
 
@@ -226,7 +232,9 @@ app/
 
 - `proxy.ts`：会话同步、登录保护、工作台访问前置校验。
 - `lib/company-config.ts`：公司级配置，集中维护产品名、助手名、Logo、默认站点域名、支持邮箱和默认启用业务。
-- `lib/workspace-business-modules.ts`：旅游业务和批发业务的模块清单，集中声明业务导航、角色页面能力、页面入口类型和业务设置区块。
+- `lib/workspace-business-modules.ts`：共享业务注册器和查询入口；旅游、批发定义分别位于 `workspace-tourism-module.ts` 与 `workspace-wholesale-module.ts`。
+- `lib/current-session-context.ts`：会话薄编排层；缓存、Auth 获取和数据库访问上下文分别位于 `current-session-cache.ts`、`current-session-auth.ts` 与 `current-session-access-context.ts`。
+- `lib/user-self-service.ts`：个人中心读取编排；资料、隐私申请、媒体上传和预览缓存分别位于对应的 `user-*` 服务文件。
 - `lib/workspace-config.ts`：全局工作台配置中心，负责角色 base path、全局入口和从业务模块清单组装后的页面能力。
 - `lib/workspace-route-segments.ts`：工作台角色路由段枚举。
 - `lib/workspace-business-access.ts`：当前账号可见业务读取、业务键规范化和导航过滤辅助。

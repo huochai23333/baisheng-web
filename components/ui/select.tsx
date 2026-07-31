@@ -3,7 +3,7 @@
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import type { VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import type { AriaAttributes, ReactNode } from "react";
+import { useRef, useState, type AriaAttributes, type ReactNode } from "react";
 
 import { controlVariants } from "@/components/ui/form-controls";
 import {
@@ -85,6 +85,9 @@ export function Select<Value extends string = string>({
         ? (firstEnabledValue ?? null)
         : defaultValue
       : undefined;
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const restoreFocusRef = useRef(false);
 
   return (
     <div className={cn("min-w-0 w-full", className)} data-slot="select-root">
@@ -94,12 +97,25 @@ export function Select<Value extends string = string>({
         disabled={disabled || options.length === 0}
         items={options}
         name={name}
+        onOpenChange={(nextOpen, details) => {
+          if (!nextOpen && details.reason === "escape-key") {
+            restoreFocusRef.current = true;
+          }
+          setOpen(nextOpen);
+        }}
+        onOpenChangeComplete={(nextOpen) => {
+          if (!nextOpen && restoreFocusRef.current) {
+            restoreFocusRef.current = false;
+            triggerRef.current?.focus();
+          }
+        }}
         onValueChange={(nextValue) => {
           // 单选菜单没有清空手势；null 只表示尚未选择，因此不伪造业务值。
           if (nextValue !== null) onValueChange?.(nextValue as Value);
         }}
         readOnly={readOnly}
         required={resolvedRequired}
+        open={open}
         value={value}
       >
         <SelectPrimitive.Trigger
@@ -114,6 +130,7 @@ export function Select<Value extends string = string>({
           )}
           data-control-size={resolvedControlSize}
           data-slot="select"
+          ref={triggerRef}
           type="button"
         >
           <SelectPrimitive.Value
@@ -137,6 +154,40 @@ export function Select<Value extends string = string>({
             <SelectPrimitive.Popup
               className="min-w-[var(--anchor-width)] max-w-[min(32rem,calc(100vw-1.5rem))] overflow-hidden rounded-[18px] border border-border-subtle bg-surface-overlay text-popover-foreground shadow-[var(--surface-shadow-floating)] outline-none backdrop-blur-2xl backdrop-saturate-150"
               data-slot="select-popup"
+              onKeyDownCapture={(event) => {
+                if (
+                  event.key.length !== 1 ||
+                  event.altKey ||
+                  event.ctrlKey ||
+                  event.metaKey
+                ) {
+                  return;
+                }
+
+                // Base UI 的列表刚挂载时，DOM 文本索引可能晚于第一次键盘输入。
+                // 对纯文字标签先把焦点移到首字母匹配项，随后 Enter 仍由 Base UI 正常确认。
+                const searchKey = event.key.toLocaleLowerCase();
+                const matchedOption = options.find(
+                  (option) =>
+                    !option.disabled &&
+                    typeof option.label === "string" &&
+                    option.label.trim().toLocaleLowerCase().startsWith(searchKey),
+                );
+                if (!matchedOption) return;
+
+                const matchedElement = Array.from(
+                  event.currentTarget.querySelectorAll<HTMLElement>(
+                    '[role="option"]',
+                  ),
+                ).find(
+                  (element) => element.dataset.value === matchedOption.value,
+                );
+                if (!matchedElement) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+                matchedElement.focus();
+              }}
             >
               <SelectPrimitive.ScrollUpArrow className="flex h-8 items-center justify-center border-b border-border-subtle bg-surface-overlay text-content-muted">
                 <ChevronUp aria-hidden="true" className="size-4" />
@@ -153,6 +204,13 @@ export function Select<Value extends string = string>({
                     data-value={option.value}
                     disabled={option.disabled}
                     key={option.value}
+                    // 显式提供纯文字标签，让 Base UI 在浮层刚挂载时也能立即执行首字母检索；
+                    // 不能只依赖 ItemText 的 DOM 测量，因为快速键盘输入可能早于该测量完成。
+                    label={
+                      typeof option.label === "string"
+                        ? option.label
+                        : String(option.label)
+                    }
                     value={option.value}
                   >
                     <SelectPrimitive.ItemText className="min-w-0 break-words [overflow-wrap:anywhere]">

@@ -79,6 +79,7 @@ test.describe("wholesale order settlements", () => {
     await expectNoSettlementStatusInOrderNumberCell(page);
     await expectCompactLocalSeededOrderRows(page);
     await page.getByLabel("搜索订单").fill("1688-LOCAL-001");
+    await page.getByRole("button", { name: "跨日期查此单号" }).click();
     await expect(
       page.locator('[data-testid^="wholesale-order-row-"]').filter({
         hasText: "WH-LOCAL-202607-001",

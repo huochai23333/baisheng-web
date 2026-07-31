@@ -8,6 +8,7 @@ import type {
   WholesaleOrderListItem,
 } from "@/lib/wholesale";
 import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-attachments";
+import { getWholesaleRoleCapabilities } from "@/lib/wholesale-role-permissions";
 import { canCurrentUserManageWholesaleOrder } from "./wholesale-order-edit-rules";
 
 type RefreshAfter = (
@@ -48,12 +49,14 @@ export function useWholesaleOrderListHandlers({
   const canManage = useCallback(
     (order: WholesaleOrderListItem) => {
       if (!currentUserId) return false;
-      if (currentRole === "administrator" || currentRole === "finance") {
+      const capabilities = getWholesaleRoleCapabilities(currentRole);
+
+      if (capabilities.canManageEveryOrder) {
         return true;
       }
 
       return (
-        currentRole === "salesman" &&
+        capabilities.usesWholesaleSalesScope &&
         canCurrentUserManageWholesaleOrder({
           canEdit,
           canManageEveryOrder,

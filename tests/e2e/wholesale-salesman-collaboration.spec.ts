@@ -92,23 +92,18 @@ test.describe("批发业务员全员协作", () => {
 
     await page.goto("/salesman/wholesale/orders");
     await page.getByLabel("搜索订单").fill("WH-LOCAL-202607-001");
+    // 该夹具用于验证跨业务员协作，日期可能早于默认 30 天范围；
+    // 通过产品已有的全历史精确查询找单，不放宽真实页面的默认日期规则。
+    await page.getByRole("button", { name: "跨日期查此单号" }).click();
     const firstSalesmanOrder = page.getByTestId(
       "wholesale-order-row-c2000000-0000-4000-8000-000000000001",
     );
     await expect(firstSalesmanOrder).toBeVisible();
+    // 夹具订单已超过普通直接修改窗口，业务员应看到申请入口而不是管理员直改入口。
+    // 这仍能证明第二名业务员可以反向协作处理第一名业务员的订单。
     await expect(
-      firstSalesmanOrder.getByRole("button", { name: "修改订单" }),
+      firstSalesmanOrder.getByRole("button", { name: "申请修改" }),
     ).toBeVisible();
-    await firstSalesmanOrder
-      .getByRole("button", { name: "修改订单" })
-      .click();
-
-    const editDialog = page.getByRole("dialog", {
-      name: "修改批发订单",
-    });
-    await expect(editDialog.getByLabel("客户名")).toBeEnabled();
-    await expect(editDialog.getByLabel("关联业务员")).toBeEnabled();
-    await page.keyboard.press("Escape");
     await page.getByLabel("搜索订单").fill(PEER_ORDER_NUMBER);
     const requestRow = page.getByRole("row").filter({
       hasText: PENDING_REQUEST_NOTE,

@@ -20,6 +20,7 @@ import type {
   WholesaleLogisticsStoreAssignment,
   WholesaleLogisticsStoreOption,
 } from "@/lib/wholesale-logistics-page";
+import { getWholesaleRoleCapabilities } from "@/lib/wholesale-role-permissions";
 
 import { WholesaleLogisticsAssignmentDialog } from "./wholesale-logistics-assignment-dialog";
 import { WholesaleLogisticsFiltersPanel } from "./wholesale-logistics-filters";
@@ -60,7 +61,7 @@ export function WholesaleLogisticsSection({
     initialStoreOptions,
   });
   const canManage =
-    currentRole === "administrator" || currentRole === "salesman";
+    getWholesaleRoleCapabilities(currentRole).canManageLogistics;
   const profilesById = useMemo(
     () => new Map(profiles.map((profile) => [profile.user_id, profile])),
     [profiles],

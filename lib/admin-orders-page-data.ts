@@ -36,57 +36,19 @@ import {
 import { getLatestCnyExchangeRates } from "./exchange-rates";
 import {
   getShanghaiOrderDateBounds,
-  normalizeOrderDateRange,
-  type OrderSearchMode,
 } from "./order-date-range";
-import {
-  normalizeOptionalString,
-  normalizePositiveInteger,
-  normalizeSearchText,
-} from "./value-normalizers";
-import type {
-  AdminOrdersFilters,
-  AdminOrdersPageData,
-  OrderUserOption,
-} from "./admin-orders-types";
+import { normalizePositiveInteger } from "./value-normalizers";
+import type { AdminOrdersFilters, AdminOrdersPageData } from "./admin-orders-types";
 import type { AppRole, UserStatus } from "./user-self-service";
+import {
+  normalizeAdminOrdersFilters,
+  resolveAdminOrderUserFilter,
+} from "./admin-orders-page-filters";
 
-export function normalizeAdminOrdersFilters(
-  filters?: Partial<AdminOrdersFilters> | null,
-): AdminOrdersFilters {
-  const dateRange = normalizeOrderDateRange({
-    fromDate: filters?.createdFromDate,
-    toDate: filters?.createdToDate,
-  });
-  const orderNumber = normalizeOptionalString(filters?.orderNumber) ?? "";
-
-  return {
-    createdFromDate: dateRange.fromDate,
-    createdToDate: dateRange.toDate,
-    orderEntryUser: normalizeOptionalString(filters?.orderEntryUser) ?? "",
-    orderNumber,
-    orderingUser: normalizeOptionalString(filters?.orderingUser) ?? "",
-    searchMode: normalizeOrderSearchMode(filters?.searchMode, orderNumber),
-  };
-}
-
-export function parseAdminOrdersSearchParams(
-  searchParams: Record<string, string | string[] | undefined>,
-) {
-  return {
-    filters: normalizeAdminOrdersFilters({
-      createdFromDate: getSingleSearchParam(searchParams.createdFromDate),
-      createdToDate: getSingleSearchParam(searchParams.createdToDate),
-      orderEntryUser: getSingleSearchParam(searchParams.orderEntryUser),
-      orderNumber: getSingleSearchParam(searchParams.orderNumber),
-      orderingUser: getSingleSearchParam(searchParams.orderingUser),
-      searchMode: getSingleSearchParam(searchParams.searchMode) as
-        | OrderSearchMode
-        | undefined,
-    }),
-    page: normalizePositiveInteger(getSingleSearchParam(searchParams.page), 1),
-  };
-}
+export {
+  normalizeAdminOrdersFilters,
+  parseAdminOrdersSearchParams,
+} from "./admin-orders-page-filters";
 
 export async function getAdminOrdersPageData(
   supabase: SupabaseClient,
@@ -363,66 +325,4 @@ function createEmptyAdminOrdersPageData(options: {
     totalOrdersCount: 0,
     userOptions: [],
   };
-}
-
-function resolveAdminOrderUserFilter(
-  userOptions: OrderUserOption[],
-  rawValue: string,
-): {
-  hasNoMatches: boolean;
-  userIds?: string[];
-} {
-  const normalizedValue = normalizeSearchText(rawValue);
-
-  if (!normalizedValue) {
-    return {
-      hasNoMatches: false,
-    };
-  }
-
-  const userIds = userOptions
-    .filter((option) =>
-      normalizeSearchText(getOrderUserSearchLabel(option)).includes(normalizedValue),
-    )
-    .map((option) => option.user_id);
-
-  if (userIds.length === 0) {
-    return {
-      hasNoMatches: true,
-      userIds: [],
-    };
-  }
-
-  return {
-    hasNoMatches: false,
-    userIds,
-  };
-}
-
-function getOrderUserSearchLabel(option: OrderUserOption) {
-  const normalizedName = normalizeOptionalString(option.name);
-  const normalizedEmail = normalizeOptionalString(option.email);
-
-  if (normalizedName && normalizedEmail) {
-    return `${normalizedName} / ${normalizedEmail}`;
-  }
-
-  return normalizedName ?? normalizedEmail ?? option.user_id;
-}
-
-function getSingleSearchParam(value: string | string[] | undefined) {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
-}
-
-function normalizeOrderSearchMode(
-  value: unknown,
-  orderNumber: string,
-): OrderSearchMode {
-  return value === "exact_all_time" && orderNumber
-    ? "exact_all_time"
-    : "date_range";
 }

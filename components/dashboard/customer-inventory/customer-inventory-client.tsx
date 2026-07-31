@@ -11,6 +11,7 @@ import type {
   CustomerInventoryOrder,
   CustomerInventoryPageData,
 } from "@/lib/customer-inventory-types";
+import { getWholesaleRoleCapabilities } from "@/lib/wholesale-role-permissions";
 
 import { CustomerInventoryAttachmentsDialog } from "./customer-inventory-attachments-dialog";
 import {
@@ -36,15 +37,10 @@ export function CustomerInventoryClient({
 }) {
   const t = useTranslations("CustomerInventory");
   const isClient = initialData.currentRole === "client";
-  const canManageOrders = ["administrator", "salesman"].includes(
-    initialData.currentRole ?? "",
-  );
-  const canManageCredit = ["administrator", "finance", "salesman"].includes(
-    initialData.currentRole ?? "",
-  );
-  const [tab, setTab] = useState<InventoryTab>(
-    initialData.currentRole === "finance" ? "credit" : "orders",
-  );
+  const capabilities = getWholesaleRoleCapabilities(initialData.currentRole);
+  const canManageOrders = capabilities.canManageInventoryOrders;
+  const canManageCredit = capabilities.canManageInventoryCredit;
+  const [tab, setTab] = useState<InventoryTab>("orders");
   const [orderDialog, setOrderDialog] =
     useState<InventoryOrderDialogState>(null);
   const [creditDialog, setCreditDialog] =
@@ -141,7 +137,7 @@ export function CustomerInventoryClient({
                   ? "new"
                   : orderDialog.order.id
               }`
-            : "closed"
+            : "order-dialog-closed"
         }
         onClose={() => setOrderDialog(null)}
         pendingKey={pendingKey}
@@ -160,7 +156,7 @@ export function CustomerInventoryClient({
                   ? creditDialog.order.id
                   : creditDialog.credit.id
               }`
-            : "closed"
+            : "credit-dialog-closed"
         }
         onClose={() => setCreditDialog(null)}
         pendingKey={pendingKey}
@@ -183,7 +179,8 @@ export function CustomerInventoryClient({
         items={initialData.items.filter(
           (item) => item.order_id === itemOrder?.id,
         )}
-        key={itemOrder?.id ?? "closed"}
+        // 兄弟弹窗必须使用不同的关闭态 key，否则 React 会把两个关闭弹窗误认为同一节点。
+        key={itemOrder?.id ?? "item-dialog-closed"}
         onClose={() => setItemOrder(null)}
         order={itemOrder}
         pendingKey={pendingKey}

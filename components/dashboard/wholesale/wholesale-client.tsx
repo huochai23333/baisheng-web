@@ -7,6 +7,7 @@ import type { WholesalePageData } from "@/lib/wholesale";
 import {
   canAssignWholesaleSalesUser,
   canBypassWholesaleOrderEditWindow,
+  getWholesaleRoleCapabilities,
   canManageEveryWholesaleCustomer,
   canManageEveryWholesaleOrder,
   canReviewWholesaleOrderEditRequests,
@@ -41,14 +42,9 @@ export function WholesaleClient({
   // 账号合并和追加业务都只使用数据库确认过资格的客户候选列表。
   const registeredAccounts = initialData.registeredCandidates;
   const canAdmin = initialData.currentRole === "administrator";
-  const canUseSalesTools =
-    initialData.currentRole === "salesman" ||
-    initialData.currentRole === "finance";
-  const canEdit = canAdmin || canUseSalesTools;
-  // 财务可以查看认领结果，但只有管理员和业务员可以调整订单关系。
-  const canManageClaims =
-    initialData.currentRole === "administrator" ||
-    initialData.currentRole === "salesman";
+  const capabilities = getWholesaleRoleCapabilities(initialData.currentRole);
+  const canEdit = capabilities.canManageEveryOrder;
+  const canManageClaims = capabilities.canManageClaims;
   const canManageWholesaleCustomers = canManageEveryWholesaleCustomer(
     initialData.currentRole,
   );

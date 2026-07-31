@@ -58,7 +58,7 @@ export function getSectionNamespaces(
   }
 
   if (section === "commission" && config.pageVariants.commission) {
-    namespaces.push("Commission", "DashboardPagination", "Tasks.shared");
+    namespaces.push("Commission", "DashboardPagination", "DashboardShared", "Tasks.shared");
   }
 
   if (section === "customers" && config.pageVariants.customers) {

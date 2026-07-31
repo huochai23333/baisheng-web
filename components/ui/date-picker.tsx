@@ -107,6 +107,8 @@ export function DatePicker({
   const anchorRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const restoreFocusRef = useRef(false);
+  const inputFocusedRef = useRef(false);
+  const inputDraftRef = useRef(false);
   const errorId = `${useId()}-error`;
   const fieldAttributes = useFormFieldControlAttributes({
     ariaDescribedBy,
@@ -154,6 +156,7 @@ export function DatePicker({
   const commitCanonicalValue = useCallback(
     (nextValue: string) => {
       if (!nextValue) {
+        inputDraftRef.current = false;
         setInputText("");
         showError(resolvedRequired ? t("required") : null);
         // 必填字段清空后保留最后一个有效业务值，只让可见输入进入无效状态；
@@ -175,6 +178,7 @@ export function DatePicker({
 
       // 仅在规范值真正变化时通知业务层，避免用户只是打开日历就重复触发筛选或查询。
       if (nextValue !== currentValue) updateValue(nextValue);
+      inputDraftRef.current = false;
       setInputText(formatDatePickerValue(nextValue, mode, locale));
       showError(null);
       return true;
@@ -199,6 +203,10 @@ export function DatePicker({
   }, []);
 
   useEffect(() => {
+    // 用户正在输入但尚未确认时，外部筛选查询可能先返回旧值。
+    // 此时保留输入草稿；等失焦、回车、日历确认或重置后，再接受受控值同步。
+    if (inputFocusedRef.current && inputDraftRef.current) return;
+    inputDraftRef.current = false;
     setInputText(formatDatePickerValue(currentValue, mode, locale));
     showError(null);
   }, [currentValue, locale, mode, showError]);
@@ -209,6 +217,7 @@ export function DatePicker({
     if (!form) return;
 
     const handleReset = () => {
+      inputDraftRef.current = false;
       setInternalValue(defaultValue);
       setInputText(formatDatePickerValue(defaultValue, mode, locale));
       showError(null);
@@ -225,6 +234,7 @@ export function DatePicker({
         if (nextOpen) preparePanel();
         if (!nextOpen && details.reason === "escape-key") {
           // Escape 关闭浮层时，同时丢弃尚未提交的键盘草稿，回到最后一个有效业务值。
+          inputDraftRef.current = false;
           setInputText(formatDatePickerValue(currentValue, mode, locale));
           setDateTimeDraft(getInitialDateTimeDraft(currentValue));
           showError(null);
@@ -258,10 +268,15 @@ export function DatePicker({
             inputMode="numeric"
             onBlur={() => {
               if (!readOnly) commitInputText();
+              inputFocusedRef.current = false;
             }}
             onChange={(event) => {
+              inputDraftRef.current = true;
               setInputText(event.target.value);
               showError(null);
+            }}
+            onFocus={() => {
+              inputFocusedRef.current = true;
             }}
             onInvalid={() => {
               // 保留浏览器把焦点带回第一个无效字段的默认行为，同时显示系统内一致的错误说明。
@@ -345,6 +360,7 @@ export function DatePicker({
     if (event.key === "Escape" && inputText !== formatDatePickerValue(currentValue, mode, locale)) {
       event.preventDefault();
       event.stopPropagation();
+      inputDraftRef.current = false;
       setInputText(formatDatePickerValue(currentValue, mode, locale));
       showError(null);
     }

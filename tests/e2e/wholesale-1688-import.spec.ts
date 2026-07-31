@@ -263,7 +263,12 @@ async function create1688XlsxFixture(filePath: string, orderNumber: string) {
     { column: "D", header: "卖家公司名", value: "自动测试供应商" },
     { column: "I", header: "实付款(元)", type: "n", value: "158.6" },
     { column: "J", header: "订单状态", value: "等待买家确认收货" },
-    { column: "K", header: "订单创建时间", type: "n", value: "46203.57986111111" },
+    {
+      column: "K",
+      header: "订单创建时间",
+      type: "n",
+      value: excelSerialForShanghaiToday(),
+    },
     { column: "N", header: "收货人姓名", value: "Wholesale Beta" },
     { column: "S", header: "货品标题", value: "自动测试商品" },
     { column: "U", header: "数量", type: "n", value: "2" },
@@ -378,4 +383,14 @@ function shanghaiDateDaysAgo(daysAgo: number) {
   );
 
   return `${values.get("year")}-${values.get("month")}-${values.get("day")}`;
+}
+
+function excelSerialForShanghaiToday() {
+  // Excel 的日期序列从 1899-12-30 开始。测试只关心“今天”位于默认 30 天范围，
+  // 因此先按上海时区取得年月日，再用 UTC 正午计算，避免运行机器时区改变日期。
+  const [year, month, day] = shanghaiDateDaysAgo(0).split("-").map(Number);
+  const excelEpochDays = 25_569;
+  return String(
+    Date.UTC(year, month - 1, day, 12) / 86_400_000 + excelEpochDays,
+  );
 }

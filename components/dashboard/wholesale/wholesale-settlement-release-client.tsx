@@ -1,6 +1,7 @@
 "use client";
 
 import type { WholesaleSettlementReleasePageData } from "@/lib/wholesale-settlement-releases";
+import { getWholesaleRoleCapabilities } from "@/lib/wholesale-role-permissions";
 
 import { WholesaleActionFeedbackNotice } from "./wholesale-action-feedback";
 import { WholesaleSettlementReleaseSection } from "./wholesale-settlement-release-section";
@@ -12,12 +13,7 @@ export function WholesaleSettlementReleaseClient({
   initialData: WholesaleSettlementReleasePageData;
 }) {
   const actions = useWholesaleSettlementReleaseActions();
-  const canPublish =
-    initialData.currentRole === "administrator" ||
-    initialData.currentRole === "finance";
-  const canAllocate =
-    initialData.currentRole === "administrator" ||
-    initialData.currentRole === "salesman";
+  const capabilities = getWholesaleRoleCapabilities(initialData.currentRole);
 
   return (
     <div className="space-y-6">
@@ -25,8 +21,8 @@ export function WholesaleSettlementReleaseClient({
 
       <WholesaleSettlementReleaseSection
         allocations={initialData.allocations}
-        canAllocate={canAllocate}
-        canPublish={canPublish}
+        canAllocate={capabilities.canAllocateSettlementRelease}
+        canPublish={capabilities.canPublishSettlementRelease}
         customers={initialData.customers}
         onCancelRelease={actions.cancelRelease}
         onClearAllocations={actions.clearAllocations}

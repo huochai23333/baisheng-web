@@ -12,6 +12,7 @@ import type {
   WholesaleReferral,
 } from "./wholesale-types";
 import {
+  canCollaborateAcrossWholesale,
   canReadFullWholesaleBackoffice,
   canReadFullWholesaleDirectory,
 } from "./wholesale-role-permissions";
@@ -32,8 +33,8 @@ export function scopeWholesaleCommissions({
   if (canReadFullWholesaleBackoffice(currentRole)) return commissions;
   if (!currentUserId) return [];
 
-  if (currentRole === "salesman") {
-    // 日常订单可以协作，但佣金仍只展示给实际受益业务员本人。
+  if (canCollaborateAcrossWholesale(currentRole)) {
+    // 财务和业务员可以协作处理日常订单，但佣金仍只展示给实际受益人本人。
     return commissions.filter(
       (commission) => commission.beneficiary_user_id === currentUserId,
     );

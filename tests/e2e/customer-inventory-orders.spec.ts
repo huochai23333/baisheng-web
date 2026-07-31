@@ -137,14 +137,17 @@ test.describe("库存订单与专属信贷", () => {
     await expect(page.getByText("信贷申请已提交。")).toBeVisible();
   });
 
-  test("财务统一批准信贷但没有订单写入按钮", async ({ page }) => {
+  test("财务可统一审核信贷并管理全部库存订单", async ({ page }) => {
     await loginAs(page, "finance");
     await page.goto("/finance/wholesale/inventory-orders");
     await expectNotForbiddenPage(page);
-    await expect(page.getByRole("button", { name: "统一审核" })).toBeVisible();
     await expect(
       page.getByRole("button", { name: "创建库存订单" }),
-    ).toHaveCount(0);
+    ).toBeVisible();
+    // 财务现在同时拥有库存订单写权限，页面默认先展示订单；
+    // 审核动作位于“信贷管理”标签，先显式切换再验证待审核申请。
+    await page.getByRole("button", { name: /信贷管理/ }).click();
+    await expect(page.getByRole("button", { name: "统一审核" })).toBeVisible();
 
     await page.getByRole("button", { name: "统一审核" }).click();
     const reviewDialog = page.getByRole("dialog", {
@@ -163,10 +166,13 @@ test.describe("库存订单与专属信贷", () => {
     await expect(page.getByText("订单信贷已审核。")).toBeVisible();
     await expect(page.getByText("使用中")).toBeVisible();
 
-    await page.getByRole("button", { name: "库存订单" }).click();
-    await expect(page.getByRole("button", { name: "全额实付" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "作废" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "管理信贷" })).toHaveCount(0);
+    await page.getByRole("button", { name: /^库存订单/ }).click();
+    await expect(
+      page.getByRole("button", { name: "维护备注" }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /维护商品/ }).first(),
+    ).toBeVisible();
     await expect(page.getByText("350.00").first()).toBeVisible();
   });
 
@@ -188,6 +194,7 @@ test.describe("库存订单与专属信贷", () => {
   test("财务审核延期并登记还款", async ({ page }) => {
     await loginAs(page, "finance");
     await page.goto("/finance/wholesale/inventory-orders");
+    await page.getByRole("button", { name: /信贷管理/ }).click();
     await page.getByRole("button", { name: "审核延期" }).click();
 
     const reviewExtensionDialog = page.getByRole("dialog", {

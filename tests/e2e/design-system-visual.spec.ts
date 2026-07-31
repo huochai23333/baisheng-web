@@ -152,6 +152,13 @@ for (const viewport of viewports) {
         await page.goto(route);
         await expect(page.locator("main")).toBeVisible();
         if (route === "/admin/wholesale/orders") {
+          // 页面外壳会先于订单查询完成显示；截图必须等真实列表进入当前响应式视图，
+          // 否则完整套件较慢时可能把加载中的空白区域误当成视觉回归。
+          const visibleOrderItem =
+            viewport.name === "mobile"
+              ? page.locator('[data-testid^="wholesale-order-card-"]').first()
+              : page.locator('[data-testid^="wholesale-order-row-"]').first();
+          await expect(visibleOrderItem).toBeVisible();
           await expectSoftFilterControlHierarchy(page);
         }
         await capture(page, `${viewport.name}-${name}.png`);

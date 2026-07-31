@@ -1,8 +1,12 @@
-import { access, readdir, readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
-import ts from "typescript";
 
+import { collectDashboardSourceRuleViolations } from "./dashboard-structure/dashboard-source-rules.mjs";
 import { collectInformationHierarchyViolations } from "./dashboard-structure/information-hierarchy.mjs";
+import {
+  collectAstFacts,
+  collectSourceFiles,
+} from "./dashboard-structure/source-facts.mjs";
 
 const workspaceRoot = process.cwd();
 const dashboardRoot = path.join(workspaceRoot, "components", "dashboard");
@@ -57,216 +61,10 @@ const dashboardMaterialOwners = new Set([
   "components/dashboard/workspace-announcement-action.tsx",
 ]);
 
-function createAst(source, absolutePath) {
-  return ts.createSourceFile(
-    absolutePath,
-    source,
-    ts.ScriptTarget.Latest,
-    true,
-    absolutePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-  );
-}
-
-function getTagName(tagName) {
-  if (ts.isIdentifier(tagName)) return tagName.text;
-  if (ts.isPropertyAccessExpression(tagName)) return tagName.getText();
-  return tagName.getText();
-}
-
-function getJsxAttributes(node) {
-  return ts.isJsxElement(node)
-    ? node.openingElement.attributes
-    : node.attributes;
-}
-
-function getAttribute(attributes, name) {
-  return attributes.properties.find(
-    (property) =>
-      ts.isJsxAttribute(property) && property.name.getText() === name,
-  );
-}
-
-function getNodeLine(sourceFile, node) {
-  return (
-    sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1
-  );
-}
-
-function getFunctionName(node) {
-  if (node.name && ts.isIdentifier(node.name)) return node.name.text;
-  if (
-    (ts.isArrowFunction(node) || ts.isFunctionExpression(node)) &&
-    ts.isVariableDeclaration(node.parent) &&
-    ts.isIdentifier(node.parent.name)
-  ) {
-    return node.parent.name.text;
-  }
-  return "";
-}
-
-function isJsxExpression(expression) {
-  let current = expression;
-  while (ts.isParenthesizedExpression(current)) current = current.expression;
-  return (
-    ts.isJsxElement(current) ||
-    ts.isJsxSelfClosingElement(current) ||
-    ts.isJsxFragment(current)
-  );
-}
-
-function collectAstFacts(source, absolutePath) {
-  const sourceFile = createAst(source, absolutePath);
-  const jsx = [];
-  const imports = [];
-  const invalidHrefValues = [];
-  const statusColorFunctions = [];
-
-  function visit(node) {
-    if (ts.isImportDeclaration(node)) {
-      imports.push(node.moduleSpecifier.getText(sourceFile).slice(1, -1));
-    }
-
-    if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node)) {
-      const tagNode = ts.isJsxElement(node)
-        ? node.openingElement.tagName
-        : node.tagName;
-      const attributes = getJsxAttributes(node);
-      const className = getAttribute(attributes, "className");
-      jsx.push({
-        attributesText: attributes.getText(sourceFile),
-        classText: className?.getText(sourceFile) ?? "",
-        line: getNodeLine(sourceFile, node),
-        tagName: getTagName(tagNode),
-      });
-
-      const href = getAttribute(attributes, "href");
-      if (href && /var\s*\(--/.test(href.getText(sourceFile))) {
-        invalidHrefValues.push({ line: getNodeLine(sourceFile, href) });
-      }
-    }
-
-    if (
-      ts.isFunctionDeclaration(node) ||
-      ts.isFunctionExpression(node) ||
-      ts.isArrowFunction(node)
-    ) {
-      const functionName = getFunctionName(node);
-      const returnedExpressions = [];
-      if (ts.isArrowFunction(node) && !ts.isBlock(node.body)) {
-        if (!isJsxExpression(node.body)) {
-          returnedExpressions.push(node.body.getText(sourceFile));
-        }
-      } else if (node.body) {
-        for (const statement of node.body.statements) {
-          if (
-            ts.isReturnStatement(statement) &&
-            statement.expression &&
-            !isJsxExpression(statement.expression)
-          ) {
-            returnedExpressions.push(statement.expression.getText(sourceFile));
-          }
-        }
-      }
-      if (
-        /(?:status|tone|badge)/i.test(functionName) &&
-        returnedExpressions.some((expression) =>
-          /["'`](?:[^"'`]*\s)?(?:bg|border|text)-(?:red|green|blue|amber|yellow|status|primary|content)/.test(
-            expression,
-          ),
-        )
-      ) {
-        statusColorFunctions.push({
-          line: getNodeLine(sourceFile, node),
-          name: functionName,
-        });
-      }
-    }
-
-    ts.forEachChild(node, visit);
-  }
-
-  visit(sourceFile);
-  return { imports, invalidHrefValues, jsx, statusColorFunctions };
-}
-
-/**
- * 递归读取工作台源码。结构守卫只检查开发者维护的源文件，不扫描构建产物和测试快照，
- * 这样报错会始终指向需要真正修改的组件。
- */
-async function collectSourceFiles(directory) {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const nestedFiles = await Promise.all(
-    entries.map(async (entry) => {
-      const absolutePath = path.join(directory, entry.name);
-      if (entry.isDirectory()) return collectSourceFiles(absolutePath);
-      return /\.(?:ts|tsx)$/.test(entry.name) ? [absolutePath] : [];
-    }),
-  );
-
-  return nestedFiles.flat();
-}
-
-const rules = [
-  {
-    message:
-      "工作台确认操作必须使用 DashboardConfirmProvider，不能再调用 window.confirm。",
-    pattern: /window\.confirm\s*\(/,
-  },
-  {
-    allowedFiles: new Set(["dashboard-page-shell.tsx"]),
-    message:
-      "页面宽度与间距必须由 DashboardPageShell 提供，领域页面不能复制外壳类名。",
-    pattern: /mx-auto flex w-full max-w-\[1320px\] flex-col/,
-  },
-  {
-    allowedFiles: new Set(["dashboard-form-dialog.tsx"]),
-    message:
-      "弹窗输入样式必须复用 DashboardFormField 或 dashboardFormInputClassName。",
-    pattern: /const\s+(?:input|textarea)ClassName\s*=/,
-  },
-  {
-    allowedFiles: new Set(["dashboard-framework-primitives.tsx"]),
-    message:
-      "文件入口必须使用 DashboardFilePicker，领域组件不能直接渲染文件输入框。",
-    pattern: /type=["']file["']/,
-  },
-  {
-    message: "旧分页外壳已经移除，请使用 DashboardPaginationFooter。",
-    pattern: /dashboard-pagination-controls|DashboardPaginationControls/,
-  },
-  {
-    message:
-      "领域组件不能新增状态标签组件，请直接使用全站 StatusBadge 并只映射 tone。",
-    pattern:
-      /\b(?:InlineChip|DashboardPill|WholesaleStatusBadge)\b|function\s+StatusBadge\s*\(/,
-  },
-  {
-    allowedFiles: new Set(["dashboard-section-panel.tsx"]),
-    message:
-      "搜索图标与输入文字的间距必须由 DashboardSearchInput 统一管理，不能在领域页面绝对定位图标。",
-    pattern: /<Search\b[^>]*\babsolute\b/,
-  },
-  {
-    allowedFiles: new Set(["dashboard-resource-filter-section.tsx"]),
-    message:
-      "业务筛选区必须使用 DashboardResourceFilterSection，确保移动搜索常驻、条件折叠和恢复入口一致。",
-    pattern: /<DashboardFilterPanel\b/,
-  },
-];
-
-const violations = [];
-for (const absolutePath of await collectSourceFiles(dashboardRoot)) {
-  const source = await readFile(absolutePath, "utf8");
-  const fileName = path.basename(absolutePath);
-
-  for (const rule of rules) {
-    if (rule.allowedFiles?.has(fileName)) continue;
-    if (!rule.pattern.test(source)) continue;
-
-    const relativePath = path.relative(workspaceRoot, absolutePath);
-    violations.push(`${relativePath}: ${rule.message}`);
-  }
-}
+const violations = await collectDashboardSourceRuleViolations({
+  dashboardRoot,
+  workspaceRoot,
+});
 
 /**
  * 下面的规则覆盖全站，而不只覆盖工作台目录。
