@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  ArrowLeftRight,
   BadgeCheck,
   BadgeDollarSign,
   ClipboardCheck,
@@ -13,7 +14,6 @@ import {
   Megaphone,
   MessageSquareWarning,
   ReceiptText,
-  Settings,
   ShieldCheck,
   ShoppingCart,
   Truck,
@@ -50,7 +50,7 @@ export const ADMIN_NAV_ICONS: Record<WorkspaceNavSegment, LucideIcon> = {
   reimbursements: ReceiptText,
   referrals: GitBranchPlus,
   reviews: ShieldCheck,
-  settings: Settings,
+  settings: ArrowLeftRight,
   "settlement-releases": BadgeDollarSign,
   tasks: ClipboardList,
   team: UsersRound,

@@ -10,14 +10,14 @@ import type {
   ExchangeRateViewerContext,
 } from "./exchange-rate-types";
 
-const READABLE_EXCHANGE_RATE_ROLES = new Set<AppRole>([
+const INTERNAL_EXCHANGE_RATE_VIEWER_ROLES = new Set<AppRole>([
   "administrator",
   "operator",
   "manager",
+  "recruiter",
   "salesman",
   "promoter",
   "finance",
-  "client",
 ]);
 
 /** 读取当前登录人的身份，供汇率页面在查询数据前完成权限判断。 */
@@ -36,8 +36,9 @@ export function canReadExchangeRatesByRole(
   status: UserStatus | null,
 ) {
   return (
-    role === "administrator" ||
-    (!!role && READABLE_EXCHANGE_RATE_ROLES.has(role) && status === "active")
+    !!role &&
+    INTERNAL_EXCHANGE_RATE_VIEWER_ROLES.has(role) &&
+    status === "active"
   );
 }
 

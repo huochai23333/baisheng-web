@@ -178,7 +178,9 @@ test.describe("汇率按日期补充", () => {
     const yesterday = addDays(getShanghaiDate(), -1);
     const desktopHistoryRow = page
       .locator("table:visible tbody tr")
-      .filter({ hasText: "按日期补充" });
+      // 历史获取回归可能留下其他币种记录，这里只定位本用例固定验证的 USD 夹具。
+      .filter({ hasText: "按日期补充" })
+      .filter({ hasText: "USD" });
     await expect(desktopHistoryRow).toHaveCount(1);
     await expect(desktopHistoryRow).toContainText("USD");
     await expect(desktopHistoryRow).toContainText("6.99");
@@ -193,7 +195,8 @@ test.describe("汇率按日期补充", () => {
     await expect(responsiveHistory.locator("table")).toBeHidden();
     const mobileHistoryCard = responsiveHistory
       .locator("article:visible")
-      .filter({ hasText: "按日期补充" });
+      .filter({ hasText: "按日期补充" })
+      .filter({ hasText: "USD/CNY" });
     await expect(mobileHistoryCard).toHaveCount(1);
     await expect(mobileHistoryCard).toContainText("USD/CNY");
     await expect(mobileHistoryCard).toContainText("汇率日期");

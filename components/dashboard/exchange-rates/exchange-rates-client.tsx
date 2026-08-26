@@ -169,42 +169,46 @@ export function ExchangeRatesClient({
         </>
       )}
 
-      <ExchangeRateFormDialog
-        feedback={createDialogFeedback}
-        formState={createFormState}
-        mode="create"
-        open={createDialogOpen}
-        pending={createPending}
-        onFieldChange={viewModel.updateCreateFormField}
-        onOpenChange={viewModel.setCreateDialogVisibility}
-        onSubmit={handleCreateRate}
-      />
-      <ExchangeRateFormDialog
-        feedback={editDialogFeedback}
-        formState={editFormState}
-        mode="edit"
-        open={editDialogOpen}
-        pending={editPending}
-        onFieldChange={viewModel.updateEditFormField}
-        onOpenChange={viewModel.setEditDialogVisibility}
-        onSubmit={handleEditRate}
-      />
-      <ExchangeRateHistoryFetchDialog
-        canAddCurrency={historyFetch.canAddCurrency}
-        dayCount={historyFetch.dayCount}
-        feedback={historyFetch.feedback}
-        formState={historyFetch.formState}
-        maxDate={historyFetch.maxDate}
-        open={historyFetch.open}
-        pending={historyFetch.pending}
-        result={historyFetch.result}
-        onAddCurrency={historyFetch.addCurrency}
-        onCurrencyChange={historyFetch.updateCurrency}
-        onDateChange={historyFetch.updateDate}
-        onOpenChange={historyFetch.setOpen}
-        onRemoveCurrency={historyFetch.removeCurrency}
-        onSubmit={historyFetch.submit}
-      />
+      {canManage ? (
+        <>
+          <ExchangeRateFormDialog
+            feedback={createDialogFeedback}
+            formState={createFormState}
+            mode="create"
+            open={createDialogOpen}
+            pending={createPending}
+            onFieldChange={viewModel.updateCreateFormField}
+            onOpenChange={viewModel.setCreateDialogVisibility}
+            onSubmit={handleCreateRate}
+          />
+          <ExchangeRateFormDialog
+            feedback={editDialogFeedback}
+            formState={editFormState}
+            mode="edit"
+            open={editDialogOpen}
+            pending={editPending}
+            onFieldChange={viewModel.updateEditFormField}
+            onOpenChange={viewModel.setEditDialogVisibility}
+            onSubmit={handleEditRate}
+          />
+          <ExchangeRateHistoryFetchDialog
+            canAddCurrency={historyFetch.canAddCurrency}
+            dayCount={historyFetch.dayCount}
+            feedback={historyFetch.feedback}
+            formState={historyFetch.formState}
+            maxDate={historyFetch.maxDate}
+            open={historyFetch.open}
+            pending={historyFetch.pending}
+            result={historyFetch.result}
+            onAddCurrency={historyFetch.addCurrency}
+            onCurrencyChange={historyFetch.updateCurrency}
+            onDateChange={historyFetch.updateDate}
+            onOpenChange={historyFetch.setOpen}
+            onRemoveCurrency={historyFetch.removeCurrency}
+            onSubmit={historyFetch.submit}
+          />
+        </>
+      ) : null}
     </DashboardPageShell>
   );
 }

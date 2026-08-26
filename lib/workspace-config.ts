@@ -64,6 +64,11 @@ const homeNavItems = [
   { segment: "home", labelKey: "home" },
 ] as const satisfies readonly WorkspaceNavItem[];
 
+const internalGlobalNavItems = [
+  { segment: "home", labelKey: "home" },
+  { segment: "settings", labelKey: "exchangeRates" },
+] as const satisfies readonly WorkspaceNavItem[];
+
 const adminGlobalNavItems = [
   { segment: "home", labelKey: "home" },
   { segment: "reviews", labelKey: "reviews" },
@@ -77,11 +82,13 @@ const adminGlobalNavItems = [
 const financeGlobalNavItems = [
   { segment: "home", labelKey: "home" },
   { segment: "company-expenses", labelKey: "companyExpenses" },
+  { segment: "settings", labelKey: "exchangeRates" },
 ] as const satisfies readonly WorkspaceNavItem[];
 
 const operatorGlobalNavItems = [
   { segment: "home", labelKey: "home" },
   { segment: "reimbursements", labelKey: "reimbursements" },
+  { segment: "settings", labelKey: "exchangeRates" },
 ] as const satisfies readonly WorkspaceNavItem[];
 
 function createWorkspaceRouteConfig({
@@ -151,6 +158,7 @@ const WORKSPACE_ROUTE_CONFIG_BY_SEGMENT = {
     globalNavItems: financeGlobalNavItems,
     globalPageVariants: {
       companyExpenses: true,
+      settings: true,
     },
     initials: "FN",
     routeSegment: "finance",
@@ -158,6 +166,10 @@ const WORKSPACE_ROUTE_CONFIG_BY_SEGMENT = {
   manager: createWorkspaceRouteConfig({
     authRole: "manager",
     basePath: "/manager",
+    globalNavItems: internalGlobalNavItems,
+    globalPageVariants: {
+      settings: true,
+    },
     initials: "MG",
     routeSegment: "manager",
   }),
@@ -167,6 +179,7 @@ const WORKSPACE_ROUTE_CONFIG_BY_SEGMENT = {
     globalNavItems: operatorGlobalNavItems,
     globalPageVariants: {
       operatorReimbursements: true,
+      settings: true,
     },
     initials: "OP",
     routeSegment: "operator",
@@ -174,18 +187,30 @@ const WORKSPACE_ROUTE_CONFIG_BY_SEGMENT = {
   recruiter: createWorkspaceRouteConfig({
     authRole: "recruiter",
     basePath: "/recruiter",
+    globalNavItems: internalGlobalNavItems,
+    globalPageVariants: {
+      settings: true,
+    },
     initials: "RC",
     routeSegment: "recruiter",
   }),
   salesman: createWorkspaceRouteConfig({
     authRole: "salesman",
     basePath: "/salesman",
+    globalNavItems: internalGlobalNavItems,
+    globalPageVariants: {
+      settings: true,
+    },
     initials: "YW",
     routeSegment: "salesman",
   }),
   promoter: createWorkspaceRouteConfig({
     authRole: "promoter",
     basePath: "/promoter",
+    globalNavItems: internalGlobalNavItems,
+    globalPageVariants: {
+      settings: true,
+    },
     initials: "DT",
     routeSegment: "promoter",
   }),

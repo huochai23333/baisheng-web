@@ -8,16 +8,21 @@ import {
   DashboardAccessState,
   DashboardPageShell,
 } from "@/components/dashboard/dashboard-page-shell";
-import { ExchangeRatesClient } from "@/components/dashboard/exchange-rates/exchange-rates-client";
-import type { AdminSystemSettingsPageData } from "@/lib/admin-system-settings";
+import type { ExchangeRatesWorkspacePageData } from "@/lib/exchange-rates-page";
 
-export function AdminSystemSettingsClient({
+import { ExchangeRatesClient } from "./exchange-rates-client";
+
+export function ExchangeRatesPageClient({
+  homeHref,
   initialData,
 }: {
-  initialData: AdminSystemSettingsPageData;
+  homeHref: string;
+  initialData: ExchangeRatesWorkspacePageData;
 }) {
   const t = useTranslations("SystemSettings");
+  const isManageMode = initialData.mode === "manage";
 
+  // 页面组件只根据服务端已经确认的模式组装页头和汇率内容。
   return (
     <DashboardPageShell
       header={
@@ -25,13 +30,17 @@ export function AdminSystemSettingsClient({
           badge={t("header.badge")}
           badgeIcon={<ArrowLeftRight className="size-3.5" />}
           contentClassName="max-w-3xl"
-          description={t("header.description")}
+          description={t(
+            isManageMode
+              ? "header.manageDescription"
+              : "header.readonlyDescription",
+          )}
           presentation="overview"
           title={t("header.title")}
         />
       }
     >
-      {!initialData.hasPermission ? (
+      {!initialData.exchangeRates.hasPermission ? (
         <DashboardAccessState
           description={t("states.noPermissionDescription")}
           kind="permission"
@@ -40,9 +49,9 @@ export function AdminSystemSettingsClient({
       ) : (
         <ExchangeRatesClient
           embedded
-          homeHref="/admin/home"
+          homeHref={homeHref}
           initialData={initialData.exchangeRates}
-          mode="manage"
+          mode={initialData.mode}
         />
       )}
     </DashboardPageShell>

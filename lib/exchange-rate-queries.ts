@@ -18,6 +18,7 @@ import {
   type ExchangeRateRow,
   type ExchangeRatesPageData,
   type ExchangeRatesPageMode,
+  type ExchangeRateViewerContext,
   type ExchangeRateSyncPairRow,
   type ExchangeRateSyncSettingsRow,
   type ExchangeRateSyncState,
@@ -30,8 +31,10 @@ const EXCHANGE_RATE_PAGE_QUERY_LIMIT = 1_000;
 export async function getExchangeRatesPageData(
   supabase: SupabaseClient,
   mode: ExchangeRatesPageMode,
+  viewerContext?: ExchangeRateViewerContext,
 ): Promise<ExchangeRatesPageData> {
-  const viewer = await getCurrentExchangeRateViewerContext(supabase);
+  const viewer =
+    viewerContext ?? (await getCurrentExchangeRateViewerContext(supabase));
 
   if (!viewer || !canViewExchangeRatesPage(mode, viewer.role, viewer.status)) {
     return { hasPermission: false, rates: [], syncState: null };

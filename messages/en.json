@@ -2027,12 +2027,13 @@
   },
   "SystemSettings": {
     "metadata": {
-      "title": "Exchange Rate Settings"
+      "title": "Exchange Rates"
     },
     "header": {
-      "badge": "Exchange Rate Settings",
-      "title": "Exchange Rate Settings",
-      "description": "Manage currency rates, automatic fetching, and history here. Tourism settings and wholesale settings are kept inside their own business areas."
+      "badge": "Exchange Rates",
+      "title": "Exchange Rates",
+      "manageDescription": "View and manage currency rates, automatic fetching, and history here. Tourism settings and wholesale settings stay inside their own business areas.",
+      "readonlyDescription": "View current exchange rates and history. Contact an administrator when a rate needs to be changed or added."
     },
     "businessHeader": {
       "badge": "Business Settings",
@@ -2049,13 +2050,13 @@
         "description": "Wholesale order edit rules, sales incentives, and customer referral commission"
       },
       "exchangeRates": {
-        "title": "Exchange Rate Settings",
+        "title": "Exchange Rates",
         "description": "Currency rates, automatic fetch, and history"
       }
     },
     "states": {
       "noPermissionTitle": "No Access",
-      "noPermissionDescription": "The current account cannot manage system settings."
+      "noPermissionDescription": "The current account cannot view exchange rates right now."
     }
   },
   "Orders": {

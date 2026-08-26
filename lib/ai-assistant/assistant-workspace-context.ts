@@ -30,7 +30,7 @@ const NAV_LABELS = {
   commission: "佣金",
   customerInventoryOrders: "库存订单",
   customers: "客户管理",
-  exchangeRates: "汇率设置",
+  exchangeRates: "汇率",
   feedback: "反馈管理",
   home: "首页",
   incentives: "提成",
@@ -60,7 +60,7 @@ const NAV_ENTRY_DESCRIPTIONS = {
   customerInventoryOrders:
     "查看客户库存采购订单、Order List、专属信贷、延期和还款",
   customers: "按当前业务查看和维护客户资料、客户标记或客户归属",
-  exchangeRates: "维护币种汇率、自动获取和历史记录",
+  exchangeRates: "查看币种汇率和历史记录；管理员还可以维护汇率和获取设置",
   feedback: "管理员查看和跟进用户反馈",
   home: "查看问候、公告和当前提醒",
   incentives: "查看批发业务员提成、待结算金额和结算状态",
@@ -74,7 +74,7 @@ const NAV_ENTRY_DESCRIPTIONS = {
   referrals: "按当前可见业务板块查看推荐关系和邀请码线索",
   reviews: "处理资料和媒体审核",
   settlementReleases: "发布和认领批发客户结汇收款，并匹配到对应订单",
-  settings: "维护汇率设置",
+  settings: "查看汇率；管理员还可以维护汇率和获取设置",
   tasks: "查看、领取、提交或管理任务",
   team: "查看当前账号可见的团队范围",
   vip: "在对应业务内处理VIP申请、收款确认、充值记录和有效期调整",
@@ -255,7 +255,7 @@ function buildPageVariantGuide(pageVariants: WorkspacePageVariants) {
       ? getCommissionGuide(pageVariants.commission)
       : null,
     pageVariants.settings
-      ? "业务设置在对应业务侧栏内维护；外侧设置只维护汇率。"
+      ? "业务设置在对应业务侧栏内维护；外侧汇率页供内部账号查看，只有管理员可以维护和获取汇率。"
       : null,
     pageVariants.feedback ? "反馈管理只用于管理员查看和处理用户反馈。" : null,
     pageVariants.operatorReimbursements

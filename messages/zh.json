@@ -514,7 +514,7 @@
       "commission": "佣金",
       "settings": "系统设置",
       "businessSettings": "业务设置",
-      "exchangeRates": "汇率设置",
+      "exchangeRates": "汇率",
       "tasks": "任务",
       "reviews": "审核中心",
       "feedback": "反馈管理",
@@ -2027,12 +2027,13 @@
   },
   "SystemSettings": {
     "metadata": {
-      "title": "汇率设置"
+      "title": "汇率"
     },
     "header": {
-      "badge": "汇率设置",
-      "title": "汇率设置",
-      "description": "统一维护币种汇率、自动获取和历史记录。旅游业务设置和批发业务设置放在各自业务里。"
+      "badge": "汇率",
+      "title": "汇率",
+      "manageDescription": "查看并维护币种汇率、自动获取和历史记录。旅游业务设置和批发业务设置放在各自业务里。",
+      "readonlyDescription": "查看当前汇率和历史记录，需要调整或补充时请联系管理员。"
     },
     "businessHeader": {
       "badge": "业务设置",
@@ -2049,13 +2050,13 @@
         "description": "批发订单修改规则、业务员提成和客户推荐佣金"
       },
       "exchangeRates": {
-        "title": "汇率设置",
+        "title": "汇率",
         "description": "币种汇率、自动获取和历史记录"
       }
     },
     "states": {
       "noPermissionTitle": "暂无权限",
-      "noPermissionDescription": "当前账号不能管理系统设置。"
+      "noPermissionDescription": "当前账号暂时不能查看汇率。"
     }
   },
   "Orders": {

@@ -7,8 +7,8 @@ import { getTranslations } from "next-intl/server";
 import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
 import { getAdminPeoplePageData } from "@/lib/admin-people";
 import { getAdminAnnouncementsPageData } from "@/lib/announcements";
-import { getAdminSystemSettingsPageData } from "@/lib/admin-system-settings";
 import { getCompanyExpensesPageData } from "@/lib/company-expenses";
+import { getExchangeRatesWorkspacePageData } from "@/lib/exchange-rates-page";
 import { getOperatorReimbursementsPageData } from "@/lib/operator-reimbursements";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import { redirectToWorkspaceAccessLimited } from "@/lib/server-auth";
@@ -52,9 +52,9 @@ const OperatorReimbursementsClient = dynamic(() =>
   ),
 );
 
-const AdminSystemSettingsClient = dynamic(() =>
-  import("@/components/dashboard/admin-system-settings/admin-system-settings-client").then(
-    (mod) => mod.AdminSystemSettingsClient,
+const ExchangeRatesPageClient = dynamic(() =>
+  import("@/components/dashboard/exchange-rates/exchange-rates-page-client").then(
+    (mod) => mod.ExchangeRatesPageClient,
   ),
 );
 
@@ -215,7 +215,7 @@ export async function renderWorkspaceSettingsPage({
   }
 
   const supabase = await getServerSupabaseClient();
-  const initialData = await getAdminSystemSettingsPageData(supabase);
+  const initialData = await getExchangeRatesWorkspacePageData(supabase);
 
   return (
     <ScopedIntlProvider
@@ -228,7 +228,10 @@ export async function renderWorkspaceSettingsPage({
         "SystemSettings",
       ]}
     >
-      <AdminSystemSettingsClient initialData={initialData} />
+      <ExchangeRatesPageClient
+        homeHref={`${config.basePath}/home`}
+        initialData={initialData}
+      />
     </ScopedIntlProvider>
   );
 }
