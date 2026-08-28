@@ -6,10 +6,12 @@ import { getLocale } from "next-intl/server";
 import { PageReveal } from "@/components/motion/page-reveal";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { PublicStateCard } from "@/components/ui/public-state-card";
-import { getDefaultSignedInPathForRole } from "@/lib/auth-routing";
 import { normalizeLocale } from "@/lib/locale";
 import { assertWorkspaceRole, getServerAuthContext } from "@/lib/server-auth";
+import { getServerSupabaseClient } from "@/lib/supabase-server";
 import { cn } from "@/lib/utils";
+import { getCurrentWorkspaceBusinessAccess } from "@/lib/workspace-business-access";
+import { getSignedInWorkspaceDestination } from "@/lib/workspace-business-availability";
 
 const SIGN_OUT_TO_LOGIN_PATH = "/auth/sign-out?next=%2Flogin";
 
@@ -30,6 +32,9 @@ export default async function AccessLimitedPage() {
 
   // 返回入口只能使用数据库确认过的角色；角色缺失时进入统一错误界面，不能误导到客户首页。
   assertWorkspaceRole(role);
+  const supabase = await getServerSupabaseClient();
+  const businesses = await getCurrentWorkspaceBusinessAccess(supabase);
+  const returnPath = getSignedInWorkspaceDestination(role, businesses);
 
   const locale = normalizeLocale(localeValue);
   const copy =
@@ -58,7 +63,7 @@ export default async function AccessLimitedPage() {
               className={cn(
                 buttonVariants({ size: "default", variant: "primary" }),
               )}
-              href={getDefaultSignedInPathForRole(role)}
+              href={returnPath}
             >
               {copy.action}
             </Link>

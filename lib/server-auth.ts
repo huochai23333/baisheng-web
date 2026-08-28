@@ -3,12 +3,16 @@ import { redirect } from "next/navigation";
 
 import {
   canAccessWorkspaceBasePath,
-  getDefaultSignedInPathForRole,
   type AppRole,
 } from "./auth-routing";
 import type { UserStatus } from "./auth-metadata";
 import { getCurrentAppAccessContext } from "./current-app-access-context";
 import { getServerSupabaseClient } from "./supabase-server";
+import { getCurrentWorkspaceBusinessAccess } from "./workspace-business-access";
+import {
+  BUSINESS_UNAVAILABLE_PATH,
+  getSignedInWorkspaceDestination,
+} from "./workspace-business-availability";
 
 type ServerAuthContext = {
   hasAuthCookie: boolean;
@@ -79,7 +83,9 @@ export async function redirectAuthenticatedUserToWorkspace() {
   }
 
   assertWorkspaceRole(role);
-  redirect(getDefaultSignedInPathForRole(role));
+  const supabase = await getServerSupabaseClient();
+  const businesses = await getCurrentWorkspaceBusinessAccess(supabase);
+  redirect(getSignedInWorkspaceDestination(role, businesses));
 }
 
 export async function requireWorkspaceAccess(expectedBasePath: string) {
@@ -98,6 +104,15 @@ export async function requireWorkspaceAccess(expectedBasePath: string) {
   if (!canAccessWorkspaceBasePath(role, expectedBasePath)) {
     redirectToWorkspaceAccessLimited();
   }
+
+  const supabase = await getServerSupabaseClient();
+  const businesses = await getCurrentWorkspaceBusinessAccess(supabase);
+
+  if (businesses.length === 0) {
+    redirect(BUSINESS_UNAVAILABLE_PATH);
+  }
+
+  return { businesses, role };
 }
 
 // 使用普通页面承载越权提示，避免 Next.js 实验性 forbidden 边界在开发环境触发性能测量异常。

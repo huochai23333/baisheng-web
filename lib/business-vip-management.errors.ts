@@ -2,6 +2,10 @@
 export function getBusinessVipErrorCode(error: unknown) {
   const message = getRawErrorMessage(error).toLowerCase();
 
+  if (message.includes("businessunavailable")) {
+    return "businessUnavailable";
+  }
+
   if (
     message.includes("forbidden") ||
     message.includes("unauthorized") ||

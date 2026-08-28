@@ -13,8 +13,9 @@ import {
   type UserStatus,
 } from "./user-self-service";
 import { normalizeOptionalString } from "./value-normalizers";
+import { parseEnabledWorkspaceBusinessKey } from "./workspace-business-availability";
 
-export const DEFAULT_REFERRALS_BUSINESS_BOARD = "tourism";
+export const DEFAULT_REFERRALS_BUSINESS_BOARD = "wholesale";
 
 export type ReferralBusinessBoard = SalesmanBusinessBoard;
 
@@ -147,9 +148,10 @@ export async function getReferralCompanyRoots(
   supabase: SupabaseClient,
   businessBoard: ReferralBusinessBoard,
 ): Promise<ReferralCompanyRoot[]> {
+  const enabledBoard = parseEnabledWorkspaceBusinessKey(businessBoard);
   const { data, error } = await withRequestTimeout(
     supabase.rpc("get_referral_company_roots", {
-      _business_board: businessBoard,
+      _business_board: enabledBoard,
     }),
   );
 
@@ -190,9 +192,10 @@ export async function getReferralTreeEdges(
   supabase: SupabaseClient,
   businessBoard: ReferralBusinessBoard = DEFAULT_REFERRALS_BUSINESS_BOARD,
 ): Promise<ReferralTreeEdge[]> {
+  const enabledBoard = parseEnabledWorkspaceBusinessKey(businessBoard);
   const { data, error } = await withRequestTimeout(
     supabase.rpc("get_referral_tree_edges", {
-      _business_board: businessBoard,
+      _business_board: enabledBoard,
     }),
   );
 

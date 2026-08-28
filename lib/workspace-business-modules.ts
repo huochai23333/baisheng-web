@@ -5,9 +5,14 @@ import type { WorkspaceSectionKey } from "./workspace-sections";
 import { tourismWorkspaceBusinessModule } from "./workspace-tourism-module";
 import { wholesaleWorkspaceBusinessModule } from "./workspace-wholesale-module";
 
-export const allWorkspaceBusinessKeys = ["tourism", "wholesale"] as const;
+export const registeredWorkspaceBusinessKeys = ["tourism", "wholesale"] as const;
 
-export type WorkspaceBusinessKey = (typeof allWorkspaceBusinessKeys)[number];
+export type WorkspaceBusinessKey =
+  (typeof registeredWorkspaceBusinessKeys)[number];
+export type EnabledWorkspaceBusinessKey = Extract<
+  WorkspaceBusinessKey,
+  (typeof companyConfig.enabledBusinessKeys)[number]
+>;
 
 export const workspaceWholesaleSectionKeys = [
   "orders",
@@ -147,6 +152,9 @@ const allWorkspaceBusinessModules: readonly WorkspaceBusinessModule[] = [
   wholesaleWorkspaceBusinessModule,
 ];
 
+const registeredBusinessKeySet = new Set<string>(
+  registeredWorkspaceBusinessKeys,
+);
 const enabledBusinessKeySet = new Set<string>(
   companyConfig.enabledBusinessKeys,
 );
@@ -155,9 +163,21 @@ export const workspaceBusinessModules = allWorkspaceBusinessModules.filter(
   (module) => enabledBusinessKeySet.has(module.key),
 );
 
-export const workspaceBusinessKeys = workspaceBusinessModules.map(
+export const enabledWorkspaceBusinessKeys = workspaceBusinessModules.map(
   (module) => module.key,
-) as WorkspaceBusinessKey[];
+) as EnabledWorkspaceBusinessKey[];
+
+export function isRegisteredWorkspaceBusinessKey(
+  value: string,
+): value is WorkspaceBusinessKey {
+  return registeredBusinessKeySet.has(value);
+}
+
+export function isEnabledWorkspaceBusinessKey(
+  value: string,
+): value is EnabledWorkspaceBusinessKey {
+  return enabledBusinessKeySet.has(value);
+}
 
 export function getWorkspaceBusinessModule(
   business: WorkspaceBusinessKey,

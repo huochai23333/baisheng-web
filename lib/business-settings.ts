@@ -20,6 +20,7 @@ import {
   type WholesaleOrderEditSettings,
 } from "./wholesale-order-edit-settings";
 import type { WorkspaceBusinessKey } from "./workspace-business-modules";
+import { parseEnabledWorkspaceBusinessKey } from "./workspace-business-availability";
 
 export type BusinessSettingsPageData = {
   business: WorkspaceBusinessKey;
@@ -37,10 +38,11 @@ export async function getBusinessSettingsPageData(
   supabase: SupabaseClient,
   business: WorkspaceBusinessKey,
 ): Promise<BusinessSettingsPageData> {
+  const enabledBusiness = parseEnabledWorkspaceBusinessKey(business);
   const { user, role, status } = await getCurrentSessionContext(supabase);
 
   if (!user || role !== "administrator" || status !== "active") {
-    return createEmptyBusinessSettingsPageData(business);
+    return createEmptyBusinessSettingsPageData(enabledBusiness);
   }
 
   const [
@@ -56,13 +58,13 @@ export async function getBusinessSettingsPageData(
     getServiceOrderPriceOptions(supabase),
     getOrderDiscountTypeOptions(supabase),
     getCommissionRuleSettings(supabase),
-    business === "wholesale"
+    enabledBusiness === "wholesale"
       ? getWholesaleOrderEditSettings(supabase)
       : Promise.resolve(null),
   ]);
 
   return {
-    business,
+    business: enabledBusiness,
     canManageCommissionSettings: true,
     commissionRuleSettings,
     hasPermission: true,

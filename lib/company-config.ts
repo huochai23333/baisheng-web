@@ -2,7 +2,8 @@ import type { Locale } from "./locale";
 
 export const companyConfig = {
   defaultPublicOrigin: "https://account.pt5china.com",
-  enabledBusinessKeys: ["tourism", "wholesale"],
+  // 旧统一系统本次发布只开放批发业务；旅游恢复必须同时配套新的数据库迁移和完整验收。
+  enabledBusinessKeys: ["wholesale"],
   logoSrc: "/images/pt5-logo.png",
   supportEmail: "support@pt5china.com",
   text: {

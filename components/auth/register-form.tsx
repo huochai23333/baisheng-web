@@ -45,7 +45,7 @@ export function RegisterForm({ initialInviteCode = null }: RegisterFormProps) {
             key={wizard.step}
             transition={{ duration: reduceMotion ? 0 : 0.24, ease: "easeOut" }}
           >
-            {wizard.step === 1 ? (
+            {wizard.step === "invite" ? (
               <RegisterStepInvite
                 inviteCode={wizard.state.inviteCode}
                 onInviteCodeChange={wizard.setInviteCode}
@@ -54,7 +54,7 @@ export function RegisterForm({ initialInviteCode = null }: RegisterFormProps) {
               />
             ) : null}
 
-            {wizard.step === 2 ? (
+            {wizard.step === "business" ? (
               <RegisterStepBusiness
                 business={wizard.state.business}
                 locked={wizard.inviteContext.locksBusiness}
@@ -64,7 +64,7 @@ export function RegisterForm({ initialInviteCode = null }: RegisterFormProps) {
               />
             ) : null}
 
-            {wizard.step === 3 ? (
+            {wizard.step === "profile" ? (
               <RegisterStepProfile
                 country={wizard.state.country}
                 email={wizard.state.email}
@@ -79,7 +79,7 @@ export function RegisterForm({ initialInviteCode = null }: RegisterFormProps) {
               />
             ) : null}
 
-            {wizard.step === 4 ? (
+            {wizard.step === "password" ? (
               <RegisterStepPassword
                 acceptedTerms={wizard.state.acceptedTerms}
                 hint={wizard.passwordHint}

@@ -12,13 +12,14 @@ import {
   type AccountSwitcherLoginIntent,
 } from "@/lib/account-switcher";
 import {
-  getDefaultSignedInPathForRole,
   getRoleFromAuthClaims,
   getRoleFromAuthSession,
 } from "@/lib/auth-session-client";
 import { clearCurrentBrowserSession } from "@/lib/browser-auth-session";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 import { useSupabaseAuthSync } from "@/lib/use-supabase-auth-sync";
+import { getCurrentWorkspaceBusinessAccess } from "@/lib/workspace-business-access";
+import { getSignedInWorkspaceDestination } from "@/lib/workspace-business-availability";
 
 import {
   isEmailNotConfirmedAuthError,
@@ -63,7 +64,6 @@ export function useLoginFormViewModel() {
       (supabase
         ? await getRoleFromAuthClaims(supabase, session?.user)
         : null) ?? getRoleFromAuthSession(session);
-    const nextPath = role ? getDefaultSignedInPathForRole(role) : "/";
     const result = completeAccountSwitcherLogin({ role, session });
 
     if (result.status === "same-current-account") {
@@ -86,6 +86,13 @@ export function useLoginFormViewModel() {
       resetAfterAccountMismatch(t("serviceUnavailable"));
       return;
     }
+
+    const businesses = supabase
+      ? await getCurrentWorkspaceBusinessAccess(supabase)
+      : [];
+    const nextPath = role
+      ? getSignedInWorkspaceDestination(role, businesses)
+      : "/";
 
     startTransition(() => router.replace(nextPath));
   };

@@ -306,19 +306,19 @@
   "RegisterForm": {
     "progressLabel": "注册进度",
     "steps": {
-      "1": {
-        "title": "填写邀请码",
-        "description": "邀请码为选填项，有邀请码时可自动匹配对应业务。"
-      },
-      "2": {
-        "title": "选择业务",
-        "description": "选择目前想了解的旅游业务或批发业务。"
-      },
-      "3": {
-        "title": "填写账号资料",
-        "description": "填写邮箱和用户名；手机号可以不填。"
-      },
-      "4": {
+    "invite": {
+      "title": "填写邀请码",
+      "description": "邀请码为选填项，填写后会先确认是否可以继续注册。"
+    },
+    "business": {
+      "title": "选择业务",
+      "description": "选择目前想了解的业务。"
+    },
+    "profile": {
+      "title": "填写账号资料",
+      "description": "填写邮箱和用户名；手机号可以不填。"
+    },
+    "password": {
         "title": "设置登录密码",
         "description": "设置安全密码并确认条款后立即注册。"
       }
@@ -335,14 +335,10 @@
     "email": "电子邮箱",
     "inviteCode": "邀请码",
     "inviteCodePlaceholder": "没有邀请码可以留空",
-    "inviteCodeHint": "业务员邀请码会匹配批发业务，地推邀请码会匹配旅游业务。",
+  "inviteCodeHint": "批发业务邀请码可用于关联推荐人；没有邀请码也可以继续。",
     "businessLocked": "已根据邀请码为您匹配业务，本次注册不能改为其他业务。",
     "businesses": {
-      "tourism": {
-        "title": "了解旅游业务",
-        "description": "查看旅游订单、服务、客户权益和相关协作内容。"
-      },
-      "wholesale": {
+    "wholesale": {
         "title": "了解批发业务",
         "description": "查看批发订单、物流、结汇和客户权益相关内容。"
       }
@@ -372,7 +368,8 @@
     "referralRequired": "邀请码可以留空；如需使用，请填写完整邀请码。",
     "referralNotFound": "邀请码不存在，请确认后重新输入。",
     "referralMaxUses": "邀请码已达到使用上限。",
-    "referralExpired": "邀请码已过期，请联系管理员获取新的邀请码。",
+  "referralExpired": "邀请码已过期，请联系管理员获取新的邀请码。",
+  "businessUnavailable": "这个邀请码对应的服务暂时停止注册，请联系管理员了解后续安排。",
     "registrationFailed": "注册没有完成，请检查填写内容后重试，或联系管理员处理。",
     "userExists": "该邮箱已注册，请直接登录。",
     "weakPassword": "这个密码太常见，请换一个更安全的密码。",
@@ -1093,11 +1090,11 @@
       },
       "commission": {
         "title": "批发佣金",
-        "description": "汇总批发客户推荐佣金，和旅游业务佣金分开查看。"
+        "description": "汇总批发客户推荐佣金和当前结算情况。"
       },
       "incentives": {
         "title": "批发提成",
-        "description": "按批发订单毛利和订单金额统计业务员提成，和旅游订单佣金分开结算。"
+        "description": "按批发订单毛利和订单金额统计业务员提成与结算状态。"
       },
       "settings": {
         "title": "批发业务设置",
@@ -1525,6 +1522,7 @@
       "wholesaleRenewed": "VIP已续费。"
     },
     "errors": {
+      "businessUnavailable": "这项业务目前暂停服务，暂时不能处理VIP操作。",
       "forbidden": "当前账号没有处理这个VIP操作的权限。",
       "invalidInput": "请检查填写内容后再提交。",
       "notFound": "没有找到对应的客户或VIP记录。",
@@ -2032,7 +2030,7 @@
     "header": {
       "badge": "汇率",
       "title": "汇率",
-      "manageDescription": "查看并维护币种汇率、自动获取和历史记录。旅游业务设置和批发业务设置放在各自业务里。",
+      "manageDescription": "查看并维护币种汇率、自动获取和历史记录。批发规则在批发业务设置中维护。",
       "readonlyDescription": "查看当前汇率和历史记录，需要调整或补充时请联系管理员。"
     },
     "businessHeader": {

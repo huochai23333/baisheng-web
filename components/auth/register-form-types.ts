@@ -1,7 +1,8 @@
 import type { CountryCode } from "libphonenumber-js";
+import type { EnabledWorkspaceBusinessKey } from "@/lib/workspace-config";
 
-export type SignupBusiness = "tourism" | "wholesale";
-export type RegisterStep = 1 | 2 | 3 | 4;
+export type SignupBusiness = EnabledWorkspaceBusinessKey;
+export type { RegisterStep } from "./register-flow";
 
 export type SignupInviteContext = {
   status: "optional" | "valid";

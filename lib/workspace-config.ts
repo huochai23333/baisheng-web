@@ -7,8 +7,12 @@ import {
   getWorkspaceBusinessNavGroups,
   getWorkspaceBusinessPageVariants,
   getWorkspaceWholesalePageVariants,
-  workspaceBusinessKeys,
+  enabledWorkspaceBusinessKeys,
+  isEnabledWorkspaceBusinessKey,
+  isRegisteredWorkspaceBusinessKey,
+  registeredWorkspaceBusinessKeys,
   workspaceWholesaleSectionKeys,
+  type EnabledWorkspaceBusinessKey,
   type WorkspaceBusinessKey,
   type WorkspaceBusinessLabelKey,
   type WorkspaceBusinessPageVariants,
@@ -25,8 +29,16 @@ import {
   type WorkspaceRouteSegment,
 } from "./workspace-route-segments";
 
-export { workspaceBusinessKeys, workspaceRouteSegments, workspaceWholesaleSectionKeys };
+export {
+  enabledWorkspaceBusinessKeys,
+  isEnabledWorkspaceBusinessKey,
+  isRegisteredWorkspaceBusinessKey,
+  registeredWorkspaceBusinessKeys,
+  workspaceRouteSegments,
+  workspaceWholesaleSectionKeys,
+};
 export type {
+  EnabledWorkspaceBusinessKey,
   WorkspaceBusinessKey,
   WorkspaceBusinessLabelKey,
   WorkspaceGlobalNavSegment,
@@ -228,7 +240,6 @@ const WORKSPACE_ROUTE_CONFIG_BY_BASE_PATH = {
 } as const satisfies Record<WorkspaceBasePath, WorkspaceRouteConfig>;
 
 const workspaceRouteSegmentSet = new Set<string>(workspaceRouteSegments);
-const workspaceBusinessKeySet = new Set<string>(workspaceBusinessKeys);
 const workspaceWholesaleSectionKeySet = new Set<string>(workspaceWholesaleSectionKeys);
 const workspaceGlobalNavSegmentSet = new Set<string>([
   "accounts",
@@ -244,10 +255,6 @@ const workspaceGlobalNavSegmentSet = new Set<string>([
 
 export function isWorkspaceRouteSegment(value: string): value is WorkspaceRouteSegment {
   return workspaceRouteSegmentSet.has(value);
-}
-
-export function isWorkspaceBusinessKey(value: string): value is WorkspaceBusinessKey {
-  return workspaceBusinessKeySet.has(value);
 }
 
 export function isWorkspaceWholesaleSectionKey(
@@ -299,7 +306,13 @@ export function getWorkspaceNavHref(
     return `${config.basePath}/${segment}`;
   }
 
-  return getWorkspaceBusinessNavHref(config, "tourism", segment);
+  const defaultBusiness = enabledWorkspaceBusinessKeys[0];
+
+  if (!defaultBusiness) {
+    throw new Error("workspace_business_unavailable");
+  }
+
+  return getWorkspaceBusinessNavHref(config, defaultBusiness, segment);
 }
 
 export function getWorkspaceBusinessNavHref(

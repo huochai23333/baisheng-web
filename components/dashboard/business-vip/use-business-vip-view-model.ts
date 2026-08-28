@@ -156,6 +156,7 @@ async function readBusinessVipMutationResponse(response: Response) {
 
 function normalizeBusinessVipErrorCode(value: string | undefined) {
   switch (value) {
+    case "businessUnavailable":
     case "forbidden":
     case "invalidInput":
     case "notFound":

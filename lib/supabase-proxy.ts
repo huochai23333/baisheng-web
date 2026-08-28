@@ -3,10 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getCurrentAppAccessContext } from "./current-app-access-context";
 import {
-  getDefaultSignedInPathForRole,
   getWorkspaceBasePath,
 } from "./auth-routing";
 import { getSupabaseEnv } from "./supabase";
+import { getCurrentWorkspaceBusinessAccess } from "./workspace-business-access";
+import { getSignedInWorkspaceDestination } from "./workspace-business-availability";
 
 const AUTH_ENTRY_PATHS = new Set(["/", "/login", "/register", "/forgot-password"]);
 
@@ -97,10 +98,12 @@ export async function updateSession(request: NextRequest) {
       return supabaseResponse;
     }
 
+    const businesses = await getCurrentWorkspaceBusinessAccess(supabase);
+
     return createRedirectResponse(
       request,
       supabaseResponse,
-      getDefaultSignedInPathForRole(accessContext.role),
+      getSignedInWorkspaceDestination(accessContext.role, businesses),
       {
         clearSearch: true,
       },

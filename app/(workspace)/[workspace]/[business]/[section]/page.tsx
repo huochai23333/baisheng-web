@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import { redirectToWorkspaceAccessLimited } from "@/lib/server-auth";
@@ -9,8 +9,10 @@ import {
 import { getWorkspaceBusinessModule } from "@/lib/workspace-business-modules";
 import {
   getWorkspaceConfigByRouteSegment,
-  isWorkspaceBusinessKey,
+  isEnabledWorkspaceBusinessKey,
+  isRegisteredWorkspaceBusinessKey,
 } from "@/lib/workspace-config";
+import { BUSINESS_UNAVAILABLE_PATH } from "@/lib/workspace-business-availability";
 
 import type { SectionPageProps } from "./types";
 import { getWorkspaceSectionRenderer } from "./workspace-section-renderers";
@@ -29,7 +31,11 @@ export default async function WorkspaceSectionPage({
     await Promise.all([params, searchParams]);
   const config = getWorkspaceConfigByRouteSegment(workspace);
 
-  if (!config || !isWorkspaceBusinessKey(business)) notFound();
+  if (!config || !isRegisteredWorkspaceBusinessKey(business)) notFound();
+
+  if (!isEnabledWorkspaceBusinessKey(business)) {
+    redirect(`${BUSINESS_UNAVAILABLE_PATH}?business=${business}`);
+  }
 
   const businessModule = getWorkspaceBusinessModule(business);
   if (!businessModule) notFound();

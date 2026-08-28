@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RegisterStep } from "./register-form-types";
+import { getRegisterStepIndex, registerSteps } from "./register-flow";
 
 export function RegisterWizardProgress({ step }: { step: RegisterStep }) {
   const t = useTranslations("RegisterForm");
@@ -9,12 +10,12 @@ export function RegisterWizardProgress({ step }: { step: RegisterStep }) {
   return (
     <div aria-label={t("progressLabel")} className="mb-7">
       <div className="flex items-center gap-2" role="list">
-        {([1, 2, 3, 4] as const).map((item, index) => (
+        {registerSteps.map((item, index) => (
           <div className="contents" key={item}>
             <div
               aria-current={item === step ? "step" : undefined}
               className={`flex size-8 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-colors ${
-                item < step
+                getRegisterStepIndex(item) < getRegisterStepIndex(step)
                   ? "border-primary bg-primary text-primary-foreground"
                   : item === step
                     ? "border-primary bg-status-info-soft text-primary"
@@ -22,9 +23,13 @@ export function RegisterWizardProgress({ step }: { step: RegisterStep }) {
               }`}
               role="listitem"
             >
-              {item < step ? <Check className="size-4" /> : item}
+              {getRegisterStepIndex(item) < getRegisterStepIndex(step) ? (
+                <Check className="size-4" />
+              ) : (
+                index + 1
+              )}
             </div>
-            {index < 3 ? (
+            {index < registerSteps.length - 1 ? (
               <span
                 aria-hidden
                 className={`h-0.5 min-w-0 flex-1 rounded-full transition-colors ${

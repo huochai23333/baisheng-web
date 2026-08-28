@@ -4,6 +4,7 @@ import type {
   SignupBusiness,
   SignupInviteContext,
 } from "./register-form-types";
+import { isEnabledWorkspaceBusinessKey } from "@/lib/workspace-config";
 
 import {
   getErrorMessage,
@@ -16,7 +17,12 @@ import {
 } from "./auth-error-messages";
 
 type SignupReferralCodeStatus =
-  "valid" | "required" | "not_found" | "max_uses" | "expired";
+  | "valid"
+  | "required"
+  | "not_found"
+  | "max_uses"
+  | "expired"
+  | "businessUnavailable";
 type SignupReferralCodeValidationResult =
   SignupReferralCodeStatus | "unavailable";
 type SignupResponseData = {
@@ -103,6 +109,8 @@ export function formatReferralCodeStatus(
       return t("referralMaxUses");
     case "expired":
       return t("referralExpired");
+    case "businessUnavailable":
+      return t("businessUnavailable");
   }
 }
 
@@ -131,6 +139,10 @@ export function formatAuthError(error: unknown, t: (key: string) => string) {
 
   if (message.includes("signup_business_invalid")) {
     return t("businessRequired");
+  }
+
+  if (message.includes("businessUnavailable")) {
+    return t("businessUnavailable");
   }
 
   if (message.includes("signup_name_required")) {
@@ -186,6 +198,7 @@ function normalizeSignupReferralCodeStatus(
     case "not_found":
     case "max_uses":
     case "expired":
+    case "businessUnavailable":
       return value;
     default:
       return "not_found";
@@ -193,7 +206,9 @@ function normalizeSignupReferralCodeStatus(
 }
 
 function normalizeSignupBusiness(value: unknown): SignupBusiness | null {
-  return value === "tourism" || value === "wholesale" ? value : null;
+  return typeof value === "string" && isEnabledWorkspaceBusinessKey(value)
+    ? value
+    : null;
 }
 
 function isReferralValidationUnavailable(error: unknown) {

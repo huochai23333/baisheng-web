@@ -1,14 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { withRequestTimeout } from "./request-timeout";
+import {
+  enabledWorkspaceBusinessKeys,
+  isEnabledWorkspaceBusinessKey,
+} from "./workspace-config";
 
-export const SALESMAN_BUSINESS_BOARD_OPTIONS = [
-  "tourism",
-  "wholesale",
-] as const;
+export type SalesmanBusinessBoard = "tourism" | "wholesale";
 
-export type SalesmanBusinessBoard =
-  (typeof SALESMAN_BUSINESS_BOARD_OPTIONS)[number];
+export const SALESMAN_BUSINESS_BOARD_OPTIONS =
+  enabledWorkspaceBusinessKeys satisfies readonly SalesmanBusinessBoard[];
 
 export const SALESMAN_BUSINESS_ORDER_CATEGORIES = {
   tourism: ["purchase", "service"],
@@ -20,7 +21,7 @@ export type SalesmanBusinessBoardLabels = Record<SalesmanBusinessBoard, string>;
 export function isSalesmanBusinessBoard(
   value: unknown,
 ): value is SalesmanBusinessBoard {
-  return value === "tourism" || value === "wholesale";
+  return typeof value === "string" && isEnabledWorkspaceBusinessKey(value);
 }
 
 export function normalizeSalesmanBusinessBoards(

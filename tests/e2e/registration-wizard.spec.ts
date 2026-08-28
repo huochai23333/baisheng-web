@@ -12,8 +12,6 @@ test.describe("registration wizard", () => {
   }) => {
     await page.goto("/register");
     await page.getByRole("button", { name: "下一步" }).click();
-    await page.getByRole("button", { name: /了解旅游业务/ }).click();
-    await page.getByRole("button", { name: "下一步" }).click();
 
     await page.getByRole("textbox", { name: "用户名称" }).fill("注册向导测试");
     await page
@@ -56,22 +54,25 @@ test.describe("registration wizard", () => {
     ).toHaveValue("NOTREAL");
   });
 
-  test("sales and promoter invites lock the matching business", async ({
+  test("wholesale invite continues while tourism invite reports the paused service", async ({
     page,
   }) => {
     await page.goto("/register");
-    await expectLockedBusiness(
-      page,
-      "SALETEST1",
-      "了解批发业务",
-      "了解旅游业务",
-    );
+    await page.getByRole("textbox", { name: "邀请码" }).fill("SALETEST1");
+    await page.getByRole("button", { name: "下一步" }).click();
+    await expect(page.getByText("填写账号资料")).toBeVisible();
+    await expect(page.getByText("选择业务")).toHaveCount(0);
+
     await page.goto("/register");
-    await expectLockedBusiness(
-      page,
+    await page.getByRole("textbox", { name: "邀请码" }).fill("PROMO001");
+    await page.getByRole("button", { name: "下一步" }).click();
+    await expect(
+      page.getByText(
+        "这个邀请码对应的服务暂时停止注册，请联系管理员了解后续安排。",
+      ),
+    ).toBeVisible();
+    await expect(page.getByRole("textbox", { name: "邀请码" })).toHaveValue(
       "PROMO001",
-      "了解旅游业务",
-      "了解批发业务",
     );
   });
 
@@ -81,8 +82,6 @@ test.describe("registration wizard", () => {
     await page.setViewportSize({ height: 844, width: 390 });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/register");
-    await page.getByRole("button", { name: "下一步" }).click();
-    await page.getByRole("button", { name: /了解批发业务/ }).click();
     await page.getByRole("button", { name: "下一步" }).click();
 
     await expect(
@@ -103,26 +102,6 @@ test.describe("registration wizard", () => {
     await expect(page.getByRole("button", { name: "Continue" })).toBeVisible();
   });
 });
-
-async function expectLockedBusiness(
-  page: Page,
-  inviteCode: string,
-  selectedBusinessName: string,
-  disabledBusinessName: string,
-) {
-  await page.getByRole("textbox", { name: "邀请码" }).fill(inviteCode);
-  await page.getByRole("button", { name: "下一步" }).click();
-
-  await expect(
-    page.getByText("已根据邀请码为您匹配业务，本次注册不能改为其他业务。"),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: new RegExp(selectedBusinessName) }),
-  ).toHaveAttribute("aria-pressed", "true");
-  await expect(
-    page.getByRole("button", { name: new RegExp(disabledBusinessName) }),
-  ).toBeDisabled();
-}
 
 async function expectNoDocumentHorizontalOverflow(page: Page) {
   const overflowPixels = await page.evaluate(

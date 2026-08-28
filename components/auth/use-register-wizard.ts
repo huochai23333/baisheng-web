@@ -7,13 +7,21 @@ import type { CountryCode } from "libphonenumber-js";
 import { useLocale, useTranslations } from "next-intl";
 
 import {
-  getDefaultSignedInPathForRole,
   getRoleFromAuthClaims,
 } from "@/lib/auth-session-client";
 import type { Locale } from "@/lib/locale";
 import { getBrowserSupabaseClient } from "@/lib/supabase";
+import { getCurrentWorkspaceBusinessAccess } from "@/lib/workspace-business-access";
+import { getSignedInWorkspaceDestination } from "@/lib/workspace-business-availability";
 
 import { getPasswordPolicyState } from "./auth-password-policy";
+import {
+  defaultSignupBusiness,
+  getNextRegisterStep,
+  getPreviousRegisterStep,
+  getRegisterStepIndex,
+  hasBusinessSelectionStep,
+} from "./register-flow";
 import {
   formatAuthError,
   formatReferralCodeStatus,
@@ -37,7 +45,7 @@ export function useRegisterWizard(
   const router = useRouter();
   const locale = useLocale() as Locale;
   const t = useTranslations("RegisterForm");
-  const [step, setStep] = useState<RegisterStep>(1);
+  const [step, setStep] = useState<RegisterStep>("invite");
   const [direction, setDirection] = useState(1);
   const [checkingInvite, setCheckingInvite] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -49,7 +57,7 @@ export function useRegisterWizard(
   });
   const [state, setState] = useState<RegisterFormState>({
     acceptedTerms: false,
-    business: null,
+    business: defaultSignupBusiness,
     country: locale === "zh" ? "CN" : "US",
     email: "",
     inviteCode: normalizeInitialInviteCode(initialInviteCode),
@@ -89,7 +97,9 @@ export function useRegisterWizard(
   };
 
   const goToStep = (nextStep: RegisterStep) => {
-    setDirection(nextStep > step ? 1 : -1);
+    setDirection(
+      getRegisterStepIndex(nextStep) > getRegisterStepIndex(step) ? 1 : -1,
+    );
     setError(null);
     setStep(nextStep);
   };
@@ -127,7 +137,7 @@ export function useRegisterWizard(
         business: context.suggestedBusinessKey ?? current.business,
         inviteCode: normalizedInviteCode,
       }));
-      goToStep(2);
+      goToStep(getNextRegisterStep("invite"));
     } catch (inviteError) {
       setError(formatAuthError(inviteError, t));
     } finally {
@@ -141,7 +151,7 @@ export function useRegisterWizard(
       return;
     }
 
-    goToStep(3);
+    goToStep(getNextRegisterStep("business"));
   };
 
   const handleProfileNext = () => {
@@ -163,7 +173,7 @@ export function useRegisterWizard(
       return;
     }
 
-    goToStep(4);
+    goToStep(getNextRegisterStep("profile"));
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -180,7 +190,7 @@ export function useRegisterWizard(
     }
 
     if (!state.business) {
-      goToStep(2);
+      goToStep(hasBusinessSelectionStep() ? "business" : "invite");
       setError(t("businessRequired"));
       return;
     }
@@ -191,7 +201,7 @@ export function useRegisterWizard(
     );
 
     if (normalizedPhone === undefined) {
-      goToStep(3);
+      goToStep("profile");
       setError(t("invalidPhone"));
       return;
     }
@@ -214,7 +224,7 @@ export function useRegisterWizard(
       );
 
       if (typeof latestInviteContext === "string") {
-        goToStep(1);
+        goToStep("invite");
         setError(
           latestInviteContext === "unavailable"
             ? t("serviceUnavailable")
@@ -227,7 +237,7 @@ export function useRegisterWizard(
         latestInviteContext.locksBusiness &&
         latestInviteContext.suggestedBusinessKey !== state.business
       ) {
-        goToStep(2);
+        goToStep(hasBusinessSelectionStep() ? "business" : "invite");
         setError(t("businessLockedError"));
         return;
       }
@@ -261,7 +271,10 @@ export function useRegisterWizard(
 
       if (data.session?.user) {
         const role = await getRoleFromAuthClaims(supabase, data.session.user);
-        const nextPath = role ? getDefaultSignedInPathForRole(role) : "/";
+        const businesses = await getCurrentWorkspaceBusinessAccess(supabase);
+        const nextPath = role
+          ? getSignedInWorkspaceDestination(role, businesses)
+          : "/";
 
         startTransition(() => router.replace(nextPath));
         return;
@@ -306,7 +319,7 @@ export function useRegisterWizard(
     state,
     step,
     submitting,
-    toPreviousStep: () => goToStep((step - 1) as RegisterStep),
+    toPreviousStep: () => goToStep(getPreviousRegisterStep(step)),
   };
 }
 

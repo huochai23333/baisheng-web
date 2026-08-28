@@ -5,7 +5,8 @@ import { getTranslations } from "next-intl/server";
 import { getWorkspaceBusinessModule } from "@/lib/workspace-business-modules";
 import {
   getWorkspaceConfigByRouteSegment,
-  isWorkspaceBusinessKey,
+  isEnabledWorkspaceBusinessKey,
+  isRegisteredWorkspaceBusinessKey,
   isWorkspaceWholesaleSectionKey,
   type WorkspaceRouteConfig,
   type WorkspaceWholesaleSectionKey,
@@ -20,8 +21,12 @@ export async function generateWorkspaceSectionMetadata({
   const { business, section, workspace } = await params;
   const config = getWorkspaceConfigByRouteSegment(workspace);
 
-  if (!config || !isWorkspaceBusinessKey(business)) {
+  if (!config || !isRegisteredWorkspaceBusinessKey(business)) {
     return {};
+  }
+
+  if (!isEnabledWorkspaceBusinessKey(business)) {
+    return { title: "业务暂停服务" };
   }
 
   const businessModule = getWorkspaceBusinessModule(business);

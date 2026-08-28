@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { WorkspaceBusinessKey } from "./workspace-business-access";
+import { parseEnabledWorkspaceBusinessKey } from "./workspace-business-availability";
 
 export type ClientBusinessCandidate = {
   email: string | null;
@@ -13,9 +14,10 @@ export async function getClientBusinessCandidates(
   supabase: SupabaseClient,
   business: WorkspaceBusinessKey,
 ): Promise<ClientBusinessCandidate[]> {
+  const enabledBusiness = parseEnabledWorkspaceBusinessKey(business);
   const { data, error } = await supabase.rpc(
     "admin_list_client_business_candidates",
-    { _business_key: business },
+    { _business_key: enabledBusiness },
   );
 
   if (error) {
@@ -48,8 +50,9 @@ export async function addClientToBusiness(
   userId: string,
   business: WorkspaceBusinessKey,
 ) {
+  const enabledBusiness = parseEnabledWorkspaceBusinessKey(business);
   const { data, error } = await supabase.rpc("admin_add_client_to_business", {
-    _business_key: business,
+    _business_key: enabledBusiness,
     _target_user_id: userId,
   });
 

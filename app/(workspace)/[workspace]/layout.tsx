@@ -24,7 +24,11 @@ export default async function WorkspaceLayout({
     notFound();
   }
 
-  await requireWorkspaceAccess(config.basePath);
+  const { businesses } = await requireWorkspaceAccess(config.basePath);
 
-  return <AdminShell config={config}>{children}</AdminShell>;
+  return (
+    <AdminShell config={config} workspaceBusinessAccess={businesses}>
+      {children}
+    </AdminShell>
+  );
 }

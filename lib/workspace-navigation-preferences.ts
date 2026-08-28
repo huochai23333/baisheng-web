@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { withRequestTimeout } from "./request-timeout";
 import {
-  workspaceBusinessKeys,
+  enabledWorkspaceBusinessKeys,
   type WorkspaceBusinessKey,
 } from "./workspace-config";
 
@@ -83,7 +83,7 @@ export function normalizeWorkspaceNavigationBusinessKeys(
     return [];
   }
 
-  return workspaceBusinessKeys.filter((businessKey) =>
+  return enabledWorkspaceBusinessKeys.filter((businessKey) =>
     value.includes(businessKey),
   );
 }

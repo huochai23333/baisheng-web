@@ -306,19 +306,19 @@
   "RegisterForm": {
     "progressLabel": "Registration progress",
     "steps": {
-      "1": {
-        "title": "Enter an Invite Code",
-        "description": "This step is optional. A valid invite can match the right business for you."
-      },
-      "2": {
-        "title": "Choose a Business",
-        "description": "Choose the travel or wholesale business you want to explore."
-      },
-      "3": {
-        "title": "Add Account Details",
-        "description": "Enter your email and name. A phone number is optional."
-      },
-      "4": {
+    "invite": {
+      "title": "Enter an Invite Code",
+      "description": "This step is optional. We will check whether registration can continue."
+    },
+    "business": {
+      "title": "Choose a Business",
+      "description": "Choose the business you want to explore."
+    },
+    "profile": {
+      "title": "Add Account Details",
+      "description": "Enter your email and name. A phone number is optional."
+    },
+    "password": {
         "title": "Create a Password",
         "description": "Set a secure password, accept the terms, and register."
       }
@@ -335,14 +335,10 @@
     "email": "Email",
     "inviteCode": "Invite Code",
     "inviteCodePlaceholder": "Leave blank if you do not have one",
-    "inviteCodeHint": "A sales invite matches wholesale, while a promoter invite matches travel.",
+  "inviteCodeHint": "A wholesale invite can connect you with your referrer. You may also continue without one.",
     "businessLocked": "Your invite code matched this business, so it cannot be changed for this registration.",
     "businesses": {
-      "tourism": {
-        "title": "Explore Travel",
-        "description": "Access travel orders, services, customer benefits, and related collaboration."
-      },
-      "wholesale": {
+    "wholesale": {
         "title": "Explore Wholesale",
         "description": "Access wholesale orders, logistics, settlement, and customer benefits."
       }
@@ -372,7 +368,8 @@
     "referralRequired": "Invite codes are optional. If you use one, enter the complete code.",
     "referralNotFound": "The invite code does not exist. Please check and try again.",
     "referralMaxUses": "The invite code has reached its usage limit.",
-    "referralExpired": "The invite code has expired. Please contact an administrator for a new one.",
+  "referralExpired": "The invite code has expired. Please contact an administrator for a new one.",
+  "businessUnavailable": "Registration for the service linked to this invite is currently paused. Contact an administrator for help.",
     "registrationFailed": "Registration could not be completed. Check your details or contact an administrator.",
     "userExists": "This email is already registered. Please sign in instead.",
     "weakPassword": "This password is too common. Please choose a stronger one.",
@@ -1093,11 +1090,11 @@
       },
       "commission": {
         "title": "Wholesale Commission",
-        "description": "Summarize wholesale customer referral commission separately from tourism business commission."
+        "description": "Summarize wholesale customer referral commission and its current settlement status."
       },
       "incentives": {
         "title": "Wholesale Incentives",
-        "description": "Calculate sales incentives from wholesale order profit and order amount separately from tourism order commission."
+        "description": "Calculate sales incentives from wholesale order profit and order amount, with settlement status."
       },
       "settings": {
         "title": "Wholesale Settings",
@@ -1525,6 +1522,7 @@
       "wholesaleRenewed": "VIP renewed."
     },
     "errors": {
+      "businessUnavailable": "This business is currently paused, so VIP actions are unavailable.",
       "forbidden": "This account cannot handle this VIP action.",
       "invalidInput": "Check the entered details and submit again.",
       "notFound": "The matching customer or VIP record was not found.",
@@ -2032,7 +2030,7 @@
     "header": {
       "badge": "Exchange Rates",
       "title": "Exchange Rates",
-      "manageDescription": "View and manage currency rates, automatic fetching, and history here. Tourism settings and wholesale settings stay inside their own business areas.",
+      "manageDescription": "View and manage currency rates, automatic fetching, and history here. Wholesale rules are maintained in Wholesale Settings.",
       "readonlyDescription": "View current exchange rates and history. Contact an administrator when a rate needs to be changed or added."
     },
     "businessHeader": {

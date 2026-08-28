@@ -87,7 +87,7 @@ const BUSINESS_LABELS = {
 } as const satisfies Record<WorkspaceBusinessKey, string>;
 
 const SYSTEM_UPDATE_GUIDES = [
-  "后台采用一套登录壳、旅游业务和批发业务两个分组；旅游订单继续使用当前订单结构，批发业务使用独立的客户、订单、1688 认领、物流、提成和推荐模型。",
+  "当前工作台开放批发业务，使用独立的客户、订单、1688 认领、物流、提成和推荐功能。",
   "任务支持按目标角色发放、多人分别领取、分别提交审核；管理员可以设置提交任务时是否必须上传文件。",
   "管理员可以通过操作记录核对重要处理动作，也可以通过反馈管理跟进用户提交的问题。",
   "个人照片上传后的图片初审只是辅助检查，是否通过以审核结果和页面提示为准。",
@@ -159,7 +159,7 @@ function getNavEntryDescription(
   if (isSalesStaffRole(config.authRole) && item.segment === "orders") {
     return isWholesaleBusinessNavItem(item)
       ? NAV_ENTRY_DESCRIPTIONS.wholesaleOrders
-      : "按当前账号可见旅游业务处理订单；如果页面没有该入口，以当前工作台实际显示为准";
+      : "按当前账号可见范围处理订单；如果页面没有该入口，以当前工作台实际显示为准";
   }
 
   if (isSalesStaffRole(config.authRole) && item.segment === "customers") {
@@ -274,7 +274,7 @@ function buildPageVariantGuide(pageVariants: WorkspacePageVariants) {
 
 function getOrdersGuide(mode: WorkspacePageVariants["orders"]) {
   if (mode === "admin") {
-    return "管理员订单页用于订单处理；旅游订单规则在旅游业务设置中维护，汇率在汇率设置中维护。";
+    return "管理员订单页用于订单处理，汇率在汇率设置中维护。";
   }
 
   if (mode === "salesman") {
@@ -286,7 +286,7 @@ function getOrdersGuide(mode: WorkspacePageVariants["orders"]) {
 
 function getPeopleGuide(mode: WorkspacePageVariants["people"]) {
   if (mode === "admin") {
-    return "管理员旅游人员管理用于查看旅游业务人员；账号身份、状态和城市在全局账号管理中调整。";
+    return "管理员人员管理用于查看业务人员；账号身份、状态和城市在全局账号管理中调整。";
   }
 
   return "人员入口按当前账号的业务范围展示业务人员或承接账号。";
@@ -294,7 +294,7 @@ function getPeopleGuide(mode: WorkspacePageVariants["people"]) {
 
 function getCustomersGuide(mode: WorkspacePageVariants["customers"]) {
   if (mode === "admin") {
-    return "管理员客户管理按业务查看客户资料；旅游客户和批发客户分别在各自业务下维护。";
+    return "管理员客户管理用于维护当前开放业务的客户资料。";
   }
 
   return "业务员或地推客户管理用于查看自己可跟进的客户，客户资料不再放在人员管理里。";
@@ -302,10 +302,10 @@ function getCustomersGuide(mode: WorkspacePageVariants["customers"]) {
 
 function getVipGuide(mode: WorkspacePageVariants["vip"]) {
   if (mode === "admin") {
-    return "管理员VIP管理用于处理业务内VIP：旅游业务仍确认或拒绝申请，批发业务由管理员或业务员直接开通、续费并查看操作记录；不要再引导到账号管理里处理VIP。";
+    return "管理员VIP管理用于处理批发客户的开通、续费和操作记录；不要再引导到账号管理里处理VIP。";
   }
 
-  return "业务员VIP管理用于查看客户VIP状态：旅游业务提交开通或续费申请，批发业务直接开通或续费并查看操作记录。";
+  return "业务员VIP管理用于查看批发客户VIP状态，并直接开通、续费和查看操作记录。";
 }
 
 function getTasksGuide(mode: WorkspacePageVariants["tasks"]) {

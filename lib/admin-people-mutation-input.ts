@@ -64,7 +64,7 @@ export function resolveWorkspaceBusinessAccessForUpdate(
       return getDefaultWorkspaceBusinessAccessForRole(input.nextRole);
     }
     return currentPerson.workspace_business_access.length > 0
-      ? currentPerson.workspace_business_access
+      ? uniqueWorkspaceBusinessAccess(currentPerson.workspace_business_access)
       : getDefaultWorkspaceBusinessAccessForRole(input.nextRole);
   }
   return uniqueWorkspaceBusinessAccess(input.workspaceBusinessAccess);
@@ -74,7 +74,8 @@ export function getSalesmanBusinessBoardsForRole(
   nextRole: AdminPersonAccountUpdatePayload["nextRole"],
 ): SalesmanBusinessBoard[] {
   if (nextRole === "salesman") return ["wholesale"];
-  if (nextRole === "promoter") return ["tourism"];
+  // 地推账号仍可保留角色并登录，但停用期间不再分配旅游业务候选项。
+  if (nextRole === "promoter") return [];
   return [];
 }
 

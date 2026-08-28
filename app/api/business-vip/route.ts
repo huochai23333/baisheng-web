@@ -12,8 +12,10 @@ import {
 } from "@/lib/business-vip-management";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 import type { WorkspaceBusinessKey } from "@/lib/workspace-business-modules";
+import { parseEnabledWorkspaceBusinessKey } from "@/lib/workspace-business-availability";
 
 const STATUS_BY_ERROR_CODE = {
+  businessUnavailable: 503,
   forbidden: 403,
   invalidInput: 400,
   notFound: 404,
@@ -129,8 +131,12 @@ function normalizeRequestPayload(value: unknown) {
 }
 
 function normalizeBusiness(value: unknown): WorkspaceBusinessKey {
-  if (value === "tourism" || value === "wholesale") {
-    return value;
+  try {
+    return parseEnabledWorkspaceBusinessKey(value);
+  } catch (error) {
+    if (error instanceof Error && error.message === "businessUnavailable") {
+      throw error;
+    }
   }
 
   throw new Error("business_vip_invalid_input");

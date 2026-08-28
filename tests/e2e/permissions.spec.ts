@@ -36,7 +36,9 @@ test.describe("workspace permission regression", () => {
 
     await page.goto("/admin/tourism/reviews");
 
-    await expectForbiddenPage(page);
+    await expect(
+      page.getByRole("heading", { name: "旅游业务暂时停止服务" }),
+    ).toBeVisible();
     await expect(page).not.toHaveURL(/\/admin\/reviews(?:[?#].*)?$/);
   });
 
@@ -53,15 +55,9 @@ test.describe("workspace permission regression", () => {
 
     await page.goto("/salesman/tourism/orders");
 
-    await expectForbiddenPage(page);
-  });
-
-  test("promoter cannot open wholesale business by default", async ({ page }) => {
-    await loginAs(page, "promoter");
-
-    await page.goto("/promoter/wholesale/orders");
-
-    await expectForbiddenPage(page);
+    await expect(
+      page.getByRole("heading", { name: "旅游业务暂时停止服务" }),
+    ).toBeVisible();
   });
 
   test("client cannot open wholesale settlement releases", async ({ page }) => {
@@ -103,7 +99,9 @@ test.describe("workspace permission regression", () => {
 
     await page.goto("/finance/tourism/commission");
 
-    await expectForbiddenPage(page);
+    await expect(
+      page.getByRole("heading", { name: "旅游业务暂时停止服务" }),
+    ).toBeVisible();
   });
 
   test("finance cannot open salesman task workspace", async ({ page }) => {

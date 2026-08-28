@@ -111,7 +111,12 @@ test.describe("finance business access", () => {
 
     await page.goto("/finance/tourism/commission");
 
-    await expectForbiddenPage(page);
+    await expect(page).toHaveURL(
+      /\/business-unavailable\?business=tourism$/,
+    );
+    await expect(
+      page.getByRole("heading", { name: "旅游业务暂时停止服务" }),
+    ).toBeVisible();
   });
 });
 

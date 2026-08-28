@@ -2,29 +2,28 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getCurrentSessionContext } from "./current-session-context";
 import {
-  workspaceBusinessKeys,
+  enabledWorkspaceBusinessKeys,
+  isEnabledWorkspaceBusinessKey,
+  type EnabledWorkspaceBusinessKey,
   type WorkspaceBusinessKey,
 } from "./workspace-config";
 import { withRequestTimeout } from "./request-timeout";
 
 export type { WorkspaceBusinessKey } from "./workspace-config";
 
-export const WORKSPACE_BUSINESS_ACCESS_OPTIONS = workspaceBusinessKeys;
+export const WORKSPACE_BUSINESS_ACCESS_OPTIONS = enabledWorkspaceBusinessKeys;
 
 export type WorkspaceBusinessAccessLabels = Record<WorkspaceBusinessKey, string>;
 
 export function isWorkspaceBusinessAccessKey(
   value: unknown,
-): value is WorkspaceBusinessKey {
-  return (
-    typeof value === "string" &&
-    workspaceBusinessKeys.includes(value as WorkspaceBusinessKey)
-  );
+): value is EnabledWorkspaceBusinessKey {
+  return typeof value === "string" && isEnabledWorkspaceBusinessKey(value);
 }
 
 export function normalizeWorkspaceBusinessAccess(
   value: unknown,
-): WorkspaceBusinessKey[] {
+): EnabledWorkspaceBusinessKey[] {
   if (!Array.isArray(value)) {
     return [];
   }
@@ -36,8 +35,8 @@ export function normalizeWorkspaceBusinessAccess(
 
 export function uniqueWorkspaceBusinessAccess(
   businesses: readonly WorkspaceBusinessKey[],
-): WorkspaceBusinessKey[] {
-  return workspaceBusinessKeys.filter((business) =>
+): EnabledWorkspaceBusinessKey[] {
+  return enabledWorkspaceBusinessKeys.filter((business) =>
     businesses.includes(business),
   );
 }
@@ -64,10 +63,10 @@ export function workspaceBusinessAccessIncludes(
 
 export function getDefaultWorkspaceBusinessAccessForRole(
   role: string | null | undefined,
-): WorkspaceBusinessKey[] {
-  switch (role) {
+): EnabledWorkspaceBusinessKey[] {
+  const registeredDefaults: WorkspaceBusinessKey[] = (() => {
+    switch (role) {
     case "administrator":
-      // 管理员负责总览公司业务，因此固定拥有旅游与批发两条业务线。
       return ["tourism", "wholesale"];
     case "finance":
       // 财务按业务员同类权限进入批发业务，不再展示旅游业务。
@@ -78,12 +77,16 @@ export function getDefaultWorkspaceBusinessAccessForRole(
       return ["tourism"];
     default:
       return ["tourism"];
-  }
+    }
+  })();
+
+  // 本地回退和数据库结果使用同一套交集规则，停用业务不会因角色默认值重新出现。
+  return uniqueWorkspaceBusinessAccess(registeredDefaults);
 }
 
 export async function getCurrentWorkspaceBusinessAccess(
   supabase: SupabaseClient,
-): Promise<WorkspaceBusinessKey[]> {
+): Promise<EnabledWorkspaceBusinessKey[]> {
   const fallbackAccess = await getFallbackWorkspaceBusinessAccess(supabase);
 
   try {
@@ -103,7 +106,8 @@ export async function getCurrentWorkspaceBusinessAccess(
       ),
     );
 
-    return normalizedAccess.length > 0 ? normalizedAccess : fallbackAccess;
+    // RPC 成功返回空数组是“账号没有已启用业务”的有效结果，不能再使用角色默认值覆盖。
+    return normalizedAccess;
   } catch {
     return fallbackAccess;
   }
@@ -111,7 +115,7 @@ export async function getCurrentWorkspaceBusinessAccess(
 
 async function getFallbackWorkspaceBusinessAccess(
   supabase: SupabaseClient,
-): Promise<WorkspaceBusinessKey[]> {
+): Promise<EnabledWorkspaceBusinessKey[]> {
   try {
     const { user, role, status } = await getCurrentSessionContext(supabase);
 

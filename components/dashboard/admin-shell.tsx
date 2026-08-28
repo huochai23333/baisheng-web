@@ -28,10 +28,7 @@ import {
   type WorkspaceRouteConfig,
 } from "@/lib/workspace-config";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
-import {
-  getCurrentWorkspaceBusinessAccess,
-  workspaceBusinessAccessIncludes,
-} from "@/lib/workspace-business-access";
+import { workspaceBusinessAccessIncludes } from "@/lib/workspace-business-access";
 import {
   EMPTY_WORKSPACE_ANNOUNCEMENTS_STATE,
   getWorkspaceAnnouncementsState,
@@ -54,19 +51,22 @@ type Translator = (key: string) => string;
 type AdminShellProps = {
   children: ReactNode;
   config: WorkspaceRouteConfig;
+  workspaceBusinessAccess: readonly WorkspaceBusinessKey[];
 };
 
-export async function AdminShell({ children, config }: AdminShellProps) {
+export async function AdminShell({
+  children,
+  config,
+  workspaceBusinessAccess,
+}: AdminShellProps) {
   const [
     t,
     initialAnnouncementsState,
-    workspaceBusinessAccess,
     initialNavigationPreference,
     locale,
   ] = await Promise.all([
     getTranslations("DashboardShell"),
     getInitialWorkspaceAnnouncementsState(),
-    getShellWorkspaceBusinessAccess(),
     getInitialWorkspaceNavigationPreference(),
     getLocale(),
   ]);
@@ -240,14 +240,4 @@ function getWorkspaceConfig(
     title: t(`roles.${roleKey}.title`),
     workspaceLabel: t(`roles.${roleKey}.workspaceLabel`),
   };
-}
-
-async function getShellWorkspaceBusinessAccess() {
-  try {
-    const supabase = await getServerSupabaseClient();
-
-    return await getCurrentWorkspaceBusinessAccess(supabase);
-  } catch {
-    return [];
-  }
 }

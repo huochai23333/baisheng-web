@@ -1,8 +1,9 @@
-import { LockKeyhole, Package, Plane } from "lucide-react";
+import { LockKeyhole, Package } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { InteractiveButton } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { enabledWorkspaceBusinessKeys } from "@/lib/workspace-config";
 
 import type { SignupBusiness } from "./register-form-types";
 import { RegisterStepActions } from "./register-step-actions";
@@ -34,22 +35,17 @@ export function RegisterStepBusiness({
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <BusinessCard
-          checked={business === "tourism"}
-          description={t("businesses.tourism.description")}
-          disabled={locked && business !== "tourism"}
-          icon={<Plane className="size-5" />}
-          label={t("businesses.tourism.title")}
-          onClick={() => onBusinessChange("tourism")}
-        />
-        <BusinessCard
-          checked={business === "wholesale"}
-          description={t("businesses.wholesale.description")}
-          disabled={locked && business !== "wholesale"}
-          icon={<Package className="size-5" />}
-          label={t("businesses.wholesale.title")}
-          onClick={() => onBusinessChange("wholesale")}
-        />
+        {enabledWorkspaceBusinessKeys.map((businessKey) => (
+          <BusinessCard
+            checked={business === businessKey}
+            description={t(`businesses.${businessKey}.description`)}
+            disabled={locked && business !== businessKey}
+            icon={<Package className="size-5" />}
+            key={businessKey}
+            label={t(`businesses.${businessKey}.title`)}
+            onClick={() => onBusinessChange(businessKey)}
+          />
+        ))}
       </div>
 
       <RegisterStepActions onBack={onBack} onNext={onNext} />
