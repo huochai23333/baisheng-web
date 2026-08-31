@@ -2,12 +2,18 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getCompanyPublicOrigin } from "@/lib/company-config";
+import {
+  createPasswordRecoveryProof,
+  PASSWORD_RECOVERY_PROOF_COOKIE,
+} from "@/lib/password-recovery-session";
 import { getServerSupabaseClient } from "@/lib/supabase-server";
 
 const EMAIL_CONFIRMATION_TYPE = "email" satisfies EmailOtpType;
 const PASSWORD_RECOVERY_TYPE = "recovery" satisfies EmailOtpType;
 const DEFAULT_REDIRECT_PATH = "/login";
 const DEFAULT_RECOVERY_REDIRECT_PATH = "/forgot-password?type=recovery";
+const INVALID_RECOVERY_REDIRECT_PATH =
+  "/forgot-password?type=recovery&error=invalid";
 const DEFAULT_PUBLIC_ORIGIN = getCompanyPublicOrigin();
 const LOCAL_PUBLIC_HOST_PATTERN = /^(?:localhost|127\.0\.0\.1)(?::\d+)?$/;
 const ALLOWED_PUBLIC_HOSTS = new Set(
@@ -32,16 +38,46 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = await getServerSupabaseClient();
-  const { error } = await supabase.auth.verifyOtp({
+  const { data, error } = await supabase.auth.verifyOtp({
     token_hash: tokenHash,
     type,
   });
 
   if (error) {
-    return NextResponse.redirect(new URL(DEFAULT_REDIRECT_PATH, publicOrigin));
+    const errorPath =
+      type === PASSWORD_RECOVERY_TYPE
+        ? INVALID_RECOVERY_REDIRECT_PATH
+        : DEFAULT_REDIRECT_PATH;
+
+    return NextResponse.redirect(new URL(errorPath, publicOrigin));
   }
 
-  return NextResponse.redirect(new URL(nextPath, publicOrigin));
+  const response = NextResponse.redirect(new URL(nextPath, publicOrigin));
+
+  if (type === PASSWORD_RECOVERY_TYPE) {
+    const accessToken = data.session?.access_token;
+    const { data: claimsData, error: claimsError } = accessToken
+      ? await supabase.auth.getClaims(accessToken)
+      : { data: null, error: null };
+    const sessionId = claimsData?.claims.session_id;
+    const recoveryProof = sessionId
+      ? createPasswordRecoveryProof(sessionId)
+      : null;
+
+    if (claimsError || !recoveryProof) {
+      return NextResponse.redirect(new URL(DEFAULT_REDIRECT_PATH, publicOrigin));
+    }
+
+    response.cookies.set(PASSWORD_RECOVERY_PROOF_COOKIE, recoveryProof, {
+      httpOnly: true,
+      maxAge: 15 * 60,
+      path: "/forgot-password",
+      sameSite: "lax",
+      secure: publicOrigin.startsWith("https://"),
+    });
+  }
+
+  return response;
 }
 
 function getSupportedEmailOtpType(value: string | null): EmailOtpType | null {

@@ -14,6 +14,9 @@ const AUTH_ENTRY_PATHS = new Set(["/", "/login", "/register", "/forgot-password"
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const currentBasePath = getWorkspaceBasePath(pathname);
+  const isPasswordRecoveryEntry =
+    pathname === "/forgot-password" &&
+    request.nextUrl.searchParams.get("type") === "recovery";
   const hasAuthCookie = request.cookies.getAll().some((cookie) =>
     isSupabaseAuthCookieName(cookie.name),
   );
@@ -73,7 +76,7 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  if (AUTH_ENTRY_PATHS.has(pathname) && userId) {
+  if (AUTH_ENTRY_PATHS.has(pathname) && userId && !isPasswordRecoveryEntry) {
     let accessContext;
 
     try {

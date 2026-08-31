@@ -6,6 +6,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { ScopedIntlProvider } from "@/components/i18n/scoped-intl-provider";
 import { getAuthShellCopy } from "@/lib/auth-shell-content";
+import { getPasswordRecoverySessionState } from "@/lib/password-recovery-session";
 import { redirectAuthenticatedUserToWorkspace } from "@/lib/server-auth";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,10 +17,30 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function ForgotPasswordPage() {
-  const [, t, authShellCopy] = await Promise.all([
-    // 入口代理查询暂时失败时由页面再次确认，保证已登录账号不会停留在认证页面或使用旧角色跳转。
-    redirectAuthenticatedUserToWorkspace(),
+export default async function ForgotPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    error?: string | string[];
+    type?: string | string[];
+  }>;
+}) {
+  const params = await searchParams;
+  const recoveryRequested = firstSearchParam(params.type) === "recovery";
+  const recoveryInvalid = firstSearchParam(params.error) === "invalid";
+  const recoverySessionState = recoveryRequested && !recoveryInvalid
+    ? await getPasswordRecoverySessionState()
+    : "missing";
+
+  if (!recoveryRequested) {
+    // 普通找回密码入口仍不向已登录账号展示；邮件恢复入口由 recovery 会话单独验证。
+    await redirectAuthenticatedUserToWorkspace();
+  } else if (!recoveryInvalid && recoverySessionState === "signed-in") {
+    // 普通登录会话即使手动拼接 recovery 参数，也不能绕过邮箱验证进入改密表单。
+    await redirectAuthenticatedUserToWorkspace();
+  }
+
+  const [t, authShellCopy] = await Promise.all([
     getTranslations("ForgotPasswordPage"),
     getAuthShellCopy(),
   ]);
@@ -44,8 +65,20 @@ export default async function ForgotPasswordPage() {
         }}
         mode="login"
       >
-        <ForgotPasswordForm />
+        <ForgotPasswordForm
+          initialRecoveryState={
+            recoverySessionState === "verified"
+              ? "verified"
+              : recoveryRequested
+                ? "invalid"
+                : "request"
+          }
+        />
       </AuthShell>
     </ScopedIntlProvider>
   );
+}
+
+function firstSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
 }

@@ -527,6 +527,7 @@ Supabase Auth 建议：
 - `NEXT_PUBLIC_SITE_URL` 应与线上 Site URL 保持一致；邮箱确认和退出登录路由只接受该域名、公司配置默认线上域名和本地开发域名作为回跳来源。
 - Redirect URLs：线上根地址、`/login`、`/auth/confirm`、`/forgot-password`，以及本地开发地址 `http://localhost:3000`、`http://localhost:3000/auth/confirm`、`http://localhost:3000/forgot-password`。
 - `/auth/confirm` 统一处理注册确认和密码重置确认：`type=email` 成功后进入 `next` 指向的登录页；`type=recovery` 成功后进入 `/forgot-password?type=recovery` 设置新密码。
+- `/forgot-password?type=recovery` 是已验证重置邮件的专用入口：入口代理允许它携带恢复会话进入页面，页面服务端优先确认 Supabase JWT 的 `amr` 包含 `recovery`；本地 GoTrue 把恢复会话标记为 `otp` 时，还必须同时通过 `/auth/confirm` 写入的短期 HttpOnly 会话证明才展示新密码表单。普通登录会话手动拼接参数仍返回自己的工作台；令牌过期、链接无效或恢复会话丢失时统一显示重新发送邮件的入口，不能停在无限加载状态。
 - Confirm sign up 邮件模板使用自有域名确认路由：`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`，不要直接使用 `{{ .ConfirmationURL }}`，避免注册确认邮件里的主链接显示为 Supabase 项目域名。
 - Reset password 邮件模板也使用自有域名确认路由：`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next={{ .RedirectTo }}`，避免重置邮件里的主链接显示为 Supabase 项目域名。
 - Password recovery 邮件由登录页和账号中心共同触发，回跳地址固定为当前站点的 `/forgot-password`；Resend 显示 sent 只代表发信服务已接收或开始发送，delivered 只代表收件方服务器已接收，仍需结合 Resend Insights、收件箱、垃圾邮件和域名 DNS 认证状态判断最终可见性。

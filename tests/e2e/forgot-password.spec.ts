@@ -1,6 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-import { setTestLocale } from "./helpers/auth";
+import { getRegressionAccount } from "./helpers/accounts";
+import { loginAs, setTestLocale } from "./helpers/auth";
+import { getLocalSupabaseAdminClient } from "./helpers/local-supabase-admin";
 
 test.describe("forgot password page", () => {
   test.beforeEach(async ({ page }) => {
@@ -81,6 +83,86 @@ test.describe("forgot password page", () => {
     await expect(errorNotice).toHaveAttribute("aria-live", "assertive");
     await expect(errorNotice).toHaveText("请求过于频繁，请稍后再试。");
   });
+
+  test("verified recovery link opens the new password form on desktop and mobile", async ({
+    page,
+  }) => {
+    const adminClient = getLocalSupabaseAdminClient();
+
+    if (!adminClient) {
+      test.skip(true, "这个回归只在本地 Supabase 环境生成恢复链接。");
+      return;
+    }
+
+    const account = getRegressionAccount("administrator");
+    const { data, error } = await adminClient.auth.admin.generateLink({
+      email: account.email,
+      type: "recovery",
+    });
+
+    expect(error).toBeNull();
+
+    if (!data.properties) {
+      throw new Error("本地 Supabase 没有返回可验证的恢复链接。");
+    }
+
+    const tokenHash = data.properties.hashed_token;
+    expect(tokenHash).toBeTruthy();
+
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await page.goto(
+      `/auth/confirm?token_hash=${encodeURIComponent(tokenHash)}&type=recovery`,
+    );
+
+    await expect(page).toHaveURL(/\/forgot-password\?type=recovery$/);
+    await expect(page.locator('input[name="password"]')).toBeVisible();
+    await expect(page.getByLabel("确认新密码")).toBeVisible();
+    await expect(page.getByRole("button", { name: "保存新密码" })).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await page.setViewportSize({ height: 844, width: 390 });
+    await page.reload();
+    await expect(page.locator('input[name="password"]')).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  });
+
+  test("expired recovery token offers a new email instead of loading forever", async ({
+    page,
+  }) => {
+    await page.goto("/auth/confirm?token_hash=expired-token&type=recovery");
+
+    await expect(page).toHaveURL(
+      /\/forgot-password\?type=recovery&error=invalid$/,
+    );
+    await expect(page.getByRole("alert")).toHaveText(
+      "重置链接已失效，请重新发送一封重置邮件。",
+    );
+    await expect(page.getByLabel("电子邮箱")).toBeVisible();
+    await expect(page.locator('input[name="password"]')).toHaveCount(0);
+  });
+
+  test("ordinary signed-in session cannot imitate password recovery", async ({
+    page,
+  }) => {
+    const account = await loginAs(page, "administrator");
+    await page.goto("/forgot-password?type=recovery");
+
+    await expect(page).toHaveURL(
+      new RegExp(`${escapeRegExp(account.workspacePath)}/home(?:[?#].*)?$`),
+    );
+    await expect(page.locator('input[name="password"]')).toHaveCount(0);
+  });
+
+  test("signed-in user opening the ordinary page returns to the workspace", async ({
+    page,
+  }) => {
+    const account = await loginAs(page, "administrator");
+    await page.goto("/forgot-password");
+
+    await expect(page).toHaveURL(
+      new RegExp(`${escapeRegExp(account.workspacePath)}/home(?:[?#].*)?$`),
+    );
+  });
 });
 
 function readResetRequestPayload(postData: string | null) {
@@ -100,4 +182,17 @@ function readResetRequestPayload(postData: string | null) {
   } catch {
     return { email: null, redirectTo: null };
   }
+}
+
+async function expectNoHorizontalOverflow(page: Page) {
+  const overflow = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+
+  expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 2);
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

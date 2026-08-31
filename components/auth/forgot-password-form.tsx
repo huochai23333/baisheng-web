@@ -10,12 +10,19 @@ import { FeedbackNotice } from "@/components/ui/feedback-notice";
 import { AuthField } from "./auth-field";
 import { AuthLoadingShell } from "./auth-loading-shell";
 import { AuthPasswordField } from "./auth-password-field";
-import { useForgotPasswordViewModel } from "./use-forgot-password-view-model";
+import {
+  useForgotPasswordViewModel,
+  type ForgotPasswordRecoveryState,
+} from "./use-forgot-password-view-model";
 
 /** 找回密码表单只呈现当前步骤，恢复会话和请求状态由 view-model 维护。 */
-export function ForgotPasswordForm() {
+export function ForgotPasswordForm({
+  initialRecoveryState,
+}: {
+  initialRecoveryState: ForgotPasswordRecoveryState;
+}) {
   const t = useTranslations("ForgotPasswordForm");
-  const reset = useForgotPasswordViewModel();
+  const reset = useForgotPasswordViewModel({ initialRecoveryState });
 
   if (reset.checkingRecovery) return <AuthLoadingShell variant="recovery" />;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -21,33 +21,43 @@ import {
 import { getPasswordPolicyState } from "./auth-password-policy";
 
 export type ForgotPasswordMode = "request" | "reset" | "sent";
+export type ForgotPasswordRecoveryState = "invalid" | "request" | "verified";
 
 /**
  * 找回密码 view-model 负责恢复会话、冷却计时和两种提交动作。
  * 这样请求邮件与设置新密码的界面可以共享一套状态，而不会把 Supabase 流程塞进展示组件。
  */
-export function useForgotPasswordViewModel() {
+export function useForgotPasswordViewModel({
+  initialRecoveryState,
+}: {
+  initialRecoveryState: ForgotPasswordRecoveryState;
+}) {
   const router = useRouter();
   const t = useTranslations("ForgotPasswordForm");
   const [supabase] = useState<ReturnType<typeof getBrowserSupabaseClient>>(
     () => (typeof window !== "undefined" ? getBrowserSupabaseClient() : null),
   );
-  const recoveryHint = useMemo(() => getRecoveryHint(), []);
-  const [mode, setMode] = useState<ForgotPasswordMode>("request");
-  const [checkingRecovery, setCheckingRecovery] = useState(recoveryHint);
+  const [mode, setMode] = useState<ForgotPasswordMode>(
+    initialRecoveryState === "verified" ? "reset" : "request",
+  );
+  const [checkingRecovery, setCheckingRecovery] = useState(
+    initialRecoveryState === "verified",
+  );
   const [recoveryReady, setRecoveryReady] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    initialRecoveryState === "invalid" ? t("authSessionMissing") : null,
+  );
   const [notice, setNotice] = useState<string | null>(null);
   const passwordPolicy = getPasswordPolicyState(password);
 
   useSupabaseAuthSync(supabase, {
     onReady: async ({ isMounted }) => {
-      if (!recoveryHint) return;
+      if (initialRecoveryState !== "verified") return;
 
       if (!supabase) {
         if (isMounted()) {
@@ -65,6 +75,10 @@ export function useForgotPasswordViewModel() {
         if (session?.user) {
           setRecoveryReady(true);
           setNotice(t("recoverySuccess"));
+        } else {
+          // 恢复地址存在但浏览器没有对应会话时，回到可重新发信的界面，避免永久加载。
+          setMode("request");
+          setError(t("authSessionMissing"));
         }
       } catch (sessionError) {
         if (isMounted()) setError(formatForgotPasswordError(sessionError, t));
@@ -72,7 +86,7 @@ export function useForgotPasswordViewModel() {
         if (isMounted()) setCheckingRecovery(false);
       }
     },
-    onAuthStateChange: ({ event, isMounted, session }) => {
+    onAuthStateChange: ({ event, isMounted }) => {
       if (!isMounted()) return;
 
       if (event === "PASSWORD_RECOVERY") {
@@ -81,15 +95,6 @@ export function useForgotPasswordViewModel() {
         setError(null);
         setNotice(t("recoverySuccess"));
         return;
-      }
-
-      if (
-        (event === "SIGNED_IN" || event === "INITIAL_SESSION") &&
-        recoveryHint &&
-        session?.user
-      ) {
-        setMode("reset");
-        setRecoveryReady(true);
       }
     },
   });
@@ -232,20 +237,6 @@ export function useForgotPasswordViewModel() {
     setPassword,
     submitting,
   };
-}
-
-function getRecoveryHint() {
-  if (typeof window === "undefined") return false;
-
-  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  const searchParams = new URLSearchParams(window.location.search);
-  return (
-    hashParams.get("type") === "recovery" ||
-    searchParams.get("type") === "recovery" ||
-    hashParams.has("access_token") ||
-    searchParams.has("code") ||
-    searchParams.has("token_hash")
-  );
 }
 
 function formatForgotPasswordError(
