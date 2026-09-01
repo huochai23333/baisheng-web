@@ -255,7 +255,7 @@ export function WholesaleSubmitButton({
   return (
     <Button
       variant="primary"
-      size="default"
+      size="large"
       disabled={disabled || pending}
       type="submit"
     >

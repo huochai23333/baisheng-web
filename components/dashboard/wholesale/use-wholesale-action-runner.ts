@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
@@ -14,11 +14,16 @@ export type WholesaleActionFeedback = {
 
 export type WholesaleActionRefreshMode = "none" | "router";
 
+export type WholesaleActionOptions = {
+  afterSuccess?: () => Promise<void> | void;
+  refreshMode?: WholesaleActionRefreshMode;
+};
+
 export type RunWholesaleAction = (
   key: string,
   successMessage: string,
   action: () => Promise<void>,
-  options?: { refreshMode?: WholesaleActionRefreshMode },
+  options?: WholesaleActionOptions,
 ) => Promise<boolean>;
 
 /**
@@ -31,9 +36,14 @@ export function useWholesaleActionRunner() {
   const router = useRouter();
   const [feedback, setFeedback] = useState<WholesaleActionFeedback>(null);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const activeActionKeyRef = useRef<string | null>(null);
 
   const runAction = useCallback<RunWholesaleAction>(
     async (key, successMessage, action, options) => {
+      // 状态更新要等下一次渲染才会反映到按钮上，而 ref 会立刻改变。
+      // 因此连续点击即使发生在同一帧，也只能有第一个动作进入数据库请求。
+      if (activeActionKeyRef.current !== null) return false;
+
       const supabase = getBrowserSupabaseClient();
 
       if (!supabase) {
@@ -44,11 +54,15 @@ export function useWholesaleActionRunner() {
         return false;
       }
 
+      activeActionKeyRef.current = key;
       setPendingKey(key);
       setFeedback(null);
 
       try {
         await action();
+
+        // 局部刷新也属于保存过程。只有新数据已经回到页面后，按钮和弹窗才能恢复。
+        await options?.afterSuccess?.();
         setFeedback({ tone: "success", message: successMessage });
 
         if ((options?.refreshMode ?? "router") === "router") {
@@ -63,7 +77,10 @@ export function useWholesaleActionRunner() {
         });
         return false;
       } finally {
-        setPendingKey(null);
+        if (activeActionKeyRef.current === key) {
+          activeActionKeyRef.current = null;
+          setPendingKey(null);
+        }
       }
     },
     [router],

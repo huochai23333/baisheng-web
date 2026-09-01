@@ -26,6 +26,16 @@ export function getWholesaleOrderRpcPayload(formData: FormData) {
   };
 }
 
+export function getWholesaleOrderCreateRpcPayload(formData: FormData) {
+  return {
+    ...getWholesaleOrderRpcPayload(formData),
+    // 这个随机编号只描述一次保存动作，不包含客户或金额等业务信息。
+    p_creation_request_id: requiredString(
+      formData.get("creation_request_id"),
+    ),
+  };
+}
+
 export function optionalString(value: FormDataEntryValue | null) {
   if (typeof value !== "string") {
     return null;
@@ -95,6 +105,14 @@ export function toWholesaleActionErrorMessage(error: unknown) {
 
   if (normalized.includes("wholesale_order_settlement_rate_missing")) {
     return "这个结汇日期没有对应汇率，请先到汇率设置中补充。";
+  }
+
+  if (normalized.includes("wholesale_order_creation_request_conflict")) {
+    return "这笔订单已经保存，请刷新订单列表后查看。";
+  }
+
+  if (normalized.includes("wholesale_order_creation_request_required")) {
+    return "这次保存还没有准备好，请关闭弹窗后重新打开。";
   }
 
   if (normalized.includes("wholesale_order_settlement_amount_exceeds")) {

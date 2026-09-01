@@ -14,12 +14,21 @@ export type WholesaleOrdersSectionProps = {
   customersById: Map<string, WholesaleCustomer>;
   exchangeRates: ExchangeRateRow[];
   initialPage: WholesaleOrderPage;
-  onCreateOrder: (formData: FormData) => Promise<boolean>;
+  onCreateOrder: (
+    formData: FormData,
+    refreshOrders: () => Promise<void>,
+  ) => Promise<boolean>;
   onDeleteOrderListAttachment: (
     attachment: WholesaleOrderListAttachment,
   ) => Promise<boolean>;
-  onMarkOrderSettled: (formData: FormData) => Promise<boolean>;
-  onUpdateOrder: (formData: FormData) => Promise<boolean>;
+  onMarkOrderSettled: (
+    formData: FormData,
+    refreshOrders: () => Promise<void>,
+  ) => Promise<boolean>;
+  onUpdateOrder: (
+    formData: FormData,
+    refreshOrders: () => Promise<void>,
+  ) => Promise<boolean>;
   onUploadOrderListAttachments: (options: {
     existingAttachments: WholesaleOrderListAttachment[];
     files: File[];

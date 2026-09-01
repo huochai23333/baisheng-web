@@ -1,18 +1,24 @@
 import { getBrowserSupabaseClient } from "@/lib/supabase";
 
 import {
+  getWholesaleOrderCreateRpcPayload,
   getWholesaleOrderRpcPayload,
   positiveNumber,
   requiredString,
 } from "./wholesale-action-utils";
 import type { RunWholesaleAction } from "./use-wholesale-action-runner";
 
+type RefreshWholesaleOrders = () => Promise<void>;
+
 /** 订单列表由客户端局部刷新，所以这些操作成功后不再额外刷新整页。 */
 const ORDER_ACTION_OPTIONS = { refreshMode: "none" } as const;
 
 /** 把订单创建、直接修改和结汇集中在一个业务域内。 */
 export function createWholesaleOrderActions(runAction: RunWholesaleAction) {
-  const createOrder = (formData: FormData) =>
+  const createOrder = (
+    formData: FormData,
+    refreshOrders: RefreshWholesaleOrders,
+  ) =>
     runAction(
       "order:create",
       "批发订单已保存。",
@@ -22,14 +28,17 @@ export function createWholesaleOrderActions(runAction: RunWholesaleAction) {
 
         const { error } = await supabase.rpc(
           "create_wholesale_order",
-          getWholesaleOrderRpcPayload(formData),
+          getWholesaleOrderCreateRpcPayload(formData),
         );
         if (error) throw error;
       },
-      ORDER_ACTION_OPTIONS,
+      { ...ORDER_ACTION_OPTIONS, afterSuccess: refreshOrders },
     );
 
-  const updateOrder = (formData: FormData) => {
+  const updateOrder = (
+    formData: FormData,
+    refreshOrders: RefreshWholesaleOrders,
+  ) => {
     const orderId = requiredString(formData.get("order_id"));
 
     return runAction(
@@ -45,11 +54,14 @@ export function createWholesaleOrderActions(runAction: RunWholesaleAction) {
         });
         if (error) throw error;
       },
-      ORDER_ACTION_OPTIONS,
+      { ...ORDER_ACTION_OPTIONS, afterSuccess: refreshOrders },
     );
   };
 
-  const markOrderSettled = (formData: FormData) => {
+  const markOrderSettled = (
+    formData: FormData,
+    refreshOrders: RefreshWholesaleOrders,
+  ) => {
     const orderId = requiredString(formData.get("order_id"));
 
     return runAction(
@@ -68,7 +80,7 @@ export function createWholesaleOrderActions(runAction: RunWholesaleAction) {
         });
         if (error) throw error;
       },
-      ORDER_ACTION_OPTIONS,
+      { ...ORDER_ACTION_OPTIONS, afterSuccess: refreshOrders },
     );
   };
 

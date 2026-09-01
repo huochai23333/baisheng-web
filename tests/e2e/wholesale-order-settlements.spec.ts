@@ -82,7 +82,8 @@ test.describe("wholesale order settlements", () => {
     await page.getByRole("button", { name: "跨日期查此单号" }).click();
     await expect(
       page.locator('[data-testid^="wholesale-order-row-"]').filter({
-        hasText: "WH-LOCAL-202607-001",
+        // 本地夹具按运行当天的上海月份生成订单号，测试不能固定旧月份。
+        hasText: `WH-LOCAL-${getShanghaiDateInputValue().slice(0, 7).replace("-", "")}-001`,
       }),
     ).toBeVisible();
     await expectLinkedPurchaseOrderDetailsDialog(page);

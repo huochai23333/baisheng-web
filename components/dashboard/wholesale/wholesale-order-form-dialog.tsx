@@ -18,6 +18,7 @@ import {
   dedupeWholesaleCurrencyOptions,
   WHOLESALE_PAYMENT_PLATFORM_OPTIONS,
 } from "./wholesale-order-form-options";
+import { useWholesaleOrderCreateSubmission } from "./use-wholesale-order-create-submission";
 type WholesaleOrderFormDialogProps = {
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
@@ -39,6 +40,12 @@ export function WholesaleOrderFormDialog({
   const uiText = useTranslations(
     "UiText.components_dashboard_wholesale_wholesale_order_form_dialog",
   );
+  const submission = useWholesaleOrderCreateSubmission({
+    onCreateOrder,
+    onOpenChange,
+    open,
+    pending,
+  });
   const currencyOptions = useMemo(() => {
     const options = dedupeWholesaleCurrencyOptions(
       buildOrderCurrencyOptions(exchangeRates),
@@ -61,9 +68,7 @@ export function WholesaleOrderFormDialog({
   return (
     <DashboardDialog
       description={uiText("attribute001")}
-      onOpenChange={(nextOpen) => {
-        onOpenChange(nextOpen);
-      }}
+      onOpenChange={submission.handleOpenChange}
       open={open}
       title={uiText("attribute002")}
     >
@@ -71,12 +76,7 @@ export function WholesaleOrderFormDialog({
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
         onSubmit={async (event) => {
           event.preventDefault();
-          const form = event.currentTarget;
-          const succeeded = await onCreateOrder(new FormData(form));
-          // 失败时不要清空表单，用户修正问题后可以直接再次提交。
-          if (!succeeded) return;
-          form.reset();
-          onOpenChange(false);
+          await submission.submit(event.currentTarget);
         }}
       >
         <DashboardFilterField label={uiText("attribute003")}>
@@ -207,7 +207,7 @@ export function WholesaleOrderFormDialog({
           <WholesaleTextarea label={uiText("attribute015")} name="notes" />
         </div>
         <div className="flex justify-end md:col-span-2 xl:col-span-4">
-          <WholesaleSubmitButton pending={pending}>
+          <WholesaleSubmitButton pending={submission.pending}>
             <UiMessage id="components_dashboard_wholesale_wholesale_order_form_dialog.text005" />
           </WholesaleSubmitButton>
         </div>

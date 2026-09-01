@@ -207,7 +207,7 @@ export function WholesaleOrdersSection({
         customers={customers}
         exchangeRates={exchangeRates}
         onCreateOrder={(formData) =>
-          refreshAfter(() => onCreateOrder(formData))
+          onCreateOrder(formData, pageState.refreshFirstPage)
         }
         onOpenChange={setCreateDialogOpen}
         open={createDialogOpen}
@@ -226,7 +226,7 @@ export function WholesaleOrdersSection({
             if (!open) setSelectedEditOrder(null);
           }}
           onUpdateOrder={(formData) =>
-            refreshAfter(() => onUpdateOrder(formData))
+            onUpdateOrder(formData, pageState.refreshFirstPage)
           }
           open
           order={selectedEditOrder}
@@ -242,7 +242,7 @@ export function WholesaleOrdersSection({
             if (!open) setSelectedSettlementOrder(null);
           }}
           onSettleOrder={(formData) =>
-            refreshAfter(() => onMarkOrderSettled(formData))
+            onMarkOrderSettled(formData, pageState.refreshFirstPage)
           }
           order={selectedSettlementOrder}
           settlements={
