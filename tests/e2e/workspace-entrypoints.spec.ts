@@ -239,7 +239,7 @@ test.describe("workspace entrypoint regression", () => {
     await expect(assessmentOutput).not.toContainText("*");
   });
 
-  test("admin can see wholesale order edit rule and open edit dialog", async ({
+  test("admin settings only keep active wholesale rules and orders edit directly", async ({
     page,
   }) => {
     await loginAs(page, "administrator");
@@ -247,26 +247,11 @@ test.describe("workspace entrypoint regression", () => {
     await expectWorkspaceShell(page);
     await expectNotForbiddenPage(page);
 
-    await expect(page.getByRole("heading", { name: "订单修改规则" })).toBeVisible();
-    const editWindowInput = page.getByLabel("可直接修改天数");
-    await expect(editWindowInput).toBeVisible();
-    await expect(editWindowInput).toBeDisabled();
-    await page.getByRole("button", { name: "编辑", exact: true }).first().click();
-    await expect(editWindowInput).toBeEnabled();
-    await expect(page.getByRole("button", { name: "保存", exact: true }).first()).toBeVisible();
-    await page.getByRole("button", { name: "取消", exact: true }).first().click();
-    await expect(editWindowInput).toBeDisabled();
+    await expect(page.getByRole("heading", { name: "订单修改规则" })).toHaveCount(0);
+    await expect(page.getByLabel("可直接修改天数")).toHaveCount(0);
     await expect(visibleExactText(page, "批发订单业务员佣金")).toHaveCount(1);
     await expect(visibleExactText(page, "批发推荐月订单金额佣金")).toHaveCount(1);
     await expect(page.getByText("采购订单业务员佣金", { exact: true })).toHaveCount(0);
-
-    await page.goto("/admin/tourism/settings");
-    await expectWorkspaceShell(page);
-    await expectNotForbiddenPage(page);
-    await expect(visibleExactText(page, "陪同类服务业务员佣金")).toHaveCount(1);
-    await expect(page.getByText("采购订单业务员佣金", { exact: true })).toHaveCount(0);
-    await expect(page.getByText("采购订单推荐佣金", { exact: true })).toHaveCount(0);
-    await expect(page.getByText("批发订单业务员佣金", { exact: true })).toHaveCount(0);
 
     await page.goto("/admin/wholesale/orders");
     await expectWorkspaceShell(page);
@@ -283,23 +268,17 @@ test.describe("workspace entrypoint regression", () => {
     await page.keyboard.press("Escape");
     await page.setViewportSize({ height: 844, width: 390 });
 
-    await page.goto("/admin/tourism/settings");
-    await expect(visibleExactText(page, "陪同类服务业务员佣金")).toHaveCount(1);
-    await expect(page.getByText("采购订单业务员佣金", { exact: true })).toHaveCount(0);
-    await expect(page.getByText("批发订单业务员佣金", { exact: true })).toHaveCount(0);
-    await expectNoDocumentHorizontalOverflow(page);
-
     await page.goto("/admin/wholesale/settings");
-    await expect(page.getByRole("heading", { name: "订单修改规则" })).toBeVisible();
-    await expect(page.getByLabel("可直接修改天数")).toBeVisible();
-    await expect(page.getByRole("button", { name: "编辑", exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "订单修改规则" })).toHaveCount(0);
+    await expect(page.getByLabel("可直接修改天数")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /编辑|修改/ }).first()).toBeVisible();
     await expectNoDocumentHorizontalOverflow(page);
 
     await page.goto("/admin/wholesale/orders");
     await expect(page.getByRole("heading", { name: "批发订单" })).toBeVisible();
     await page.locator('[data-testid^="wholesale-order-card-"]').first().click();
     await expect(
-      page.getByRole("dialog").getByRole("button", { name: /修改订单|申请修改/ }),
+      page.getByRole("dialog").getByRole("button", { name: "修改订单" }),
     ).toBeVisible();
     await expectNoDocumentHorizontalOverflow(page);
   });

@@ -9,7 +9,6 @@ import type {
   WholesaleLogisticsStoreOption,
   WholesaleReferralWaybillCount,
 } from "./wholesale-logistics-page";
-import type { WholesaleOrderEditSettings } from "./wholesale-order-edit-settings";
 import type { WholesaleOrderPage } from "./wholesale-order-page";
 import type { WholesaleClaimPage } from "./wholesale-claims-page";
 import type { WorkspaceWholesaleSectionKey } from "./workspace-config";
@@ -118,33 +117,11 @@ export type WholesaleOrderSettlement = {
   created_at: string;
 };
 
-export type WholesaleOrderEditRequestStatus =
-  | "approved"
-  | "pending"
-  | "rejected";
-
-export type WholesaleOrderEditRequest = {
-  id: string;
-  order_id: string;
-  requested_by_user_id: string;
-  requested_changes: Record<string, unknown>;
-  current_snapshot: Record<string, unknown>;
-  request_note: string | null;
-  status: WholesaleOrderEditRequestStatus;
-  reviewer_user_id: string | null;
-  review_note: string | null;
-  processed_at: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
 export type WholesaleOrderChangeLog = {
   id: string;
   order_id: string;
-  request_id: string | null;
   actor_user_id: string | null;
   action:
-    | "approved_update"
     | "direct_update"
     | "settlement_rate_batch_update"
     | "settlement_rate_update";
@@ -243,8 +220,6 @@ export type WholesalePageData = {
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
   orderChangeLogs: WholesaleOrderChangeLog[];
-  orderEditRequests: WholesaleOrderEditRequest[];
-  orderEditSettings: WholesaleOrderEditSettings;
   orderPage: WholesaleOrderPage | null;
   orderPageError: string | null;
   orders: WholesaleOrder[];

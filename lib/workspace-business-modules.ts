@@ -115,7 +115,6 @@ export type WorkspaceBusinessPageEntry = "tourism" | "wholesale";
 export type WorkspaceBusinessSettingsSection =
   | { kind: "tourismServiceFees" }
   | { kind: "tourismServiceOrders" }
-  | { kind: "wholesaleOrderEditWindow" }
   | {
       kind: "commissionRules";
       ruleCodes: readonly CommissionRuleCode[];

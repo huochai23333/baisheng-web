@@ -6,8 +6,6 @@ import { AdminCommissionSettingsSection } from "@/components/dashboard/commissio
 import type { BusinessSettingsPageData } from "@/lib/business-settings";
 import type { WorkspaceBusinessSettingsModule } from "@/lib/workspace-business-modules";
 
-import { WholesaleOrderEditSettingsSection } from "./wholesale-order-edit-settings-section";
-
 export function BusinessSettingsPanel({
   canManageCommissionSettings,
   commissionRuleSettings,
@@ -15,13 +13,11 @@ export function BusinessSettingsPanel({
   onOrderDiscountRowsChange,
   onServiceFeeRowsChange,
   onServiceOrderPriceRowsChange,
-  onWholesaleOrderEditSettingsChange,
   orderDiscountOptions,
   settingsModule,
   serviceFeeTypeOptions,
   serviceOrderPriceOptions,
   serviceOrderTypeOptions,
-  wholesaleOrderEditSettings,
 }: {
   canManageCommissionSettings: BusinessSettingsPageData["canManageCommissionSettings"];
   commissionRuleSettings: BusinessSettingsPageData["commissionRuleSettings"];
@@ -37,17 +33,11 @@ export function BusinessSettingsPanel({
   onServiceOrderPriceRowsChange: (
     rows: BusinessSettingsPageData["serviceOrderPriceOptions"],
   ) => void;
-  onWholesaleOrderEditSettingsChange: (
-    settings: NonNullable<
-      BusinessSettingsPageData["wholesaleOrderEditSettings"]
-    >,
-  ) => void;
   orderDiscountOptions: BusinessSettingsPageData["orderDiscountOptions"];
   settingsModule: WorkspaceBusinessSettingsModule | undefined;
   serviceFeeTypeOptions: BusinessSettingsPageData["serviceFeeTypeOptions"];
   serviceOrderPriceOptions: BusinessSettingsPageData["serviceOrderPriceOptions"];
   serviceOrderTypeOptions: BusinessSettingsPageData["serviceOrderTypeOptions"];
-  wholesaleOrderEditSettings: BusinessSettingsPageData["wholesaleOrderEditSettings"];
 }) {
   if (!settingsModule) {
     return null;
@@ -75,16 +65,6 @@ export function BusinessSettingsPanel({
               serviceOrderTypes={serviceOrderTypeOptions}
               onDiscountsChange={onOrderDiscountRowsChange}
               onPricesChange={onServiceOrderPriceRowsChange}
-            />
-          );
-        }
-
-        if (section.kind === "wholesaleOrderEditWindow") {
-          return (
-            <WholesaleOrderEditSettingsSection
-              initialSettings={wholesaleOrderEditSettings}
-              key={section.kind}
-              onSettingsChange={onWholesaleOrderEditSettingsChange}
             />
           );
         }

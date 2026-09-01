@@ -5,7 +5,6 @@ import type {
   WholesaleOrder,
   WholesaleOrderListItem,
   WholesaleOrderChangeLog,
-  WholesaleOrderEditRequest,
   WholesaleOrderSettlement,
 } from "./wholesale";
 import type { WholesaleOrderListAttachment } from "./wholesale-order-list-attachments";
@@ -66,7 +65,6 @@ export type WholesaleOrderPage = {
   canViewInternalFields: boolean;
   nextCursor: WholesaleOrderCursor | null;
   orderChangeLogs: WholesaleOrderChangeLog[];
-  orderEditRequests: WholesaleOrderEditRequest[];
   orderListAttachments: WholesaleOrderListAttachment[];
   orders: WholesaleOrderListItem[];
   orderSettlements: WholesaleOrderSettlement[];
@@ -125,7 +123,6 @@ export async function getWholesaleOrderPage(
       canViewInternalFields,
       nextCursor: readWholesaleOrderCursor(core.nextCursor),
       orderChangeLogs: [],
-      orderEditRequests: [],
       orderListAttachments: [],
       orders,
       orderSettlements: [],
@@ -139,7 +136,6 @@ export async function getWholesaleOrderPage(
   const [
     settlementsResult,
     purchaseOrdersResult,
-    editRequestsResult,
     changeLogsResult,
     attachmentsResult,
   ] = await Promise.all([
@@ -150,13 +146,6 @@ export async function getWholesaleOrderPage(
       .order("settled_on", { ascending: false })
       .order("created_at", { ascending: false }),
     getLinkedWholesalePurchaseOrders(supabase, orderIds, canViewInternalFields),
-    canViewInternalFields
-      ? supabase
-          .from("wholesale_order_edit_requests")
-          .select("*")
-          .in("order_id", orderIds)
-          .order("created_at", { ascending: false })
-      : emptyWholesaleRelatedQuery(),
     canViewInternalFields
       ? supabase
           .from("wholesale_order_change_logs")
@@ -179,12 +168,6 @@ export async function getWholesaleOrderPage(
       warnings,
       "changes",
       "部分订单修改记录暂时没有加载成功。",
-    ),
-    orderEditRequests: readWholesaleRelatedRows<WholesaleOrderEditRequest>(
-      editRequestsResult,
-      warnings,
-      "changes",
-      "部分订单修改申请暂时没有加载成功。",
     ),
     orderListAttachments: readWholesaleRelatedRows<WholesaleOrderListAttachment>(
       attachmentsResult,

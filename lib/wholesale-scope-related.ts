@@ -6,7 +6,6 @@ import type {
   WholesaleCustomer,
   WholesaleOrder,
   WholesaleOrderChangeLog,
-  WholesaleOrderEditRequest,
   WholesaleOrderSettlement,
   WholesaleProfile,
   WholesaleReferral,
@@ -73,28 +72,6 @@ export function scopeWholesaleReferrals({
   );
 }
 
-export function scopeWholesaleOrderEditRequests({
-  currentRole,
-  currentUserId,
-  orderEditRequests,
-  orderIds,
-}: {
-  currentRole: AppRole | null;
-  currentUserId: string | null;
-  orderEditRequests: WholesaleOrderEditRequest[];
-  orderIds: Set<string>;
-}) {
-  if (canReadFullWholesaleBackoffice(currentRole)) return orderEditRequests;
-  if (!currentUserId) return [];
-
-  return orderEditRequests.filter(
-    (request) =>
-      orderIds.has(request.order_id) ||
-      request.requested_by_user_id === currentUserId ||
-      request.reviewer_user_id === currentUserId,
-  );
-}
-
 export function scopeWholesaleOrderChangeLogs({
   currentRole,
   currentUserId,
@@ -140,7 +117,6 @@ export function scopeWholesaleProfiles({
   currentUserId,
   customers,
   orderChangeLogs,
-  orderEditRequests,
   orders,
   profiles,
   purchaseClaimGroups,
@@ -151,7 +127,6 @@ export function scopeWholesaleProfiles({
   currentUserId: string | null;
   customers: WholesaleCustomer[];
   orderChangeLogs: WholesaleOrderChangeLog[];
-  orderEditRequests: WholesaleOrderEditRequest[];
   orders: WholesaleOrder[];
   profiles: WholesaleProfile[];
   purchaseClaimGroups: Wholesale1688ClaimGroup[];
@@ -181,11 +156,6 @@ export function scopeWholesaleProfiles({
 
   for (const purchaseOrder of purchaseOrders) {
     addOptionalId(visibleProfileIds, purchaseOrder.imported_by_user_id);
-  }
-
-  for (const request of orderEditRequests) {
-    addOptionalId(visibleProfileIds, request.requested_by_user_id);
-    addOptionalId(visibleProfileIds, request.reviewer_user_id);
   }
 
   for (const log of orderChangeLogs) {

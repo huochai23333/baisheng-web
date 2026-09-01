@@ -60,15 +60,11 @@ export function BusinessSettingsClient({
           onOrderDiscountRowsChange={viewModel.setOrderDiscountOptions}
           onServiceFeeRowsChange={viewModel.setServiceFeeTypeOptions}
           onServiceOrderPriceRowsChange={viewModel.setServiceOrderPriceOptions}
-          onWholesaleOrderEditSettingsChange={
-            viewModel.setWholesaleOrderEditSettings
-          }
           orderDiscountOptions={viewModel.orderDiscountOptions}
           settingsModule={settingsModule}
           serviceFeeTypeOptions={viewModel.serviceFeeTypeOptions}
           serviceOrderPriceOptions={viewModel.serviceOrderPriceOptions}
           serviceOrderTypeOptions={initialData.serviceOrderTypeOptions}
-          wholesaleOrderEditSettings={viewModel.wholesaleOrderEditSettings}
         />
       )}
     </DashboardPageShell>

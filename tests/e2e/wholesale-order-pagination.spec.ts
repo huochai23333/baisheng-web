@@ -6,6 +6,8 @@ import {
   loginAs,
 } from "./helpers/auth";
 
+const LOCAL_ORDER_NUMBER_2 = buildCurrentLocalOrderNumber(2);
+
 test.describe("wholesale order pagination", () => {
   test("loads stable batches and searches linked numbers across all orders", async ({
     page,
@@ -76,7 +78,7 @@ test.describe("wholesale order pagination", () => {
     ).toBeVisible();
     await expect(detailsDialog.getByRole("heading", { name: "备注" }))
       .toBeVisible();
-    await expect(detailsDialog.getByRole("button", { name: /修改订单|申请修改/ }))
+    await expect(detailsDialog.getByRole("button", { name: "修改订单" }))
       .toBeVisible();
     await expectNoDocumentHorizontalOverflow(page);
   });
@@ -98,7 +100,7 @@ test.describe("wholesale order pagination", () => {
       try {
         await loginAs(page, roleCase.role);
         await page.goto(roleCase.url);
-        await searchWholesaleOrdersAcrossDates(page, "WH-LOCAL-202607-002");
+        await searchWholesaleOrdersAcrossDates(page, LOCAL_ORDER_NUMBER_2);
         const row = page.locator(
           '[data-testid="wholesale-order-row-c2000000-0000-4000-8000-000000000002"]',
         );
@@ -167,7 +169,7 @@ test.describe("wholesale order pagination", () => {
       await adminPage.goto("/admin/wholesale/orders");
       await searchWholesaleOrdersAcrossDates(
         adminPage,
-        "WH-LOCAL-202607-002",
+        LOCAL_ORDER_NUMBER_2,
       );
 
       const adminRow = adminPage.locator(
@@ -215,7 +217,7 @@ test.describe("wholesale order pagination", () => {
       );
       await searchWholesaleOrdersAcrossDates(
         clientPage,
-        "WH-LOCAL-202607-002",
+        LOCAL_ORDER_NUMBER_2,
       );
       const rpcPayload = (await (await rpcResponsePromise).json()) as {
         canViewInternalFields: boolean;
@@ -276,13 +278,13 @@ test.describe("wholesale order pagination", () => {
       await clientPage.goto("/client/wholesale/orders");
       await searchWholesaleOrdersAcrossDates(
         clientPage,
-        "WH-LOCAL-202607-002",
+        LOCAL_ORDER_NUMBER_2,
       );
       await clientPage
         .locator('[data-testid="wholesale-order-card-c2000000-0000-4000-8000-000000000002"]')
         .click();
       const mobileDialog = clientPage.getByRole("dialog", {
-        name: "订单 WH-LOCAL-202607-002",
+        name: `订单 ${LOCAL_ORDER_NUMBER_2}`,
       });
       await expect(mobileDialog.getByRole("button", { name: fileName })).toBeVisible();
       await expect(mobileDialog.getByRole("button", { name: secondFileName })).toBeVisible();
@@ -334,6 +336,19 @@ async function expectNoDocumentHorizontalOverflow(page: Page) {
   );
 
   expect(overflowPixels).toBeLessThanOrEqual(2);
+}
+
+function buildCurrentLocalOrderNumber(index: number) {
+  // 本地夹具按上海当前月份生成订单号，测试也按同一业务时区计算，避免月份变化后失效。
+  const dateParts = new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+  }).formatToParts(new Date());
+  const year = dateParts.find((part) => part.type === "year")?.value ?? "";
+  const month = dateParts.find((part) => part.type === "month")?.value ?? "";
+
+  return `WH-LOCAL-${year}${month}-${String(index).padStart(3, "0")}`;
 }
 
 /**

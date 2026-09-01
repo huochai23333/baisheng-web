@@ -10,7 +10,6 @@ import type { AppRole } from "./auth-routing";
 export type WholesaleRoleCapabilities = {
   canAllocateSettlementRelease: boolean;
   canAssignSalesUser: boolean;
-  canBypassOrderEditWindow: boolean;
   canManageClaims: boolean;
   canManageEveryCustomer: boolean;
   canManageEveryOrder: boolean;
@@ -20,7 +19,6 @@ export type WholesaleRoleCapabilities = {
   canPublishSettlementRelease: boolean;
   canReadFullBackoffice: boolean;
   canReadFullDirectory: boolean;
-  canReviewOrderEditRequests: boolean;
   canSettleCommission: boolean;
   usesPersonalCommissionScope: boolean;
   usesWholesaleSalesScope: boolean;
@@ -37,7 +35,6 @@ export function getWholesaleRoleCapabilities(
     canAllocateSettlementRelease:
       isAdministrator || isWholesaleCollaborator,
     canAssignSalesUser: isAdministrator || isWholesaleCollaborator,
-    canBypassOrderEditWindow: isAdministrator,
     canManageClaims: isAdministrator || isWholesaleCollaborator,
     canManageEveryCustomer: isAdministrator || isWholesaleCollaborator,
     canManageEveryOrder: isAdministrator || isWholesaleCollaborator,
@@ -54,7 +51,6 @@ export function getWholesaleRoleCapabilities(
       role === "operator" ||
       role === "recruiter" ||
       isWholesaleCollaborator,
-    canReviewOrderEditRequests: isAdministrator,
     canSettleCommission: isAdministrator,
     // 财务和业务员都能协作处理全部业务数据，但佣金仍只展示本人收益。
     usesPersonalCommissionScope: isWholesaleCollaborator,
@@ -95,14 +91,4 @@ export function canManageEveryWholesaleOrder(role: AppRole | null) {
 /** 管理员、财务和业务员可以在全部批发业务员之间转派客户或订单。 */
 export function canAssignWholesaleSalesUser(role: AppRole | null) {
   return getWholesaleRoleCapabilities(role).canAssignSalesUser;
-}
-
-/** 只有管理员可以跳过普通业务员的订单直接修改时限。 */
-export function canBypassWholesaleOrderEditWindow(role: AppRole | null) {
-  return getWholesaleRoleCapabilities(role).canBypassOrderEditWindow;
-}
-
-/** 只有管理员可以处理超过修改时限后提交的订单修改申请。 */
-export function canReviewWholesaleOrderEditRequests(role: AppRole | null) {
-  return getWholesaleRoleCapabilities(role).canReviewOrderEditRequests;
 }

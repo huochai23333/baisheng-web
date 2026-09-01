@@ -78,7 +78,6 @@ export const wholesaleWorkspaceBusinessModule: WorkspaceBusinessModule = {
     business: "wholesale",
     descriptionKey: "tabs.wholesale.description",
     sections: [
-      { kind: "wholesaleOrderEditWindow" },
       {
         kind: "commissionRules",
         ruleCodes: [

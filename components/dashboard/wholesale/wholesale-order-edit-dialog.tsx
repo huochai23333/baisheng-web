@@ -3,7 +3,7 @@
 import * as FormControls from "@/components/ui/form-controls";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select } from "@/components/ui/select";
@@ -25,9 +25,7 @@ import {
   dedupeWholesaleCurrencyOptions,
   WHOLESALE_PAYMENT_PLATFORM_OPTIONS,
 } from "./wholesale-order-form-options";
-import type { WholesaleOrderEditMode } from "./wholesale-order-edit-rules";
 import {
-  getTrimmedFormValue,
   hasWholesaleOrderFieldChanges,
   toMonthInputValue,
 } from "./wholesale-order-edit-form-utils";
@@ -37,12 +35,9 @@ import {
 } from "./wholesale-ui";
 type WholesaleOrderEditDialogProps = {
   canReassignOrder: boolean;
-  editWindowDays: number;
   customers: WholesaleCustomer[];
   exchangeRates: ExchangeRateRow[];
-  mode: WholesaleOrderEditMode;
   onOpenChange: (open: boolean) => void;
-  onRequestOrderEdit: (formData: FormData) => Promise<boolean>;
   onUpdateOrder: (formData: FormData) => Promise<boolean>;
   open: boolean;
   order: WholesaleOrder | null;
@@ -51,12 +46,9 @@ type WholesaleOrderEditDialogProps = {
 };
 export function WholesaleOrderEditDialog({
   canReassignOrder,
-  editWindowDays,
   customers,
   exchangeRates,
-  mode,
   onOpenChange,
-  onRequestOrderEdit,
   onUpdateOrder,
   open,
   order,
@@ -66,7 +58,6 @@ export function WholesaleOrderEditDialog({
   const uiText = useTranslations(
     "UiText.components_dashboard_wholesale_wholesale_order_edit_dialog",
   );
-  const [requestNoteError, setRequestNoteError] = useState("");
   const currencyOptions = useWholesaleCurrencyOptions(exchangeRates, order);
   const defaultCurrency =
     order?.customer_payment_currency ??
@@ -76,25 +67,16 @@ export function WholesaleOrderEditDialog({
   if (!order) {
     return null;
   }
-  const isRequestMode = mode === "request";
-  const description = isRequestMode
-    ? `这笔订单已超过 ${editWindowDays} 天，修改提交后由管理员确认。`
-    : "保存后会记录本次修改。结汇请回到订单列表登记每一笔结汇记录。";
   return (
     <DashboardDialog
-      description={description}
-      onOpenChange={(nextOpen) => {
-        if (!nextOpen) {
-          setRequestNoteError("");
-        }
-        onOpenChange(nextOpen);
-      }}
+      description={uiText("description")}
+      onOpenChange={onOpenChange}
       open={open}
-      title={isRequestMode ? "申请修改批发订单" : "修改批发订单"}
+      title={uiText("title")}
     >
       <form
         className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
-        key={`${order.id}-${mode}`}
+        key={order.id}
         onSubmit={async (event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
@@ -102,22 +84,8 @@ export function WholesaleOrderEditDialog({
             formData,
             order,
           );
-          if (isRequestMode) {
-            if (
-              hasOrderChanges &&
-              !getTrimmedFormValue(formData, "request_note")
-            ) {
-              setRequestNoteError("请填写申请说明，方便管理员处理。");
-              return;
-            }
-            if (hasOrderChanges && !(await onRequestOrderEdit(formData))) {
-              return;
-            }
-          } else {
-            if (hasOrderChanges && !(await onUpdateOrder(formData))) return;
-          }
-          // 没有修改时沿用原来的直接关闭行为；请求失败时会在上方提前返回，保留全部输入。
-          setRequestNoteError("");
+          if (hasOrderChanges && !(await onUpdateOrder(formData))) return;
+          // 没有修改时直接关闭；保存失败时保留输入，方便用户检查后重试。
           onOpenChange(false);
         }}
       >
@@ -298,25 +266,9 @@ export function WholesaleOrderEditDialog({
             />
           </DashboardFilterField>
         </div>
-        {isRequestMode ? (
-          <div className="md:col-span-2 xl:col-span-4">
-            <DashboardFilterField label={uiText("attribute014")}>
-              <FormControls.Textarea
-                className={`${dashboardFilterInputClassName} h-auto min-h-24 py-3 sm:h-auto`}
-                name="request_note"
-                placeholder={uiText("attribute015")}
-              />
-              {requestNoteError ? (
-                <p className="mt-2 text-sm leading-6 text-status-danger">
-                  {requestNoteError}
-                </p>
-              ) : null}
-            </DashboardFilterField>
-          </div>
-        ) : null}
         <div className="flex justify-end md:col-span-2 xl:col-span-4">
           <WholesaleSubmitButton pending={pending}>
-            {isRequestMode ? "提交申请" : "保存修改"}
+            {uiText("saveAction")}
           </WholesaleSubmitButton>
         </div>
       </form>

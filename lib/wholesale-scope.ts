@@ -7,7 +7,6 @@ import type {
   WholesaleCommission,
   WholesaleCustomer,
   WholesaleOrderChangeLog,
-  WholesaleOrderEditRequest,
   WholesaleOrder,
   WholesaleOrderSettlement,
   WholesaleProfile,
@@ -17,7 +16,6 @@ import type { WholesaleReferralWaybillCount } from "./wholesale-logistics-page";
 import {
   scopeWholesaleCommissions,
   scopeWholesaleOrderChangeLogs,
-  scopeWholesaleOrderEditRequests,
   scopeWholesaleOrderSettlements,
   scopeWholesaleProfiles,
   scopeWholesaleReferrals,
@@ -36,7 +34,6 @@ type ScopeWholesaleRowsInput = {
   customers: WholesaleCustomer[];
   referralWaybillCounts: WholesaleReferralWaybillCount[];
   orderChangeLogs: WholesaleOrderChangeLog[];
-  orderEditRequests: WholesaleOrderEditRequest[];
   orderSettlements: WholesaleOrderSettlement[];
   orders: WholesaleOrder[];
   profiles: WholesaleProfile[];
@@ -55,7 +52,6 @@ export function scopeWholesaleRows({
   customers,
   referralWaybillCounts,
   orderChangeLogs,
-  orderEditRequests,
   orderSettlements,
   orders,
   profiles,
@@ -101,12 +97,6 @@ export function scopeWholesaleRows({
     customerIds,
     referrals,
   });
-  const scopedOrderEditRequests = scopeWholesaleOrderEditRequests({
-    currentRole,
-    currentUserId,
-    orderEditRequests,
-    orderIds,
-  });
   const scopedOrderChangeLogs = scopeWholesaleOrderChangeLogs({
     currentRole,
     currentUserId,
@@ -124,7 +114,6 @@ export function scopeWholesaleRows({
     currentUserId,
     customers: scopedCustomers,
     orderChangeLogs: scopedOrderChangeLogs,
-    orderEditRequests: scopedOrderEditRequests,
     orders: scopedOrders,
     profiles,
     purchaseClaimGroups: scopedPurchaseClaimGroups,
@@ -137,7 +126,6 @@ export function scopeWholesaleRows({
     customers: scopedCustomers,
     referralWaybillCounts,
     orderChangeLogs: scopedOrderChangeLogs,
-    orderEditRequests: scopedOrderEditRequests,
     orderSettlements: scopedOrderSettlements,
     orders: scopedOrders,
     profiles: scopedProfiles,

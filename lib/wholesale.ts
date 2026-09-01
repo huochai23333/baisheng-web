@@ -27,10 +27,6 @@ import {
   type WholesaleOrderFilters,
 } from "./wholesale-order-page";
 import {
-  getWholesaleOrderEditSettings,
-  type WholesaleOrderEditSettings,
-} from "./wholesale-order-edit-settings";
-import {
   getWholesaleProfiles,
   getWholesaleProfilesWithCandidates,
 } from "./wholesale-profiles";
@@ -44,7 +40,6 @@ import type {
   WholesaleCustomer,
   WholesaleOrder,
   WholesaleOrderChangeLog,
-  WholesaleOrderEditRequest,
   WholesaleOrderSettlement,
   WholesalePageData,
   WholesaleProfile,
@@ -77,27 +72,21 @@ export async function getWholesalePageData(
 
   if (section === "orders") {
     const filters = options?.orderFilters ?? getInitialWholesaleOrderFilters();
-    const [
-      customers,
-      profiles,
-      exchangeRates,
-      orderEditSettings,
-      orderPageResult,
-    ] = await Promise.all([
-      getWholesaleCustomers(supabase),
-      getWholesaleProfiles(supabase, false),
-      getExchangeRates(supabase),
-      getWholesaleOrderEditSettings(supabase),
-      getWholesaleOrderPage(supabase, filters, null, options?.orderLimit)
-        .then((page) => ({ error: null, page }))
-        .catch((error: unknown) => ({
-          error:
-            error instanceof Error
-              ? error.message
-              : "批发订单暂时没有加载成功，请稍后重试。",
-          page: null,
-        })),
-    ]);
+    const [customers, profiles, exchangeRates, orderPageResult] =
+      await Promise.all([
+        getWholesaleCustomers(supabase),
+        getWholesaleProfiles(supabase, false),
+        getExchangeRates(supabase),
+        getWholesaleOrderPage(supabase, filters, null, options?.orderLimit)
+          .then((page) => ({ error: null, page }))
+          .catch((error: unknown) => ({
+            error:
+              error instanceof Error
+                ? error.message
+                : "批发订单暂时没有加载成功，请稍后重试。",
+            page: null,
+          })),
+      ]);
 
     const orderPage = orderPageResult.page;
 
@@ -106,8 +95,6 @@ export async function getWholesalePageData(
       customers,
       exchangeRates,
       orderChangeLogs: orderPage?.orderChangeLogs ?? [],
-      orderEditRequests: orderPage?.orderEditRequests ?? [],
-      orderEditSettings,
       orderPage,
       orderPageError: orderPageResult.error,
       // 订单列表会按当前角色裁剪内部字段；只有具备内部查看权限时，其他批发板块才接收完整订单。
@@ -174,7 +161,6 @@ export async function getWholesalePageData(
     ...baseData,
     commissionRuleSettings: rows.commissionRuleSettings,
     exchangeRates: rows.exchangeRates,
-    orderEditSettings: rows.orderEditSettings,
     ...scopedRows,
   };
 }
@@ -186,8 +172,6 @@ type WholesaleSectionRows = {
   exchangeRates: ExchangeRateRow[];
   referralWaybillCounts: WholesaleReferralWaybillCount[];
   orderChangeLogs: WholesaleOrderChangeLog[];
-  orderEditRequests: WholesaleOrderEditRequest[];
-  orderEditSettings: WholesaleOrderEditSettings;
   orderSettlements: WholesaleOrderSettlement[];
   orders: WholesaleOrder[];
   profiles: WholesaleProfile[];
@@ -316,12 +300,6 @@ function createEmptyWholesaleSectionRows(): WholesaleSectionRows {
     exchangeRates: [],
     referralWaybillCounts: [],
     orderChangeLogs: [],
-    orderEditRequests: [],
-    orderEditSettings: {
-      directEditWindowDays: 30,
-      updatedAt: null,
-      updatedByUserId: null,
-    },
     orderSettlements: [],
     orders: [],
     profiles: [],

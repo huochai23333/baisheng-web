@@ -1,7 +1,7 @@
 "use client";
 import { UiMessage } from "@/components/i18n/ui-message";
 import { useTranslations } from "next-intl";
-import { CheckCircle2, PencilLine, Send } from "lucide-react";
+import { CheckCircle2, PencilLine } from "lucide-react";
 import { DashboardDialog } from "@/components/dashboard/dashboard-dialog";
 import { Button } from "@/components/ui/button";
 import type {
@@ -83,11 +83,7 @@ export function WholesaleOrderDetailsDialog({
                 type="button"
                 variant="outline"
               >
-                {editAction.tone === "direct" ? (
-                  <PencilLine className="size-4" />
-                ) : (
-                  <Send className="size-4" />
-                )}
+                <PencilLine className="size-4" />
                 {editAction.label}
               </Button>
             ) : null}

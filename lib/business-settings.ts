@@ -15,10 +15,6 @@ import {
 } from "./commission-settings";
 import { getCurrentSessionContext } from "./current-session-context";
 import type { ServiceFeeTypeOption } from "./service-fee-types";
-import {
-  getWholesaleOrderEditSettings,
-  type WholesaleOrderEditSettings,
-} from "./wholesale-order-edit-settings";
 import type { WorkspaceBusinessKey } from "./workspace-business-modules";
 import { parseEnabledWorkspaceBusinessKey } from "./workspace-business-availability";
 
@@ -31,7 +27,6 @@ export type BusinessSettingsPageData = {
   serviceFeeTypeOptions: ServiceFeeTypeOption[];
   serviceOrderPriceOptions: ServiceOrderPriceOption[];
   serviceOrderTypeOptions: ServiceOrderTypeOption[];
-  wholesaleOrderEditSettings: WholesaleOrderEditSettings | null;
 };
 
 export async function getBusinessSettingsPageData(
@@ -51,16 +46,12 @@ export async function getBusinessSettingsPageData(
     serviceOrderPriceOptions,
     orderDiscountOptions,
     commissionRuleSettings,
-    wholesaleOrderEditSettings,
   ] = await Promise.all([
     getServiceFeeTypeOptions(supabase),
     getServiceOrderTypeOptions(supabase),
     getServiceOrderPriceOptions(supabase),
     getOrderDiscountTypeOptions(supabase),
     getCommissionRuleSettings(supabase),
-    enabledBusiness === "wholesale"
-      ? getWholesaleOrderEditSettings(supabase)
-      : Promise.resolve(null),
   ]);
 
   return {
@@ -72,7 +63,6 @@ export async function getBusinessSettingsPageData(
     serviceFeeTypeOptions,
     serviceOrderPriceOptions,
     serviceOrderTypeOptions,
-    wholesaleOrderEditSettings,
   };
 }
 
@@ -88,6 +78,5 @@ function createEmptyBusinessSettingsPageData(
     serviceFeeTypeOptions: [],
     serviceOrderPriceOptions: [],
     serviceOrderTypeOptions: [],
-    wholesaleOrderEditSettings: null,
   };
 }

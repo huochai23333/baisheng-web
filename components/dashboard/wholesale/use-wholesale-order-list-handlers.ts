@@ -9,7 +9,7 @@ import type {
 } from "@/lib/wholesale";
 import type { WholesaleOrderListAttachment } from "@/lib/wholesale-order-list-attachments";
 import { getWholesaleRoleCapabilities } from "@/lib/wholesale-role-permissions";
-import { canCurrentUserManageWholesaleOrder } from "./wholesale-order-edit-rules";
+import { canCurrentUserManageWholesaleOrder } from "./wholesale-order-permissions";
 
 type RefreshAfter = (
   action: () => boolean | Promise<boolean>,

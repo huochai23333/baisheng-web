@@ -23,10 +23,6 @@ export function useBusinessSettingsViewModel(
   const [commissionRuleSettings, setCommissionRuleSettings] = useState(
     initialData.commissionRuleSettings,
   );
-  const [wholesaleOrderEditSettings, setWholesaleOrderEditSettings] = useState(
-    initialData.wholesaleOrderEditSettings,
-  );
-
   return {
     commissionRuleSettings,
     orderDiscountOptions,
@@ -36,8 +32,5 @@ export function useBusinessSettingsViewModel(
     setOrderDiscountOptions,
     setServiceFeeTypeOptions,
     setServiceOrderPriceOptions,
-    setWholesaleOrderEditSettings,
-    wholesaleOrderEditSettings,
   };
 }
-

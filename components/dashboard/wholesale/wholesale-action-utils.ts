@@ -231,22 +231,6 @@ export function toWholesaleActionErrorMessage(error: unknown) {
     return "没有找到这笔批发订单，请刷新后再试。";
   }
 
-  if (normalized.includes("wholesale_order_edit_window_expired")) {
-    return "这笔订单已超过可直接修改天数，请提交修改申请。";
-  }
-
-  if (normalized.includes("wholesale_order_edit_window_available")) {
-    return "这笔订单还可以直接修改，不需要提交申请。";
-  }
-
-  if (normalized.includes("wholesale_order_edit_request_processed")) {
-    return "这条修改申请已经处理过，请刷新后查看最新状态。";
-  }
-
-  if (normalized.includes("wholesale_order_edit_request_not_found")) {
-    return "没有找到这条修改申请，请刷新后再试。";
-  }
-
   if (normalized.includes("wholesale_order_settlement_locked")) {
     return "已结汇的订单不能直接改回未结汇。";
   }

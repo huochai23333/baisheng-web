@@ -1098,7 +1098,7 @@
       },
       "settings": {
         "title": "Wholesale Settings",
-        "description": "Manage wholesale order edit rules, sales incentives, and customer referral commission rules."
+        "description": "Manage wholesale order sales incentives and customer referral commission rules."
       }
     },
     "directoryUi": {
@@ -1140,8 +1140,7 @@
     },
     "ordersUi": {
       "actions": {
-        "edit": "Edit Order",
-        "requestEdit": "Request Edit"
+        "edit": "Edit Order"
       },
       "statuses": {
         "unsettled": "Unsettled",
@@ -2045,7 +2044,7 @@
       },
       "wholesale": {
         "title": "Wholesale Settings",
-        "description": "Wholesale order edit rules, sales incentives, and customer referral commission"
+        "description": "Wholesale order sales incentives and customer referral commission"
       },
       "exchangeRates": {
         "title": "Exchange Rates",
@@ -4122,12 +4121,6 @@
     "components_dashboard_admin_people_admin_people_table": {
       "text001": " Remark:"
     },
-    "components_dashboard_business_settings_wholesale_order_edit_settings_section": {
-      "attribute001": "Order modification rules",
-      "text002": " Save rule ",
-      "attribute002": "The number of days can be modified directly",
-      "text001": " Calculated based on order entry time. Filling in 0 means that the salesperson cannot modify it directly after submission. "
-    },
     "components_dashboard_tourism_people_tourism_people_client": {
       "attribute004": "No permission yet",
       "attribute011": "Account status",
@@ -4358,29 +4351,15 @@
       "text005": " The filter criteria have changed and it is recommended to regenerate the assessment. "
     },
     "components_dashboard_wholesale_wholesale_order_change_sections": {
-      "text002": "Client",
-      "text006": "State",
-      "text008": "Operate",
       "text012": "Client",
       "text016": "Time",
-      "text010": " Return ",
       "text014": "Operation mode",
-      "text001": "Order",
       "text011": "Order",
-      "text005": "Illustrate",
-      "text004": "Application content",
       "attribute006": "Modify records",
-      "text007": "Application time",
       "text013": "Operator",
       "text015": "Modify content",
-      "text003": "Applicant",
-      "text009": " Pass ",
       "attribute008": "No modification record yet",
-      "attribute002": "Modify application",
-      "attribute004": "No modification request yet",
-      "attribute005": "The system will retain a record for each direct modification or application approval by the administrator.",
-      "attribute003": "There are currently no wholesale order modification requests pending.",
-      "attribute001": "After the number of days that can be directly modified has exceeded, the order modification submitted by the salesperson will wait for processing here.",
+      "attribute005": "After each order update, the system keeps the previous and new details together with the operator.",
       "attribute007": "There is no wholesale order modification record yet."
     },
     "components_dashboard_wholesale_wholesale_order_details_dialog": {
@@ -4398,6 +4377,9 @@
       "attribute001": "View expenses, profits, foreign exchange settlement, linked procurement records, and remarks in groups."
     },
     "components_dashboard_wholesale_wholesale_order_edit_dialog": {
+      "title": "Edit Wholesale Order",
+      "description": "This change will be recorded after saving. Return to the order list to record each settlement payment.",
+      "saveAction": "Save Changes",
       "attribute001": "Customer name",
       "text001": "Select customer",
       "attribute002": "Related salesperson",
@@ -4407,7 +4389,6 @@
       "attribute008": "Courier company",
       "attribute006": "Other expenses",
       "attribute003": "Small order quantity",
-      "attribute015": "Briefly explain why the modification is needed to facilitate the administrator's processing.",
       "attribute009": "Customer payment currency",
       "attribute012": "Orders count towards month",
       "attribute011": "Collection platform",
@@ -4415,8 +4396,7 @@
       "attribute010": "Customer payment amount",
       "attribute007": "Referral commission fee",
       "text004": "Choose a payment platform",
-      "attribute004": "Product purchase amount",
-      "attribute014": "Application instructions"
+      "attribute004": "Product purchase amount"
     },
     "components_dashboard_wholesale_wholesale_order_filters": {
       "text004": "All status",

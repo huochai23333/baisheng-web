@@ -6,11 +6,9 @@ import { Button } from "@/components/ui/button";
 import type { WholesalePageData } from "@/lib/wholesale";
 import {
   canAssignWholesaleSalesUser,
-  canBypassWholesaleOrderEditWindow,
   getWholesaleRoleCapabilities,
   canManageEveryWholesaleCustomer,
   canManageEveryWholesaleOrder,
-  canReviewWholesaleOrderEditRequests,
 } from "@/lib/wholesale-role-permissions";
 import { WholesaleClaimsSection } from "./wholesale-claims-section";
 import { WholesaleCommissionSection } from "./wholesale-commission-section";
@@ -56,16 +54,10 @@ export function WholesaleClient({
       {initialData.section === "orders" && initialData.orderPage ? (
         <WholesaleOrdersSection
           canEdit={canEdit}
-          canBypassEditWindow={canBypassWholesaleOrderEditWindow(
-            initialData.currentRole,
-          )}
           canManageEveryOrder={canManageEveryWholesaleOrder(
             initialData.currentRole,
           )}
           canReassignOrder={canAssignWholesaleSalesUser(
-            initialData.currentRole,
-          )}
-          canReviewOrderEditRequests={canReviewWholesaleOrderEditRequests(
             initialData.currentRole,
           )}
           currentRole={initialData.currentRole}
@@ -74,17 +66,11 @@ export function WholesaleClient({
           customersById={customersById}
           exchangeRates={initialData.exchangeRates}
           initialPage={initialData.orderPage}
-          onApproveOrderEditRequest={actions.approveOrderEditRequest}
           onMarkOrderSettled={actions.markOrderSettled}
           onCreateOrder={actions.createOrder}
           onDeleteOrderListAttachment={actions.deleteOrderListAttachment}
-          onRejectOrderEditRequest={actions.rejectOrderEditRequest}
-          onRequestOrderEdit={actions.requestOrderEdit}
           onUpdateOrder={actions.updateOrder}
           onUploadOrderListAttachments={actions.uploadOrderListAttachments}
-          orderEditWindowDays={
-            initialData.orderEditSettings.directEditWindowDays
-          }
           pendingKey={actions.pendingKey}
           profilesById={profilesById}
           salesAccounts={salesAccounts}

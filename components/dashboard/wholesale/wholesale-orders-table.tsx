@@ -1,6 +1,6 @@
 "use client";
 import { UiMessage } from "@/components/i18n/ui-message";
-import { CheckCircle2, LoaderCircle, PencilLine, Send } from "lucide-react";
+import { CheckCircle2, LoaderCircle, PencilLine } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,6 @@ import {
 } from "./wholesale-ui";
 export type WholesaleOrderEditAction = {
   label: string;
-  tone: "direct" | "request";
 };
 export type WholesaleOrdersTableProps = {
   canMarkOrderSettled: (order: WholesaleOrderListItem) => boolean;
@@ -219,17 +218,9 @@ export function WholesaleOrdersTable({
                           onClick={() => onOpenOrderEdit(order)}
                           size="compact"
                           type="button"
-                          variant={
-                            editAction.tone === "direct"
-                              ? "outline"
-                              : "secondary"
-                          }
+                          variant="outline"
                         >
-                          {editAction.tone === "direct" ? (
-                            <PencilLine className="size-3.5" />
-                          ) : (
-                            <Send className="size-3.5" />
-                          )}
+                          <PencilLine className="size-3.5" />
                           {editAction.label}
                         </Button>
                       ) : null}

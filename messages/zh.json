@@ -1098,7 +1098,7 @@
       },
       "settings": {
         "title": "批发业务设置",
-        "description": "维护批发订单修改规则、业务员提成和客户推荐佣金规则。"
+        "description": "维护批发订单业务员提成和客户推荐佣金规则。"
       }
     },
     "directoryUi": {
@@ -1140,8 +1140,7 @@
     },
     "ordersUi": {
       "actions": {
-        "edit": "修改订单",
-        "requestEdit": "申请修改"
+        "edit": "修改订单"
       },
       "statuses": {
         "unsettled": "未结汇",
@@ -2045,7 +2044,7 @@
       },
       "wholesale": {
         "title": "批发业务设置",
-        "description": "批发订单修改规则、业务员提成和客户推荐佣金"
+        "description": "批发订单业务员提成和客户推荐佣金"
       },
       "exchangeRates": {
         "title": "汇率",
@@ -4122,12 +4121,6 @@
     "components_dashboard_admin_people_admin_people_table": {
       "text001": " 备注："
     },
-    "components_dashboard_business_settings_wholesale_order_edit_settings_section": {
-      "attribute001": "订单修改规则",
-      "text002": " 保存规则 ",
-      "attribute002": "可直接修改天数",
-      "text001": " 按订单录入时间计算。填写 0 表示业务员提交后不能再直接修改。 "
-    },
     "components_dashboard_tourism_people_tourism_people_client": {
       "attribute004": "暂无权限",
       "attribute011": "账号状态",
@@ -4358,29 +4351,15 @@
       "text005": " 筛选条件已变化，建议重新生成评估。 "
     },
     "components_dashboard_wholesale_wholesale_order_change_sections": {
-      "text002": "客户",
-      "text006": "状态",
-      "text008": "操作",
       "text012": "客户",
       "text016": "时间",
-      "text010": " 退回 ",
       "text014": "操作方式",
-      "text001": "订单",
       "text011": "订单",
-      "text005": "说明",
-      "text004": "申请内容",
       "attribute006": "修改记录",
-      "text007": "申请时间",
       "text013": "操作人",
       "text015": "修改内容",
-      "text003": "申请人",
-      "text009": " 通过 ",
       "attribute008": "暂无修改记录",
-      "attribute002": "修改申请",
-      "attribute004": "暂无修改申请",
-      "attribute005": "每次直接修改或管理员通过申请后，系统都会保留一条记录。",
-      "attribute003": "当前没有等待处理的批发订单修改申请。",
-      "attribute001": "超过可直接修改天数后，业务员提交的订单修改会在这里等待处理。",
+      "attribute005": "每次修改订单后，系统都会保留修改前后内容和操作人。",
       "attribute007": "还没有批发订单修改记录。"
     },
     "components_dashboard_wholesale_wholesale_order_details_dialog": {
@@ -4398,6 +4377,9 @@
       "attribute001": "分组查看费用、利润、结汇、关联采购记录和备注。"
     },
     "components_dashboard_wholesale_wholesale_order_edit_dialog": {
+      "title": "修改批发订单",
+      "description": "保存后会记录本次修改。结汇请回到订单列表登记每一笔结汇记录。",
+      "saveAction": "保存修改",
       "attribute001": "客户名",
       "text001": "选择客户",
       "attribute002": "关联业务员",
@@ -4407,7 +4389,6 @@
       "attribute008": "快递公司",
       "attribute006": "其他费用",
       "attribute003": "小单数量",
-      "attribute015": "简单说明为什么需要修改，方便管理员处理。",
       "attribute009": "客户支付币种",
       "attribute012": "订单计入月份",
       "attribute011": "收款平台",
@@ -4415,8 +4396,7 @@
       "attribute010": "客户支付金额",
       "attribute007": "推荐佣金费用",
       "text004": "选择收款平台",
-      "attribute004": "产品采购金额",
-      "attribute014": "申请说明"
+      "attribute004": "产品采购金额"
     },
     "components_dashboard_wholesale_wholesale_order_filters": {
       "text004": "全部状态",

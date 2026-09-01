@@ -68,6 +68,7 @@ test.describe("legacy tourism business shutdown", () => {
   for (const role of [
     "administrator",
     "finance",
+    "operator",
     "salesman",
     "client",
   ] as const) {
@@ -79,6 +80,16 @@ test.describe("legacy tourism business shutdown", () => {
       await expect(page.locator("main")).toBeVisible();
     });
   }
+
+  test("operator wholesale orders stay usable at 390px", async ({ page }) => {
+    await page.setViewportSize({ height: 844, width: 390 });
+    const account = await loginAs(page, "operator");
+    await page.goto(`${account.workspacePath}/wholesale/orders`);
+
+    await expect(page).toHaveURL(/\/operator\/wholesale\/orders$/);
+    await expect(page.locator("main")).toBeVisible();
+    await expectNoDocumentHorizontalOverflow(page);
+  });
 
   test("forged tourism API request returns the stable unavailable result", async ({
     request,

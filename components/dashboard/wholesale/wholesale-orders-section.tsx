@@ -12,10 +12,7 @@ import { useWholesaleOrderListHandlers } from "./use-wholesale-order-list-handle
 import { WholesaleOrderAssessmentPanel } from "./wholesale-order-assessment-panel";
 import { WholesaleOrderChangeSections } from "./wholesale-order-change-sections";
 import { WholesaleOrderEditDialog } from "./wholesale-order-edit-dialog";
-import {
-  canCurrentUserManageWholesaleOrder,
-  getWholesaleOrderEditMode,
-} from "./wholesale-order-edit-rules";
+import { canCurrentUserManageWholesaleOrder } from "./wholesale-order-permissions";
 import { WholesaleOrderFiltersPanel } from "./wholesale-order-filters";
 import { WholesaleOrderFormDialog } from "./wholesale-order-form-dialog";
 import { WholesaleOrderSettlementDialog } from "./wholesale-order-rate-dialogs";
@@ -26,26 +23,20 @@ import type { WholesaleOrderEditAction } from "./wholesale-orders-table";
 import type { WholesaleOrdersSectionProps } from "./wholesale-orders-section-types";
 import { WholesalePageShell } from "./wholesale-ui";
 export function WholesaleOrdersSection({
-  canBypassEditWindow,
   canEdit,
   canManageEveryOrder,
   canReassignOrder,
-  canReviewOrderEditRequests,
   currentRole,
   currentUserId,
   customers,
   customersById,
   exchangeRates,
   initialPage,
-  onApproveOrderEditRequest,
   onCreateOrder,
   onDeleteOrderListAttachment,
   onMarkOrderSettled,
-  onRejectOrderEditRequest,
-  onRequestOrderEdit,
   onUpdateOrder,
   onUploadOrderListAttachments,
-  orderEditWindowDays,
   pendingKey,
   profilesById,
   salesAccounts,
@@ -103,21 +94,13 @@ export function WholesaleOrdersSection({
       ) {
         return null;
       }
-      return getWholesaleOrderEditMode({
-        canBypassEditWindow,
-        editWindowDays: orderEditWindowDays,
-        order,
-      }) === "direct"
-        ? { label: t("actions.edit"), tone: "direct" }
-        : { label: t("actions.requestEdit"), tone: "request" };
+      return { label: t("actions.edit") };
     },
     [
       canEdit,
-      canBypassEditWindow,
       canManageEveryOrder,
       currentUserId,
       customersById,
-      orderEditWindowDays,
       t,
     ],
   );
@@ -143,13 +126,6 @@ export function WholesaleOrdersSection({
     onUpload: onUploadOrderListAttachments,
     refreshAfter,
   });
-  const selectedEditMode = selectedEditOrder
-    ? getWholesaleOrderEditMode({
-        canBypassEditWindow,
-        editWindowDays: orderEditWindowDays,
-        order: selectedEditOrder,
-      })
-    : "direct";
   return (
     <WholesalePageShell
       actions={
@@ -220,19 +196,10 @@ export function WholesaleOrdersSection({
 
       {page?.canViewInternalFields ? (
         <WholesaleOrderChangeSections
-          canReviewRequests={canReviewOrderEditRequests}
           customersById={customersById}
           logs={page.orderChangeLogs}
-          onApproveRequest={(requestId) =>
-            refreshAfter(() => onApproveOrderEditRequest(requestId))
-          }
-          onRejectRequest={(requestId) =>
-            refreshAfter(() => onRejectOrderEditRequest(requestId))
-          }
           ordersById={viewData.ordersById}
-          pendingKey={pendingKey}
           profilesById={profilesById}
-          requests={page.orderEditRequests}
         />
       ) : null}
 
@@ -253,25 +220,17 @@ export function WholesaleOrdersSection({
         <WholesaleOrderEditDialog
           canReassignOrder={canReassignOrder}
           customers={customers}
-          editWindowDays={orderEditWindowDays}
           exchangeRates={exchangeRates}
-          key={`${selectedEditOrder.id}-${selectedEditMode}`}
-          mode={selectedEditMode}
+          key={selectedEditOrder.id}
           onOpenChange={(open) => {
             if (!open) setSelectedEditOrder(null);
           }}
-          onRequestOrderEdit={(formData) =>
-            refreshAfter(() => onRequestOrderEdit(formData))
-          }
           onUpdateOrder={(formData) =>
             refreshAfter(() => onUpdateOrder(formData))
           }
           open
           order={selectedEditOrder}
-          pending={
-            pendingKey === `order:update:${selectedEditOrder.id}` ||
-            pendingKey === `order:edit-request:${selectedEditOrder.id}`
-          }
+          pending={pendingKey === `order:update:${selectedEditOrder.id}`}
           salesAccounts={salesAccounts}
         />
       ) : null}

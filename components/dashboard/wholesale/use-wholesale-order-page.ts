@@ -134,10 +134,6 @@ function mergeWholesaleOrderPages(
   return {
     ...next,
     orderChangeLogs: mergeRows(current.orderChangeLogs, next.orderChangeLogs),
-    orderEditRequests: mergeRows(
-      current.orderEditRequests,
-      next.orderEditRequests,
-    ),
     orderListAttachments: mergeRows(
       current.orderListAttachments,
       next.orderListAttachments,
