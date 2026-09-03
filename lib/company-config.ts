@@ -5,7 +5,7 @@ export const companyConfig = {
   // 旧统一系统本次发布只开放批发业务；旅游恢复必须同时配套新的数据库迁移和完整验收。
   enabledBusinessKeys: ["wholesale"],
   logoSrc: "/images/pt5-logo.png",
-  supportEmail: "support@pt5china.com",
+  supportEmail: "support@pt5global.com",
   text: {
     en: {
       accountName: "PT5 account",
@@ -45,5 +45,29 @@ export function getCompanyText(locale: Locale): CompanyText {
 }
 
 export function getCompanyPublicOrigin() {
-  return process.env.NEXT_PUBLIC_SITE_URL || companyConfig.defaultPublicOrigin;
+  const configuredOrigin = process.env.NEXT_PUBLIC_SITE_URL;
+
+  if (!configuredOrigin) {
+    return companyConfig.defaultPublicOrigin;
+  }
+
+  try {
+    const url = new URL(configuredOrigin.trim());
+
+    if (
+      (url.protocol !== "https:" && url.protocol !== "http:") ||
+      url.username ||
+      url.password ||
+      url.pathname !== "/" ||
+      url.search ||
+      url.hash
+    ) {
+      return companyConfig.defaultPublicOrigin;
+    }
+
+    return url.origin;
+  } catch {
+    // 部署平台中的地址即使填写错误，也不能让登录、邮件确认等入口整体返回 500。
+    return companyConfig.defaultPublicOrigin;
+  }
 }

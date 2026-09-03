@@ -109,7 +109,7 @@ DEEPSEEK_MODEL=deepseek-v4-flash
 说明：
 
 - `NEXT_PUBLIC_*` 用于浏览器端和 SSR 访问 Supabase。
-- `NEXT_PUBLIC_SITE_URL` 用于邮箱确认等服务端回跳地址，线上应与 Supabase Auth 的 Site URL 保持一致；未配置时只允许默认线上域名和本地开发域名。
+- `NEXT_PUBLIC_SITE_URL` 用于邮箱确认等服务端回跳地址，线上必须填写包含 `https://` 的完整站点根地址，并与 Supabase Auth 的 Site URL 保持一致；未配置或格式无效时自动使用默认线上域名，避免确认邮件和退出登录入口返回 500。
 - `SUPABASE_SERVICE_ROLE_KEY` 只允许服务端脚本或受控管理任务使用，不能暴露到前端。
 - `EXCHANGE_RATE_API_KEY` 只配置为 Supabase Edge Function secret。
 - `LOGISTICS_SOURCE_ARCHIVE_API_URL` 和 `LOGISTICS_SOURCE_ARCHIVE_API_TOKEN` 只配置为 Supabase Edge Function secrets，用于把店小秘必要物流字段归档到主系统，不暴露到浏览器端；同步只调用来源项目的受控接口。
@@ -526,7 +526,7 @@ Supabase Auth 建议：
 - Site URL：线上站点根地址，当前线上为 `https://account.pt5global.com`；默认值集中在 `lib/company-config.ts`。
 - `NEXT_PUBLIC_SITE_URL` 应与线上 Site URL 保持一致；邮箱确认和退出登录路由只接受该域名、公司配置默认线上域名和本地开发域名作为回跳来源。
 - Redirect URLs：线上根地址、`/login`、`/auth/confirm`、`/forgot-password`，以及本地开发地址 `http://localhost:3000`、`http://localhost:3000/auth/confirm`、`http://localhost:3000/forgot-password`。
-- 账号邮件通过 Resend 自定义 SMTP 发送；发信域名为已验证的 `pt5global.com`，发件人为 `PT5 账号 <no-reply@pt5global.com>`。注册确认、邀请、登录验证、邮箱变更、密码重置和身份验证模板统一使用 PT5 品牌。
+- 账号邮件通过 Resend 自定义 SMTP 发送；发信域名为已验证的 `pt5global.com`，发件人为 `PT5 账号 <support@pt5global.com>`，该地址同时用于用户联系与邮件回复。注册确认、邀请、登录验证、邮箱变更、密码重置和身份验证模板统一使用 PT5 品牌。
 - `/auth/confirm` 统一处理注册确认和密码重置确认：`type=email` 成功后进入 `next` 指向的登录页；`type=recovery` 成功后进入 `/forgot-password?type=recovery` 设置新密码。
 - `/forgot-password?type=recovery` 是已验证重置邮件的专用入口：入口代理允许它携带恢复会话进入页面，页面服务端优先确认 Supabase JWT 的 `amr` 包含 `recovery`；本地 GoTrue 把恢复会话标记为 `otp` 时，还必须同时通过 `/auth/confirm` 写入的短期 HttpOnly 会话证明才展示新密码表单。普通登录会话手动拼接参数仍返回自己的工作台；令牌过期、链接无效或恢复会话丢失时统一显示重新发送邮件的入口，不能停在无限加载状态。
 - Confirm sign up 邮件模板使用自有域名确认路由：`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`，不要直接使用 `{{ .ConfirmationURL }}`，避免注册确认邮件里的主链接显示为 Supabase 项目域名。
@@ -534,7 +534,7 @@ Supabase Auth 建议：
 - Password recovery 邮件由登录页和账号中心共同触发，回跳地址固定为当前站点的 `/forgot-password`；Resend 显示 sent 只代表发信服务已接收或开始发送，delivered 只代表收件方服务器已接收，仍需结合 Resend Insights、收件箱、垃圾邮件和域名 DNS 认证状态判断最终可见性。
 - 注册和重置密码统一要求至少 10 位，并同时包含大写字母、小写字母和数字；前端表单校验要与 Supabase Auth 的 `minimum_password_length`、`password_requirements` 和 `secure_password_change` 配置保持一致。
 - 注册页只匿名调用 `get_signup_invite_context` 获取邀请码状态、建议业务和锁定状态，不读取推荐人资料；管理、批发、VIP、任务和触发器辅助 RPC 都在数据库侧撤销匿名执行权。
-- 自定义 SMTP 发件人使用可回复的业务邮箱，不使用 `noreply`。当前发件地址和发件名以公司配置和 Supabase Auth 设置为准。
+- 自定义 SMTP 发件地址固定为 `support@pt5global.com`，发件名固定为 `PT5 账号`；网页公司配置与 Supabase Auth 设置必须保持一致。
 
 ## 相关文档
 

@@ -60,6 +60,31 @@ test.describe("forgot password page", () => {
     ).toBeDisabled();
   });
 
+  test("invalid deployment origin still returns safe auth redirects", async ({
+    request,
+  }) => {
+    // 线上曾因 NEXT_PUBLIC_SITE_URL 漏写协议而返回 500。
+    // 这里模拟 CDN 传入正式域名，确认两个公开认证入口都能使用安全默认地址完成跳转。
+    const headers = { "x-forwarded-host": "account.pt5global.com" };
+    const confirmResponse = await request.get("/auth/confirm", {
+      headers,
+      maxRedirects: 0,
+    });
+    const signOutResponse = await request.get("/auth/sign-out", {
+      headers,
+      maxRedirects: 0,
+    });
+
+    expect(confirmResponse.status()).toBe(307);
+    expect(confirmResponse.headers().location).toBe(
+      "https://account.pt5global.com/login",
+    );
+    expect(signOutResponse.status()).toBe(307);
+    expect(signOutResponse.headers().location).toBe(
+      "https://account.pt5global.com/login",
+    );
+  });
+
   test("announces a rate-limit error immediately", async ({ page }) => {
     await page.route("**/auth/v1/recover**", async (route) => {
       await route.fulfill({

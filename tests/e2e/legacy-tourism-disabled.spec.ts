@@ -19,9 +19,16 @@ test.describe("legacy tourism business shutdown", () => {
     await expect(
       page.getByRole("heading", { name: "当前没有可使用的业务" }),
     ).toBeVisible();
+    const supportLink = page.getByRole("link", { name: "联系帮助邮箱" });
+    await expect(supportLink).toBeVisible();
+    await expect(supportLink).toHaveAttribute(
+      "href",
+      "mailto:support@pt5global.com",
+    );
     await expect(page.getByRole("link", { name: "退出登录" })).toBeVisible();
     await expect(page.locator("aside")).toHaveCount(0);
     await expect(page.getByTestId("ai-assistant-launcher")).toHaveCount(0);
+    await expectNoDocumentHorizontalOverflow(page);
 
     await page.getByRole("link", { name: "退出登录" }).click();
     await expect(page).toHaveURL(/\/login(?:[?#].*)?$/);
@@ -120,6 +127,12 @@ test.describe("legacy tourism business shutdown", () => {
     await expect(
       page.getByRole("heading", { name: "当前没有可使用的业务" }),
     ).toBeVisible();
+    const supportLink = page.getByRole("link", { name: "联系帮助邮箱" });
+    await expect(supportLink).toBeVisible();
+    await expect(supportLink).toHaveAttribute(
+      "href",
+      "mailto:support@pt5global.com",
+    );
     await expectNoDocumentHorizontalOverflow(page);
 
     await page.getByRole("link", { name: "退出登录" }).click();

@@ -1,15 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { getCompanyPublicOrigin } from "@/lib/company-config";
+import { getRequestPublicOrigin } from "@/lib/public-site-origin";
 
 const DEFAULT_SIGN_OUT_REDIRECT_PATH = "/login";
-const DEFAULT_PUBLIC_ORIGIN = getCompanyPublicOrigin();
-const LOCAL_PUBLIC_HOST_PATTERN = /^(?:localhost|127\.0\.0\.1)(?::\d+)?$/;
-const ALLOWED_PUBLIC_HOSTS = new Set(
-  [DEFAULT_PUBLIC_ORIGIN, process.env.NEXT_PUBLIC_SITE_URL]
-    .map(getOriginHost)
-    .filter((host): host is string => Boolean(host)),
-);
 const SUPABASE_AUTH_COOKIE_PATTERN =
   /^sb-.*-auth-token(?:\.\d+)?(?:-code-verifier)?$/;
 
@@ -23,7 +16,7 @@ export async function GET(request: NextRequest) {
 }
 
 function getSafeRedirectUrl(request: NextRequest) {
-  const publicOrigin = getPublicOrigin(request);
+  const publicOrigin = getRequestPublicOrigin(request);
   const nextPath =
     request.nextUrl.searchParams.get("next") ?? DEFAULT_SIGN_OUT_REDIRECT_PATH;
 
@@ -85,52 +78,4 @@ function getCookieDomains(hostname: string) {
 
   // 线上可能同时存在当前子域和根域 Cookie，因此两种域都写入过期值。
   return [hostname, `.${rootDomain}`];
-}
-
-function getPublicOrigin(request: NextRequest) {
-  const forwardedHost = getFirstHeaderValue(request.headers.get("x-forwarded-host"));
-  const host = normalizePublicHost(
-    forwardedHost ?? getFirstHeaderValue(request.headers.get("host")),
-  );
-
-  // 0.0.0.0 只能用来监听网卡，浏览器不应该把它当成可访问的登录地址。
-  // 如果请求头里的地址不可用，就退回到项目配置的公开地址。
-  if (!host || !isAllowedPublicHost(host)) {
-    return DEFAULT_PUBLIC_ORIGIN;
-  }
-
-  // 本地开发域名使用 http；线上公开域名统一使用 https。
-  const protocol = LOCAL_PUBLIC_HOST_PATTERN.test(host) ? "http" : "https";
-
-  return `${protocol}://${host}`;
-}
-
-function getFirstHeaderValue(value: string | null) {
-  return value?.split(",")[0]?.trim() || null;
-}
-
-function getOriginHost(origin: string | undefined) {
-  if (!origin) {
-    return null;
-  }
-
-  try {
-    return new URL(origin).host.toLowerCase();
-  } catch {
-    return null;
-  }
-}
-
-function normalizePublicHost(value: string | null) {
-  const host = value?.trim().toLowerCase();
-
-  if (!host || host.startsWith("0.0.0.0") || /[/?#@\\]/.test(host)) {
-    return null;
-  }
-
-  return host;
-}
-
-function isAllowedPublicHost(host: string) {
-  return ALLOWED_PUBLIC_HOSTS.has(host) || LOCAL_PUBLIC_HOST_PATTERN.test(host);
 }
