@@ -526,7 +526,7 @@ Supabase Auth 建议：
 - Site URL：线上站点根地址，当前线上为 `https://account.pt5global.com`；默认值集中在 `lib/company-config.ts`。
 - `NEXT_PUBLIC_SITE_URL` 应与线上 Site URL 保持一致；邮箱确认和退出登录路由只接受该域名、公司配置默认线上域名和本地开发域名作为回跳来源。
 - Redirect URLs：线上根地址、`/login`、`/auth/confirm`、`/forgot-password`，以及本地开发地址 `http://localhost:3000`、`http://localhost:3000/auth/confirm`、`http://localhost:3000/forgot-password`。
-- 账号邮件通过 Resend 自定义 SMTP 发送；发信域名为已验证的 `pt5global.com`，发件人为 `PT5 账号 <support@pt5global.com>`，该地址同时用于用户联系与邮件回复。注册确认、邀请、登录验证、邮箱变更、密码重置和身份验证模板统一使用 PT5 品牌。
+- 账号邮件通过 Resend 自定义 SMTP 发送；发信域名为已验证的 `pt5global.com`，发件人为 `PT5global <support@pt5global.com>`，该地址同时用于用户联系与邮件回复。注册确认、邀请、登录验证、邮箱变更、密码重置和身份验证模板统一使用 PT5 品牌。
 - `/auth/confirm` 统一处理注册确认和密码重置确认：`type=email` 成功后进入 `next` 指向的登录页；`type=recovery` 成功后进入 `/forgot-password?type=recovery` 设置新密码。
 - `/forgot-password?type=recovery` 是已验证重置邮件的专用入口：入口代理允许它携带恢复会话进入页面，页面服务端优先确认 Supabase JWT 的 `amr` 包含 `recovery`；本地 GoTrue 把恢复会话标记为 `otp` 时，还必须同时通过 `/auth/confirm` 写入的短期 HttpOnly 会话证明才展示新密码表单。普通登录会话手动拼接参数仍返回自己的工作台；令牌过期、链接无效或恢复会话丢失时统一显示重新发送邮件的入口，不能停在无限加载状态。
 - Confirm sign up 邮件模板使用自有域名确认路由：`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`，不要直接使用 `{{ .ConfirmationURL }}`，避免注册确认邮件里的主链接显示为 Supabase 项目域名。
@@ -534,7 +534,7 @@ Supabase Auth 建议：
 - Password recovery 邮件由登录页和账号中心共同触发，回跳地址固定为当前站点的 `/forgot-password`；Resend 显示 sent 只代表发信服务已接收或开始发送，delivered 只代表收件方服务器已接收，仍需结合 Resend Insights、收件箱、垃圾邮件和域名 DNS 认证状态判断最终可见性。
 - 注册和重置密码统一要求至少 10 位，并同时包含大写字母、小写字母和数字；前端表单校验要与 Supabase Auth 的 `minimum_password_length`、`password_requirements` 和 `secure_password_change` 配置保持一致。
 - 注册页只匿名调用 `get_signup_invite_context` 获取邀请码状态、建议业务和锁定状态，不读取推荐人资料；管理、批发、VIP、任务和触发器辅助 RPC 都在数据库侧撤销匿名执行权。
-- 自定义 SMTP 发件地址固定为 `support@pt5global.com`，发件名固定为 `PT5 账号`；网页公司配置与 Supabase Auth 设置必须保持一致。
+- 自定义 SMTP 发件地址固定为 `support@pt5global.com`，发件名固定为 `PT5global`；网页公司配置与 Supabase Auth 设置必须保持一致。
 
 ## 相关文档
 
