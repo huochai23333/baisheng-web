@@ -2,8 +2,9 @@ import type { AppRole } from "./auth-routing";
 
 const ACCOUNT_SWITCHER_STORAGE_VERSION = 2 as const;
 const ACCOUNT_SWITCHER_STORAGE_KEY =
-  "baisheng.account-switcher.v2.alternate";
-const ACCOUNT_SWITCHER_PENDING_KEY = "baisheng.account-switcher.v2.pending";
+  "pt5-dropshipping.account-switcher.v2.alternate";
+const ACCOUNT_SWITCHER_PENDING_KEY =
+  "pt5-dropshipping.account-switcher.v2.pending";
 
 export const ACCOUNT_SWITCHER_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const PENDING_LOGIN_TTL_MS = 30 * 60 * 1000;

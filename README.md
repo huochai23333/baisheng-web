@@ -1,21 +1,21 @@
-# PT5 系统 Web 前端
+# PT5 Dropshipping Web 前端
 
-PT5 系统 Web 端基于 `Next.js 16 App Router`、`React 19`、`TypeScript`、`Tailwind CSS 4`、`Supabase` 和 `next-intl` 构建。
+PT5 Dropshipping Web 端基于 `Next.js 16 App Router`、`React 19`、`TypeScript`、`Tailwind CSS 4`、`Supabase` 和 `next-intl` 构建。网站页面统一使用 `PT5` 品牌名称，仓库与本地技术标识使用 `PT5-dropshipping`，便于和 PT5-China、Steam 及官网项目区分。
 
-项目目录：`/home/huochai/project/system/baisheng-web`
+项目目录：`C:\code\system\PT5-dropshipping-web`
 
 ## 快速定位
 
-- Web 仓库：`/home/huochai/project/system/baisheng-web`
-- Supabase 目录：`/home/huochai/project/system/baisheng-supabase`
-- 本地测试账号：优先读取 `/home/huochai/project/system/baisheng-supabase/supabase/local-test-data.sql` 中的 `local.*@bs.test` 账号。
+- Web 仓库：`C:\code\system\PT5-dropshipping-web`
+- Supabase 仓库：`C:\code\system\PT5-dropshipping-supabase`
+- 本地测试账号：优先读取 `C:\code\system\PT5-dropshipping-supabase\supabase\local-test-data.sql` 中的 `local.*@bs.test` 账号。
 - Windows 旧资料目录如仍需查看，可从 `/mnt/c/...` 路径访问。
 
 说明：
 
-- `/home/huochai/project/system` 只是工作区容器，不是 Web Git 仓库。
-- Web 代码提交和推送只在 `baisheng-web` 目录执行。
-- 数据库迁移、Edge Function 和 Supabase secrets 以同级 `baisheng-supabase/supabase` 项目目录为准。
+- `C:\code\system` 只是工作区目录，不是 Web Git 仓库。
+- Web 代码提交和推送只在 `PT5-dropshipping-web` 目录执行。
+- 数据库迁移、Edge Function 和 Supabase secrets 以同级 `PT5-dropshipping-supabase\supabase` 项目目录为准。
 
 ## 技术栈
 
@@ -262,7 +262,7 @@ app/
 ## 目录约定
 
 ```text
-baisheng-web/
+PT5-dropshipping-web/
 ├─ app/
 ├─ components/
 │  ├─ auth/
@@ -444,7 +444,7 @@ baisheng-web/
 
 ## 数据与 Supabase
 
-- Web 仓库不保存数据库迁移源文件；迁移源在同级 `baisheng-supabase/supabase` 项目目录。
+- Web 仓库不保存数据库迁移源文件；迁移源在同级 `PT5-dropshipping-supabase\supabase` 项目目录。
 - Web 改动如果依赖新表、新字段、新 RPC 或 Edge Function，必须先在本地 Docker Supabase 验证，再按 Supabase 操作指南上传。
 - 批发物流由 Supabase `wholesale-logistics-sync` Edge Function 归档：每小时分别增量读取新增订单、物流状态更新和运费更新，每天从头核对来源当前窗口。页面打开后先显示已有档案，最近一小时没有成功更新时才请求一次刷新，并用数据库租约避免多人重复执行；失败时三路安全位置都不前进。首次上线配置来源接口后应手动执行一次完整同步。
 - 服务端先通过 Supabase Auth 验证令牌，再从数据库读取账号角色和状态；数据库上下文读取失败时不使用 Auth 元数据、Cookie 内容或客户端会话兜底放行。
@@ -483,7 +483,7 @@ baisheng-web/
 - `tests/e2e/wholesale-logistics.spec.ts` 覆盖永久档案全量筛选、分币种汇总、红色缺失运费、店铺历史归属、真实 50 条继续加载、管理员/业务员/财务/无入口角色权限，以及 1440px 和 390px 的横向溢出与文字挤压。
 - `tests/e2e/legacy-tourism-disabled.spec.ts` 覆盖旅游专属账号登录、旧旅游地址、未知地址、导航与邀请入口、伪造 API 请求，以及运营账号在桌面和 390px 宽度下进入批发订单工作区；批发工作流继续由原有批发专项用例覆盖。
 - 权限回归会检查有效越权账号仍可直接返回自己的首页；开发服务器输出不应出现 `Forbidden` 性能测量异常。当前使用 Next.js 最新稳定补丁，不采用 canary 或 preview 版本。
-- 测试账号优先读取 `E2E_*` 环境变量；未设置时，若当前 `.env.local` 指向本地 Supabase，则优先从同级 `supabase/local-test-data.sql`、`supabase/supabase/local-test-data.sql` 或 `baisheng-supabase/supabase/local-test-data.sql` 读取 `local.*@bs.test` 账号，再读取本机测试账号文件。
+- 测试账号优先读取 `E2E_*` 环境变量；未设置时，若当前 `.env.local` 指向本地 Supabase，则优先从同级 `supabase/local-test-data.sql`、`supabase/supabase/local-test-data.sql` 或 `PT5-dropshipping-supabase/supabase/local-test-data.sql` 读取 `local.*@bs.test` 账号，再读取本机测试账号文件。
 - 本地 Supabase 测试数据会生成 100 条最近 30 天内的批发订单，订单列表默认范围应能直接看到足够的订单样本；协作订单 `WH-PEER-LOCAL-001` 用于验证管理员、财务和两名业务员都只使用直接修改入口。当天汇率按上海业务日期写入，午夜后运行结汇回归也必须能匹配当天汇率。
 - 批发浏览器回归会拦截真实写请求，验证订单、附件、客户别名、账号合并、1688 导入、单条与批量认领组、物流店铺归属、推荐、结汇发布和结汇分配失败时表单保持打开、字段不丢失、反馈可见；结汇发布用例还覆盖同一收款分到多笔订单、部分分配、最早订单优先建议、整组重配、临时名称选择正式客户、清空二次确认，以及桌面和移动排版。1688 用例覆盖收货人和采购日期筛选、当前结果全选、多订单选择、认领组调整与撤销、刷新后持久化、四类角色权限以及桌面和移动排版。订单关联用例检查客户联动、编号金额、日期倒序、详情展示和关联单号搜索，物流用例单独检查永久档案统计与响应式布局。
 - 回归产物输出到 `output/playwright-results` 和 `output/playwright-report`，不提交。
@@ -519,7 +519,7 @@ Git 推送约定：
 - 推送前确认在 `main` 分支。
 - 只暂存本次相关文件。
 - 推送后用 `git ls-remote origin refs/heads/main` 确认远端 HEAD。
-- 详细流程以当前仓库和 `baisheng-supabase` 仓库 README 为准。
+- 详细流程以当前仓库和 `PT5-dropshipping-supabase` 仓库 README 为准。
 
 Supabase Auth 建议：
 
@@ -538,4 +538,4 @@ Supabase Auth 建议：
 
 ## 相关文档
 
-- `baisheng-supabase/README.md`
+- `PT5-dropshipping-supabase/README.md`

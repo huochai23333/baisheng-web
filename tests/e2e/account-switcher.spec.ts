@@ -4,8 +4,10 @@ import { getRegressionAccount } from "./helpers/accounts";
 import { loginAs, loginWithAccount, setTestLocale } from "./helpers/auth";
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000";
-const STORED_ACCOUNT_KEY = "baisheng.account-switcher.v2.alternate";
-const PENDING_LOGIN_KEY = "baisheng.account-switcher.v2.pending";
+const STORED_ACCOUNT_KEY =
+  "pt5-dropshipping.account-switcher.v2.alternate";
+const PENDING_LOGIN_KEY =
+  "pt5-dropshipping.account-switcher.v2.pending";
 
 test.describe("common account switching", () => {
   test("remembers the alternate account after reopening the browser", async ({

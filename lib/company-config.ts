@@ -8,16 +8,16 @@ export const companyConfig = {
   supportEmail: "support@pt5china.com",
   text: {
     en: {
-      accountName: "Baisheng account",
-      assistantName: "Baisheng Assistant",
+      accountName: "PT5 account",
+      assistantName: "PT5 Assistant",
       brandSubtitle: "Curated Management Workspace",
-      copyright: "© 2026 Baisheng System",
+      copyright: "© 2026 PT5 System",
       inviteAccessDescription:
         "An invite code is optional. Enter one to connect with your referrer, or continue directly without one.",
       productDescription:
-        "Sign-in, registration and workspace flows for the Baisheng System.",
-      productName: "Baisheng System",
-      registerAsideTitle: "Request Access to<br></br>Baisheng Workspace",
+        "Sign-in, registration and workspace flows for the PT5 System.",
+      productName: "PT5 System",
+      registerAsideTitle: "Request Access to<br></br>PT5 Workspace",
       registerHeaderTitle: "Create Your Account",
     },
     zh: {

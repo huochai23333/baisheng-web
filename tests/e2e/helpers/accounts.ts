@@ -267,7 +267,7 @@ function findLocalSeedPath() {
     path.resolve(
       process.cwd(),
       "..",
-      "baisheng-supabase",
+      "PT5-dropshipping-supabase",
       "supabase",
       "local-test-data.sql",
     ),

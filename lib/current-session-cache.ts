@@ -3,7 +3,8 @@ import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import type { AppRole } from "./auth-routing";
 import type { UserStatus } from "./auth-metadata";
 
-const SESSION_TRACKING_REGISTRY_KEY = "__baishengSessionTrackingRegistry__" as const;
+const SESSION_TRACKING_REGISTRY_KEY =
+  "__pt5DropshippingSessionTrackingRegistry__" as const;
 
 export type AppAccessContext = {
   role: AppRole | null;
