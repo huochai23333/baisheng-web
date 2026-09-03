@@ -98,7 +98,7 @@ npm run test:e2e
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
-NEXT_PUBLIC_SITE_URL=https://account.pt5china.com
+NEXT_PUBLIC_SITE_URL=https://account.pt5global.com
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 EXCHANGE_RATE_API_KEY=your-exchangerate-api-key
 DEEPSEEK_API_KEY=your-deepseek-api-key
@@ -523,9 +523,10 @@ Git 推送约定：
 
 Supabase Auth 建议：
 
-- Site URL：线上站点根地址，当前线上为 `https://account.pt5china.com`；默认值集中在 `lib/company-config.ts`。
+- Site URL：线上站点根地址，当前线上为 `https://account.pt5global.com`；默认值集中在 `lib/company-config.ts`。
 - `NEXT_PUBLIC_SITE_URL` 应与线上 Site URL 保持一致；邮箱确认和退出登录路由只接受该域名、公司配置默认线上域名和本地开发域名作为回跳来源。
 - Redirect URLs：线上根地址、`/login`、`/auth/confirm`、`/forgot-password`，以及本地开发地址 `http://localhost:3000`、`http://localhost:3000/auth/confirm`、`http://localhost:3000/forgot-password`。
+- 账号邮件通过 Resend 自定义 SMTP 发送；发信域名为已验证的 `pt5global.com`，发件人为 `PT5 账号 <no-reply@pt5global.com>`。注册确认、邀请、登录验证、邮箱变更、密码重置和身份验证模板统一使用 PT5 品牌。
 - `/auth/confirm` 统一处理注册确认和密码重置确认：`type=email` 成功后进入 `next` 指向的登录页；`type=recovery` 成功后进入 `/forgot-password?type=recovery` 设置新密码。
 - `/forgot-password?type=recovery` 是已验证重置邮件的专用入口：入口代理允许它携带恢复会话进入页面，页面服务端优先确认 Supabase JWT 的 `amr` 包含 `recovery`；本地 GoTrue 把恢复会话标记为 `otp` 时，还必须同时通过 `/auth/confirm` 写入的短期 HttpOnly 会话证明才展示新密码表单。普通登录会话手动拼接参数仍返回自己的工作台；令牌过期、链接无效或恢复会话丢失时统一显示重新发送邮件的入口，不能停在无限加载状态。
 - Confirm sign up 邮件模板使用自有域名确认路由：`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}`，不要直接使用 `{{ .ConfirmationURL }}`，避免注册确认邮件里的主链接显示为 Supabase 项目域名。

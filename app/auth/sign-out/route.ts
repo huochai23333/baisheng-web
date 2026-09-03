@@ -83,7 +83,7 @@ function getCookieDomains(hostname: string) {
 
   const rootDomain = parts.slice(-2).join(".");
 
-  // 线上可能使用 account.pt5china.com 或根域 Cookie，两种域都写过期值。
+  // 线上可能同时存在当前子域和根域 Cookie，因此两种域都写入过期值。
   return [hostname, `.${rootDomain}`];
 }
 
