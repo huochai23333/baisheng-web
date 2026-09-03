@@ -21,16 +21,16 @@ export const companyConfig = {
       registerHeaderTitle: "Create Your Account",
     },
     zh: {
-      accountName: "柏盛账号",
-      assistantName: "柏盛助手",
+      accountName: "PT5 账号",
+      assistantName: "PT5 助手",
       brandSubtitle: "精选管理工作台",
-      copyright: "© 2026 柏盛系统",
+      copyright: "© 2026 PT5 系统",
       inviteAccessDescription:
         "邀请码为选填项。有邀请码时可关联推荐人，没有邀请码也可以直接完成注册。",
-      productDescription: "柏盛系统的登录、注册与业务工作台。",
-      productName: "柏盛系统",
-      registerAsideTitle: "申请加入<br></br>柏盛工作台",
-      registerHeaderTitle: "注册柏盛账号",
+      productDescription: "PT5 系统的登录、注册与业务工作台。",
+      productName: "PT5 系统",
+      registerAsideTitle: "申请加入<br></br>PT5 工作台",
+      registerHeaderTitle: "注册 PT5 账号",
     },
   },
 } as const;

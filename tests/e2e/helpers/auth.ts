@@ -53,7 +53,7 @@ export async function setTestLocale(page: Page, locale: "en" | "zh") {
 
 export async function expectWorkspaceShell(page: Page) {
   await expect(
-    page.getByRole("heading", { name: "柏盛系统" }),
+    page.getByRole("heading", { name: "PT5 系统" }),
   ).toBeVisible();
   await expect(page.locator("main")).toBeVisible();
 }

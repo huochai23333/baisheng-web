@@ -1,6 +1,6 @@
-# 柏盛系统 Web 前端
+# PT5 系统 Web 前端
 
-柏盛系统 Web 端基于 `Next.js 16 App Router`、`React 19`、`TypeScript`、`Tailwind CSS 4`、`Supabase` 和 `next-intl` 构建。
+PT5 系统 Web 端基于 `Next.js 16 App Router`、`React 19`、`TypeScript`、`Tailwind CSS 4`、`Supabase` 和 `next-intl` 构建。
 
 项目目录：`/home/huochai/project/system/baisheng-web`
 
