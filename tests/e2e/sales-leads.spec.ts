@@ -67,6 +67,9 @@ test.describe.serial("sales lead hall", () => {
     await nextOwnerPage.getByTestId("submit-lead-use").click();
     await nextOwnerPage.getByRole("button", { name: "我已使用" }).click();
     await expect(nextOwnerPage.getByRole("heading", { name: leadName })).toBeVisible();
+    // 使用结果除了保留在历史里，也要在详情的当前进度中完整展示。
+    await openLead(nextOwnerPage, leadName);
+    await expect(nextOwnerPage.getByRole("region", { name: "跟进进度" }).getByText("客户已经提交首笔批发订单。", { exact: true })).toBeVisible();
 
     await firstContext.close();
     await peerContext.close();

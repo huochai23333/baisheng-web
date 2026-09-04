@@ -25,7 +25,15 @@ export function formatLeadCountdown(
 }
 
 export function toExternalHref(value: string) {
-  return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  // 来源可能填写文字而非网址；只为可确认的网页生成链接，避免把说明或危险协议当作地址。
+  const trimmed = value.trim();
+  if (!/^https?:\/\//i.test(trimmed) && !/^[\w-]+(?:\.[\w-]+)+(?:[/?#][^\s]*)?$/.test(trimmed)) return null;
+  try {
+    const url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+    return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password ? url.href : null;
+  } catch {
+    return null;
+  }
 }
 
 export function getLeadPrimaryContact(lead: SalesLead) {

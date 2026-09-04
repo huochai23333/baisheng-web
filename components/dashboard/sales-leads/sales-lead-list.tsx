@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock3, ExternalLink, Mail, MapPin, Phone, UserRound } from "lucide-react";
+import { Clock3, MapPin, UserRound } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,10 @@ import { MetaGrid, MetaItem, RecordCard } from "@/components/ui/data-display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { SalesLead } from "@/lib/sales-leads-types";
 
-import { formatLeadCountdown, formatLeadDate, toExternalHref } from "./sales-leads-display";
+import { formatLeadCountdown, formatLeadDate } from "./sales-leads-display";
+
+import { SalesLeadContactInfo } from "./sales-lead-contact-info";
+import { SalesLeadValue } from "./sales-lead-value";
 
 export function SalesLeadList({
   canManage,
@@ -61,19 +64,11 @@ export function SalesLeadList({
             </div>
           </div>
 
-          <MetaGrid className="mt-5 md:grid-cols-2">
+          <MetaGrid className="mt-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
             <MetaItem label={t("fields.country")}><MapPin className="size-4 shrink-0" />{lead.country}</MetaItem>
-            <MetaItem label={t("fields.email")}>
-              <Mail className="size-4 shrink-0" />
-              {lead.email ? <a className="break-all text-primary hover:underline" href={`mailto:${lead.email}`}>{lead.email}</a> : "—"}
-            </MetaItem>
-            <MetaItem label={t("fields.phone")}>
-              <Phone className="size-4 shrink-0" />
-              {lead.phone ? <a className="break-all text-primary hover:underline" href={`tel:${lead.phone}`}>{lead.phone}</a> : "—"}
-            </MetaItem>
-            <MetaItem label={t("fields.website")}>
-              {lead.website_url ? <a className="inline-flex min-w-0 items-center gap-1 break-all text-primary hover:underline" href={toExternalHref(lead.website_url)} rel="noreferrer" target="_blank"><span className="min-w-0 break-all">{lead.website_url}</span><ExternalLink className="size-3.5 shrink-0" /></a> : "—"}
-            </MetaItem>
+            <MetaItem label={t("fields.regionTimezone")}><SalesLeadValue value={lead.region_timezone} /></MetaItem>
+            <MetaItem label={t("fields.contactToday")}>{t(lead.contact_today ? "detail.recommendedToday" : "detail.normalSchedule")}</MetaItem>
+            <MetaItem label={t("fields.publicPricing")}><SalesLeadValue value={lead.public_pricing} /></MetaItem>
             {lead.status === "claimed" ? (
               <MetaItem label={t("fields.timeRemaining")}><Clock3 className="size-4 shrink-0" />{formatLeadCountdown(lead, now, {
                 expired: t("countdown.expired"),
@@ -84,6 +79,11 @@ export function SalesLeadList({
             {lead.assignee_name ? <MetaItem label={t("fields.assignee")}><UserRound className="size-4 shrink-0" />{lead.assignee_name}</MetaItem> : null}
             {lead.next_follow_up_at ? <MetaItem label={t("fields.nextFollowUp")}>{formatLeadDate(lead.next_follow_up_at, locale)}</MetaItem> : null}
             <MetaItem label={t("fields.sourceDate")}>{lead.latest_source_date}</MetaItem>
+          </MetaGrid>
+          <div className="mt-4 border-t border-border-subtle pt-4"><SalesLeadContactInfo lead={lead} /></div>
+          <MetaGrid className="mt-4 grid-cols-1 md:grid-cols-1 xl:grid-cols-1">
+            <MetaItem label={t("fields.targetCustomer")}><SalesLeadValue value={lead.target_customer} /></MetaItem>
+            <MetaItem label={t("fields.recommendedApproach")}><SalesLeadValue value={lead.recommended_approach} /></MetaItem>
           </MetaGrid>
         </RecordCard>
       ))}
