@@ -10,6 +10,7 @@ const adminNavItems = createNavItems([
   ["inventory-orders", "customerInventoryOrders"],
   ["settlement-releases", "settlementReleases"],
   ["order-claims", "orderClaims"],
+  ["leads", "salesLeads"],
   ["logistics", "logistics"],
   ["customers", "customers"],
   ["people", "people"],
@@ -34,6 +35,7 @@ const salesmanNavItems = createNavItems([
   ["inventory-orders", "customerInventoryOrders"],
   ["settlement-releases", "settlementReleases"],
   ["order-claims", "orderClaims"],
+  ["leads", "salesLeads"],
   ["logistics", "logistics"],
   ["customers", "customers"],
   ["vip", "vip"],
@@ -56,8 +58,19 @@ const managerNavItems = createNavItems([
 const operatorNavItems = createNavItems([["orders", "wholesaleOrders"]]);
 const recruiterNavItems = createNavItems([["referrals", "referrals"]]);
 
-// 财务承担完整日常批发协作，入口与业务员一致；人员和业务设置仍仅管理员可见。
-const financeNavItems = salesmanNavItems;
+// 财务继续参与订单、物流等日常协作，但客户联系方式和联系历史只向业务员开放。
+const financeNavItems = createNavItems([
+  ["orders", "wholesaleOrders"],
+  ["inventory-orders", "customerInventoryOrders"],
+  ["settlement-releases", "settlementReleases"],
+  ["order-claims", "orderClaims"],
+  ["logistics", "logistics"],
+  ["customers", "customers"],
+  ["vip", "vip"],
+  ["referrals", "referrals"],
+  ["commission", "commission"],
+  ["incentives", "incentives"],
+]);
 
 export const wholesaleWorkspaceBusinessModule: WorkspaceBusinessModule = {
   key: "wholesale",

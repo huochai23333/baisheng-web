@@ -517,6 +517,7 @@
       "feedback": "Feedback",
       "records": "Operation Records",
       "orderClaims": "Order Claims",
+      "salesLeads": "Leads",
       "incentives": "Incentives",
       "settlementReleases": "Settlement Releases",
       "logistics": "Logistics",
@@ -1067,6 +1068,10 @@
       "order-claims": {
         "title": "Order Claims",
         "description": "Receive 1688 purchase orders from files or automatic syncs so sales staff can claim them and assign them to the right customer. Original order data stays protected from casual edits."
+      },
+      "leads": {
+        "title": "Lead Hall",
+        "description": "Claim prospects, record contact results, and keep follow-ups moving before the deadline."
       },
       "logistics": {
         "title": "Logistics",
@@ -4105,6 +4110,32 @@
       "teamNotFound": "The target team no longer exists and may have been modified by someone else.",
       "unknown": "The team details could not be saved. Please try again later."
     }
+  },
+  "SalesLeads": {
+    "header": {"badge":"Customer leads","title":"Lead Hall","description":"Claim prospects, record every contact, and keep follow-ups moving before the deadline."},
+    "boards": {"hall":"Lead Hall","mine":"My Leads","used":"My Used Leads","allClaimed":"All Claimed"},
+    "priority": "Priority {priority}",
+    "status": {"hall":"In hall","claimed":"Claimed","used":"Used"},
+    "actions": {"claim":"Claim lead","details":"View details","addContact":"Record contact","return":"Return to hall","markUsed":"Mark as used","assign":"Assign salesperson","reopen":"Reopen","syncNow":"Sync now","cancel":"Cancel"},
+    "filters": {"searchLabel":"Search leads","searchPlaceholder":"Search name, country, email, or phone","assignee":"Filter by salesperson","allSalespeople":"All salespeople"},
+    "fields": {"country":"Country or region","email":"Email","phone":"Phone","whatsapp":"WhatsApp","website":"Website","publicContact":"Public contact details","recommendedApproach":"Suggested approach","timeRemaining":"Time remaining","assignee":"Current salesperson","nextFollowUp":"Next follow-up","sourceDate":"Lead date","channel":"Contact method","outcome":"Contact result","contactNote":"Contact note"},
+    "countdown": {"expired":"Expired","daysHours":"{days}d {hours}h","hoursMinutes":"{hours}h {minutes}m"},
+    "detail": {"description":"Public details and the complete progress history for this lead.","contactHistory":"Contact history","assignmentHistory":"Claim history","recordedBy":"Recorded by {name}","noContacts":"No contact has been recorded yet.","noAssignments":"No claim has been recorded yet."},
+    "channels": {"phone":"Phone","email":"Email","whatsapp":"WhatsApp","social":"Social platform","video":"Video call","other":"Other"},
+    "outcomes": {"reached":"Reached","no_reply":"No reply","interested":"Interested","follow_up":"Follow-up needed","not_interested":"Not interested","invalid_contact":"Invalid contact","other":"Other"},
+    "endReasons": {"voluntary_return":"Returned by salesperson","admin_return":"Returned by administrator","reassigned":"Reassigned","initial_timeout":"First contact overdue","follow_up_timeout":"Follow-up overdue","hard_deadline":"Claim period ended","used":"Confirmed as used","reopened":"Reopened by administrator"},
+    "dialogs": {
+      "contact": {"title":"Record this contact","description":"Every contact needs a result and note. Saved entries cannot be overwritten.","reasonLabel":"Contact note","notePlaceholder":"Describe the conversation, response, and next step","submit":"Save contact"},
+      "return": {"title":"Return lead to hall","description":"Another salesperson can claim it after it is returned.","reasonLabel":"Reason for return","notePlaceholder":"Explain why this lead is being returned","submit":"Confirm return"},
+      "use": {"title":"Mark as used","description":"Confirm that this lead has produced a real business result.","reasonLabel":"Result summary","notePlaceholder":"Describe the business result from this lead","submit":"Confirm used"},
+      "assign": {"title":"Assign salesperson","description":"Administrators can assign or change the salesperson responsible for this lead.","reasonLabel":"Assignment note","notePlaceholder":"Explain this assignment or reassignment","personPlaceholder":"Choose a salesperson","submit":"Confirm assignment"},
+      "reopen": {"title":"Reopen lead","description":"The lead will return to the hall for a new claim.","reasonLabel":"Reason for reopening","notePlaceholder":"Explain why this lead should be reopened","submit":"Confirm reopening"}
+    },
+    "states": {"emptyTitle":"No leads match these filters","emptyDescription":"Try another board or search.","noPermissionTitle":"Leads are unavailable","noPermissionDescription":"The lead hall is available only to administrators and salespeople."},
+    "list": {"title":"Lead list"},
+    "sync": {"lastSuccess":"Last successful sync","recentRuns":"Recent sync records","failed":"The last sync did not finish. The system will retry automatically."},
+    "pagination": {"previous":"Previous","next":"Next"},
+    "errors": {"unknown":"The action could not be completed. Please try again.","sales_lead_already_claimed":"Another salesperson just claimed this lead.","sales_lead_not_active":"This lead has expired or is no longer assigned to this account.","sales_lead_contact_not_owned":"You can record contact only for your current leads.","sales_lead_return_not_owned":"You can return only your current leads.","sales_lead_use_not_owned":"You can confirm only your current leads.","sales_lead_follow_up_must_be_future":"The next follow-up must be in the future.","sales_lead_reason_required":"Enter a note of at least two characters.","sales_lead_used_locked":"An administrator must reopen this used lead first.","sales_lead_assignee_invalid":"Choose an active salesperson.","sales_lead_read_not_allowed":"This account cannot view the lead."}
   },
   "UiText": {
     "shared": {

@@ -22,6 +22,7 @@ export function FormDialog({
   open,
   pending,
   submitLabel,
+  submitDisabled = false,
   submitTestId,
   title,
 }: {
@@ -35,6 +36,7 @@ export function FormDialog({
   open: boolean;
   pending: boolean;
   submitLabel: string;
+  submitDisabled?: boolean;
   submitTestId?: string;
   title: string;
 }) {
@@ -56,7 +58,7 @@ export function FormDialog({
           </Button>
           <Button
             data-testid={submitTestId}
-            disabled={pending}
+            disabled={pending || submitDisabled}
             onClick={onSubmit}
             type="button"
             wrap
