@@ -15,6 +15,7 @@ import type { SalesLeadBoard, SalesLeadPageData } from "@/lib/sales-leads-types"
 import { SalesLeadActionDialog } from "./sales-lead-action-dialog";
 import { SalesLeadDetailDialog } from "./sales-lead-detail-dialog";
 import { SalesLeadList } from "./sales-lead-list";
+import { SalesLeadRules } from "./sales-lead-rules";
 import { useSalesLeadsPage } from "./use-sales-leads-page";
 import { formatLeadDate } from "./sales-leads-display";
 
@@ -51,6 +52,7 @@ export function SalesLeadsClient({ initialData }: { initialData: SalesLeadPageDa
       presentation="overview"
       title={t("header.title")}
     />}>
+      <SalesLeadRules />
       <DashboardSegmentedTabs onChange={view.setBoard} options={boardOptions} pendingValue={view.pending === "refresh" ? view.board : null} value={view.board} />
       {view.data.canManage ? <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-2 rounded-record-card border border-border-subtle bg-surface-inset px-4 py-3 text-sm text-content-muted">
         <span>{t("sync.lastSuccess")}: {formatLeadDate(view.data.syncState?.last_successful_at ?? null, locale)}</span>

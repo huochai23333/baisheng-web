@@ -53,9 +53,9 @@ export function SalesLeadList({
               </p>
             </div>
             <div className="flex w-full shrink-0 flex-wrap gap-2 sm:w-auto sm:max-w-[52%] sm:justify-end">
-              {lead.status === "hall" && !canManage ? (
+              {lead.status === "hall" ? (
                 <Button data-testid={`claim-lead-${lead.id}`} disabled={pending === lead.id} onClick={() => onClaim(lead.id)} size="compact" wrap>
-                  {t("actions.claim")}
+                  {t(canManage ? "actions.claimForMe" : "actions.claim")}
                 </Button>
               ) : null}
               <Button disabled={pending === lead.id} onClick={() => onOpen(lead)} size="compact" variant="outline" wrap>

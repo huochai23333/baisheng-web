@@ -5,14 +5,15 @@ import type {
   WorkspaceWholesaleSectionKey,
 } from "./workspace-business-modules";
 
+// 管理员和业务员按“线索 → 客户 → 订单”的业务过程排列；桌面与手机共用此顺序。
 const adminNavItems = createNavItems([
+  ["leads", "salesLeads"],
+  ["customers", "customers"],
   ["orders", "wholesaleOrders"],
   ["inventory-orders", "customerInventoryOrders"],
   ["settlement-releases", "settlementReleases"],
   ["order-claims", "orderClaims"],
-  ["leads", "salesLeads"],
   ["logistics", "logistics"],
-  ["customers", "customers"],
   ["people", "people"],
   ["vip", "vip"],
   ["referrals", "referrals"],
@@ -31,13 +32,13 @@ const salesNavItems = createNavItems([
   ["incentives", "incentives"],
 ]);
 const salesmanNavItems = createNavItems([
+  ["leads", "salesLeads"],
+  ["customers", "customers"],
   ["orders", "wholesaleOrders"],
   ["inventory-orders", "customerInventoryOrders"],
   ["settlement-releases", "settlementReleases"],
   ["order-claims", "orderClaims"],
-  ["leads", "salesLeads"],
   ["logistics", "logistics"],
-  ["customers", "customers"],
   ["vip", "vip"],
   ["referrals", "referrals"],
   ["commission", "commission"],

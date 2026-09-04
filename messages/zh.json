@@ -4112,13 +4112,14 @@
     }
   },
   "SalesLeads": {
+    "rules": {"title":"认领与跟进规则","firstContact":{"title":"3 天内首次联系","description":"认领后 3 天内没有记录首次联系，线索会自动退回大厅。"},"followUp":{"title":"每 7 天持续跟进","description":"首次联系后，连续 7 天没有新的联系记录，线索会自动退回大厅。"},"claimPeriod":{"title":"每次认领最多 30 天","description":"认领满 30 天仍未标记已使用，即使持续联系，也会自动退回大厅。"},"shared":"管理员和业务员遵循相同规则。重新认领后开始新的周期，负责人可查看此前联系记录；认领数量不限。"},
     "header": {"badge":"客户线索","title":"线索大厅","description":"认领潜在客户、记录每次联系，并在有效期内持续推进。"},
     "boards": {"hall":"线索大厅","mine":"我的线索","used":"我已使用","allClaimed":"全部认领"},
     "priority": "{priority} 级",
     "status": {"hall":"大厅","claimed":"已认领","used":"已使用"},
-    "actions": {"claim":"认领线索","details":"查看详情","addContact":"记录联系","return":"退回大厅","markUsed":"标记已使用","assign":"安排业务员","reopen":"重新开放","syncNow":"立即同步","cancel":"取消"},
+    "actions": {"claimForMe":"认领给自己","claim":"认领线索","details":"查看详情","addContact":"记录联系","return":"退回大厅","markUsed":"标记已使用","assign":"安排业务员","reopen":"重新开放","syncNow":"立即同步","cancel":"取消"},
     "filters": {"searchLabel":"搜索线索","searchPlaceholder":"搜索名称、国家、邮箱或电话","assignee":"筛选业务员","allSalespeople":"全部业务员"},
-    "fields": {"country":"国家或地区","email":"邮箱","phone":"电话","whatsapp":"WhatsApp","website":"网站","publicContact":"公开联系方式","recommendedApproach":"建议联系方法","timeRemaining":"剩余联系时间","assignee":"当前业务员","nextFollowUp":"下次跟进","sourceDate":"线索日期","channel":"联系方法","outcome":"联系结果","contactNote":"联系备注","sourceId":"线索编号","category":"类型","regionTimezone":"所在地区与时区","priority":"联系优先级","contactToday":"今日联系建议","community":"社群入口","targetCustomer":"目标客户","publicPricing":"公开收费与门槛","talkingPoints":"联系话术","sourceUrl":"资料来源","sourceNotes":"注意事项","status":"当前状态","claimedAt":"认领时间","firstContact":"首次联系","lastContact":"最近联系","expiresAt":"本次联系截止","hardDeadline":"认领周期截止","usedAt":"使用时间","usedSummary":"使用结果"},
+    "fields": {"country":"国家或地区","email":"邮箱","phone":"电话","whatsapp":"WhatsApp","website":"网站","publicContact":"公开联系方式","recommendedApproach":"建议联系方法","timeRemaining":"剩余联系时间","assignee":"当前负责人","nextFollowUp":"下次跟进","sourceDate":"线索日期","channel":"联系方法","outcome":"联系结果","contactNote":"联系备注","sourceId":"线索编号","category":"类型","regionTimezone":"所在地区与时区","priority":"联系优先级","contactToday":"今日联系建议","community":"社群入口","targetCustomer":"目标客户","publicPricing":"公开收费与门槛","talkingPoints":"联系话术","sourceUrl":"资料来源","sourceNotes":"注意事项","status":"当前状态","claimedAt":"认领时间","firstContact":"首次联系","lastContact":"最近联系","expiresAt":"本次联系截止","hardDeadline":"认领周期截止","usedAt":"使用时间","usedSummary":"使用结果"},
     "countdown": {"expired":"已到期","daysHours":"{days} 天 {hours} 小时","hoursMinutes":"{hours} 小时 {minutes} 分钟"},
     "detail": {"description":"查看完整公开资料和跟进记录。","contactHistory":"联系记录","assignmentHistory":"认领记录","recordedBy":"记录人：{name}","noContacts":"还没有联系记录。","noAssignments":"还没有认领记录。","notProvided":"未提供","basicInfo":"基本资料","publicContacts":"公开联系方式","cooperation":"合作建议","sourceInfo":"来源与提醒","progress":"跟进进度","recommendedToday":"建议今天联系","normalSchedule":"按计划联系"},
     "channels": {"phone":"电话","email":"邮件","whatsapp":"WhatsApp","social":"社交平台","video":"视频通话","other":"其他方式"},
